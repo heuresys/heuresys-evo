@@ -1,9 +1,16 @@
 import 'dotenv/config';
 import express from 'express';
-import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import { logger } from './middleware/log.js';
 import { errorHandler } from './middleware/error.js';
+import {
+  hardenedHelmet,
+  rateLimitGeneral,
+  rateLimitAuth,
+  csrfHmac,
+  csrfTokenHandler,
+} from './middleware/security.js';
 import { healthRouter } from './routes/health.js';
 import { employeesRouter } from './routes/employees.js';
 import { authRouter } from './routes/auth.js';
@@ -21,20 +28,28 @@ app.disable('x-powered-by');
 app.set('trust proxy', 'loopback');
 
 app.use(logger);
-app.use(helmet());
+app.use(hardenedHelmet);
 app.use(
   cors({
     origin: corsOrigins.length > 0 ? corsOrigins : true,
     credentials: true,
   })
 );
+app.use(cookieParser());
+app.use(rateLimitGeneral);
 
 // IMPORTANT: Auth.js mounts its own raw body parser internally; mount the
-// router BEFORE express.json() to avoid double-parsing.
-app.use('/auth', authRouter);
+// router BEFORE express.json() to avoid double-parsing. /auth/* gets its own
+// stricter rate limit.
+app.use('/auth', rateLimitAuth, authRouter);
 
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+
+// CSRF endpoints + middleware. csrfHmac protects state-changing routes;
+// csrfTokenHandler issues the binding cookie + returns the derived token.
+app.get('/csrf', csrfTokenHandler);
+app.use(csrfHmac);
 
 app.use('/health', healthRouter);
 app.use('/employees', employeesRouter);
