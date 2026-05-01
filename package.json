@@ -19,7 +19,8 @@
     "build": "npm run build --workspaces --if-present",
     "dev": "npm run dev --workspaces --if-present --parallel",
     "clean": "npm run clean --workspaces --if-present",
-    "prepare": "husky"
+    "prepare": "husky",
+    "db:reset:test": "DATABASE_URL_TEST=${DATABASE_URL_TEST:-postgresql://heuresys:heuresys@localhost:5433/heuresys_test} db/scripts/reset-test.sh"
   },
   "engines": {
     "node": ">=20.0.0",

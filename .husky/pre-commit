@@ -5,9 +5,9 @@ set -e
 # Run lint-staged on staged files (lint, format)
 npx lint-staged --concurrent false
 
-# Inline secret scan (gitleaks-lite). Patterns built dynamically to avoid self-match
-# of this script when it's part of the staged set.
-P1="$(printf 'BEGIN' ' PRIVATE KEY' | tr -d ' ')"
+# Inline secret scan (gitleaks-lite). Patterns are concatenated from runtime
+# fragments so this script is not self-matching when staged.
+P1="$(printf 'BEGI'; printf 'N')[[:space:]]+([A-Z]+[[:space:]]+)?PRIVATE[[:space:]]+KEY"
 P2='sk-[a-zA-Z0-9]{32,}'
 P3='gho_[a-zA-Z0-9]{30,}'
 P4='ghp_[a-zA-Z0-9]{30,}'
@@ -25,4 +25,22 @@ if [ -n "$hits" ]; then
   echo "$hits" >&2
   echo "   Run with --no-verify only after manual review." >&2
   exit 1
+fi
+
+# B2.2 — schema drift gate. Run prisma-verify only if a schema.prisma is staged.
+schema_changes="$(git diff --cached --name-only | grep -E 'prisma/schema\.prisma$' || true)"
+if [ -n "$schema_changes" ]; then
+  if [ -z "${DATABASE_URL:-}" ]; then
+    echo "schema.prisma staged but DATABASE_URL not set — skipping prisma-verify." >&2
+    echo "   Export DATABASE_URL to enable schema drift check." >&2
+  else
+    for path in $schema_changes; do
+      ws="${path%/prisma/schema.prisma}"
+      echo "Running prisma-verify for $ws…" >&2
+      ./scripts/hardening/prisma-verify.sh "$ws" || {
+        echo "Schema drift detected. Resolve before commit." >&2
+        exit 1
+      }
+    done
+  fi
 fi
