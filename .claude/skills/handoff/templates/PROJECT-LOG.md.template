@@ -1,0 +1,49 @@
+# Project log
+
+> Append-only journal of every working session. Newest entries at the top.
+> User-facing changes go in `CHANGELOG.md`.
+
+---
+
+## {{date}} — Sessione {{session_n}} · {{topic}}
+
+**Duration**: ~{{duration}}h ({{duration_breakdown}})
+**Branch**: `{{branch}}`
+**Agent**: {{agent_model}}
+**Commits this session**: {{commits_count}}
+
+### Mandato
+
+{{mandato_paragraph}}
+
+### Tasks completati
+
+{{tasks_completed_list}}
+
+### Files changed
+
+```
+{{files_changed_stats}}
+```
+
+### Commits
+
+{{commits_list}}
+
+### Decisions
+
+{{decisions_list}}
+
+### Blockers / failures
+
+{{blockers_list_or_omit_section}}
+
+### Lezione operativa cross-project
+
+{{lessons_cross_project_or_omit_section}}
+
+### References
+
+{{references_list_or_omit_section}}
+
+---

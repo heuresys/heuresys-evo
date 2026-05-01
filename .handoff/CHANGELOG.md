@@ -1,0 +1,103 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+### Added
+
+- **Bucket-as-DB-git workflow** (architecture revision 2026-04-29): the OCI bucket `heuresys-evo-backups` becomes the SoT-as-git for the `.evo` DBMS. Object `latest.dump` = HEAD; timestamped objects = history. PC = SoT primario per i prossimi mesi. Working dir VM `~/heuresys-evo` è read-only (riceve pull, non pubblica). Soft-lock con version stamp impedisce push accidentali fuori sequenza.
+- **`db/scripts/oci-config.sh`** — sourceable: helpers OCI (`oci_upload`, `oci_download`, `oci_promote_latest`, `oci_object_modified`), autodetect DBMS locale (pc-docker | vm-docker | vm-baremetal), adapter `pg_dump_target`/`pg_restore_target`/`psql_target` con MSYS path-translation fix e pg_dump v16 pinning, read-only WD enforcement (rifiuta push da WD #4).
+- **`db/scripts/db-push.sh`** — pg_dump locale + upload OCI come `dump_<source>_<UTC-TS>.dump` + promote `latest.dump`. Soft-lock confronta `time-modified` bucket con `db/.last-pull-stamp`; rifiuta push se bucket più recente (override `--force`). Local retention 7.
+- **`db/scripts/db-pull.sh`** — download `latest.dump` (o `--object-name N`) + pre-restore safety dump (rotating, keep 3) + drop+create + pg_restore + reapply grants + smoke checks (mig=222, NextAuth, employees populate). Aggiorna `.last-pull-stamp`.
+- **`db/scripts/db-status.sh`** — read-only: confronto local DBMS vs bucket `latest.dump` con suggerimento (pull se bucket più recente).
+- **`db/scripts/db-history.sh`** — read-only: tabella oggetti bucket sorted by date.
+- **`db/scripts/evo-db`** — wrapper `evo-db {pull|push|status|history}`.
+- **OCI CLI on PC** installato via `pip install --user oci-cli` (3.81.0) in `C:\Users\enzospenuso\AppData\Roaming\Python\Python312\Scripts\oci.exe`.
+
+### Changed
+
+- **Schema unification 2026-04-29**: tutti e 3 i DBMS live (PC Docker, VM Docker 5433, VM bare-metal) ora condividono lo schema `.evo` (203 mig, max_v=222 con NextAuth). VM Docker 5433 riallineato via drop+restore da `latest.dump`.
+- **`backup-and-rotate.sh`** demoted a nightly safety snapshot: object naming `dump_vm_baremetal_cron_<TS>.dump`, NON aggiorna `latest.dump` (SoT è il PC).
+- **`db/README.md`** — riscritta sezione "Accesso al DBMS" → "Workflow OCI bucket-as-DB-git" con mappa working dir, comandi quick-ref, naming objects, retention.
+
+### Deprecated
+
+- **`db/scripts/{sync-replicas-ephemeral,align-replicas,check-freshness,replicas.config,install-freshness-task}`** — banner DEPRECATED 2026-04-29 aggiunto. Scadenza rimozione 2026-05-31. Sostituiti da `db/scripts/db-{push,pull,status,history}.sh`.
+- **`db/scripts/bootstrap-pc-docker-evo.sh`** — banner LEGACY 2026-04-29: resta come tool greenfield one-shot, ma per refresh container esistente preferire `evo-db pull`.
+
+### Removed
+
+- **PC Docker container `heuresys_evo_platform_db` (5433)** + volume `heuresys_evo_platform_db_data` (ridondante dopo schema unification).
+- **VM cron `heuresys-evo-freshness`** (Mon 08:00 UTC) — coperto dal workflow `evo-db status` on-demand.
+- **PC Task Scheduler `Heuresys-Evo-Sync`** — sostituito da workflow `evo-db pull/push` manuale.
+
+### Fixed
+
+- **OCI `os object copy` bug** (`KeyError: 'config'`) bypassato in `oci_promote_latest` via re-upload del file locale come `latest.dump` (più semplice e affidabile).
+
+- **`db/scripts/bootstrap-pc-docker-evo.sh`** (one-shot) — creates the `.evo` replica as a Docker container `heuresys_evo_db` on the PC: pulls `pgvector/pgvector:pg16` image, creates named volume `heuresys_evo_data`, restores the latest dump from the VM bare-metal leader via SCP+`pg_restore`. Idempotent guard refuses to overwrite an existing container without `--recreate`. Applies grants on all schemas with `ALTER DEFAULT PRIVILEGES FOR ROLE heuresys` (future-migration safe).
+- **`db/scripts/sync-replicas-ephemeral.sh`** (orchestrator) — platform-aware (Windows/Linux/macOS) lifecycle for the weekly multi-DBMS sync. On Windows: starts Docker Desktop if down → starts required containers → runs `align-replicas.sh --align-all --force` → runs `check-freshness.sh` → stops containers → quits Docker Desktop with `--quit` graceful + force-kill fallback (Stop-Process on `Docker Desktop`, `com.docker.backend`, `com.docker.build`, `docker-sandbox`) when `--quit` doesn't fully shut down. Resource-conscious for low-RAM hosts. On Linux: doesn't touch the system docker daemon, only manages containers.
+- **PC Task Scheduler `Heuresys-Evo-Sync`** (Mon 09:00 local) replaces previous `Heuresys-Evo-Align` and standalone `Heuresys-Evo-Freshness` PC. One weekly trigger that runs the full ephemeral pipeline.
+- **Replica `.evo` on PC**: `pc-docker-evo` registered in `replicas.config.sh` as `evo` tribe replica. Docker container `heuresys_evo_db` on `localhost:5432`. After install verified aligned with leader: 203 mig, max_v=222_nextauth_tables, 4 tenants, 270 employees, 14011 esco_skills, vector indices ok, RLS ok, NextAuth tables present.
+- **`db/scripts/test-restore.sh`** — disaster recovery rehearsal: restore latest backup dump to scratch DB, run 9 smoke checks (schema_migrations, tenants, employees, users, esco_skills, pgvector ext, vector indices, RLS policies, NextAuth tables), drop scratch. Exits 0 only if all checks pass. Picks the highest-version pg_restore available locally (forward-compatible with any pg_dump format). Bumps `maintenance_work_mem` to 256MB on scratch DB so ivfflat index rebuilds succeed.
+- **VM cron `heuresys-evo-dr-rehearsal`** (Mon 04:00 UTC) — automated weekly DR rehearsal log to `~/heuresys-evo-dr-rehearsal.log`.
+- **PC Task Scheduler `Heuresys-Evo-Align`** (Mon 09:00 local) — automated weekly replica alignment, runs `align-replicas.sh --align-all --force`. Log to `backups/local/align.log`.
+- **OCI native lifecycle policy `delete-after-30-days`** on `heuresys-evo-backups` bucket (enabled, target=objects, 30 days). Replaces the client-side rotation fallback. Backed by IAM policy `heuresys-evo-backups-lifecycle` (root compartment) granting `manage object-family` to `objectstorage-eu-milan-1` service principal scoped to the single bucket.
+- **OCI client-side rotation fallback** in `backup-and-rotate.sh` — kept in code, disabled by default (`OCI_RETENTION_ENABLED=0`). Re-enable only if native lifecycle is ever revoked.
+- **Bootstrap step 0** in CLAUDE.md to acknowledge claude-mem `SessionStart` auto-injection as complementary backdrop to `.handoff/` curated state (no duplication of recap)
+- **`Memory & tooling` section in CLAUDE.md** documenting the two complementary memory systems (`.handoff/` curated vs claude-mem auto-compressed) with note that `~/.claude-mem/` lives outside the repo
+- **services/app — Next.js 16 SaaS dashboard** with NextAuth v5 sign-in (`/login`), protected `/dashboard` server component fetching live employee data from api-gateway, public landing (`/`), Auth.js middleware with Edge-safe config split
+- **services/api-gateway — Express 5 + Prisma 5 + Auth.js (Express adapter)** with RLS-aware `/employees` paginated endpoint, `/health` DB ping, `/auth/*` ExpressAuth handler, JWT cross-service interop with shared AUTH_SECRET
+- **packages/ui — design system** Button (cva, 6 variants, asChild via Radix Slot), Card (composable), Input (forwardRef), Toast (Radix-backed) + Storybook 9 (Vite framework) + cn() helper + Tailwind 4 globals.css with @theme tokens
+- **Database migration 222** — NextAuth/Auth.js Prisma adapter tables (`account`, `session`, `verification_token`) with FK to `users(id)` ON DELETE CASCADE, indexes, and idempotency guards
+- **`withTenant(tenantId, fn)` Prisma helper** wrapping queries in a transaction with `SET LOCAL app.current_tenant_id` for RLS-aware multi-tenant access (api-gateway)
+- **Edge-safe NextAuth v5 config split** (`auth.config.ts` for middleware + `auth.ts` for handlers) to avoid Prisma in Edge runtime (services/app)
+- **Prisma client isolation per service** via `output = "./generated/client"` to prevent workspace-hoist overwrite collisions
+- **Two-phase Prisma schema prune script** (`scripts/prune-prisma-schema.sh`) reducing `db pull` output from 566 models to per-service allowlists (9 for api-gateway, 6 for app), automatically stripping dangling relation fields
+- Cross-service authenticated session pattern (shared `AUTH_SECRET` + default cookie name `authjs.session-token`)
+- Initial monorepo scaffold (services/marketing, app, api-gateway, enrichment, playground + packages/ui, shared)
+- ADR-0001 PostgreSQL bare-metal architectural decision
+- ADR-0002 testcontainers-node strategy for CI test database
+- ADR-0003 NextAuth v5 + Prisma adapter for .evo auth strategy (Accepted)
+- Bare-metal PostgreSQL 16.13 + pgvector 0.8.2 deployment scripts (Mac/Linux + Ubuntu OCI VM ARM64)
+- Hardened restore-baseline.sh with FORCE RLS bypass + multi-schema ALTER OWNER + vector indices memory tuning
+- Daily backup automation with retention 7 (`backup-and-rotate.sh` + cron via `install-cron.sh`)
+- Dedicated `heuresys_backup` role (BYPASSRLS, read-only) for backup operations
+- Multi-DBMS freshness check + replica alignment scripts (`check-freshness.sh`, `align-replicas.sh`, `replicas.config.sh`)
+- Project-scoped `handoff` skill with wiki-factory patterns + auto-handoff hook
+- CI workflow `ci.yml` (lint + typecheck + test with `--if-present`)
+- Baseline schema human-readable + binary dump from v1 LIVE container (2026-04-27 snapshot, 367MB)
+- Concrete code in `packages/shared` — Role enum (9 values + ROLE_RANK), permission helpers, Zod schemas (User, Employee, Tenant, Auth discriminated union, JwtPayload, SessionUser)
+
+### Changed
+
+- `services/marketing/package.json` declares `@heuresys/ui` workspace dependency (preparation for cross-service UI usage)
+- `services/api-gateway/src/auth.ts` session callback now surfaces `id`, `username`, `role`, `tenantId` from JWT token (for cross-service interop with services/app sign-ins)
+- Project CLAUDE.md extended with autonomous-execution mandate, Workflow Orchestration framework, Task Management practice (`tasks/todo.md`, `tasks/lessons.md`), and Core Principles (Simplicity First / No Laziness / Minimal Impact)
+
+### Deprecated
+
+- `services/app/src/middleware.ts` filename — Next 16 deprecated this convention in favor of `proxy.ts`. Functionality unchanged; rename pending.
+
+### Removed
+
+- Persistent SSH tunnel PC→VM (`Heuresys-Evo-PgTunnel` Task Scheduler + watchdog) and all `db/scripts/pg-tunnel-*.ps1` + `smoke-test-tunnel.mjs` scripts. Replaced by direct connection to Postgres bare-metal locale on PC port 5432 (install via `db/scripts/setup-local.sh` pending). Decision 2026-04-28 (Enzo).
+
+### Fixed
+
+- **MSYS path translation in Docker calls on Git Bash (Windows)** — `docker cp` and `docker exec` were passing `/tmp/...` paths into Win32 binaries which Git Bash silently rewrote to `D:\tmp\...` (host) or `C:/Users/.../Temp/...` (in-container). Fix: convert host-side path with `cygpath -w` before `docker cp`, prefix `docker exec pg_restore` with `MSYS_NO_PATHCONV=1` to leave the in-container path alone. Bug was hit during first `bootstrap-pc-docker-evo.sh` run.
+
+- **Backup outage 2026-04-28** — daily backup at 03:00 UTC produced 0-byte dumps because the `heuresys_backup` role lacked SELECT on the new NextAuth tables (`account`, `session`, `verification_token`) created by migration 222. Root cause: `ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO heuresys_backup` in `setup-vm.sh` / `setup-local.sh` was missing the `FOR ROLE heuresys` clause — the directive only applied to objects created by the `postgres` superuser, never by the application role that runs migrations. Fix: extended grant to all non-system schemas (`public`, `learning`, `analytics`) with explicit `FOR ROLE $DB_USER`. All future migrations will auto-grant SELECT to backup role.
+- **`backup-and-rotate.sh` pg_dump version mismatch** — Debian's `/usr/bin/pg_dump` is a `pg_wrapper` symlink that auto-picks the highest installed Postgres version. The VM has v16 (server) + v18 (client only), so the wrapper chose v18 and produced custom-format dumps v1.16 which `pg_restore` v16 refuses with `unsupported version (1.16) in file header`. Pinned `pg_dump` to `/usr/lib/postgresql/16/bin/pg_dump` for guaranteed v1.15 (server-matching) format. New dumps are forward-compatible with any pg_restore ≥ 16.
+
+### Security
+
+- Logging redact configured in `services/api-gateway` (pino-http) for `Authorization`, `Cookie`, `Set-Cookie` headers
+- Helmet middleware enabled on api-gateway with default CSP / strict-transport-security / frame-options
+- Auth secrets read exclusively from environment (no hardcoded `AUTH_SECRET` or `DATABASE_URL` in source)
+
+[Unreleased]: #

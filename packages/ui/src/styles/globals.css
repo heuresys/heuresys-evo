@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens (placeholder) — TBD by brand definition.
+ * Tokens use OKLCH for perceptual uniformity. Values picked to read well on
+ * white and dark backgrounds; replace once the official Heuresys palette is
+ * confirmed.
+ */
+@theme {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  --color-primary:        oklch(0.55 0.18 250);
+  --color-primary-fg:     oklch(1.00 0.00 0);
+  --color-destructive:    oklch(0.55 0.20 25);
+  --color-destructive-fg: oklch(1.00 0.00 0);
+}
+
+html, body {
+  font-family: var(--font-sans);
+}

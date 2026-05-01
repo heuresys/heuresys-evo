@@ -1,0 +1,75 @@
+# Handoff — {{project_name}}
+
+> Updated: {{date}} {{time}} (Sessione {{session_n}}) · See `PROJECT-STATE.md` for full state · See `PROJECT-LOG.md` for history
+
+## Recap last session
+
+{{recap_paragraph}}
+
+## Priorities for next session
+
+1. **{{priority_1_subject}}** ({{effort_1}})
+   {{priority_1_context}}
+   Files: `{{priority_1_files}}`
+   Done when: {{priority_1_acceptance}}
+
+2. **{{priority_2_subject}}** ({{effort_2}})
+   {{priority_2_context}}
+   Files: `{{priority_2_files}}`
+   Done when: {{priority_2_acceptance}}
+
+3. **{{priority_3_subject}}** ({{effort_3}})
+   {{priority_3_context}}
+   Files: `{{priority_3_files}}`
+   Done when: {{priority_3_acceptance}}
+
+> Effort scale: S (≤30 min) · M (~1-3h) · L (~3-6h) · XL (>6h, multi-session)
+
+## Open questions
+
+{{open_questions_list_or_none}}
+
+### Carry-forward (still open, exploratory)
+
+{{carry_forward_list_or_none}}
+
+## Known issues
+
+### {{known_issues_category_1}}
+
+{{known_issues_category_1_items}}
+
+### {{known_issues_category_2}}
+
+{{known_issues_category_2_items}}
+
+### Operational
+
+{{known_issues_operational_items}}
+
+> Severity scale: P0 blocker · P1 high (next session) · P2 medium · P3 low (later)
+
+## Verification commands
+
+### {{verification_area_1}}
+
+```bash
+{{verification_commands_area_1}}
+# → expected: {{expected_output_area_1}}
+```
+
+### {{verification_area_2}}
+
+```bash
+{{verification_commands_area_2}}
+# → expected: {{expected_output_area_2}}
+```
+
+## How to start the next session
+
+1. Read this file (you're doing it).
+2. Read `.handoff/PROJECT-STATE.md` for full architecture / components state.
+3. Scan `.handoff/auto/` for breadcrumbs newer than this file's mtime — if any, mention them to the user.
+4. Run verification commands above to confirm working state.
+5. Ask the user: "Continuiamo dalla priority #1, scegli un'altra, o qualcosa di nuovo?"
+6. Wait for direction before doing anything else.

@@ -1,0 +1,49 @@
+# Project state — {{project_name}}
+
+> Snapshot: {{date}} {{time}} · Engine version: {{engine_version}} · See `HANDOFF.md` for next steps
+
+## Overview
+
+{{overview_paragraph}}
+
+## Architecture
+
+```
+{{architecture_diagram}}
+```
+
+## Components
+
+| Component | Status | Notes |
+|---|---|---|
+{{components_table_rows}}
+
+> Status taxonomy: ✅ done · 🚧 in progress · ⏳ planned · 🧊 frozen · ⚠️ broken
+
+## Key files and paths
+
+{{key_files_list}}
+
+## Metrics
+
+| Metric | Value | Δ vs last session |
+|---|---|---|
+{{metrics_table_rows}}
+
+## Backlog (overflow from HANDOFF priorities)
+
+### {{backlog_category_1}}
+
+{{backlog_category_1_items}}
+
+### {{backlog_category_2}}
+
+{{backlog_category_2_items}}
+
+### Operational
+
+{{backlog_operational_items}}
+
+## Open questions (mirror from HANDOFF)
+
+{{open_questions_mirror}}

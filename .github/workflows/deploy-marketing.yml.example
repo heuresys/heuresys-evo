@@ -1,0 +1,33 @@
+# Deploy Marketing (landing pubblica) — STUB
+# Rinomina a `deploy-marketing.yml` quando pronto.
+#
+# name: Deploy Marketing
+#
+# on:
+#   push:
+#     branches: [main]
+#     paths:
+#       - 'services/marketing/**'
+#       - 'packages/ui/**'
+#       - 'packages/shared/**'
+#       - '.github/workflows/deploy-marketing.yml'
+#
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v4
+#       - uses: actions/setup-node@v4
+#         with:
+#           node-version: '20'
+#           cache: 'npm'
+#       - run: npm ci
+#       - run: npm run build -w services/marketing
+#       # TODO: scegli strategia deploy
+#       # Opzione A — Vercel CLI:
+#       # - run: npx vercel --prod --token=${{ secrets.VERCEL_TOKEN }} services/marketing
+#       # Opzione B — upload artifact su CDN statico:
+#       # - uses: actions/upload-artifact@v4
+#       #   with:
+#       #     name: marketing-dist
+#       #     path: services/marketing/.next/

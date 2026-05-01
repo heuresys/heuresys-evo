@@ -1,0 +1,21 @@
+# Prisma model allowlist for @heuresys/api-gateway.
+# Each non-comment, non-empty line is a model name (snake_case, matches DB
+# table). Models present in schema.prisma but not in this list will be
+# stripped by scripts/prune-prisma-schema.sh.
+#
+# This subset is the minimum viable surface for the api-gateway:
+#   - Identity & auth: users + Auth.js triplet (account, session, verification_token)
+#   - Tenancy: tenants, org_units
+#   - Domain core: employees, employee_skills, rbp_roles
+#
+# Extend by adding the model name on a new line, then `npm run prisma:refresh`.
+
+users
+employees
+tenants
+org_units
+account
+session
+verification_token
+employee_skills
+rbp_roles

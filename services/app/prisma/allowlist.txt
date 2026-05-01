@@ -1,0 +1,11 @@
+# Prisma model allowlist for @heuresys/app.
+# Smaller than api-gateway: services/app only directly touches authentication
+# data + the user/employee join needed in the JWT callback. Everything else
+# (employees, skills, etc.) goes through the api-gateway over HTTP.
+
+users
+employees
+tenants
+account
+session
+verification_token

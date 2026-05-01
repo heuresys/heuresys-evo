@@ -1,0 +1,25 @@
+# Baseline manifest — heuresys.com.evo
+# Source: v1 production (oracle-vm-default container heuresys_evo_platform_db)
+# Generated: 2026-04-27T15:08:24Z
+
+baseline_date: 2026-04-27
+schema_file: 000_baseline_schema_v1_2026-04-27.sql
+schema_size: 1.9M
+schema_sha256: 9c7a13941eca952f46c97b14ceecfbf69216aba69e2b121504318d0008ca5528
+
+binary_dump: ../../backups/from-vm/platform_db.dump
+binary_dump_size: 367M
+binary_dump_sha256: a30d82b8ea2d755697b033a3ddffe5501e6f549ced4d7807891230ae3ed03dab
+
+source_postgres_version: 16.13
+source_extensions: vector 0.8.2, ltree, pg_trgm, pgcrypto, plpgsql, uuid-ossp
+source_schemas: public, analytics, learning
+
+migrations_applied_count: 201
+migrations_max_version: 220
+
+notes:
+  - Replaces previous baseline of 2026-04-18 (archived in backups/from-vm/archive/)
+  - Migration 221_totp_secret_plain_drop is NOT applied (TOTP backfill prerequisite missing — 1 user with plain still)
+  - Tables count: 680 (public) + 6 (learning) + 0 (analytics)
+  - Key data: 270 employees, 4 tenants, 273 users, 14011 ESCO skills, 126051 ESCO occupation-skill relations
