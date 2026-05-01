@@ -155,3 +155,40 @@ export { MeshGradient, AuroraBackground, DotGrid, NoiseOverlay } from './compone
 export { TiltCard } from './components/tilt-card';
 export { Banner, type BannerProps } from './components/banner';
 export { LottiePlayer, type LottiePlayerProps } from './components/lottie-player';
+
+// === B-EXT TIER 4 — Charts/Viz ===
+export {
+  EChartsCard,
+  echartsPresets,
+  Sparkline,
+  WinLossSparkline,
+  RadialGauge,
+  ActivityRing,
+  LinearGauge,
+  NetworkGraph,
+  type EChartsCardProps,
+  type SparklineProps,
+  type RadialGaugeProps,
+  type ActivityRingProps,
+  type LinearGaugeProps,
+  type NetworkGraphProps,
+} from './components/charts';
+
+// === B-EXT TIER 6 — Forms avanzati ===
+export {
+  FormWizard,
+  PhoneInputField,
+  MoneyInput,
+  IbanInput,
+  TaxIdInput,
+  OtpInput,
+  PasswordStrengthMeter,
+  SignaturePadField,
+  FileDropzone,
+  type FormWizardStep,
+  type FormWizardProps,
+  type MoneyInputProps,
+  type OtpInputProps,
+  type SignaturePadFieldProps,
+  type FileDropzoneProps,
+} from './components/forms';
