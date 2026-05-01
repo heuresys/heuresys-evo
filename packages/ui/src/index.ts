@@ -192,3 +192,49 @@ export {
   type SignaturePadFieldProps,
   type FileDropzoneProps,
 } from './components/forms';
+
+// === B-EXT TIER 5 — Project mgmt & collaboration ===
+export {
+  KanbanBoard,
+  Timeline,
+  CommentThread,
+  CalendarGrid,
+  type KanbanCard,
+  type KanbanColumn,
+  type TimelineEvent,
+  type Comment,
+  type CalendarEvent,
+} from './components/collab';
+
+// === B-EXT TIER 7 — Media & viewer ===
+export {
+  VideoPlayer,
+  QRCodeView,
+  ImageGallery,
+  type VideoChapter,
+  type VideoCaption,
+  type VideoPlayerProps,
+  type GalleryImage,
+} from './components/media';
+
+// === B-EXT TIER 9 — File handling & data ops ===
+export { DiffViewer, JsonTree, type DiffLine } from './components/files';
+export {
+  parseCSV,
+  exportCSV,
+  parseExcel,
+  exportExcel,
+  parseJSON,
+  parseTOML,
+  parseXML,
+} from './lib/parsers';
+
+// === B-EXT TIER 10 — Markdown extensions ===
+export {
+  MarkdownView,
+  MermaidDiagram,
+  Admonition,
+  TableOfContents,
+  type AdmonitionVariant,
+  type TocItem,
+} from './components/markdown';
