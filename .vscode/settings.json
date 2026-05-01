@@ -1,0 +1,27 @@
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.organizeImports": "explicit"
+  },
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "eslint.workingDirectories": [{ "pattern": "services/*" }, { "pattern": "packages/*" }],
+  "files.eol": "\n",
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/.next": true,
+    "**/dist": true,
+    "**/.turbo": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/.next": true,
+    "**/dist": true,
+    "**/storybook-static": true,
+    "**/coverage": true,
+    "**/package-lock.json": true,
+    "**/.rtg-state-evo": true
+  }
+}

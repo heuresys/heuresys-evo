@@ -1,0 +1,15 @@
+* text=auto eol=lf
+
+# Binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.dump binary
+*.tar binary
+*.gz binary
+*.zip binary
+
+# Generated / lockfiles — exclude from diffs
+package-lock.json linguist-generated=true
