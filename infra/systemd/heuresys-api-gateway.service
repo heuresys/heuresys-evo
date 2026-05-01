@@ -1,0 +1,38 @@
+[Unit]
+Description=Heuresys evo — API Gateway (Express + Prisma + RBP)
+Documentation=https://github.com/heuresys/heuresys.com.evo/blob/main/docs/rtg-evo-log/2026-05-01-PH4-T8-rbp-middleware-port.md
+After=network-online.target postgresql.service redis.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/heuresys-evo/services/api-gateway
+EnvironmentFile=/home/ubuntu/heuresys-evo/services/api-gateway/.env
+Environment="NODE_ENV=production"
+Environment="PORT=8200"
+ExecStartPre=/usr/bin/npm run build --prefix /home/ubuntu/heuresys-evo/services/api-gateway
+ExecStart=/usr/bin/node /home/ubuntu/heuresys-evo/services/api-gateway/dist/index.js
+Restart=on-failure
+RestartSec=5
+KillMode=mixed
+KillSignal=SIGTERM
+TimeoutStopSec=30
+
+# Hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/home/ubuntu/heuresys-evo
+ProtectHome=read-only
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+
+# Logging
+StandardOutput=append:/var/log/heuresys-evo/api-gateway.log
+StandardError=append:/var/log/heuresys-evo/api-gateway.err
+
+[Install]
+WantedBy=multi-user.target

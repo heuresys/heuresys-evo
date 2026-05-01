@@ -15,7 +15,18 @@ import {
 import { healthRouter } from './routes/health.js';
 import { employeesRouter } from './routes/employees.js';
 import { authRouter } from './routes/auth.js';
+import { leavesRouter } from './routes/leaves.js';
+import { performanceReviewsRouter } from './routes/performance-reviews.js';
+import { auditLogsRouter } from './routes/audit-logs.js';
+import { escoRouter } from './routes/esco.js';
+import { adminTenantSchemaRouter } from './routes/admin-tenant-schema.js';
+import { setRBPCache, RBPCacheService } from './services/rbp-cache.js';
+import { prisma } from './db/pool.js';
 import './types.js';
+
+// Initialize RBP cache singleton at boot — backed by the Prisma client.
+// Routes that call requirePermission / getScopeCondition use this instance.
+setRBPCache(new RBPCacheService(prisma));
 
 const app = express();
 const PORT = Number(process.env.PORT ?? 8200);
@@ -58,6 +69,11 @@ app.use(csrfHmac);
 
 app.use('/health', healthRouter);
 app.use('/employees', employeesRouter);
+app.use('/leaves', leavesRouter);
+app.use('/performance-reviews', performanceReviewsRouter);
+app.use('/audit-logs', auditLogsRouter);
+app.use('/esco', escoRouter);
+app.use('/admin/tenant-schema-version', adminTenantSchemaRouter);
 
 // 404 catch-all (must be before errorHandler).
 app.use((_req, res) => {

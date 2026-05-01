@@ -22,7 +22,7 @@ export {
 } from './components/Toast';
 export { cn } from './lib/cn';
 
-// New B7 components
+// B7 base
 export { ThemeProvider, useTheme } from './components/theme-provider';
 export { ThemeToggle } from './components/theme-toggle';
 export {
@@ -81,3 +81,77 @@ export {
 export { FadeIn, SlideIn, ScaleIn, StaggerChildren, StaggerItem } from './components/motion';
 export { CommandPalette, useGlobalCmdK } from './components/command-palette';
 export { DataTable, type DataTableProps } from './components/data-table';
+
+// === B-EXT TIER 1 — Layout & navigazione admin ===
+export { PageHeader, type PageHeaderProps } from './components/page-header';
+export { FilterBar, type FilterChip, type FilterBarProps } from './components/filter-bar';
+export { AppShell, type AppShellNavItem, type AppShellProps } from './components/app-shell';
+export {
+  BentoGrid,
+  BentoCell,
+  type BentoGridProps,
+  type BentoCellProps,
+} from './components/bento-grid';
+export { Breadcrumbs, type BreadcrumbItem } from './components/breadcrumbs';
+export { Stepper, type StepperStep, type StepperProps } from './components/stepper';
+export { Pagination, type PaginationProps } from './components/pagination';
+export { FAB, type FABProps } from './components/fab';
+export { MobileBottomNav, type MobileNavItem } from './components/mobile-nav';
+export { TabsOverflow, type TabItem } from './components/tabs-overflow';
+export { AppSwitcher, type AppSwitcherApp } from './components/app-switcher';
+export { MegaMenu, type MegaMenuColumn, type MegaMenuTrigger } from './components/mega-menu';
+
+// === B-EXT TIER 2 — Brand identity & theming ===
+export {
+  ThemeBuilderWizard,
+  STARTER_PRESETS,
+  findPreset,
+  DEFAULT_THEME_STATE,
+  exportTokensCss,
+  exportTailwindConfig,
+  exportTokensJson,
+  exportFigmaTokens,
+  exportThemeProvider,
+  downloadAsFile,
+  type ThemePreset,
+  type BrandIdentity,
+  type ColorSystem,
+  type ColorModes,
+  type Typography as TypographyConfig,
+  type SpacingLayout,
+  type MotionConfig,
+  type EffectsConfig,
+  type IconographyConfig,
+  type ThemeBuilderState,
+} from './components/ThemeBuilderWizard';
+export { GlassCard, type GlassCardProps } from './components/glass-card';
+export { NeumorphicCard, type NeumorphicCardProps } from './components/neumorphic-card';
+export {
+  oklch,
+  toCss as oklchToCss,
+  toHex as oklchToHex,
+  toRgb as oklchToRgb,
+  luminance as oklchLuminance,
+  contrastRatio as oklchContrast,
+  simulateColorBlind as oklchSimulateColorBlind,
+  harmony as oklchHarmony,
+  buildScale as oklchBuildScale,
+  type OKLCH,
+} from './lib/oklch';
+
+// === B-EXT TIER 3 — Wow factor & micro-interactions ===
+export { StatsCard, type StatsCardProps } from './components/stats-card';
+export { ActivityFeed, type ActivityFeedItem } from './components/activity-feed';
+export { NotificationCenter, type Notification } from './components/notification-center';
+export { useConfetti, ConfettiButton } from './components/confetti';
+export { AchievementBadge, type AchievementBadgeProps } from './components/achievement-badge';
+export { OnboardingTour, type TourStep } from './components/onboarding-tour';
+export {
+  KeyboardShortcutsModal,
+  useShortcutsModal,
+  type ShortcutGroup,
+} from './components/keyboard-shortcuts-modal';
+export { MeshGradient, AuroraBackground, DotGrid, NoiseOverlay } from './components/backgrounds';
+export { TiltCard } from './components/tilt-card';
+export { Banner, type BannerProps } from './components/banner';
+export { LottiePlayer, type LottiePlayerProps } from './components/lottie-player';

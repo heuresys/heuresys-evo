@@ -15,5 +15,10 @@ if echo "$first_line" | grep -qE '^\[RTGB\](\[REVERT\]|\[PH[0-9]+-T[A-Za-z0-9.]+
   exit 0
 fi
 
+# Accept RTGB-EXT signature: [RTGB-EXT][BATCHn] type: subject (extension plan)
+if echo "$first_line" | grep -qE '^\[RTGB-EXT\](\[REVERT\]|\[BATCH[0-9]+\]|\[TIER[0-9]+\]) [a-z]+(\([a-z0-9-]+\))?: .+'; then
+  exit 0
+fi
+
 # Otherwise enforce conventional commits via commitlint
 exec npx --no -- commitlint --edit "$msg_file"

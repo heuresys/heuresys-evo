@@ -1,0 +1,39 @@
+[Unit]
+Description=Heuresys evo — services/app (Next.js standalone)
+Documentation=https://github.com/heuresys/heuresys.com.evo/blob/main/docs/rtg-evo-log/2026-05-01-PH4-T10-endpoint-port-p0.md
+After=network-online.target heuresys-api-gateway.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/heuresys-evo/services/app
+EnvironmentFile=/home/ubuntu/heuresys-evo/services/app/.env
+Environment="NODE_ENV=production"
+Environment="PORT=3200"
+Environment="NEXT_TELEMETRY_DISABLED=1"
+ExecStartPre=/usr/bin/npm run build --prefix /home/ubuntu/heuresys-evo/services/app
+ExecStart=/usr/bin/node /home/ubuntu/heuresys-evo/services/app/.next/standalone/services/app/server.js
+Restart=on-failure
+RestartSec=5
+KillMode=mixed
+KillSignal=SIGTERM
+TimeoutStopSec=30
+
+# Hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/home/ubuntu/heuresys-evo
+ProtectHome=read-only
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+
+# Logging
+StandardOutput=append:/var/log/heuresys-evo/app.log
+StandardError=append:/var/log/heuresys-evo/app.err
+
+[Install]
+WantedBy=multi-user.target

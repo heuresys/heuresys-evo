@@ -20,24 +20,35 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 /**
- * Run `fn` inside a transaction with `app.tenant_id` set to `tenantId`.
+ * Run `fn` inside a transaction with `app.current_tenant_id` set to `tenantId`.
  *
- * This is the multi-tenant access pattern that will pair with PostgreSQL
- * Row-Level Security policies once we enable RLS on domain tables. The
- * `SET LOCAL` is scoped to the transaction, so it does not leak across
- * requests sharing the same connection.
+ * This is the multi-tenant access pattern paired with PostgreSQL Row-Level
+ * Security. The `SET LOCAL` is scoped to the transaction, so it does not leak
+ * across requests sharing the same connection.
+ *
+ * Defense-in-depth: this is the **DB layer**. The application layer adds a
+ * second filter via `getScopeCondition()` from `middleware/rbac.ts`, which can
+ * be merged into the Prisma where clause via `mergeScopedWhere()` below.
+ * Both layers must independently enforce isolation.
+ *
+ * Status post-Cantiere-B: 605 ENABLE ROW LEVEL SECURITY + 326 CREATE POLICY
+ * are present in `db/baseline/000_baseline_schema_v1_2026-04-27.sql`. RLS is
+ * active. The application user (PLATFORM_DB_APP_USER) must be non-superuser
+ * for RLS to take effect — see ADR-0001 + db/scripts/rls-coverage.sql.
  *
  * Usage:
  *   const employees = await withTenant(req.tenantId, (tx) =>
- *     tx.employees.findMany({ take: 10 })
+ *     tx.employees.findMany({ where: mergeScopedWhere(scopeCond, { is_active: true }) })
  *   );
- *
- * Note: in A3 RLS is not yet active on these tables, so this helper acts
- * as documentation + future-proofing. It is harmless to call now.
  */
 export async function withTenant<T>(
   tenantId: string,
-  fn: (tx: Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'>) => Promise<T>
+  fn: (
+    tx: Omit<
+      PrismaClient,
+      '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'
+    >
+  ) => Promise<T>
 ): Promise<T> {
   return prisma.$transaction(async (tx) => {
     // The GUC name is mandated by the existing RLS function
@@ -48,4 +59,25 @@ export async function withTenant<T>(
     );
     return fn(tx);
   });
+}
+
+/**
+ * Merge an RBP scope condition (from `getScopeCondition()`) with a caller-supplied
+ * Prisma where fragment. Returns a single object suitable for `findMany({ where })`.
+ *
+ * Special-case: deny-all sentinel `{ id: '__deny_all__' }` from getScopeCondition
+ * is preserved — Prisma matches no rows for that id, equivalent to denying access.
+ *
+ * Usage:
+ *   const where = mergeScopedWhere(
+ *     getScopeCondition(scope, { tenantId, employeeId, managedDepartmentIds }),
+ *     { is_active: true, employment_status: 'active' },
+ *   );
+ */
+export function mergeScopedWhere<T extends Record<string, unknown>>(
+  scopeCond: Record<string, unknown>,
+  baseWhere: T
+): T & Record<string, unknown> {
+  if (Object.keys(scopeCond).length === 0) return baseWhere;
+  return { ...baseWhere, ...scopeCond };
 }
