@@ -7,11 +7,7 @@ export const metadata: Metadata = {
     'SaaS B2B per governare processi, struttura, ruoli, competenze e performance attraverso un Knowledge Graph ESCO bilingue.',
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="it">
       <body className="antialiased">{children}</body>
