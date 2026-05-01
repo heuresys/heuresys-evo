@@ -17,7 +17,8 @@
     "prisma:prune": "bash scripts/prune-prisma-schema.sh",
     "prisma:generate": "prisma generate --schema prisma/schema.prisma",
     "prisma:refresh": "npm run prisma:pull && npm run prisma:prune && npm run prisma:generate",
-    "clean": "rimraf .next out node_modules/.cache"
+    "clean": "rimraf .next out node_modules/.cache",
+    "test:e2e": "playwright test --config=playwright.config.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.2",
@@ -32,14 +33,22 @@
     "zod": "^3.24.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.59.1",
     "@tailwindcss/postcss": "4.2.4",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/bcryptjs": "3.0.0",
+    "@types/jest-axe": "^3.5.9",
     "@types/node": "25.6.0",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
+    "@vitejs/plugin-react": "^5.2.0",
     "@vitest/coverage-v8": "2.1.9",
     "eslint": "10.2.1",
     "eslint-config-next": "16.2.4",
+    "jest-axe": "^10.0.0",
+    "jsdom": "^29.1.1",
     "postcss": "8.5.12",
     "prisma": "5.22.0",
     "tailwindcss": "4.2.4",
