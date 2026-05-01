@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import { logger } from './middleware/log.js';
 import { errorHandler } from './middleware/error.js';
+import { metricsMiddleware, metricsHandler } from './middleware/metrics.js';
 import {
   hardenedHelmet,
   rateLimitGeneral,
@@ -28,7 +29,11 @@ app.disable('x-powered-by');
 app.set('trust proxy', 'loopback');
 
 app.use(logger);
+app.use(metricsMiddleware);
 app.use(hardenedHelmet);
+
+// Prometheus exposition (no auth, no rate limit — scraped by Prometheus).
+app.get('/metrics', metricsHandler);
 app.use(
   cors({
     origin: corsOrigins.length > 0 ? corsOrigins : true,
