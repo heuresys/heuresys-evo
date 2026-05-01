@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# RTGB pre-commit gate — lint-staged + secret scan
+set -e
+
+# Run lint-staged on staged files (lint, format)
+npx lint-staged --concurrent false
+
+# Inline secret scan (gitleaks-lite). Patterns built dynamically to avoid self-match
+# of this script when it's part of the staged set.
+P1="$(printf 'BEGIN' ' PRIVATE KEY' | tr -d ' ')"
+P2='sk-[a-zA-Z0-9]{32,}'
+P3='gho_[a-zA-Z0-9]{30,}'
+P4='ghp_[a-zA-Z0-9]{30,}'
+P5='AKIA[0-9A-Z]{16}'
+P6='xox[bpoa]-[a-zA-Z0-9-]{20,}'
+RE="${P1}|${P2}|${P3}|${P4}|${P5}|${P6}"
+
+# Skip self (.husky/) and known non-secret paths (docs about secrets allowed)
+hits="$(git diff --cached --name-only -z \
+  | xargs -0 -I{} bash -c 'case "$1" in .husky/*|docs/*) ;; *) printf "%s\0" "$1";; esac' _ {} \
+  | xargs -0 -r grep -lE "$RE" 2>/dev/null || true)"
+
+if [[ -n "$hits" ]]; then
+  echo "Possible secret detected in staged files:" >&2
+  echo "$hits" >&2
+  echo "   Run with --no-verify only after manual review." >&2
+  exit 1
+fi

@@ -1,0 +1,14 @@
+node_modules/
+dist/
+build/
+coverage/
+.next/
+out/
+storybook-static/
+*.tsbuildinfo
+package-lock.json
+.handoff/
+backups/
+db/baseline/
+db/migrations/
+.rtg-state-evo/

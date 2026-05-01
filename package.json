@@ -18,13 +18,19 @@
     "test:integration": "npm run test:integration --workspaces --if-present",
     "build": "npm run build --workspaces --if-present",
     "dev": "npm run dev --workspaces --if-present --parallel",
-    "clean": "npm run clean --workspaces --if-present"
+    "clean": "npm run clean --workspaces --if-present",
+    "prepare": "husky"
   },
   "engines": {
     "node": ">=20.0.0",
     "npm": ">=10.0.0"
   },
   "devDependencies": {
-    "pg": "^8.20.0"
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.5.2",
+    "pg": "^8.20.0",
+    "prettier": "^3.8.3"
   }
 }
