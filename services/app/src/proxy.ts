@@ -1,20 +1,22 @@
-import NextAuth from 'next-auth';
-import { NextResponse } from 'next/server';
-import { authConfig } from '@/lib/auth.config';
+import { NextResponse, type NextRequest } from 'next/server';
+import { getToken } from 'next-auth/jwt';
 
 /**
- * Auth.js v5 proxy (Next.js 16 file convention; was middleware.ts pre-16) —
- * protects (protected) route segment.
+ * NextAuth v4 proxy (Next.js 16 file convention; was middleware.ts pre-16) —
+ * protects the (protected) route segment by inspecting the JWT cookie
+ * directly via `getToken`. Edge-runtime safe (no Prisma, no Node-only deps).
  *
- * Uses the Edge-safe authConfig (no Prisma) since this file runs in the
- * Next.js Edge runtime. The full Credentials + DB lookup lives in auth.ts,
- * which is only loaded by the API route handler.
+ * Cookie name `authjs.session-token` is forced in auth.config.ts so the
+ * gateway (Auth.js v5) can decode the same cookie.
  */
-const { auth } = NextAuth(authConfig);
-
-export default auth((req) => {
-  const { nextUrl, auth: session } = req;
-  const isAuthed = !!session?.user;
+export default async function middleware(req: NextRequest) {
+  const { nextUrl } = req;
+  const token = await getToken({
+    req,
+    secret: process.env.AUTH_SECRET,
+    cookieName: 'authjs.session-token',
+  });
+  const isAuthed = !!token;
 
   const isProtected = nextUrl.pathname.startsWith('/dashboard');
   const isAuthPage = nextUrl.pathname === '/login';
@@ -26,7 +28,7 @@ export default auth((req) => {
     return NextResponse.redirect(new URL('/dashboard', nextUrl.origin));
   }
   return NextResponse.next();
-});
+}
 
 export const config = {
   matcher: ['/((?!api/auth|_next/static|_next/image|favicon.ico).*)'],

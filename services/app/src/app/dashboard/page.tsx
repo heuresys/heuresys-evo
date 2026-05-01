@@ -1,14 +1,15 @@
 import { headers } from 'next/headers';
-import { auth, signOut } from '@/lib/auth';
+import { auth } from '@/lib/auth';
+import { SignOutButton } from './sign-out-button';
 
 /**
  * /dashboard — server component that calls the api-gateway /employees
  * endpoint, forwarding the inbound session cookie so the gateway can
  * authenticate the same caller.
  *
- * Cookie name `authjs.session-token` is the shared default of NextAuth v5
- * and @auth/express; AUTH_SECRET is also shared, so the gateway can decode
- * and validate the cookie without any extra round-trip.
+ * Cookie name is forced to `authjs.session-token` in lib/auth.config.ts so
+ * the gateway (Auth.js v5 family via @auth/express) can decode the same
+ * cookie minted here by NextAuth v4. AUTH_SECRET is also shared.
  */
 async function fetchEmployees(): Promise<{
   data: Array<{ id: string; first_name?: string | null; last_name?: string | null }>;
@@ -31,16 +32,9 @@ async function fetchEmployees(): Promise<{
 
 export default async function DashboardPage() {
   const session = await auth();
-  const user = session?.user as
-    | { username?: string; role?: string; tenantId?: string }
-    | undefined;
+  const user = session?.user as { username?: string; role?: string; tenantId?: string } | undefined;
 
   const result = await fetchEmployees();
-
-  async function doSignOut(): Promise<void> {
-    'use server';
-    await signOut({ redirectTo: '/' });
-  }
 
   return (
     <main className="mx-auto max-w-5xl p-8">
@@ -58,14 +52,7 @@ export default async function DashboardPage() {
             ) : null}
           </p>
         </div>
-        <form action={doSignOut}>
-          <button
-            type="submit"
-            className="inline-flex h-9 items-center rounded-md border border-neutral-300 px-4 text-sm hover:bg-neutral-100"
-          >
-            Sign out
-          </button>
-        </form>
+        <SignOutButton />
       </header>
 
       <section className="mt-8">

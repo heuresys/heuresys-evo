@@ -1,32 +1,26 @@
-import NextAuth from 'next-auth';
+import NextAuth, { type NextAuthOptions, getServerSession } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import { prisma } from './db';
 import { authConfig } from './auth.config';
 import { authorizeCredentials } from './authorize';
 
 /**
- * Full NextAuth v5 configuration for services/app.
+ * Full NextAuth v4 configuration for services/app.
  *
  * Strategy: JWT (no DB-backed sessions). NextAuth signs the JWT with
  * AUTH_SECRET; the same secret is used by services/api-gateway's
- * @auth/express setup to validate the cookie cross-service. The cookie
- * name `authjs.session-token` is the default for both.
+ * @auth/express setup (Auth.js v5 family) to validate the cookie
+ * cross-service. The cookie name is forced to `authjs.session-token`
+ * in auth.config.ts so v4-minted JWTs match the v5 default on the gateway.
  *
  * Provider: Credentials only (DB-backed bcrypt against users.password_hash).
  *
- * This config IS NOT loaded by proxy.ts (Next 16 rename of middleware.ts) —
- * proxy uses the lean Edge-safe variant in auth.config.ts (no Prisma).
- *
  * Out of scope (deferred to a follow-up):
  *   - TOTP step (users.totp_secret_encrypted decrypt + otplib verify).
- *     Requires AES-256-GCM key in env that pairs with the encryption used
- *     by the v1 stack. The seed user `evo.dev` has totp_enabled=false so
- *     this can be skipped today.
- *   - OAuth providers (Google, Microsoft) — requires PrismaAdapter wiring,
- *     which is why migrations 222 and the schema_migrations entry are
- *     already in place.
+ *   - OAuth providers (Google, Microsoft) — would require PrismaAdapter
+ *     v1.x for v4, current @auth/prisma-adapter v2.11 is v5-family.
  */
-export const { handlers, auth, signIn, signOut } = NextAuth({
+export const authOptions: NextAuthOptions = {
   ...authConfig,
   providers: [
     Credentials({
@@ -35,11 +29,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: { label: 'Password', type: 'password' },
       },
       authorize: async (credentials) => {
-        return authorizeCredentials(
+        const result = await authorizeCredentials(
           prisma as unknown as Parameters<typeof authorizeCredentials>[0],
           { DEFAULT_SUPERUSER_TENANT_ID: process.env.DEFAULT_SUPERUSER_TENANT_ID },
-          credentials,
+          credentials
         );
+        return result ?? null;
       },
     }),
   ],
@@ -61,4 +56,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return token;
     },
   },
-});
+};
+
+/**
+ * Server-side session helper. Replaces v5's `auth()` shorthand.
+ * Use in Server Components and Server Actions.
+ */
+export const auth = () => getServerSession(authOptions);
+
+/**
+ * App Router catch-all handler — kept compatible with the route file
+ * `app/api/auth/[...nextauth]/route.ts` which imports `handlers`.
+ */
+const handler = NextAuth(authOptions);
+export const handlers = { GET: handler, POST: handler };
