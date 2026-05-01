@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # RTGB pre-commit gate — lint-staged + secret scan
 set -e
 
@@ -20,7 +20,7 @@ hits="$(git diff --cached --name-only -z \
   | xargs -0 -I{} bash -c 'case "$1" in .husky/*|docs/*) ;; *) printf "%s\0" "$1";; esac' _ {} \
   | xargs -0 -r grep -lE "$RE" 2>/dev/null || true)"
 
-if [[ -n "$hits" ]]; then
+if [ -n "$hits" ]; then
   echo "Possible secret detected in staged files:" >&2
   echo "$hits" >&2
   echo "   Run with --no-verify only after manual review." >&2

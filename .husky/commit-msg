@@ -1,18 +1,17 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # RTGB commit-msg gate — accept either RTGB signature OR conventional commits
 set -e
 
 msg_file="$1"
-msg="$(cat "$msg_file")"
+first_line="$(head -1 "$msg_file")"
 
 # Allow merge commits, reverts, fixups
-if echo "$msg" | head -1 | grep -qE '^(Merge|Revert|fixup!|squash!|amend!)'; then
+if echo "$first_line" | grep -qE '^(Merge|Revert|fixup!|squash!|amend!)'; then
   exit 0
 fi
 
 # Accept RTGB signature: [RTGB][PHx-Ty] type: subject
-rtgb_re='^\[RTGB\](\[REVERT\]|\[PH[0-9]+-T[A-Za-z0-9.]+\]) [a-z]+(\([a-z0-9-]+\))?: .+'
-if echo "$msg" | head -1 | grep -qE "$rtgb_re"; then
+if echo "$first_line" | grep -qE '^\[RTGB\](\[REVERT\]|\[PH[0-9]+-T[A-Za-z0-9.]+\]) [a-z]+(\([a-z0-9-]+\))?: .+'; then
   exit 0
 fi
 
