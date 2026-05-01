@@ -238,3 +238,45 @@ export {
   type AdmonitionVariant,
   type TocItem,
 } from './components/markdown';
+
+// === B-EXT TIER 8 — AI integration ===
+export {
+  ChatProvider,
+  useChat,
+  Chatbot,
+  ToolCallView,
+  VoiceInput,
+  type ChatRole,
+  type ChatMessage,
+  type ToolCall,
+  type ToolResult,
+  type ChatProviderAdapter,
+} from './components/ai';
+
+// === B-EXT TIER 11 — i18n ===
+export {
+  formatCurrency,
+  formatNumber,
+  formatPercent,
+  formatDate,
+  formatDateTime,
+  formatRelativeTime,
+  formatList,
+  SUPPORTED_LOCALES,
+  LanguagePicker,
+} from './components/i18n';
+
+// === B-EXT TIER 12 — A11y & settings ===
+export { SkipLink, AccessibilityPanel, LiveRegionProvider, useAnnounce } from './components/a11y';
+
+// === B-EXT TIER 13 — DevTools ===
+export { PerfMonitor } from './components/devtools';
+
+// === B-EXT TIER 14 — Hero / Marketing sections ===
+export { HeroSplit, HeroCentered, HeroVideoBackground } from './components/marketing';
+
+// === B-EXT TIER 15 — Utility & text effects ===
+export { AnimatedNumber, Typewriter, GradientText, Marquee } from './components/utility';
+
+// === B-EXT TIER 16 — XR / 3D ===
+export { ThreeScene } from './components/xr';
