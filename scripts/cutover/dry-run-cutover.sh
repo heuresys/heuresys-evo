@@ -70,7 +70,8 @@ if [ "$EUID" -eq 0 ]; then
     log_phase "  (production cutover would docker-compose stop legacy stack here)"
   fi
 else
-  log_phase "  (skipped: not root, simulating stop=$LEGACY_UNIT)"
+  LEGACY_UNIT="(non-root-skipped)"
+  log_phase "  (skipped: not root, simulating stop)"
 fi
 
 # Wait 30s for connections to drain (production = 5min)

@@ -16,6 +16,10 @@ jobs:
           node-version: '20'
           cache: 'npm'
       - run: npm ci
+      - name: Generate Prisma clients (offline from schema)
+        run: |
+          npx --prefix services/app prisma generate --schema services/app/prisma/schema.prisma
+          npx --prefix services/api-gateway prisma generate --schema services/api-gateway/prisma/schema.prisma
       - run: npm run lint
 
   typecheck:
@@ -27,6 +31,10 @@ jobs:
           node-version: '20'
           cache: 'npm'
       - run: npm ci
+      - name: Generate Prisma clients (offline from schema)
+        run: |
+          npx --prefix services/app prisma generate --schema services/app/prisma/schema.prisma
+          npx --prefix services/api-gateway prisma generate --schema services/api-gateway/prisma/schema.prisma
       - run: npm run typecheck
 
   test:
