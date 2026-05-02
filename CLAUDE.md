@@ -1,128 +1,116 @@
-# heuresys.com.evo
+# Heuresys evo — Project Instructions (Claude Code)
+
+> Repo: `heuresys-evo` (greenfield rewrite di `heuresys.com.evo` legacy).
+> Path canonico: `/home/ubuntu/heuresys-evo/` (VM `oracle-vm-default`).
+> Niente Cowork bootstrap, niente SESSION_REPORT, niente `.auto-memory/`. Quel framework è scope legacy.
 
 ## Mission
 
-Piattaforma SaaS B2B di Organizational Intelligence & Workforce Orchestration: layer ontologico tra ERP, HR e BI per governare processi, struttura, ruoli, competenze e performance attraverso un Knowledge Graph ESCO bilingue.
+Piattaforma SaaS B2B di Organizational Intelligence & Workforce Orchestration. Layer ontologico tra ERP/HR/BI per governare processi, struttura, ruoli, competenze e performance via Knowledge Graph ESCO bilingue (IT/EN).
 
-## Tech Stack
+## Stack
 
-- **Workspace**: monorepo npm workspaces (Node ≥20, npm ≥10)
-- **Frontend**: Next.js 16 + React 19, Tailwind + Radix UI, TanStack Query/Table, viz Cytoscape/D3/ECharts/XY-Flow
-- **Backend**: Express 5 + TypeScript, Pino, Sentry, Prometheus, Zod, JWT/2FA
-- **AI/Enrichment**: Anthropic SDK + OpenAI + Google AI + MCP SDK + BullMQ
-- **Database**: PostgreSQL **bare-metal** (no container), schema/migrations/seeds in `db/`
-- **Cache/Queue**: Redis (containerizzato in `infra/`)
-- **Tooling**: TypeScript 5+, ESLint 9, Prettier, Vitest, Jest, Playwright, Husky+lint-staged
-- **Infra**: Docker Compose per servizi non-DB; Nginx reverse proxy
+| Layer       | Tech                                                                                            |
+| ----------- | ----------------------------------------------------------------------------------------------- |
+| Workspace   | npm workspaces (Node ≥20, npm ≥10) — vedi `docs/20-architecture/monorepo-workspace-strategy.md` |
+| API Gateway | NestJS + zod/nestjs-zod (port 8012) — `services/api-gateway`                                    |
+| Frontend    | Next.js 16 + React 19 + Tailwind 4 (port 3012) — `services/app`                                 |
+| Workers     | BullMQ + Redis — `services/enrichment`                                                          |
+| UI Library  | Shadcn base + Cantiere B v2 (180 components) — `packages/ui`                                    |
+| ORM         | Prisma 6 (566 modelli, schema in `services/app/prisma/schema.prisma`)                           |
+| DB          | PostgreSQL 16 bare-metal (5433)                                                                 |
+| Cache/Queue | Redis (6380)                                                                                    |
+| Auth        | NextAuth v4 (Credentials + bcryptjs)                                                            |
+| Test        | Vitest in api-gateway/app/ui/shared (130+ test)                                                 |
+| Lint/Format | ESLint 9, Prettier, Husky + lint-staged + commitlint                                            |
 
-## Mental Model
+## Comandi quotidiani
 
-- `services/*` — deploy unit indipendenti (`marketing`, `app`, `api-gateway`, `enrichment`, `playground`)
-- `packages/*` — codice condiviso (`ui` design system, `shared` types/zod)
-- `db/` — schema PostgreSQL gestito separatamente dal DBMS bare-metal: `baseline/` (pg_dump SQL del v1), `migrations/` (`0001_baseline` + future incrementali), `seeds/`, `scripts/` (setup-local/vm/restore/backup)
-- `backups/from-vm/` — dump binari (gitignored), source per restore della baseline
-- `infra/` — Docker Compose per Redis/Nginx/monitoring (mai per Postgres)
-- `cowork_code_exchange/` — handoff Cowork (supervisore) ↔ CLI (esecutore)
-- `prompts/` — prompt LLM versionati (system/task/templates/evals), consumati da `services/enrichment/` e altri
-- `.github/workflows/` — pipeline CI/CD (stub `.yml.example` finché non completati)
-- `.mcp.json` — server MCP condivisi del progetto (vuoto inizialmente; ospiterà p.es. `heuresys-enrichment-mcp` quando il servizio enrichment sarà pronto)
+```bash
+# Dev (tutti i workspace in parallelo)
+npm run dev --workspaces --if-present
 
-## Workflow Orchestration
+# Build mirato
+npm run build --workspace=services/api-gateway
 
-1. Plan Mode Default
-   Always use /superpowers when working in Plan Mode.
-   Enter plan mode for ANY non-trivial task (3+ steps or architectural decisions)
-   If something goes sideways, STOP and re-plan immediately - don't keep pushing
-   Use plan mode for verification steps, not just building
-   Write detailed specs upfront to reduce ambiguity
-2. Subagent Strategy
-   Use subagents liberally to keep main context window clean
-   Offload research, exploration, and parallel analysis to subagents
-   For complex problems, throw more compute at it via subagents
-   One tasck per subagent for focused execution
-3. Self-Improvement Loop
-   After ANY correction from the user: update tasks/lessons.md with the pattern
-   Write rules for yourself that prevent the same mistake
-   Ruthlessly iterate on these lessons until mistake rate drops
-   Review lessons at session start for relevant project
-4. Verification Before Done
-   Never mark a task complete without proving it works
-   Diff behavior between main and your changes when relevant
-   Ask yourself: "Would a staff engineer approve this?"
-   Run tests, check logs, demonstrate correctness
-5. Demand Elegance (Balanced)
-   For non-trivial changes: pause and ask "is there a more elegant way?"
-   If a fix feels hacky: "Knowing everything I know now, implement the elegant solution"
-   Skip this for simple, obvious fixes - don't over-engineer
-   Challenge your own work before presenting it
-6. Autonomous Bug Fixing
-   When given a bug report: just fix it. Don't ask for hand-holding
-   Point at logs, errors, failing tests - then resolve them
-   Zero context switching required from the user
-   Go fix failing CI tests without being told how
+# Typecheck globale (pre-commit hook)
+npx tsc --noEmit -p tsconfig.base.json
 
-## Task Management
+# Test
+npm test --workspace=services/api-gateway
 
-Plan First: Write plan to tasks/todo.md with checkable items
-Verify Plan: Check in before starting implementation
-Track Progress: Mark items complete as you go
-Explain Changes: High-level summary at each step
-Document Results: Add review section to tasks/todo.md
-Capture Lessons: Update tasks/lessons.md after corrections
+# Prisma
+cd services/app && npx prisma migrate dev --name <desc>   # development
+cd services/app && npx prisma migrate deploy              # production
+cd services/app && npx prisma migrate status              # drift check
+```
 
-## Core Principles
+Vedi `docs/30-developer/prisma-migration-workflow.md` per workflow completo.
 
-Simplicity First: Make every change as simple as possible. Impact minimal code.
-No Laziness: Find root causes. No temporary fixes. Senior developer standards.
-Minimat Impact: Changes should only touch what's necessary. Avoid introducing bugs.
+## Stato attuale (2026-05-01)
 
-### CONSTRAINTS
+- **Pagine Next.js evo**: 3 (`/`, `/login`, `/dashboard`)
+- **Endpoint NestJS evo**: 0 funzionali (scaffolding presente)
+- **Migration parity legacy**: vedi `docs/30-developer/feature-parity-tracking.md`
+- **Strategia migration**: PET-driven, vedi `docs/strategy/MIGRATION_STRATEGY_PET_DRIVEN.md`
 
-- Conventional commits (feat:, fix:, chore:, docs:, refactor:, test:)
-- Postgres su host bare-metal, connessione via env (`DATABASE_URL`)
-- Componenti UI condivisi vivono in `packages/ui/`, mai duplicati nei `services/`
-- `services/playground/` è sandbox dev-only, mai deploy in prod
-- Lint + typecheck + test devono passare prima del merge in `main` (gate CI obbligatorio)
-- Prompt LLM versionati in `prompts/`, mai inline nel codice dei servizi
-- IMPORTANTE
-  Tra i tuoi compiti c'è quello di automatizzare il lavoro e procedere in autonomia anche in pipelines lunghe e complesse. Quando ti crei piani e todo list, devi definire e rispettare percorsi e sequenze, verifiche e test con gates, cicli reiterati di verifica e correzione, e uscire solo quando tutto è concluso con il 100% di successo o se incontri situazioni bloccanti che non sei riuscito a risolvere dopo 3-5 cicli di verifica e correzione e che ti metterebbero in una situazione di stallo, idle, loop o blocco.
-- In olre il 90% dei casi, io non ho le competenze necessarie per rispondere alle tue domande, perciò non devi chiedere e attendere attendere istruzioni/soluzioni tecniche da me.
-- Lo spezzettamento in microtask o task elementari è accolto positivamente ma non deve tradursi in continue interruzioni e richieste di conferme a procedere.
-  Sei tenuto a fare sempre scelte basate sulle tue raccomandazioni e sulle best practice, privilegiando qualità, completezza e robustezza senza virare a riduzioni di scopo, a semplificazioni, workaround. 
-- Una volta che hai la sicurezza di avere individuato la raccomandazione/soluzione migliore ciascun specifico contesto, applicala come scelta e procedi in autonomia.
+## Multi-tenant & RBP (sintesi)
 
-## Never
+- **4 tenant** seedati: Heuresys System (platform), RTL Bank (test), SmartFood, EcoNova
+- **8 ruoli RBP**: SUPERUSER (-1), TENANT_OWNER (0), IT_ADMIN (1), HR_DIRECTOR (2), HR_MANAGER (3), DEPT_HEAD (4), LINE_MANAGER (5), EMPLOYEE (6)
+- **33 functional areas** (`rbp_functional_areas`) + **47 PET mapping** (Process/Enterprise/Talent)
+- Authorization data-driven: `@RequirePermission('AREA', 'ACTION')` (mai `requireRole`)
+- RLS attiva DB-level (P5)
 
-- Containerizzare PostgreSQL (decisione architetturale, vedi `infra/README.md` e `db/README.md`)
-- Deploy `services/playground/` in produzione
-- Commit diretti su `main`/`master` (usa feature branches)
-- Hardcode di secret/token nel codice (usa `.env`, mai committato)
+## Principi P1-P10 (vincolanti per ogni PR)
 
-## Bootstrap (next session start — MANDATORY first action)
+1. **P1** Multi-tenant always — `tenantId` in ogni query
+2. **P2** Auth-required default — endpoint pubblici sono eccezione esplicita
+3. **P3** RBP enforced — `requirePermission`, mai bypass
+4. **P4** Audit logged — `audit_logs` insert per write operations
+5. **P5** RLS DB-level — policy attive su tutte le tabelle tenant-scoped
+6. **P6** No raw SQL injection — solo Prisma o `$queryRaw` con tagged template
+7. **P7** Validated input — zod schema per ogni DTO (vedi `docs/30-developer/dto-validation-with-zod-or-class-validator.md`)
+8. **P8** Error logged — Pino + Sentry, mai `console.log` in prod path
+9. **P9** Everything data-driven — ruoli, permessi, navigazione, perspective: tutto in DB
+10. **P10** Multi-level Platform/Tenant — config supporta `tenantId NULL` (Platform) e `tenantId <uuid>` (Tenant)
 
-When starting any new session on this project, BEFORE touching any code:
+## Convenzioni commit (commitlint)
 
-0. **Acknowledge claude-mem auto-injection (if present)**: claude-mem `SessionStart` hook injects observations from past sessions into the conversation context BEFORE the bootstrap runs. If you see auto-injected memory at session start, treat it as **complementary** to `.handoff/HANDOFF.md` — never duplicate the recap. The handoff files are the curated source of truth; claude-mem injection is the raw, comprehensive backdrop. Cite the auto-injection only if it surfaces something the handoff missed.
-1. Read `.handoff/HANDOFF.md` — get plan + todolist + open questions
-2. Read `.handoff/PROJECT-STATE.md` — get current architecture / components state
-3. Scan `.handoff/auto/` for breadcrumbs newer than `.handoff/HANDOFF.md` mtime — surface them to user if any
-4. Run the verification commands listed in `HANDOFF.md` §Verification commands
-5. **DBMS sync check**: run `bash db/scripts/evo-db status`. Se la suggestion segnala "bucket NEWER than your last pull", proporre `evo-db pull` PRIMA di iniziare modifiche al codice (allinea il DBMS locale al SoT bucket).
-6. Present a 1-line state recap + top 3-5 todos + open questions to the user
-7. Ask: "Continuiamo dalla priority #1, scegli un'altra, o qualcosa di nuovo?"
-8. WAIT for user direction before any other action
+Conventional Commits con scope obbligatorio:
 
-The session-close counterpart is the `/handoff` skill (`.claude/skills/handoff/SKILL.md`). Quando la sessione chiude, se ci sono state scritture significative nel DBMS locale (inserimenti via app, migration applicate, fixture caricate), proporre `evo-db push` per pubblicare il nuovo SoT al bucket prima del handoff.
+```
+<type>(<scope>): <subject>
 
-## Memory & tooling
+[optional body]
+[optional footer]
+```
 
-This project benefits from two complementary memory systems running side by side:
+Types: `feat`, `fix`, `chore`, `docs`, `refactor`, `test`, `perf`, `build`, `ci`, `style`.
+Scope: `api-gateway`, `app`, `enrichment`, `ui`, `shared`, `db`, `infra`, `docs`, `repo`.
 
-- **`.handoff/`** — curated, human-readable, append-only journal + overwrite-on-close state. Source of truth for "what's where, what's next". Owned by the agent via the `/handoff` skill.
-- **claude-mem v12.4.7** (Alex Newman, AGPL-3.0, plugin `claude-mem@thedotmack`) — automatic transcript compression into a SQLite + Chroma vector DB at `~/.claude-mem/`. Worker on `http://localhost:37777` (web UI). Search via `/mem-search` slash command in Claude Code. Hooks lifecycle: `Setup`, `SessionStart`, `UserPromptSubmit`, `PreToolUse(Read)`, `PostToolUse`, `Stop`. Coexists with the project-level `Stop` hook (`auto-handoff.sh`) — both fire on the same event without conflict.
+Esempi:
 
-Do not commit `~/.claude-mem/` contents (machine-local, contains transcript material). The directory is outside the repo so no `.gitignore` entry is needed.
+- `feat(api-gateway): add EmployeeModule with CRUD endpoints`
+- `fix(app): resolve hydration mismatch in dashboard widget`
+- `chore(repo): bump prisma to 6.0.1`
 
-## Quick references
+`commitlint.config.cjs` enforce. Pre-commit hook in `.husky/`.
 
-@docs/decisions/README.md
+## Documenti strategici di riferimento
+
+- `docs/strategy/MIGRATION_STRATEGY_PET_DRIVEN.md` — strategia di porting dal legacy
+- `docs/_meta/governance-evo.md` — governance progetto (decisioni, ADR index)
+- `docs/20-architecture/monorepo-workspace-strategy.md` — npm workspaces, no Turborepo
+- `docs/30-developer/typescript-strict-evo.md` — TS strict, zero `any`
+- `docs/30-developer/nextjs-app-router-conventions.md` — RSC, Server Actions, parallel routes
+- `docs/30-developer/dto-validation-with-zod-or-class-validator.md` — zod + nestjs-zod
+- `docs/30-developer/prisma-migration-workflow.md` — migrate dev/deploy, baseline, drift
+- `docs/30-developer/feature-parity-tracking.md` — tracker 33 aree legacy → evo
+
+## Quando fare PR
+
+- Branch da `main`, naming: `<type>/<short-desc>` (es. `feat/employee-module`)
+- 1 PR = 1 funzionalità coerente. PR multi-scope vanno splittate.
+- Checklist PR description: P1-P10 review, test aggiunti, parity tracker aggiornato (se area in scope), `migrate status` clean, `tsc --noEmit` green.
+- Niente force-push su `main`. Niente `--no-verify`.
