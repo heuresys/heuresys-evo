@@ -263,4 +263,5 @@ bash /home/ubuntu/heuresys-evo/scripts/migration/parity-test-20-queries.sh
 ## 10. Changelog handoff
 
 - **2026-05-02 v1.0** — initial handoff
-- **2026-05-02 v1.1** — pending 1-6 chiusi (systemd + nginx + script + Prometheus + logrotate + CI fix), dual-channel formalizzato post deploy parallelo + Prisma introspect 566 modelli + 19 doc nuovi + showcase live.
+- **2026-05-02 v1.1** — pending 1-6 chiusi (systemd + nginx + script + Prometheus + logrotate + CI fix)
+- **2026-05-02 v1.2** — CI verificato success (typecheck+lint+test+build all pass post prisma-generate fix), dual-channel formalizzato post deploy parallelo + Prisma introspect 566 modelli + 19 doc nuovi + showcase live.
