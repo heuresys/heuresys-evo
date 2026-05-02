@@ -22,6 +22,10 @@ jobs:
           node-version: '20.x'
           cache: 'npm'
       - run: npm ci --no-audit --no-fund
+      - name: Generate Prisma clients (offline from schema)
+        run: |
+          npx --prefix services/app prisma generate --schema services/app/prisma/schema.prisma
+          npx --prefix services/api-gateway prisma generate --schema services/api-gateway/prisma/schema.prisma
       - run: npm run build --workspaces --if-present
         env:
           NEXT_TELEMETRY_DISABLED: '1'
