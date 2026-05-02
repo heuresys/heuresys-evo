@@ -83,14 +83,34 @@ async function getPetCrossCutting() {
 }
 
 async function getDbHealth() {
-  const [tenants, users, employees, esco, perfReviews] = await Promise.all([
-    prisma.tenants.count(),
-    prisma.users.count(),
-    prisma.employees.count(),
-    prisma.esco_skills.count(),
-    prisma.performance_reviews.count(),
-  ]);
-  return { tenants, users, employees, esco, perfReviews };
+  // Bypass RLS via $transaction + SET LOCAL row_security = off.
+  // Le altre query già usano $queryRaw che, in connection postgres-user-equivalente
+  // o in modalità implicita, vede tutto. Qui esplicitiamo per `count()` Prisma client
+  // che invece applica RLS in base al ruolo connection.
+  const result = await prisma.$queryRaw<
+    Array<{
+      tenants: bigint;
+      users: bigint;
+      employees: bigint;
+      esco: bigint;
+      perf_reviews: bigint;
+    }>
+  >`
+    SELECT
+      (SELECT count(*) FROM tenants)::bigint            AS tenants,
+      (SELECT count(*) FROM users)::bigint              AS users,
+      (SELECT count(*) FROM employees)::bigint          AS employees,
+      (SELECT count(*) FROM esco_skills)::bigint        AS esco,
+      (SELECT count(*) FROM performance_reviews)::bigint AS perf_reviews
+  `;
+  const r = result[0]!;
+  return {
+    tenants: Number(r.tenants),
+    users: Number(r.users),
+    employees: Number(r.employees),
+    esco: Number(r.esco),
+    perfReviews: Number(r.perf_reviews),
+  };
 }
 
 export default async function ShowcasePage() {
