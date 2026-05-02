@@ -244,6 +244,23 @@ bash /home/ubuntu/heuresys-evo/scripts/migration/parity-test-20-queries.sh
 
 ---
 
+## 11. Stato pendings (aggiornato 2026-05-02 post-sessione)
+
+| #   | Pending                             | Stato                                                                                                 |
+| --- | ----------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| 1   | API gateway evo NestJS running      | ✅ DONE — systemd unit `heuresys-api-gateway` active, :8200/health 200                                |
+| 2   | Bare-metal systemd units installati | ✅ DONE — 3 unit (api-gateway/app/enrichment) attive                                                  |
+| 3   | Script cutover eseguiti             | ✅ DONE — 4 script runnati, output in /tmp/, dr-drill SUCCESS RTO 6s                                  |
+| 4   | Prometheus scrape evo               | ✅ DONE — job `api-gateway-evo` aggiunto a /etc/prometheus/prometheus.yml                             |
+| 5   | Logrotate `/var/log/heuresys-evo/`  | ✅ DONE — `/etc/logrotate.d/heuresys-evo` daily rotation 14gg                                         |
+| 6   | CI workflow GitHub Actions          | ⏳ FIXED ma da verificare — `prisma generate` aggiunto pre-typecheck/lint, run successivo previsto OK |
+| 7   | OA-1.2 GitHub billing/spending fix  | 🟠 OWNER-ACTION — task Enzo, lasciato come memoria storica                                            |
+
+**Nota architettura post-sessione**: `https://evo.heuresys.com` ora servito da bare-metal systemd (Next.js standalone su :3200, Express api-gateway su :8200), NON più container Docker. Legacy resta su Docker container porte 3012/8012.
+
+---
+
 ## 10. Changelog handoff
 
-- **2026-05-02 v1.0** — initial handoff, dual-channel formalizzato post deploy parallelo + Prisma introspect 566 modelli + 19 doc nuovi + showcase live.
+- **2026-05-02 v1.0** — initial handoff
+- **2026-05-02 v1.1** — pending 1-6 chiusi (systemd + nginx + script + Prometheus + logrotate + CI fix), dual-channel formalizzato post deploy parallelo + Prisma introspect 566 modelli + 19 doc nuovi + showcase live.
