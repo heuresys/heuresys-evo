@@ -18,6 +18,12 @@ desktop.ini
 .cache/
 tmp/
 
+# === Playwright MCP / browser automation artifacts ===
+.playwright-mcp/
+/*.png
+/*.jpg
+/*.jpeg
+
 # === Environment ===
 .env
 .env.local
