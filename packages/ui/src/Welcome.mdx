@@ -1,0 +1,66 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Welcome" />
+
+# Heuresys evo — Design System
+
+`@heuresys/ui` — base Shadcn + Cantiere B v2 (88 componenti).
+
+## Categorie
+
+- **Foundations** — token (color, spacing, typography), Tailwind 4 `@theme`
+- **Components** — atomi: Button, Input, Card, Badge, Dialog, ecc.
+- **Charts** — `echarts-card`, `gauges`, `network-graph`, `sparkline`
+- **AI** — `chatbot`, `voice-input`, `tool-call-view`
+- **Collab** — `kanban-board`, `calendar-grid`, `comment-thread`, `timeline`
+- **A11y** — `skip-link`, `live-region`, `accessibility-panel`
+- **Recipes** — composizioni reali (dashboard cards, forms multi-step, ecc.)
+
+## Toolbar (top)
+
+- **Theme** — switcher light/dark (decorator globale `withThemeByClassName`)
+- **Backgrounds** — light / dark / paper
+- **Viewport** — responsive testing (mobile/tablet/desktop)
+- **A11y** — pannello audit accessibility (rule violations + impact)
+- **Controls** — pannello bottom: cambi le props in real-time
+
+## Conventions
+
+- Story file: `<component>.stories.tsx` accanto al componente
+- Naming: `Components/<Name>` (PascalCase) o categoria (`Charts/`, `AI/`, ecc.)
+- Stories minime: `Default`, `All` (composite con tutte le varianti)
+- Stories ricche: `Interactive` (usa `play()` con `userEvent`), `WithMockData` (msw handler), `Loading` / `Error`
+
+## Mock API
+
+Stories possono mockare fetch via [MSW](https://mswjs.io/). Esempio:
+
+```tsx
+import { http, HttpResponse } from 'msw';
+
+export const WithMockData: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        http.get('/api/employees', () => HttpResponse.json({ data: [...] })),
+      ],
+    },
+  },
+};
+```
+
+## Pattern stories ricche
+
+```tsx
+import { userEvent, within, expect } from '@storybook/test';
+
+export const Interactive: Story = {
+  play: async ({ canvasElement }) => {
+    const c = within(canvasElement);
+    await userEvent.click(c.getByRole('button', { name: /open/i }));
+    await expect(c.getByText('Opened')).toBeVisible();
+  },
+};
+```
+
+→ La toolbar mostra step-by-step delle interazioni, comode per QA visuale.
