@@ -13,12 +13,12 @@ Piattaforma SaaS B2B di Organizational Intelligence & Workforce Orchestration. L
 | Layer       | Tech                                                                                            |
 | ----------- | ----------------------------------------------------------------------------------------------- |
 | Workspace   | npm workspaces (Node ≥20, npm ≥10) — vedi `docs/20-architecture/monorepo-workspace-strategy.md` |
-| API Gateway | NestJS + zod/nestjs-zod (port 8012) — `services/api-gateway`                                    |
-| Frontend    | Next.js 16 + React 19 + Tailwind 4 (port 3012) — `services/app`                                 |
+| API Gateway | NestJS + zod/nestjs-zod (port 8200) — `services/api-gateway`                                    |
+| Frontend    | Next.js 16 + React 19 + Tailwind 4 (port 3200) — `services/app`                                 |
 | Workers     | BullMQ + Redis — `services/enrichment`                                                          |
 | UI Library  | Shadcn base + Cantiere B v2 (180 components) — `packages/ui`                                    |
 | ORM         | Prisma 6 (566 modelli, schema in `services/app/prisma/schema.prisma`)                           |
-| DB          | PostgreSQL 16 bare-metal (5433)                                                                 |
+| DB          | PostgreSQL 16 bare-metal (5432) — distinto dal legacy heuresys.com.evo che usa 5433 (container) |
 | Cache/Queue | Redis (6380)                                                                                    |
 | Auth        | NextAuth v4 (Credentials + bcryptjs)                                                            |
 | Test        | Vitest in api-gateway/app/ui/shared (130+ test)                                                 |
@@ -46,6 +46,21 @@ cd services/app && npx prisma migrate status              # drift check
 ```
 
 Vedi `docs/30-developer/prisma-migration-workflow.md` per workflow completo.
+
+## Domini & routing (VM `oracle-vm-default`, IP 80.225.82.207)
+
+| Dominio                                                          | Repo                                     | Stack   | Frontend port | API port | DB port           |
+| ---------------------------------------------------------------- | ---------------------------------------- | ------- | ------------- | -------- | ----------------- |
+| `evo.heuresys.com` (HTTPS)                                       | `/home/ubuntu/heuresys-evo` (questo)     | systemd | 3200          | 8200     | 5432 (bare-metal) |
+| `www.heuresys.com`, `heuresys.com` (HTTPS — pending DNS+certbot) | `/home/ubuntu/heuresys.com.evo` (legacy) | Docker  | 3012          | 8012     | 5433 (container)  |
+
+Tutto ciò che si sviluppa in questo repo deve essere servito da `evo.heuresys.com`.
+Il legacy resta intoccato: stesso server, ports diverse, repo separato.
+
+nginx vhosts in `/etc/nginx/sites-available/`:
+
+- `evo.heuresys.com.conf` (active) → `/api/auth/` su 3200, `/api/` su 8200, `/` su 3200
+- `www.heuresys.com.conf` (preparato, attivabile via `scripts/enable-www-vhost.sh` dopo DNS update)
 
 ## Stato attuale (2026-05-01)
 
