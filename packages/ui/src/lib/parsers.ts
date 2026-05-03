@@ -1,5 +1,5 @@
 import Papa from 'papaparse';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import TOML from '@iarna/toml';
 import { XMLParser } from 'fast-xml-parser';
 
@@ -29,24 +29,54 @@ export function exportCSV<T extends Record<string, unknown>>(rows: T[]): string 
 
 export async function parseExcel(file: File | ArrayBuffer): Promise<Record<string, unknown[]>> {
   const buf = file instanceof File ? await file.arrayBuffer() : file;
-  const wb = XLSX.read(buf, { type: 'array' });
+  const wb = new ExcelJS.Workbook();
+  await wb.xlsx.load(buf);
   const out: Record<string, unknown[]> = {};
-  for (const name of wb.SheetNames) {
-    out[name] = XLSX.utils.sheet_to_json(wb.Sheets[name]!);
-  }
+  wb.eachSheet((ws) => {
+    const rows: Record<string, unknown>[] = [];
+    let headers: string[] = [];
+    ws.eachRow({ includeEmpty: false }, (row, rowNumber) => {
+      const values = row.values as unknown[];
+      if (rowNumber === 1) {
+        headers = values.slice(1).map((v) => String(v ?? ''));
+      } else {
+        const obj: Record<string, unknown> = {};
+        headers.forEach((h, i) => {
+          obj[h] = values[i + 1];
+        });
+        rows.push(obj);
+      }
+    });
+    out[ws.name] = rows;
+  });
   return out;
 }
 
-export function exportExcel<T extends Record<string, unknown>>(
+export async function exportExcel<T extends Record<string, unknown>>(
   sheets: Record<string, T[]>,
   filename: string
-): void {
-  const wb = XLSX.utils.book_new();
+): Promise<void> {
+  const wb = new ExcelJS.Workbook();
   for (const [name, rows] of Object.entries(sheets)) {
-    const ws = XLSX.utils.json_to_sheet(rows);
-    XLSX.utils.book_append_sheet(wb, ws, name);
+    const ws = wb.addWorksheet(name);
+    if (rows.length > 0) {
+      const headers = Object.keys(rows[0]!);
+      ws.columns = headers.map((h) => ({ header: h, key: h }));
+      ws.addRows(rows);
+    }
   }
-  XLSX.writeFile(wb, filename);
+  const buf = await wb.xlsx.writeBuffer();
+  const blob = new Blob([buf], {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 export async function parseJSON<T = unknown>(file: File | string): Promise<T> {
