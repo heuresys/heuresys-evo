@@ -5,6 +5,22 @@
 
 ---
 
+## 2026-05-03 — S7-bis · Post-close micro-entry — Cowork config cleanup pull
+
+**Duration**: ~2 min (post-S7 close, pull from PC)
+
+Pull `434c1aa..0f5585f` portato 3 commit di Cowork (PR #12 `chore/config-cleanup`):
+
+- `e5b635d` chore(repo): document intent of empty .mcp.json
+- `9147f86` docs(repo): align rules/security.md with project P1-P10 principles
+- `0f5585f` Merge pull request #12 from heuresys/chore/config-cleanup
+
+Nessun impatto funzionale. `.claude/rules/security.md` arricchito con dettaglio P1-P10 (multi-tenant, RBP, audit, RLS, secrets, input handling, output logging) — riferimento allineato a CLAUDE.md greenfield. `.mcp.json` empty docato. HANDOFF.md S7 e PROJECT-STATE.md restano validi (priorities S8 invariate). Working tree clean, in sync con origin.
+
+**Files**: `.claude/rules/security.md` (+47 -7), `.mcp.json` (+1 -0).
+
+---
+
 ## 2026-05-03 — Sessione 7 · Brand Studio + Auth unblock + Domain HTTPS + Dependency hardening
 
 **Duration**: ~6h (interactive, single afternoon)
