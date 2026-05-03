@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Brand Studio dev tool** (`/brand-studio`, 2026-05-03): Server Component gated by `SUPERUSER` role that mounts the existing `ThemeBuilderWizard` from `@heuresys/ui` and lets the user generate design tokens, preview them site-wide via a 24h cookie, and apply them to the project by writing `services/app/src/styles/active-theme.css` (imported by the root layout). Defense in depth via `assertSuperuser()` in every Server Action. CSS payload validated (size cap 8KB, regex blacklist) on both server and client. Audit header (username + timestamp) written into the generated CSS file.
+- **`packages/ui` `ThemeBuilderWizard` `onChange` prop** (2026-05-03): optional callback that emits `ThemeBuilderState` on every internal state change. Non-breaking; lets consumers react to live state without waiting for the final Export action.
+- **HTTPS for `www.heuresys.com` and `heuresys.com`** (2026-05-03): nginx vhost `/etc/nginx/sites-available/www.heuresys.com.conf` proxies `/` → `127.0.0.1:3012` (legacy frontend) and `/api/` → `127.0.0.1:8012` (legacy api-gateway, with `/api/X → /X` rewrite). Let's Encrypt ECDSA cert with `www` + apex SAN, auto-redirect HTTP→HTTPS. Activation script `scripts/enable-www-vhost.sh` (idempotent, DNS preflight, certbot integration).
 - **Bucket-as-DB-git workflow** (architecture revision 2026-04-29): the OCI bucket `heuresys-evo-backups` becomes the SoT-as-git for the `.evo` DBMS. Object `latest.dump` = HEAD; timestamped objects = history. PC = SoT primario per i prossimi mesi. Working dir VM `~/heuresys-evo` è read-only (riceve pull, non pubblica). Soft-lock con version stamp impedisce push accidentali fuori sequenza.
 - **`db/scripts/oci-config.sh`** — sourceable: helpers OCI (`oci_upload`, `oci_download`, `oci_promote_latest`, `oci_object_modified`), autodetect DBMS locale (pc-docker | vm-docker | vm-baremetal), adapter `pg_dump_target`/`pg_restore_target`/`psql_target` con MSYS path-translation fix e pg_dump v16 pinning, read-only WD enforcement (rifiuta push da WD #4).
 - **`db/scripts/db-push.sh`** — pg_dump locale + upload OCI come `dump_<source>_<UTC-TS>.dump` + promote `latest.dump`. Soft-lock confronta `time-modified` bucket con `db/.last-pull-stamp`; rifiuta push se bucket più recente (override `--force`). Local retention 7.
@@ -20,6 +23,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **`packages/ui` `xlsx` → `exceljs`** (2026-05-03): `parseExcel` / `exportExcel` riscritte sopra `exceljs@^4.4.0` (Apache 2.0). Public API preservata. **BREAKING:** `exportExcel` è ora `Promise<void>` invece di `void` — zero callers attuali nel repo, nessun consumer impattato.
+- **`vitest` 2.1.9 → ^4.1.0** (2026-05-03) in tutti e 5 i workspace + root. Pulls in `vite@7` + `esbuild>0.24.2`. Nessuna API breakage osservata in 250 test, solo 1 test ha richiesto annotazione esplicita generic `vi.fn<TFn>()`.
+- **`heuresys-app.service` systemd unit** (2026-05-03): drop-in `build-mem.conf` con `NODE_OPTIONS=--max-old-space-size=4096` e `TimeoutStartSec=600` per evitare OOM su `npm run build` (services/app standalone build con 566 modelli Prisma + 180 components UI + brand-studio).
+- **`evo.heuresys.com` nginx vhost** (2026-05-03): aggiunta `location /api/auth/` → `127.0.0.1:3200` (Next.js NextAuth) PRIMA della `location /api/` → `127.0.0.1:8200` (gateway Express). Senza questo block specifico, NextAuth handler veniva intercettato dal gateway, login impossibile.
+- **CI workflows** (2026-05-03): aggiunto `npm install -g npm@11` prima di `npm ci` in `ci.yml`, `build.yml`, `security.yml` per allineare runtime al lockfile v3 generato da npm 11 locale (default GitHub-hosted runner è npm 10).
+- **CI typecheck job** (2026-05-03): `NODE_OPTIONS=--max-old-space-size=4096` per evitare OOM nel job di tsc workspace `services/app`.
+- **`CLAUDE.md` greenfield**: porte stack corrette (3200 frontend / 8200 api-gateway / 5432 Postgres bare-metal), nuovo blocco "Domini & routing" che mappa `evo.heuresys.com` (greenfield) vs `www.heuresys.com`+apex (legacy).
 - **Schema unification 2026-04-29**: tutti e 3 i DBMS live (PC Docker, VM Docker 5433, VM bare-metal) ora condividono lo schema `.evo` (203 mig, max_v=222 con NextAuth). VM Docker 5433 riallineato via drop+restore da `latest.dump`.
 - **`backup-and-rotate.sh`** demoted a nightly safety snapshot: object naming `dump_vm_baremetal_cron_<TS>.dump`, NON aggiorna `latest.dump` (SoT è il PC).
 - **`db/README.md`** — riscritta sezione "Accesso al DBMS" → "Workflow OCI bucket-as-DB-git" con mappa working dir, comandi quick-ref, naming objects, retention.
@@ -31,11 +41,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- **`xlsx@0.18.5`** dal `packages/ui` (2026-05-03): HIGH severity (Prototype Pollution + ReDoS) senza fix npm. Sostituito da `exceljs@^4.4.0`.
+- **`gitleaks/gitleaks-action@v2`** (2026-05-03): richiede paid licence per org GitHub. Sostituito con install diretto della CLI v8.21.2.
 - **PC Docker container `heuresys_evo_platform_db` (5433)** + volume `heuresys_evo_platform_db_data` (ridondante dopo schema unification).
 - **VM cron `heuresys-evo-freshness`** (Mon 08:00 UTC) — coperto dal workflow `evo-db status` on-demand.
 - **PC Task Scheduler `Heuresys-Evo-Sync`** — sostituito da workflow `evo-db pull/push` manuale.
 
+### Security
+
+- **Brand Studio defense in depth** (2026-05-03): role check (`SUPERUSER`) replicato in ogni Server Action (`assertSuperuser()`), oltre alla page-level guard. CSS payload validato (size cap 8KB, regex blacklist `</style|<script>`) sia server-side (al cookie set + file write) sia client-side (al cookie read + `<style>` apply). File writes su path fisso `services/app/src/styles/active-theme.css` (no path traversal). `style.textContent` invece di React unsafe HTML injection per evitare XSS.
+- **npm overrides** (2026-05-03): pinned `postcss: ^8.5.10` (closes GHSA-qx2v-qp2m-jg93 XSS via `</style>`) e `uuid: ^14.0.0` (closes GHSA-w5hq-g745-h8pq buffer bounds in v3/v5/v6).
+- **`vitest` 4.x bump** (2026-05-03): pulls in `esbuild>0.24.2`, closes GHSA-67mh-4wv8-2f99 (dev server CORS leak).
+- **Cross-service AUTH_SECRET / NEXTAUTH_SECRET allineati** tra `services/app` e `services/api-gateway` per validazione JWT consistent (Auth.js v4 ↔ v5 family).
+
 ### Fixed
+
+- **`evo.heuresys.com` login broken** (2026-05-03): nginx `location /api/` catturava anche `/api/auth/*`, instradando le request NextAuth all'API gateway Express invece che al Next.js handler. Risolto aggiungendo `location /api/auth/` con proxy specifico a `:3200` PRIMA di `location /api/`.
+- **`services/api-gateway/.env` cross-service JWT broken** (2026-05-03): `AUTH_SECRET` e `NEXTAUTH_SECRET` erano EMPTY, impedendo al gateway di validare JWT emessi dal Next.js. Allineati con stesso valore di `services/app/.env`.
+- **`services/app/.env` SUPERUSER tenant fallback** (2026-05-03): `DEFAULT_SUPERUSER_TENANT_ID` mancante in prod faceva sì che utenti SUPERUSER senza `employee_id` (es. `sysadmin`, `evo.dev`) atterrassero in sessione con `tenantId=''`. Settato all'UUID del tenant `Heuresys System`.
+- **CI typecheck OOM** (2026-05-03): job tsc su `services/app` esauriva il default 2GB heap dopo l'aggiunta del brand-studio. Fix: env `NODE_OPTIONS=--max-old-space-size=4096` nel workflow.
+- **CI `npm ci` rejecta lockfile** (2026-05-03): npm 10 (runner) non leggeva correttamente le overrides nel lockfile v3 generato da npm 11 (locale). Fix: pin `npm@11` in tutti e 3 i workflow prima di `npm ci`.
+- **`vitest 4` typing breakage in test mocks** (2026-05-03): `Mock<Procedure | Constructable>` non assignable a signature concrete. Fix: annotazione esplicita `vi.fn<(args) => ret>()` in `services/app/src/lib/__tests__/authorize.test.ts`.
 
 - **OCI `os object copy` bug** (`KeyError: 'config'`) bypassato in `oci_promote_latest` via re-upload del file locale come `latest.dump` (più semplice e affidabile).
 
