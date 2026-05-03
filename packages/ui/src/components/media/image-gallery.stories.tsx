@@ -1,10 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { ImageGallery } from './image-gallery';
 
-/**
- * Auto-generated scaffold story (2026-05-03).
- * TODO: arricchire con props concrete, varianti, play() functions, MSW handlers.
- */
 const meta: Meta<typeof ImageGallery> = {
   title: 'Media/ImageGallery',
   component: ImageGallery,
@@ -12,7 +8,14 @@ const meta: Meta<typeof ImageGallery> = {
   tags: ['autodocs'],
 };
 export default meta;
-
 type Story = StoryObj<typeof ImageGallery>;
 
-export const Default: Story = {};
+const images = Array.from({ length: 9 }, (_, i) => ({
+  src: `https://picsum.photos/seed/heuresys-${i}/400/300`,
+  alt: `Stock ${i + 1}`,
+  caption: `Image ${i + 1}`,
+}));
+
+export const Three: Story = { args: { images, columns: 3 } };
+export const Four: Story = { args: { images, columns: 4 } };
+export const Two: Story = { args: { images: images.slice(0, 4), columns: 2 } };

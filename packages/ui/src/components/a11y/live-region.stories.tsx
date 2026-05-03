@@ -1,10 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { LiveRegionProvider } from './live-region';
+import { LiveRegionProvider, useAnnounce } from './live-region';
+import { Button } from '../Button';
 
-/**
- * Auto-generated scaffold story (2026-05-03).
- * TODO: arricchire con props concrete, varianti, play() functions, MSW handlers.
- */
 const meta: Meta<typeof LiveRegionProvider> = {
   title: 'A11y/LiveRegion',
   component: LiveRegionProvider,
@@ -12,7 +9,36 @@ const meta: Meta<typeof LiveRegionProvider> = {
   tags: ['autodocs'],
 };
 export default meta;
-
 type Story = StoryObj<typeof LiveRegionProvider>;
 
-export const Default: Story = {};
+function Demo() {
+  const announce = useAnnounce();
+  return (
+    <div className="space-y-3">
+      <p className="text-sm text-neutral-500">
+        Click → screen reader annuncia (sr-only). Open dev tools → Accessibility tree per vedere
+        live region.
+      </p>
+      <div className="flex gap-2">
+        <Button size="sm" onClick={() => announce('File saved successfully')}>
+          Polite announce
+        </Button>
+        <Button
+          size="sm"
+          variant="destructive"
+          onClick={() => announce('Connection lost!', 'assertive')}
+        >
+          Assertive
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+export const Default: Story = {
+  render: () => (
+    <LiveRegionProvider>
+      <Demo />
+    </LiveRegionProvider>
+  ),
+};
