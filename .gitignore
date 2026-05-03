@@ -66,6 +66,9 @@ CLAUDE.local.md
 # RTG bridge plan automation (symlinked from legacy .com.evo)
 scripts/rtg/
 
+# Local-only dev helpers (machine-specific, e.g. SSH tunnel scripts)
+scripts/dev-local/
+
 # === RTGB hardening state + cantiere coordination ===
 .rtg-state-evo/
 .cantiere-lock-*
