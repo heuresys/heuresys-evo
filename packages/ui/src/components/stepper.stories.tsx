@@ -19,7 +19,7 @@ const steps = [
   { id: 's4', label: 'Review', description: 'Confirm' },
 ];
 
-function Demo({ orientation = 'horizontal' as const }) {
+function Demo({ orientation = 'horizontal' }: { orientation?: 'horizontal' | 'vertical' }) {
   const [cur, setCur] = useState(1);
   return (
     <div className="space-y-3">

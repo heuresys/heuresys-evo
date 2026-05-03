@@ -43,7 +43,7 @@ function SettingsPanel() {
             <p className="text-xs text-neutral-500">{desc}</p>
           </div>
           <Switch
-            checked={s[key as keyof typeof s]}
+            checked={(s as Record<string, boolean>)[key]}
             onCheckedChange={(v) => setS((x) => ({ ...x, [key]: !!v }))}
           />
         </div>
