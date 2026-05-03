@@ -4,6 +4,29 @@
 > Path canonico: `/home/ubuntu/heuresys-evo/` (VM `oracle-vm-default`).
 > Niente Cowork bootstrap, niente SESSION_REPORT, niente `.auto-memory/`. Quel framework è scope legacy.
 
+## Session start protocol
+
+All'inizio di ogni nuova sessione, **come primo atto** (prima di rispondere a qualsiasi
+domanda dell'utente):
+
+1. Leggi `.handoff/HANDOFF.md` per priorities + open questions correnti
+2. Leggi `.handoff/PROJECT-STATE.md` per architettura/components/metrics
+3. Scansiona `.handoff/auto/` per breadcrumbs più recenti del `HANDOFF.md` mtime — surface eventuali stati post-handoff
+4. Verifica `git status -sb` (working tree clean? in sync con `origin/main`?)
+5. Verifica `gh run list --branch main --limit 3` (CI verde?)
+6. Saluta l'utente con: 1-line state recap + top 3 priorities (numerate) + open questions (se rilevanti)
+7. Chiedi: "Continuiamo dalla todo #1, scegli un'altra priorità, o qualcosa di nuovo?"
+8. **Aspetta direzione esplicita** prima di toccare codice o eseguire operazioni
+
+Eccezione: salta il protocol solo se l'utente apre con un comando diretto e self-contained
+(es. `git status`, `npm test`, una domanda specifica su un file). In quei casi rispondi
+diretto, ma cita comunque eventuali priority bloccanti dal HANDOFF se rilevanti.
+
+A fine sessione, attivare la skill `handoff` (alias: "chiudi sessione", "fine sessione",
+"/handoff") che aggiorna i 4 file `.handoff/{HANDOFF,PROJECT-STATE,PROJECT-LOG,CHANGELOG}.md`
+
+- snapshot dated.
+
 ## Mission
 
 Piattaforma SaaS B2B di Organizational Intelligence & Workforce Orchestration. Layer ontologico tra ERP/HR/BI per governare processi, struttura, ruoli, competenze e performance via Knowledge Graph ESCO bilingue (IT/EN).
