@@ -1,3 +1,4 @@
 {
+  "_comment": "Vuoto intenzionale: tutti gli MCP server arrivano da plugin user-global (~/.claude/plugins/) o da claude.ai integrations. Per MCP project-specific (es. tunnel Postgres su localhost:5432 via Pattern A SSH), aggiungere qui sotto in mcpServers. Vedi ~/.claude/projects/D--evo-heuresys-com/memory/feedback_pattern_a_ssh_tunnel.md per dettagli tunnel.",
   "mcpServers": {}
 }
