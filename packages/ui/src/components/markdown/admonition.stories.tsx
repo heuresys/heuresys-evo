@@ -11,28 +11,28 @@ export default meta;
 type Story = StoryObj<typeof Admonition>;
 
 export const Info: Story = {
-  args: { variant: 'info', title: 'Heads up', children: 'This area is informational.' as never },
+  args: { variant: 'info', title: 'Heads up', children: 'This area is informational.' },
 };
 export const Warning: Story = {
   args: {
     variant: 'warning',
     title: 'Caution',
-    children: 'Read carefully before proceeding.' as never,
+    children: 'Read carefully before proceeding.',
   },
 };
 export const Tip: Story = {
-  args: { variant: 'tip', title: 'Pro tip', children: 'Use Cmd+K for quick search.' as never },
+  args: { variant: 'tip', title: 'Pro tip', children: 'Use Cmd+K for quick search.' },
 };
 export const Danger: Story = {
-  args: { variant: 'danger', title: 'Danger', children: 'This action is irreversible.' as never },
+  args: { variant: 'danger', title: 'Danger', children: 'This action is irreversible.' },
 };
 export const Note: Story = {
-  args: { variant: 'note', children: 'Plain note without title.' as never },
+  args: { variant: 'note', children: 'Plain note without title.' },
 };
 export const Quote: Story = {
   args: {
     variant: 'quote',
-    children: '"The best architecture is one that survives change."' as never,
+    children: '"The best architecture is one that survives change."',
   },
 };
 

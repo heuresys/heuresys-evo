@@ -37,11 +37,11 @@ export const WithLabel: Story = {
 };
 
 function Group() {
-  const [checked, setChecked] = useState<Record<string, boolean>>({
+  const [checked, setChecked] = useState({
     p1: true,
     p2: false,
     p3: true,
-  });
+  } as Record<string, boolean>);
   return (
     <div className="space-y-2">
       {Object.entries(checked).map(([key, val]) => (

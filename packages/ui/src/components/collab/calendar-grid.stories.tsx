@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
-import { CalendarGrid } from './calendar-grid';
+import { CalendarGrid, type CalendarEvent } from './calendar-grid';
 
 const meta: Meta<typeof CalendarGrid> = {
   title: 'Collab/CalendarGrid',
@@ -11,11 +11,11 @@ const meta: Meta<typeof CalendarGrid> = {
 export default meta;
 type Story = StoryObj<typeof CalendarGrid>;
 
-const events = [
-  { id: '1', date: '2026-05-03', title: 'Sprint planning', tone: 'primary' as const },
-  { id: '2', date: '2026-05-08', title: 'PR review', tone: 'success' as const },
-  { id: '3', date: '2026-05-15', title: 'Deadline', tone: 'destructive' as const },
-  { id: '4', date: '2026-05-22', title: 'Demo', tone: 'warning' as const },
+const events: CalendarEvent[] = [
+  { id: '1', date: '2026-05-03', title: 'Sprint planning', tone: 'primary' },
+  { id: '2', date: '2026-05-08', title: 'PR review', tone: 'success' },
+  { id: '3', date: '2026-05-15', title: 'Deadline', tone: 'destructive' },
+  { id: '4', date: '2026-05-22', title: 'Demo', tone: 'warning' },
 ];
 
 function Demo() {
