@@ -34,7 +34,8 @@
     "husky": "9.1.7",
     "lint-staged": "15.5.2",
     "pg": "8.20.0",
-    "prettier": "3.8.3"
+    "prettier": "3.8.3",
+    "vitest": "^4.1.0"
   },
   "overrides": {
     "postcss": "^8.5.10",
