@@ -24,6 +24,10 @@ jobs:
 
   typecheck:
     runs-on: ubuntu-latest
+    env:
+      # services/app's transitive closure (566 Prisma models + 180 UI components +
+      # the brand-studio page) overflows the default 2GB V8 heap during tsc.
+      NODE_OPTIONS: --max-old-space-size=4096
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
