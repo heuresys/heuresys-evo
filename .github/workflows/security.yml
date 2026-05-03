@@ -45,6 +45,7 @@ jobs:
         with:
           node-version: '20.x'
           cache: 'npm'
+      - run: npm install -g npm@11
       - run: npm ci --no-audit --no-fund
       - name: npm audit (production deps)
         run: npm audit --omit=dev --audit-level=high

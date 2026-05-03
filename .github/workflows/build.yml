@@ -21,6 +21,7 @@ jobs:
         with:
           node-version: '20.x'
           cache: 'npm'
+      - run: npm install -g npm@11
       - run: npm ci --no-audit --no-fund
       - name: Generate Prisma clients (offline from schema)
         run: |
