@@ -37,10 +37,12 @@ const STEPS = [
 export function ThemeBuilderWizard({
   initial,
   onComplete,
+  onChange,
   className,
 }: {
   initial?: Partial<ThemeBuilderState>;
   onComplete?: (state: ThemeBuilderState) => void;
+  onChange?: (state: ThemeBuilderState) => void;
   className?: string;
 }) {
   const [state, setState] = React.useState<ThemeBuilderState>({
@@ -48,6 +50,14 @@ export function ThemeBuilderWizard({
     ...initial,
   });
   const [step, setStep] = React.useState(0);
+
+  const onChangeRef = React.useRef(onChange);
+  React.useEffect(() => {
+    onChangeRef.current = onChange;
+  }, [onChange]);
+  React.useEffect(() => {
+    onChangeRef.current?.(state);
+  }, [state]);
 
   const update = <K extends keyof ThemeBuilderState>(key: K, value: ThemeBuilderState[K]) =>
     setState((s) => ({ ...s, [key]: value }));
