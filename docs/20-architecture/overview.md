@@ -142,7 +142,7 @@ Multi-istanza horizontal scaling: deferred (richiede swap rate-limit a Redis-bac
 
 ## References
 
-- [docs/decisions/](../decisions/) — 19 ADR attivi (2 superseded: 0003, 0005)
-- [docs/guides/](../guides/) — operational guides
-- [docs/runbooks/](../runbooks/) — common ops
-- [docs/hardening/](../hardening/) — RTGB Cantiere B state
+- [decisions/](../decisions/) — 21 ADR (3 superseded: 0003, 0005, 0019). Post-S11 Phase B+: `50-reference/decisions/`
+- [30-developer/](../30-developer/) — developer how-to (post-S11 Phase B3 sostituirà `docs/guides/`)
+- [40-operations/runbooks/](../40-operations/) — operational playbooks (post-S11 Phase B3 sostituirà `docs/runbooks/`)
+- [hardening/](../hardening/) — RTGB Cantiere B state (post-S11 Phase B4 → `90-archive/hardening/`)
