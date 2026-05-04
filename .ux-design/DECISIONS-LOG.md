@@ -156,6 +156,25 @@ In una nuova sessione, Enzo dirà "lavoriamo sul brand" o equivalente, e Claude 
 
 ---
 
+## L13 — 2026-05-05 — Slash command `/brand` + skill `brand-resume` istituiti
+
+**Decisione**: oltre ai 3 file SoT in `.ux-design/` e ai pointer in `CLAUDE.md`/`STATE.md`/auto-memory (L12), creare:
+
+1. **Slash command `/brand`** in `.claude/commands/brand.md` — protocollo testuale che Claude esegue quando l'utente digita `/brand`
+2. **Skill `brand-resume`** in `.claude/skills/brand-resume/SKILL.md` — invocabile via `Skill brand-resume` con auto-trigger su keyword detection (description nel frontmatter contiene i trigger)
+
+**Contesto**: Enzo: "ok, facciamolo subito. aggiungi /brand e skill brand-resume, memorizza tutto (specialmente tutti gli artefatti e i modelli già creati)".
+
+**Conseguenza**: il workstream brand è ora attivabile in **3 modi ridondanti**:
+
+- Slash command esplicito (`/brand`)
+- Skill auto-trigger via descriptor matching
+- Trigger keyword detection via auto-memory entry
+
+Persistenza garantita: tutti i file in git, sincronizzati cross-machine. Skill list di Claude Code mostra `brand` e `brand-resume` come available immediatamente dopo creazione (verificato 2026-05-05).
+
+---
+
 ## Decisioni scartate (per riferimento)
 
 | Direzione                                                         | Motivo scarto                                                  | Reference                            |

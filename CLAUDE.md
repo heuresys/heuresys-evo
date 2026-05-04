@@ -21,6 +21,12 @@ Workstream parallelo per costruzione brand identity completa di Heuresys, segreg
 
 **Trigger di attivazione**: se Enzo dice "lavoriamo sul brand", "ux-design", "logo", "palette", "tipografia", "dashboard design", "riprendiamo il design" — segui il protocollo in [`.ux-design/SESSION-RESUME.md`](.ux-design/SESSION-RESUME.md) prima di rispondere.
 
+**Attivazione esplicita** (3 modi ridondanti):
+
+- Slash command `/brand` (vedi [`.claude/commands/brand.md`](.claude/commands/brand.md))
+- Skill `brand-resume` (vedi [`.claude/skills/brand-resume/SKILL.md`](.claude/skills/brand-resume/SKILL.md))
+- Trigger keyword detection via auto-memory `~/.claude/projects/D--evo-heuresys-com/memory/feedback_brand_workstream.md`
+
 | File                                                           | Scopo                                                                                                   |
 | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
 | [`.ux-design/SESSION-RESUME.md`](.ux-design/SESSION-RESUME.md) | Protocollo 8-step per ripresa cross-session (skill + tools + http server + greeting)                    |

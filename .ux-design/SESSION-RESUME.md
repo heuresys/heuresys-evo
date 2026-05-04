@@ -2,6 +2,14 @@
 
 > **Scopo**: protocollo per riprendere il workstream brand identity in una sessione fresca. Quando l'utente dice "lavoriamo sul brand" / "riprendiamo il design" / "continuiamo con la ux" / accenna a logo/palette/typography/dashboard, **segui questo file dall'inizio alla fine prima di rispondere**.
 
+## Quick start (3 modi alternativi per attivare)
+
+| Modo                 | Come                                                                                                                                                                                         |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Slash command**    | L'utente digita `/brand` → Claude esegue `.claude/commands/brand.md`                                                                                                                         |
+| **Skill invocation** | Claude invoca `Skill brand-resume` (auto-trigger su keyword)                                                                                                                                 |
+| **Auto-detection**   | claude-mem `MEMORY.md` ha entry `feedback_brand_workstream.md` in cima → auto-loaded → trigger detection automatico su keyword "brand"/"ux"/"logo"/"palette"/"tipografia"/"dashboard design" |
+
 ## Trigger di attivazione
 
 Attiva questo protocollo se l'utente:
