@@ -9,6 +9,58 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Branch protection on `main`** (2026-05-04, S10): 7 required status checks (`lint`, `typecheck`, `test`, `build-workspaces`, `gitleaks`, `semgrep`, `npm-audit`) + required linear history + force push blocked + deletion blocked. `enforce_admins=false` (override emergenza). All future changes pass via PR + auto-merge cascade. See `docs/decisions/0019-repo-visibility-flip-and-branch-protection.md`.
+- **Storybook deploy preview on GitHub Pages** (2026-05-04, S10): workflow `.github/workflows/storybook.yml` builds `packages/ui` Storybook on PR + deploys on `main` push. Live URL: `https://heuresys.github.io/heuresys-evo/`. Deploy preview NOT in required checks (dev tool, not gating).
+- **Auto-merge enabled on repo** (2026-05-04, S10): `gh pr merge --auto --squash --delete-branch` queues PR merges automatically once CI green + branch up-to-date. Combined with `allow_update_branch` for fluid cascade across multi-PR sequences.
+- **Auto-handoff retention rotation** (2026-05-04, S10): `.claude/hooks/auto-handoff.sh` now keeps only the most recent 50 breadcrumbs in `.handoff/auto/` (override via `AUTO_HANDOFF_KEEP_LAST=N`). First rotation 194→50 executed; pre-rotation backup at `~/.handoff-archive/heuresys-evo/auto-S10-20260504T132402Z.tar.gz`.
+- **Cross-context behavioral layer `.claude/CLAUDE.md`** (2026-05-04, S10): project-scoped (~150 lines) embedding 15 sanitized behavioral rules from Enzo's global. Loaded by Claude Code CLI alongside global, available via git pull in cloud contexts where global is missing (claude.ai web, Antigravity, Cantieri AI cloud). No personal/network info exposed (repo PUBLIC).
+- **Wiki external foundation imported** (2026-05-04, S10): 6 selected files (~112KB) from external Heuresys wiki:
+  - `docs/strategy/HEURESYS_VISION.md` — vision/positioning, 7 pillars, 5 dimensions, quantitative claims (Ulrich 4×, Deloitte 63%)
+  - `docs/strategy/THEORETICAL_FOUNDATIONS.md` — synthesis cross-source 7 pillars
+  - `docs/strategy/EXTERNAL_FRAMEWORKS_REFERENCE.md` — reading list 18 academic/consulting frameworks
+  - `docs/strategy/COMPETITIVE_LANDSCAPE.md` — comparison vs adjacent frameworks
+  - `docs/20-architecture/knowledge-graph-esco.md` — ESCO KG schema with cardinality (14k skills, 126k relations, 4.5k crosswalk NACE)
+  - `docs/30-developer/rbp-data-model.md` — 18 RBP tables with cardinality
+  - Wikilinks `[[X]]` preserved as-is (resolution deferred S11), source attribution footer on each file.
+- **Storybook deploy operational runbook** (2026-05-04, S10): `docs/runbooks/storybook-deploy.md` with trigger procedures, verification commands, permissions, concurrency, troubleshooting, future extensions (PR preview, Chromatic, required check options).
+- **ADR-0019 NEW** (2026-05-04, S10): "Repository visibility flip (private → public) + branch protection enforcement". ~6KB documenting S9 flip rationale (CI billing exhausted) + S10 branch protection setup + workflow PR-driven default. Supersedes ADR-0005 (mirror privato come backup).
+
+### Changed
+
+- **Repository visibility: PRIVATE → PUBLIC** (2026-05-04, S9, ratified S10 with ADR-0019): `https://github.com/heuresys/heuresys-evo` now public. Pre-flip security verified with gitleaks (75 commits history, 0 leaks). Consequences: GitHub Actions unlimited (no future billing risk), branch protection now configurable for free, license decision pending.
+- **`@anthropic-ai/sdk` 0.30.1 → 0.92.0** (2026-05-04, S10 PR #7): major bump (62 minor versions of evolution). Affected: `services/enrichment/src/clients/anthropic.ts` — only factory + model resolver, zero API call yet, no breaking change for current code. Future Phase 6+ handlers will use modern API (AsyncIterator streaming, prompt caching beta, typed tool calls, error subclasses).
+- **`tailwind-merge` 2.6.1 → 3.5.0** (2026-05-04, S10 PR #8): major bump for Tailwind v4 support. Affected: `packages/ui/src/lib/cn.ts` — standard `twMerge(clsx(inputs))` helper, no API changes. Required for proper `tailwind-merge` semantics with Tailwind 4 utilities.
+- **`pino-http` 10.5.0 → 11.0.0** (2026-05-04, S10 PR #6): major bump. Affected: `services/api-gateway/src/middleware/log.ts` — standard `pinoHttp({...})` factory pattern, no breaking observed.
+- **GitHub Actions versions bumped** (2026-05-04, S10): `actions/checkout@4→6`, `actions/setup-node@4→6`, `actions/upload-artifact@4→7` (PRs #1, #2, #3).
+- **Storybook group dev-deps bumped** (2026-05-04, S10 PR #10): 4 storybook packages updated.
+- **TypeScript types group bumped** (2026-05-04, S10 PR #13): 2 `@types/*` packages updated.
+- **Project documentation drift corrected** (2026-05-04, S10 PR #16): 16 files aligned to actual S10 state. Notable corrections:
+  - `CLAUDE.md` root: API Gateway "NestJS" → **Express 5** (verified `services/api-gateway/package.json` has `express ^5.2.1`, no `@nestjs/*` deps)
+  - `CLAUDE.md` root: Prisma "6" → **5.22** (bump 6/7 deferred per ADR-0009)
+  - `CLAUDE.md` root: tests "130+" → **250** (S8 fix workspace + enrichment workspace added)
+  - `README.md` root: `services/app` port "3000" → **3200** (matches actual systemd unit + nginx vhost)
+  - `docs/decisions/0017-tenant-ontology-versioning.md` **renamed → 0020-** (resolves duplicate-0017 collision with 0017-design-system-v2-extended)
+  - `docs/decisions/0003-auth-nextauth-v5-prisma.md` + `0005-github-mirror-private.md` marked **SUPERSEDED** with prominent headers
+  - `docs/decisions/README.md` index 4 entries → **20 entries** (full ADR catalog)
+  - `docs/decisions/0009-stack-version-strategy.md` npm audit "6 advisories" → **0 advisories** (S8 supply chain hardening reflected)
+  - `docs/decisions/0016-cicd-strategy.md` branch protection "deferred post-MVP" → **ENFORCED S10** with full configuration
+  - `docs/architecture/overview.md` services/app "/login + /dashboard" → **5 pages** + endpoint count
+- **`.claude/skills/handoff/references/auto-handoff-hook.md`** (2026-05-04, S10): updated with retention rotation block + maintenance section.
+
+### Security
+
+- **Branch protection enforcement** (2026-05-04, S10): main now blocks force push, deletion, and direct push outside PR workflow. 7 required status checks (CI/Build/Security combined) gate every merge. Linear history enforced (no merge commits, only squash/rebase). Mitigation against accidental destructive operations + audit trail via PR descriptions.
+
+### Fixed
+
+- **`docs/decisions/0017` numbering collision** (2026-05-04, S10 PR #16): two ADRs created independently by Cantiere A and Cantiere B both used number 0017. The Tenant Ontology Versioning ADR renamed to `0020-tenant-ontology-versioning.md`, references in `0018-governance-audit-trail.md` updated. Prevents future ambiguity.
+
+---
+
+## [Unreleased] (pre-S10 entries below)
+
+### Added (pre-S10)
+
 - **`NEXT_PUBLIC_SHOW_DEV_HINT` env flag** (2026-05-04): opt-in flag for the `/login` "Dev seed: evo.dev / admin123" hint. Set to `1` only in local dev / staging. Default off in production. Documented in `services/app/.env.local.example`.
 - **Brand Studio dev tool** (`/brand-studio`, 2026-05-03): Server Component gated by `SUPERUSER` role that mounts the existing `ThemeBuilderWizard` from `@heuresys/ui` and lets the user generate design tokens, preview them site-wide via a 24h cookie, and apply them to the project by writing `services/app/src/styles/active-theme.css` (imported by the root layout). Defense in depth via `assertSuperuser()` in every Server Action. CSS payload validated (size cap 8KB, regex blacklist) on both server and client. Audit header (username + timestamp) written into the generated CSS file.
 - **`packages/ui` `ThemeBuilderWizard` `onChange` prop** (2026-05-03): optional callback that emits `ThemeBuilderState` on every internal state change. Non-breaking; lets consumers react to live state without waiting for the final Export action.

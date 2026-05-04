@@ -5,6 +5,147 @@
 
 ---
 
+## 2026-05-04 — Sessione 10 · branch protection + cascade dependabot + doc audit + wiki ingest + cross-context CLAUDE.md
+
+**Duration**: ~3h45min (14:00 → 17:45 GMT+2)
+**Branch**: vari feature branch + main via cascade auto-merge
+**Agent**: Claude Opus 4.7 (1M context)
+**Commits this session**: 13 PR mergeati su main (1 ancora in lag GitHub state, ma commit `db9a4f7` su main)
+
+### Mandato
+
+L'utente ha aperto la sessione con `inizia sessione`, ho eseguito session start protocol (CLAUDE.md). Lavoro evoluto in 6 macro-aree non originariamente pianificate ma emerse iterativamente: (1) decisione "Prisma da declassare a Reminder, affrontiamo branch protection"; (2) attivazione branch protection completa + auto-handoff retention rotation; (3) richiesta utente "completiamo TXT cleanup, Dependabot, Storybook publish CI"; (4) audit comprensivo doc per drift identification; (5) ingest selettivo wiki esterno + design cross-context CLAUDE.md per coerenza multi-context; (6) audit strutturale `/docs` con plan executable per S11 consolidation.
+
+### Tasks completati
+
+#### Branch protection + governance hardening (atomico)
+
+- ✅ **Branch protection attivata su `main`** via `gh api PUT`: 7 required checks (`lint`, `typecheck`, `test`, `build-workspaces`, `gitleaks`, `semgrep`, `npm-audit`) + `required_linear_history: true` + `allow_force_pushes: false` + `allow_deletions: false` + `enforce_admins: false`. Configurazione documentata in nuovo **ADR-0019** (~6KB, "Repository visibility flip + branch protection enforcement"). Verification command salvata in HANDOFF.
+- ✅ **`allow_auto_merge: true`** + **`allow_update_branch: true`** abilitati sul repo via `gh api PATCH` → cascade Dependabot fluida senza intervento manuale.
+- ✅ **Auto-handoff retention rotation** in `.claude/hooks/auto-handoff.sh`: aggiunto blocco `--keep-last 50` (override via env `AUTO_HANDOFF_KEEP_LAST=N`, 0 disabilita). Pattern `YYYYMMDD-HHMMSS.md` ordina lessicograficamente = cronologicamente. **First rotation 194→50** eseguita su dataset reale; backup tarball pre-rotation in `~/.handoff-archive/heuresys-evo/auto-S10-20260504T132402Z.tar.gz` (9KB).
+
+#### Cascade Dependabot (8 PR)
+
+- ✅ **PR #13** types group (2 pkg minor) → MERGED 13:33Z
+- ✅ **PR #1** actions/upload-artifact 4→7 → MERGED 13:38Z
+- ✅ **PR #2** actions/setup-node 4→6 → MERGED 13:45Z
+- ✅ **PR #3** actions/checkout 4→6 → MERGED 13:48Z
+- ✅ **PR #6 Lotto B** pino-http 10→11 (services/api-gateway/middleware/log.ts, std factory invariata) → MERGED 13:56Z
+- ✅ **PR #10** storybook group (4 pkg) → MERGED 14:05Z
+- ✅ **PR #8 Lotto B** tailwind-merge 2→3 (necessario per Tailwind v4 support, packages/ui/lib/cn.ts) → MERGED 14:09Z
+- ✅ **PR #7 Lotto B** @anthropic-ai/sdk 0.30.1 → 0.92.0 (services/enrichment/clients/anthropic.ts solo factory + model resolver, zero API call → no break) → MERGED 14:13Z
+
+Tutti i 3 Lotto B major bumps **passati senza errori CI** dopo rebase Dependabot + auto-merge — pattern validato.
+
+#### S10 housekeeping + Storybook CI (4 PR mie)
+
+- ✅ **PR #14** S10 housekeeping (HANDOFF restructure: Prisma→Reminder, branch protection done, priorities rinumerate; hook auto-handoff retention) → MERGED 14:21Z
+- ✅ **PR #15** Storybook CI workflow `.github/workflows/storybook.yml` (build su PR + deploy su main → GitHub Pages `https://heuresys.github.io/heuresys-evo/`, `actions/deploy-pages@v4`, npm@11 pin per evitare lock mismatch error) → MERGED 13:58Z. **GitHub Pages enabled** via `gh api -X POST repos/.../pages -f build_type=workflow`.
+- ✅ **PR #16** S10 doc alignment (16 file fix drift) → MERGED 15:24Z. Include: CLAUDE.md root API Gateway NestJS→**Express 5** (verificato package.json), Prisma 6→**5.22**, 130+→**250 test**, "Stato attuale" rifatto S10 (5 pagine, 8+ endpoint, 605 RLS, 326 RBP joins); README port 3000→**3200**, 15→19 ADR, License section aggiornata; ADR-0003/0005 **SUPERSEDED** headers; **ADR-0017 collision risolta** rinominando `0017-tenant-ontology-versioning.md` → `0020-` + update reference in ADR-0018; **ADR-0019 NEW** ~6KB; ADR-0009 npm audit 6→0 (S8 supply chain hardening reflected); ADR-0016 branch protection enforcement done; ADR README index 4→20 entries; feature-parity-tracking baseline 2026-05-01→2026-05-04; governance-evo.md status date + 605 RLS + open issue P1-P10 discrepancy; architecture/overview.md +/showcase +/brand-studio +endpoint count +ADR-0019; auto-handoff-hook.md skill ref + retention block; **NUOVO** `docs/runbooks/storybook-deploy.md` (~5KB).
+
+#### Wiki ingest + cross-context layer (3 PR mie)
+
+- ✅ **PR #17** wiki ingest (6 file foundation, ~112KB) → MERGED 14:51Z. Imported da `C:\Users\enzospenuso\wiki-space\heuresys-wiki\wiki\` con preservation-focused approach: `overview.md` → `docs/strategy/HEURESYS_VISION.md`, `syntheses/heuresys-theoretical-foundations.md` → `THEORETICAL_FOUNDATIONS.md`, `concepts/esco-knowledge-graph.md` → `docs/20-architecture/knowledge-graph-esco.md`, `concepts/rbp-data-model.md` → `docs/30-developer/rbp-data-model.md`, `external_sources.md` → `EXTERNAL_FRAMEWORKS_REFERENCE.md`, `syntheses/heuresys-vs-adjacent-frameworks.md` → `COMPETITIVE_LANDSCAPE.md`. **367 wikilink Obsidian preserved as-is** (resolution deferred S11). Disclaimer + footer source attribution su ogni file.
+- ✅ **PR #18** cross-context behavioral layer `.claude/CLAUDE.md` (~150 righe) → MERGED ~15:35Z (commit `db9a4f7` su main, gh API state lag). Embedda 15 regole sanitized del global Enzo per coerenza in tutti i contesti repo (PC/Mac/VM/claude.ai web/Antigravity/cloud). Skip Reg #7 (PowerShell OS-specific) e Reg #13 (Cowork legacy). Reg #11 GIT SAFETY rinforzata con branch protection S10. Reg #10 SECRET HYGIENE riformulata in linguaggio descrittivo per evitare false positive gitleaks pre-commit. Repo PUBLIC: zero info personali (no IP VM, no hostname, no chiavi).
+- ✅ **PR #19** S11 doc consolidation plan `.handoff/S11-doc-consolidation-plan.md` (236 righe executable) → MERGED 15:49Z. Schema target Diátaxis numbered + meta, 13 atomi in 3 fasi (A 3h non-distruttiva + B 5h move bulk + C 2h cleanup link + buffer 4h), strategia ~6 PR sequenziali in S11.
+
+#### Side actions
+
+- ✅ **TXT cleanup Porkbun**: utente ha rimosso manualmente i 2 record TXT residui `_acme-challenge.heuresys.com` da Porkbun dashboard; verificato con `nslookup` (ora ritorna solo CNAME wildcard parking, no TXT).
+
+### Files changed (vs `ddc31dd` last handoff commit S8)
+
+```
+13 PR mergeati su main, totale ~30+ file unique:
+- .claude/CLAUDE.md (NEW, ~150 righe)
+- .claude/hooks/auto-handoff.sh (+13 retention block)
+- .claude/skills/handoff/references/auto-handoff-hook.md (+15)
+- .github/workflows/storybook.yml (NEW, 63 righe)
+- .handoff/HANDOFF.md (-30/+28 net via PR #16, +/- via PR #14)
+- .handoff/S11-doc-consolidation-plan.md (NEW, 236 righe)
+- CLAUDE.md (root): API Gateway, Prisma, test count, "Stato attuale"
+- README.md (root): port 3000→3200, ADR count, License
+- docs/30-developer/feature-parity-tracking.md (baseline + Express)
+- docs/_meta/governance-evo.md (status date + 605 RLS + open issue)
+- docs/architecture/overview.md (5 pages + 8+ endpoint + ADR-0019)
+- docs/decisions/0003-auth-nextauth-v5-prisma.md (SUPERSEDED header)
+- docs/decisions/0005-github-mirror-private.md (SUPERSEDED header)
+- docs/decisions/0009-stack-version-strategy.md (npm audit 6→0)
+- docs/decisions/0016-cicd-strategy.md (branch protection ENFORCED)
+- docs/decisions/0017-tenant-ontology-versioning.md (RENAMED → 0020)
+- docs/decisions/0018-governance-audit-trail.md (refs 0017→0020)
+- docs/decisions/0019-repo-visibility-flip-and-branch-protection.md (NEW)
+- docs/decisions/0020-tenant-ontology-versioning.md (renamed dest)
+- docs/decisions/README.md (4→20 entries indexed)
+- docs/runbooks/storybook-deploy.md (NEW)
+- docs/strategy/{HEURESYS_VISION, THEORETICAL_FOUNDATIONS, EXTERNAL_FRAMEWORKS_REFERENCE, COMPETITIVE_LANDSCAPE}.md (NEW wiki imports)
+- docs/20-architecture/knowledge-graph-esco.md (NEW wiki import)
+- docs/30-developer/rbp-data-model.md (NEW wiki import)
+- package.json + package-lock.json (Lotto B major + GHA action bumps)
+- services/enrichment/package.json (anthropic-ai/sdk bump)
+```
+
+### Commits
+
+13 squash merge commit su main (in ordine cronologico merge time):
+
+- `9142e3c` chore(deps): bump the types group with 2 updates (#13)
+- `7279f00` chore(deps): bump actions/upload-artifact from 4 to 7 (#1)
+- `c7e8e66` chore(deps): bump actions/setup-node from 4 to 6 (#2)
+- `4ffefb6` chore(deps): bump actions/checkout from 4 to 6 (#3)
+- `d0afbce` chore(deps): bump pino-http from 10.5.0 to 11.0.0 (#6)
+- `75b850d` ci(repo): add Storybook deploy workflow to GitHub Pages (#15)
+- `202fdc3` chore(deps-dev): bump the storybook group across 1 directory with 4 updates (#10)
+- `4667c95` chore(deps): bump tailwind-merge from 2.6.1 to 3.5.0 (#8)
+- `f06c523` chore(deps): bump @anthropic-ai/sdk from 0.30.1 to 0.92.0 (#7)
+- `b4552ec` chore(repo): auto-handoff retention rotation + S10 housekeeping (#14)
+- `a2c1d50` docs(repo): import 6 foundation files from external Heuresys wiki (#17)
+- `41d3ab3` docs(repo): S10 documentation alignment — full drift correction (#16)
+- `db9a4f7` docs(repo): add .claude/CLAUDE.md as cross-context behavioral layer (#18)
+- `e0e325c` docs(repo): add S11 doc consolidation plan (executable) (#19)
+
+CI 3/3 green su tutti i merge (+ Storybook Deploy workflow attivo).
+
+### Decisions
+
+- **Branch protection STRICT 7 checks invece di subset minimal 3**: l'utente ha confermato il default raccomandato (tutti i 7 job individuali required vs 1 per workflow). Razionale: granularity per-job garantisce che ogni job singolo passi prima del merge, anche per .md change. Pattern validato in cascade — zero falsi positivi.
+- **`enforce_admins=false`**: override emergenza disponibile (single contributor). Decision documentata in ADR-0019.
+- **Lotto B Dependabot major MERGE non review individuale**: dopo analisi impact (file count, codice toccato, API stability) tutti e 3 i major bumps low risk per il codice attuale (factory only, helper standard). Pattern: impact-based decision invece di "tutti i major bloccano".
+- **Cross-context behavioral layer Opt B (`.claude/CLAUDE.md` scoped)**: invece di embed in root CLAUDE.md (Opt A) o reference esterno (Opt C). Razionale: separation of concerns (root = project meta, scoped = behavior), naturale uso della dir `.claude/` esistente, re-sync chiaro.
+- **Wiki ingest preservation-focused, NO wikilink resolution massa**: 367 link `[[X]]` Obsidian preserved as-is invece di rewriting (richiederebbe mapping completo wiki paths → repo paths, error-prone). Resolution deferred S11.
+- **Doc consolidation Opt C in S11 dedicated, NIENTE in S10**: l'utente ha esplicitamente scelto opt A (niente oggi) tra le 3 opzioni proposte. Sessione S10 già densa (13 PR), consolidation richiede ~14h fresh focus. Plan executable salvato in `.handoff/S11-doc-consolidation-plan.md`.
+- **ADR-0017 collision: rename → 0020** invece di renumber sequenziale. Razionale: minimal-touch (cambio singolo file + 2 reference in ADR-0018), no impatto su ADR-0018 esistente. Renumber sequenziale (0017→...→0019) sarà valutato come parte di S11 consolidation se vale la pena.
+- **Auto-merge cascade pattern validato come default**: 13 PR mergeati senza intervento manuale dopo trigger iniziale `--auto`. Pattern: `gh pr merge $PR --squash --auto --delete-branch` + `allow_update_branch=true` enabled. Da usare sempre per multi-PR cascade.
+- **CLAUDE.md root pre-S10 modifications stashed, gestione separata S11**: utente non si è espresso su cosa fare con quel diff (era `M CLAUDE.md` all'apertura sessione). Lasciato stashed, da riprendere in S11.
+
+### Blockers / failures
+
+- **gitleaks pre-commit hook false positive su `.claude/CLAUDE.md`**: la prima versione del file conteneva la stringa letterale di un header PEM di chiave privata (come esempio di pattern in Reg #10 SECRET HYGIENE). Gitleaks l'ha matchato come potential secret e bloccato il commit. **FIX**: Reg #10 riformulata in linguaggio descrittivo (`pattern tipici da intercettare: parole-chiave credenziali, prefissi API key dei provider, header chiavi private PEM/PKCS8`) — il messaggio funzionale resta identico, ma niente stringa letterale che triggera il regex gitleaks.
+- **Storybook deploy workflow primo run FAILED**: errore `npm ci` con "Missing: postcss@8.5.12 from lock file". Root cause: il lockfile è generato con npm@11, ma `setup-node@v4` default installa npm@10.x → semantic mismatch. **FIX**: aggiunto `npm install -g npm@11` step prima di `npm ci` nel workflow (pattern coerente con CI/Build esistenti).
+- **gh API state lag su PR #18**: il merge commit `db9a4f7` è arrivato su `main` ma `gh pr view 18` ha continuato a riportare `state: OPEN, mergedAt: null` per >5 minuti. Il PR è effettivamente mergeato (commit confirmed via `git log`), solo il PR state in API è in lag. **NOT BLOCKING** — il commit è autoritativo.
+- **GraphQL 502 transient durante set auto-merge bulk**: 1 dei 3 trigger auto-merge sequenziali ha hit GitHub 502 Gateway Timeout. **FIX**: retry singolo, andato al secondo tentativo. Il primo aveva comunque registrato auto=true (visibile in successivo poll).
+
+### Lezione operativa cross-project
+
+- **Cascade auto-merge multi-PR pattern**: con `allow_auto_merge=true` + `allow_update_branch=true` + `branch protection strict=true`, è possibile lanciare N PR in cascade trigger via `gh pr merge --auto` e GitHub li mergia in sequenza automaticamente non appena CI verde + branch up-to-date. Verificato concretamente con 13 PR S10 in ~50min totali. Pattern: nessun `git push origin main` diretto, sempre branch + PR.
+- **`gh pr update-branch <PR>` per accelerare cascade**: quando un PR diventa BEHIND dopo merge di un altro, GitHub eventually fa auto-update ma può richiedere minuti. `gh pr update-branch` forza l'update immediato (lecito perché allow_update_branch=true).
+- **Project CLAUDE.md NON deve duplicare global**: anche se accessibile da contesti dove global è assente, embeddare integralmente espone info personali su repo public + crea drift. Strategia corretta: file scoped `.claude/CLAUDE.md` con sotto-set sanitized (skip OS-specific, skip workflow-specific irrelevant, niente IP/hostname/chiavi). Pattern riusabile cross-project.
+- **Doc audit comprehensive prima di S11 consolidation**: prima di refactor massivo doc, fare audit con agent dedicato (`comprehensive-researcher`) per identificare drift specifici file:line + proposta target schema + plan executable atomico. Output diventa S<N+1> priority #1 con done-when verifications. Pattern: agent fa scoperta + proposta, l'utente approva, executione separata in fresh session dedicata.
+- **Wiki ingest selettivo > completo**: 173 file curated wiki + 1.566 raw → ingest solo 6 file foundation top-value, escludere tutto raw (branding pre-pivot, marketing, log esecuzione protocolli, ADR duplicati). Cherry-pick mirato evita pollution + mantiene SoT chiara. Resolution wikilink defer in fase dedicata.
+- **gitleaks pre-commit funziona ma matcha stringhe letterali**: includere pattern di esempio in doc (header PEM di chiave privata, prefissi API key tipo `sk-...`, parole `password|secret|token` in contesti specifici) trigga il hook anche se contesto è descrittivo. Workaround: linguaggio descrittivo invece di pattern literal, oppure code-block con escape, oppure config gitleaks baseline file.
+
+### References
+
+- ADR-0019 — Repository visibility flip + branch protection enforcement (NEW S10)
+- `.handoff/S11-doc-consolidation-plan.md` — pickup automatico inizio S11
+- Audit comprehensivo doc S10 (agent comprehensive-researcher): 89 file `.md` analizzati, 10 critici + 20+ minori + 7 gap identified
+- Audit strutturale `/docs` S10 close (agent comprehensive-researcher): 67 file su 18 location, schema target Diátaxis numbered + meta proposed
+- Wiki external analysis S10 (agent comprehensive-researcher): 173 curated + 1.566 raw, raccomandazione ingest selettivo 5+1 + ignore raw
+- `.handoff/snapshots/HANDOFF-2026-05-04-3.md` — snapshot S10 (questa sessione)
+- claude-mem observations S10: ~50+ obs registrate (vedi `mem-search` con query S10)
+
+---
+
 ## 2026-05-04 — Sessione 8 · supply chain closure + Prisma 7 exploration
 
 **Duration**: ~1h (23:50 first read → 00:43 last commit, UTC)
