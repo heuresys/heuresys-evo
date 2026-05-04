@@ -33,19 +33,19 @@ Piattaforma SaaS B2B di Organizational Intelligence & Workforce Orchestration. L
 
 ## Stack
 
-| Layer       | Tech                                                                                            |
-| ----------- | ----------------------------------------------------------------------------------------------- |
-| Workspace   | npm workspaces (Node ≥20, npm ≥10) — vedi `docs/20-architecture/monorepo-workspace-strategy.md` |
-| API Gateway | NestJS + zod/nestjs-zod (port 8200) — `services/api-gateway`                                    |
-| Frontend    | Next.js 16 + React 19 + Tailwind 4 (port 3200) — `services/app`                                 |
-| Workers     | BullMQ + Redis — `services/enrichment`                                                          |
-| UI Library  | Shadcn base + Cantiere B v2 (180 components) — `packages/ui`                                    |
-| ORM         | Prisma 6 (566 modelli, schema in `services/app/prisma/schema.prisma`)                           |
-| DB          | PostgreSQL 16 bare-metal (5432) — distinto dal legacy heuresys.com.evo che usa 5433 (container) |
-| Cache/Queue | Redis (6380)                                                                                    |
-| Auth        | NextAuth v4 (Credentials + bcryptjs)                                                            |
-| Test        | Vitest in api-gateway/app/ui/shared (130+ test)                                                 |
-| Lint/Format | ESLint 9, Prettier, Husky + lint-staged + commitlint                                            |
+| Layer       | Tech                                                                                                       |
+| ----------- | ---------------------------------------------------------------------------------------------------------- |
+| Workspace   | npm workspaces (Node ≥20, npm ≥10) — vedi `docs/20-architecture/monorepo-workspace-strategy.md`            |
+| API Gateway | Express 5 + zod (port 8200) — `services/api-gateway`                                                       |
+| Frontend    | Next.js 16 + React 19 + Tailwind 4 (port 3200) — `services/app`                                            |
+| Workers     | BullMQ + Redis — `services/enrichment`                                                                     |
+| UI Library  | Shadcn base + Cantiere B v2 (180 components) — `packages/ui`                                               |
+| ORM         | Prisma 5.22 (566 modelli, schema in `services/app/prisma/schema.prisma`) — bump 6/7 deferred, vedi HANDOFF |
+| DB          | PostgreSQL 16 bare-metal (5432) — distinto dal legacy heuresys.com.evo che usa 5433 (container)            |
+| Cache/Queue | Redis (6380)                                                                                               |
+| Auth        | NextAuth v4 (Credentials + bcryptjs)                                                                       |
+| Test        | Vitest 4 in api-gateway/app/ui/shared/enrichment (250 test, S8 fix workspace)                              |
+| Lint/Format | ESLint 9, Prettier, Husky + lint-staged + commitlint                                                       |
 
 ## Comandi quotidiani
 
@@ -85,12 +85,17 @@ nginx vhosts in `/etc/nginx/sites-available/`:
 - `evo.heuresys.com.conf` (active) → `/api/auth/` su 3200, `/api/` su 8200, `/` su 3200
 - `www.heuresys.com.conf` (preparato, attivabile via `scripts/enable-www-vhost.sh` dopo DNS update)
 
-## Stato attuale (2026-05-01)
+## Stato attuale (2026-05-04, S10)
 
-- **Pagine Next.js evo**: 3 (`/`, `/login`, `/dashboard`)
-- **Endpoint NestJS evo**: 0 funzionali (scaffolding presente)
+- **Pagine Next.js evo**: 5 (`/`, `/login`, `/dashboard`, `/showcase`, `/brand-studio`)
+- **Endpoint Express evo**: 8+ (4xx-aware, scaffolding + alcuni operativi)
+- **Test totali**: 250 verdi (5 workspace, 100% passing)
+- **RLS policies**: 605 attive · **RBP role-area-permission joins**: 326
+- **`packages/ui`**: ~180 component, Storybook 9 (84 stories), pubblicato su GitHub Pages (workflow `Storybook Deploy` S10)
+- **Vulnerabilità npm audit**: 0 (S8 supply chain hardening)
+- **Repo visibility**: PUBLIC (S9 flip post billing-exhaust). Branch protection attiva su `main` (S10): 7 required checks (`lint`, `typecheck`, `test`, `build-workspaces`, `gitleaks`, `semgrep`, `npm-audit`) + linear history + no force push + no deletion. `enforce_admins=false`. Auto-merge + `allow_update_branch` enabled
 - **Migration parity legacy**: vedi `docs/30-developer/feature-parity-tracking.md`
-- **Strategia migration**: PET-driven, vedi `docs/strategy/MIGRATION_STRATEGY_PET_DRIVEN.md`
+- **Strategia migration**: PET-driven, vedi `docs/strategy/MIGRATION_STRATEGY_PET_DRIVEN.md` (Phase 6 cutover-event CANCELLATA, sostituita da Phase 6+ progressive Tier 1 port)
 
 ## Multi-tenant & RBP (sintesi)
 

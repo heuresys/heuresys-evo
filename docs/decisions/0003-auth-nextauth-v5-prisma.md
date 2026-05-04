@@ -1,16 +1,19 @@
 # ADR-0003: Strategia auth/2FA — NextAuth v5 (Auth.js) + Prisma Adapter
 
-**Status**: Accepted
-**Date**: 2026-04-27
+**Status**: ⚠️ **SUPERSEDED** by ADR-0009 (Stack Version Strategy — NextAuth v4 stable adopted instead of v5 beta)
+**Date**: 2026-04-27 (original) · Superseded: vedi ADR-0009 timeline
 **Authors**: Enzo Spenuso
+
+> **Nota di supersessione**: la decisione originale di adottare NextAuth v5 (Auth.js beta) è stata superata dalla strategia stack (`docs/decisions/0009-stack-version-strategy.md`) che ha pinnato **NextAuth v4** stable in produzione. Migrazione a v5 deferred fino a release stable v5 (probabilmente Q3-Q4 2026 — vedi HANDOFF carry-forward "next-auth v5 timing").
 
 ## Context
 
 Il progetto `heuresys.com.evo` deve esporre un'area applicativa autenticata (`services/app`, SaaS dashboard B2B multi-tenant) e un backend API (`services/api-gateway`, Express 5) che condivide la stessa identity. Il dataset è multi-tenant con RLS PostgreSQL attiva: ogni richiesta deve eseguire `SET LOCAL app.current_tenant_id = '<uuid>'` prima delle query, altrimenti le policy restituiscono zero righe.
 
 La baseline DB v1 (mig 202, 680 tabelle, 270 employees, 4 tenants) ha già una tabella `users` ricca di colonne auth-related:
+
 - `password_hash` (varchar 255) — bcrypt `$2a$/$2b$` (compat `pgcrypto.crypt()`)
-- `totp_secret` (varchar 64) — **plaintext, DEPRECATED**, dropped da migration 221 *non ancora applicata* (1 user blocking)
+- `totp_secret` (varchar 64) — **plaintext, DEPRECATED**, dropped da migration 221 _non ancora applicata_ (1 user blocking)
 - `totp_secret_encrypted` (text) — AES-256-GCM envelope (`iv[12]||tag[16]||ciphertext`, base64)
 - `totp_enabled` (boolean), `totp_recovery_codes` (text[]), `totp_failed_attempts` (int), `totp_lockout_until` (timestamptz)
 - `role` (varchar 50, CHECK constraint con 9 valori: `SUPERUSER`, `TENANT_OWNER`, `SYSADMIN`, `IT_ADMIN`, `HR_DIRECTOR`, `HR_MANAGER`, `DEPT_HEAD`, `LINE_MANAGER`, `EMPLOYEE`)
@@ -42,13 +45,14 @@ Implementazione concreta:
    - Step 4: emissione session JWT.
 
 2. **Session strategy**: `jwt` (stateless). NextAuth firma un JWT con `AUTH_SECRET`, contenuto in cookie `__Secure-authjs.session-token` (httpOnly, sameSite=lax, secure in prod). No tabella `sessions` server-side (no persistenza esplicita oltre il cookie).
-   *Razionale*: il flusso v1 era già stateless; non vogliamo introdurre persistenza session DB se non per casi specifici (logout-all-devices, audit). Refresh implicito alla scadenza tramite `session.maxAge` (default 30g, configurabile a 7g per parity con v1 refresh).
+   _Razionale_: il flusso v1 era già stateless; non vogliamo introdurre persistenza session DB se non per casi specifici (logout-all-devices, audit). Refresh implicito alla scadenza tramite `session.maxAge` (default 30g, configurabile a 7g per parity con v1 refresh).
 
 3. **Adapter Prisma**: `PrismaAdapter(prisma)` da `@auth/prisma-adapter`. L'adapter gestisce le tabelle `Account`, `Session`, `VerificationToken` (schema canonico Auth.js). La nostra tabella `users` esistente viene mappata al modello `User` di Auth.js tramite Prisma schema con `@@map("users")` e field mapping; le colonne extra (`role`, `permissions`, `totp_*`, `tenant_id`, `employee_id`) restano e vengono esposte via callback.
 
 4. **Migration 222**: nuovo file `db/migrations/222_nextauth_tables.sql` crea `Account`, `Session` (anche se non popolata in strategia jwt, alcuni adapter la richiedono per VerificationToken FK), `VerificationToken`. Schema standard da `@auth/prisma-adapter` README.
 
 5. **Session callback** (chiave per RLS): in `services/app/src/lib/auth.ts`:
+
    ```ts
    callbacks: {
      async jwt({ token, user }) {
@@ -71,6 +75,7 @@ Implementazione concreta:
    ```
 
 6. **Helper `withTenant(tenantId, fn)` per RLS** (definito in `services/api-gateway/src/db/pool.ts` e replicato/condiviso in `services/app/src/lib/db.ts`):
+
    ```ts
    async function withTenant<T>(tenantId: string, fn: (tx: PrismaTx) => Promise<T>): Promise<T> {
      return prisma.$transaction(async (tx) => {
@@ -79,6 +84,7 @@ Implementazione concreta:
      });
    }
    ```
+
    Ogni handler API wrappa le query in `withTenant(req.session.user.tenantId, async (tx) => { ... })`. UUID escape rigoroso (parametrizzato con regex `^[0-9a-f-]{36}$` prima dell'interpolazione, perché `SET LOCAL` non accetta bind parameters).
 
 7. **Provider OAuth futuri**: `MicrosoftEntraId` e `Google` aggiungibili via `providers: [Credentials, MicrosoftEntraID, Google]`. Il mapping `OAuth identity → users.id` avviene via `Account` table dell'adapter Prisma (chiave `provider + providerAccountId`). Out-of-scope per S3, ma l'architettura lo permette senza rework.

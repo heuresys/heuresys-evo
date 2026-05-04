@@ -1,9 +1,9 @@
-# ADR-0017: Tenant Ontology Versioning
+# ADR-0020: Tenant Ontology Versioning
 
 **Status**: Accepted
-**Date**: 2026-05-01
+**Date**: 2026-05-01 (original) · Renumbered: 2026-05-04 (S10)
 **Authors**: Cantiere A (CLI autonomous-max session)
-**RTG reference**: Phase 4 task 4.12 (originally "ADR-010" — renumbered to 0017 because Cantiere B used 0010 for RLS coverage strategy)
+**RTG reference**: Phase 4 task 4.12 (originally "ADR-010" — renumbered to 0017 by Cantiere A because Cantiere B used 0010 for RLS coverage strategy. **Renumbered again to 0020 in S10** to resolve duplicate-0017 conflict with `0017-design-system-v2-extended.md`)
 
 ## Context
 

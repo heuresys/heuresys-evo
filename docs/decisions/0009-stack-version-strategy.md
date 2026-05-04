@@ -71,20 +71,32 @@ Negative:
 - `npx vitest run` (services/app): 12/12 passing (`authorize.test.ts`)
 - E2E sign-in flow: deferred to Phase B3 (Playwright config + DB-backed fixtures). Tracked in `state.json` task B1.5.
 
-## npm audit state (post-B1.8, 2026-05-01)
+## npm audit state (post-S8 supply chain hardening, 2026-05-04)
 
-`npm audit --omit=dev` reports 6 advisories (2 low + 4 moderate), all transitive:
+`npm audit --omit=dev` reports **0 advisories** (era 6 in S7 close, 5 in S8 mid).
 
-| Package    | Severity | Root cause                                                 | Fix path   |
-| ---------- | -------- | ---------------------------------------------------------- | ---------- |
-| cookie     | low      | OOB chars in cookie name/path/domain (GHSA-pxg6-pf52-xh8x) | upstream   |
-| @auth/core | low      | via cookie                                                 | upstream   |
-| postcss    | moderate | line-return parsing (GHSA-7fh5-64p2-3v2j)                  | next 16+   |
-| next       | moderate | via postcss                                                | next patch |
-| uuid       | moderate | buffer bounds (GHSA-w5hq-g745-h8pq) — affects v3/v5/v6     | upstream   |
-| next-auth  | moderate | via @auth/core + uuid (transitive)                         | upstream   |
+S8 chiusura supply chain ha eliminato tutte le 6 vulnerabilità tramite npm overrides nested:
 
-`npm audit fix --force` would downgrade `next-auth` to v3 (breaking; rejected). All fixes are gated on upstream patch releases. Risk accepted for the duration of B1; revisit at the start of B4 (security baseline) and again at B12 closure.
+- `postcss: ^8.5.10` (root override) — fix line-return parsing
+- `uuid: ^14.0.0` (root + nested in `exceljs`) — fix buffer bounds
+- `cookie: ^0.7.0` (nested in `next-auth` + `@auth/core`) — fix OOB chars
+
+Vedi `package.json` `overrides` block per gli override attivi.
+
+### Storico (per riferimento — pre-S8)
+
+`npm audit --omit=dev` reportava 6 advisories (2 low + 4 moderate), all transitive:
+
+| Package    | Severity | Root cause                                                 | Fix path applicato S8                |
+| ---------- | -------- | ---------------------------------------------------------- | ------------------------------------ |
+| cookie     | low      | OOB chars in cookie name/path/domain (GHSA-pxg6-pf52-xh8x) | nested override `cookie: ^0.7.0`     |
+| @auth/core | low      | via cookie                                                 | risolto via cookie override          |
+| postcss    | moderate | line-return parsing (GHSA-7fh5-64p2-3v2j)                  | root override `postcss: ^8.5.10`     |
+| next       | moderate | via postcss                                                | risolto via postcss override         |
+| uuid       | moderate | buffer bounds (GHSA-w5hq-g745-h8pq)                        | root + nested override `uuid: ^14.0` |
+| next-auth  | moderate | via @auth/core + uuid (transitive)                         | risolto via cookie + uuid override   |
+
+`npm audit fix --force` avrebbe downgradato `next-auth` a v3 (breaking; rejected in B1). Approccio finale: nested overrides senza version downgrade.
 
 ## References
 
