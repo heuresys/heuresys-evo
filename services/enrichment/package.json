@@ -17,7 +17,7 @@
     "clean": "rimraf dist node_modules/.cache"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.92.0",
+    "@anthropic-ai/sdk": "^0.93.0",
     "@heuresys/shared": "*",
     "bullmq": "^5.13.0",
     "ioredis": "^5.4.1",
