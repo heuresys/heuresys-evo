@@ -11,6 +11,7 @@ Il workflow CI (`.github/workflows/ci.yml`, attivato in commit `5ef7c96`) includ
 Quando il primo test integration verrà scritto (probabilmente in `services/api-gateway/` per validare un endpoint con accesso DB), serve una strategia chiara per fornire un PostgreSQL al CI.
 
 Vincoli e forze:
+
 - **Coerenza con ADR-0001** (PostgreSQL bare-metal in prod/dev) — la decisione "no container" si applica ai DBMS di produzione e sviluppo, NON ai DB effimeri usati per i test in CI. Il punto è: il DBMS che ospita dati operativi non è in container; il DBMS che esiste solo per la durata di un test sì può esserlo.
 - **pgvector richiesto** — lo schema usa l'estensione vector (embeddings 1536-dim), quindi qualsiasi soluzione deve supportarla.
 - **Determinismo** — i test devono essere riproducibili e isolati tra loro.
@@ -23,6 +24,7 @@ Vincoli e forze:
 Adottare **testcontainers-node** con l'immagine `pgvector/pgvector:pg16` come strategia primaria per i test integration in CI e in locale.
 
 Implementazione concreta:
+
 - `@testcontainers/postgresql` come devDependency in ogni service che ha test integration
 - Helper condiviso in `packages/shared/test-utils/postgres-container.ts` per orchestrare lifecycle (start/stop, schema bootstrap, cleanup)
 - Il container effimero è creato all'inizio di ogni suite (o per ogni test, configurabile), distrutto al termine
@@ -56,6 +58,7 @@ Questa decisione **non viola** ADR-0001: i container effimeri di test sono conce
 ## Consequences
 
 ### Positive
+
 - Isolamento completo tra test suite (ogni suite ha il proprio Postgres effimero)
 - Parallelizzazione senza coordinamento (Vitest/Jest possono lanciare suite in parallelo)
 - pgvector supportato out-of-the-box dall'immagine `pgvector/pgvector:pg16`
@@ -63,12 +66,14 @@ Questa decisione **non viola** ADR-0001: i container effimeri di test sono conce
 - Pattern industry-standard, ampia adozione e documentazione
 
 ### Negative
+
 - Overhead start container (~5-10s per suite) — mitigabile con suite più grandi
 - Richiede Docker disponibile nell'ambiente CI (default su GitHub Actions Ubuntu) e in locale per dev
 - Volume Docker ephemeral consuma I/O su CI runners — non significativo per dataset di test
 - Bootstrap schema + migrations da eseguire per ogni container — richiede helper riutilizzabile
 
 ### Follow-ups
+
 - Aggiungere `@testcontainers/postgresql` come devDependency in `services/api-gateway/` quando il primo test integration sarà scritto
 - Implementare helper `packages/shared/test-utils/postgres-container.ts` con API: `startTestPostgres()`, `applyBaseline(client)`, `applyMigrations(client, fromIndex)`, `cleanup()`
 - Aggiornare `.github/workflows/ci.yml` se necessario (l'attuale è già compatibile: `DATABASE_URL` viene settata dal test setup, non più da secret)

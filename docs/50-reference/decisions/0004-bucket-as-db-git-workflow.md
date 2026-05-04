@@ -51,12 +51,12 @@ Adottiamo un workflow **bucket-as-DB-git** in cui l'OCI Object Storage bucket `h
 
 ### Mappa working dir → DBMS → permessi bucket
 
-| # | Working dir | DBMS | Bucket |
-|---|---|---|---|
-| 1 | `D:\enzospenuso\Documents\GitHub\heuresys.com.evo\` (PC) | `pc-docker-evo` (Docker, 5432, condiviso con #2) | read+write |
-| 2 | `D:\heuresys.com.evo\` (PC, workspace primario) | stesso DBMS di #1 | read+write |
-| 3 | `/home/ubuntu/heuresys.com.evo/` (VM) | `vm-docker-v1` (Docker, 5433, schema `.evo` post-2026-04-29) | read+write |
-| 4 | `/home/ubuntu/heuresys-evo/` (VM) | `vm-baremetal-evo` (bare-metal, 5432) | **read-only** |
+| #   | Working dir                                              | DBMS                                                         | Bucket        |
+| --- | -------------------------------------------------------- | ------------------------------------------------------------ | ------------- |
+| 1   | `D:\enzospenuso\Documents\GitHub\heuresys.com.evo\` (PC) | `pc-docker-evo` (Docker, 5432, condiviso con #2)             | read+write    |
+| 2   | `D:\heuresys.com.evo\` (PC, workspace primario)          | stesso DBMS di #1                                            | read+write    |
+| 3   | `/home/ubuntu/heuresys.com.evo/` (VM)                    | `vm-docker-v1` (Docker, 5433, schema `.evo` post-2026-04-29) | read+write    |
+| 4   | `/home/ubuntu/heuresys-evo/` (VM)                        | `vm-baremetal-evo` (bare-metal, 5432)                        | **read-only** |
 
 ## Alternatives considered
 
