@@ -11,7 +11,7 @@ Compliance + governance require an immutable audit trail for sensitive mutations
 
 - RBP role-permission changes (who granted/revoked what, when)
 - Tenant configuration changes (plan upgrade, RLS policy adjustments)
-- Ontology version bumps (per ADR-0017)
+- Ontology version bumps (per ADR-0020, ex-ADR-0017 renumbered S10)
 - User role changes
 - Sensitive data access (export operations, admin reads of employee PII)
 
@@ -151,6 +151,6 @@ Pattern captured here so future endpoint authors follow it.
 
 - Phase 4 task 4.10 — already shipped `GET /audit-logs` endpoint with RBP gate
 - ADR-0008 Multi-tenant RLS — `current_tenant_id()` GUC + RLS policy template
-- ADR-0017 Tenant ontology versioning — version bumps emit audit_logs entries
+- ADR-0020 (ex-ADR-0017 renumbered S10) Tenant ontology versioning — version bumps emit audit_logs entries
 - Compliance basis: GDPR right-to-explanation requires showing data access
   history; SOC 2 audit scope mandates change tracking on access controls

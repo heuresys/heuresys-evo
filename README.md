@@ -44,7 +44,7 @@ npm run dev
 Servizi default:
 
 - `services/api-gateway` → http://localhost:8200
-- `services/app` → http://localhost:3000
+- `services/app` → http://localhost:3200
 
 ## Architettura
 
@@ -101,7 +101,7 @@ State: `.rtg-state-evo/state.json` (gitignored). Dashboard: `.rtg-state-evo/dash
 ## Documenti chiave
 
 - [`docs/hardening/README.md`](docs/hardening/README.md) — entry point Cantiere B
-- [`docs/decisions/`](docs/decisions/) — 15 ADR attivi (architettura + tradeoff)
+- [`docs/decisions/`](docs/decisions/) — 19 ADR attivi (architettura + tradeoff)
 - [`docs/guides/prisma-workflow.md`](docs/guides/prisma-workflow.md) — workflow DB
 - [`docs/guides/onboarding.md`](docs/guides/onboarding.md) — developer setup step-by-step
 - [`docs/guides/security.md`](docs/guides/security.md) — security baseline (B4)
@@ -109,7 +109,7 @@ State: `.rtg-state-evo/state.json` (gitignored). Dashboard: `.rtg-state-evo/dash
 
 ## License
 
-UNLICENSED (proprietary). Repository privato.
+UNLICENSED (proprietary, all rights reserved). Repository **PUBLIC** dal 2026-05-04 (S9 visibility flip). License decision dedicata pendente — vedi `.handoff/HANDOFF.md` open questions.
 
 ## AI assistant context
 

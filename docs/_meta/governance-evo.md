@@ -1,25 +1,27 @@
 # Governance Evo — Quick Reference
 
-**Status**: Active (2026-05-02)
+**Status**: Active (last reviewed 2026-05-04, S10)
 **Scope**: principi P1-P10 + RBP + PET + decoupling da CLAUDE.md root legacy. Onboarding in ≤30 min.
 **Audience**: nuovi dev evo, reviewer PR, architect.
+
+> ⚠️ **Open issue (S10)**: la formulazione P1-P10 in questo doc differisce da quella in `CLAUDE.md` root (es. P4 qui = "RLS first", P4 in CLAUDE.md = "Audit logged"). Da consolidare in S11: scegliere canonical formulation tra `CLAUDE.md`, questo doc e `docs/strategy/MIGRATION_STRATEGY_PET_DRIVEN.md` §Governance, e propagare.
 
 ## Principi P1-P10
 
 Sintesi (full text in `docs/strategy/MIGRATION_STRATEGY_PET_DRIVEN.md` §Governance):
 
-| #   | Principio                                        | Implicazione operativa evo                                                                  |
-| --- | ------------------------------------------------ | ------------------------------------------------------------------------------------------- |
-| P1  | Capability Governance multi-tenant               | Ogni feature scoped a `tenant_id`, niente concept "globale" senza esplicito `Platform`      |
-| P2  | Three lenses PET (Process / Enterprise / Talent) | UI navigation organizzata per lens, area può essere mappata a >1 lens (PRIMARY + SECONDARY) |
-| P3  | RBP authorization data-driven                    | Mai hardcode `if (role === 'ADMIN')`. Sempre `requirePermission(area, action)`              |
-| P4  | RLS first                                        | 302 tabelle con RLS ON. Bypass solo SUPERUSER + audit                                       |
-| P5  | Type safety end-to-end                           | Prisma generated types fino al frontend (zod schema condivisi via `packages/ui`)            |
-| P6  | Async-first                                      | Job lunghi su BullMQ (`services/enrichment`), no sync HTTP >2s                              |
-| P7  | Observability obbligatoria                       | Pino structured logs + OpenTelemetry traces + Prometheus metrics. Niente `console.log`      |
-| P8  | Fail loud, recover graceful                      | Exception filters globali, error_code univoci, mai swallow silenziosi                       |
-| P9  | Everything data-driven via DBMS                  | Ruoli, navigation, widget, perspectives, prompts: tutto in tabelle. Zero array hardcoded    |
-| P10 | Multi-level Platform/Tenant                      | Ogni config supporta scope Platform (`tenant_id IS NULL`) e scope Tenant (`tenant_id = X`)  |
+| #   | Principio                                        | Implicazione operativa evo                                                                     |
+| --- | ------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
+| P1  | Capability Governance multi-tenant               | Ogni feature scoped a `tenant_id`, niente concept "globale" senza esplicito `Platform`         |
+| P2  | Three lenses PET (Process / Enterprise / Talent) | UI navigation organizzata per lens, area può essere mappata a >1 lens (PRIMARY + SECONDARY)    |
+| P3  | RBP authorization data-driven                    | Mai hardcode `if (role === 'ADMIN')`. Sempre `requirePermission(area, action)`                 |
+| P4  | RLS first                                        | 605 RLS policies attive su tabelle tenant-scoped (S10 baseline). Bypass solo SUPERUSER + audit |
+| P5  | Type safety end-to-end                           | Prisma generated types fino al frontend (zod schema condivisi via `packages/ui`)               |
+| P6  | Async-first                                      | Job lunghi su BullMQ (`services/enrichment`), no sync HTTP >2s                                 |
+| P7  | Observability obbligatoria                       | Pino structured logs + OpenTelemetry traces + Prometheus metrics. Niente `console.log`         |
+| P8  | Fail loud, recover graceful                      | Exception filters globali, error_code univoci, mai swallow silenziosi                          |
+| P9  | Everything data-driven via DBMS                  | Ruoli, navigation, widget, perspectives, prompts: tutto in tabelle. Zero array hardcoded       |
+| P10 | Multi-level Platform/Tenant                      | Ogni config supporta scope Platform (`tenant_id IS NULL`) e scope Tenant (`tenant_id = X`)     |
 
 Derogations D1-D4 (TBD: ricostruire elenco completo da `docs/strategy/MIGRATION_STRATEGY_PET_DRIVEN.md` Sezione 0 quando portata in evo).
 
