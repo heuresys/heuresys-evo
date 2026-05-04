@@ -12,45 +12,30 @@ Push del commit S9 (`3bf0aa8`) ha trovato CI bloccata da **GitHub Actions billin
 
 ## Priorities for next session
 
-1. **Decidere strategia Prisma: bump 6.19.2 intermediate vs aspettare sessione dedicata 7** (S decisione, M-L esecuzione) — *carry-forward S8 #1*
-   Il running prod è su Prisma 5.22. Prisma 7 (8.0+) richiede 6-8h di architectural refactor (`prisma.config.ts`, `@prisma/adapter-pg`, refactor singleton db.ts/pool.ts, schema cleanup, regenerate client). Prisma 6 latest stable è 6.19.2 (drop Node 16, types stricter, schema/generator invariati) — bump più sicuro 1-2h per chiudere il deprecation warning corrente.
-   Files (se 6.19.2): `services/app/package.json`, `services/api-gateway/package.json`, `services/{app,api-gateway}/prisma/schema.prisma` (verifica deprecation hints), regenerate clients
-   Done when: decisione esplicita su 6 vs 7, e se 6 → `npm test` 250 verdi + `npx prisma generate` clean su entrambi gli schema + smoke query Postgres OK.
-
-2. **🆕 Branch protection su `main`** (XS, ~10min) — *NEW S9 addendum*
-   Repo ora pubblico → branch protection diventa configurabile gratis (era Pro-only in private). Configurare:
-   - Require status checks before merge (`CI`, `Build`, `Security` tutti required)
-   - Require linear history (no merge commits)
-   - Block force push su `main`
-   - Optional: require PR review (single contributor → potrebbe essere overkill, valutare quando arrivano collaboratori)
-   Files: nessuno (azione GitHub UI o `gh api PUT /repos/heuresys/heuresys-evo/branches/main/protection`)
-   Done when: `gh api repos/heuresys/heuresys-evo/branches/main/protection` ritorna config attiva con i 3 status checks.
-
-3. **Auto-handoff retention rotation** (XS, ~10min) — *carry-forward S8 #2*
-   `.handoff/auto/` ha 17+ breadcrumbs accumulati (S7+S8+S9). Aggiungere logica `--keep-last 50` a `.claude/hooks/auto-handoff.sh` per rotation automatica.
-   Files: `.claude/hooks/auto-handoff.sh`
-   Done when: hook script ha logic che rimuove file `.handoff/auto/*.md` oltre i 50 più recenti, testato manualmente con file fittizi.
-
-4. **Pulire 2 record TXT `_acme-challenge.heuresys.com`** residui su Porkbun (XS, ~5min) — *carry-forward S8 #3*
+1. **Pulire 2 record TXT `_acme-challenge.heuresys.com`** residui su Porkbun (XS, ~5min) — *carry-forward S8 #3*
    Innocui ma sporchi (vecchio DNS-01 challenge da cert ECDSA). Rimuoverli da Porkbun dashboard.
    Files: nessuno (azione DNS console-side)
    Done when: `dig TXT _acme-challenge.heuresys.com +short` restituisce vuoto.
 
-5. **Review + merge Dependabot PRs** (S, ~30min) — *carry-forward S8 #4*
+2. **Review + merge Dependabot PRs** (S, ~30min) — *carry-forward S8 #4*
    4-5 PR aperti su Storybook / Anthropic SDK / pino-http. Verificare CHANGELOG, test pass, merge.
    Files: dipende dai PR aperti
    Done when: backlog Dependabot a 0 o motivata chiusura WONTFIX.
 
-6. **Storybook publish CI** (M, ~2h) — *carry-forward S8 #5*
+3. **Storybook publish CI** (M, ~2h) — *carry-forward S8 #5*
    84 stories pronte ma nessun deploy preview. Aggiungere job GitHub Actions che builda `storybook-static/` e pubblica su Chromatic OR su gh-pages OR Vercel preview URL.
    Files: nuovo `.github/workflows/storybook.yml`, eventualmente `packages/ui/package.json` script
    Done when: PR con storybook job verde, preview URL accessibile (anche dietro auth se serve).
+
+## Reminder (declassati, non più priority)
+
+- **Prisma 5.22 → 6.19.2 intermediate vs 7 dedicato** (carry-forward S8 #1, declassato S10): decisione esplicita ancora pendente, deprecation warning continua a comparire nei log build ma non blocca nulla. Bump 6.19.2 = 1-2h low risk (drop Node 16, schema/generator invariati). Refactor 7 = 6-8h paradigm shift (`prisma.config.ts` + `@prisma/adapter-pg` + refactor singleton). Vedi `### Prisma deprecation` in Known issues + Open questions per dettagli completi.
 
 ## Open questions
 
 - **Prisma: 6.19.2 intermediate o aspettare 7 dedicata?** Bump 6 è low risk 1-2h, 7 è 6-8h refactor. Compromesso o aggressive? *(carry-forward S8)*
 - **next-auth v5 timing**: aspettare release stable (probabilmente Q3-Q4 2026)? Oppure pinnare un beta release specifico in branch staging come early adopter? *(carry-forward S8)*
-- **Auto-handoff retention**: il `--keep-last 50` proposto è il giusto threshold? O preferisci `--keep-days 7`? *(carry-forward S8)*
+- **Auto-handoff backup grace period**: snapshot pre-rotation `~/.handoff-archive/heuresys-evo/auto-S10-20260504T132402Z.tar.gz` (9KB, 192 file storici) — analogo claude-mem.bak, default proposto cancellazione 2026-05-11 (7gg).
 - **Phase 5 cutover go/no-go decision** (carry-forward S6): tag `rtg/evo/phase5/ready-for-go-no-go` quando emettere?
 - **claude-mem backup pulizia**: il snapshot `~/.claude-mem.bak-20260504T0345Z/` (30.59 MB) può essere cancellato dopo X giorni di uso senza problemi. Quando? Default proposto: 7 giorni → cancellazione 2026-05-11.
 - **🆕 License decision** (S9 addendum): repo ora public senza LICENSE → "all rights reserved" by default (codice visibile ma non legalmente riusabile). Decisione esplicita migliore di default. Opzioni: (a) lasciare consapevolmente (proprietary protected), (b) aggiungere LICENSE proprietary tipo "Source-Available, viewable only", (c) open source license (MIT/Apache) se vuoi contribuzioni esterne. Coerente con SaaS B2B = (a) o (b).
@@ -75,14 +60,14 @@ Push del commit S9 (`3bf0aa8`) ha trovato CI bloccata da **GitHub Actions billin
 
 ### Operational **P3**
 
-- **Auto-handoff breadcrumbs accumulati** in `.handoff/auto/` (17+ in 48h). Vedi priority #3.
-- **2 TXT `_acme-challenge.heuresys.com` residui** su Porkbun. Vedi priority #4.
+- ✅ **Auto-handoff breadcrumbs accumulati** (S10 close): rotation `--keep-last 50` attiva nel hook + first rotation 194→50 eseguita; backup tarball pre-rotation in `~/.handoff-archive/heuresys-evo/auto-S10-20260504T132402Z.tar.gz`.
+- **2 TXT `_acme-challenge.heuresys.com` residui** su Porkbun. Vedi priority #1.
 - **claude-mem backup `~/.claude-mem.bak-20260504T0345Z/`** (30.59 MB) da cancellare dopo grace period. Vedi open questions.
 
-### Repository visibility **P2 carry-forward S9**
+### Repository visibility **P3 carry-forward S9**
 
 - **Repo è ora PUBLIC** (`https://github.com/heuresys/heuresys-evo`). Cambio motivato da CI billing exhausted in S9. History pulita verificata con gitleaks (75 commit, 0 leak), nessuna esposizione di secret. Conseguenze:
-  - **Branch protection assente** (era Pro-only in private, ora gratis ma da configurare). Vedi priority #2.
+  - ✅ **Branch protection attiva** (S10 close): 7 required checks (`lint`, `typecheck`, `test`, `build-workspaces`, `gitleaks`, `semgrep`, `npm-audit`) + linear history + no force push + no deletion. `enforce_admins=false` (override emergenza disponibile). Verificabile con `gh api repos/heuresys/heuresys-evo/branches/main/protection`.
   - **License assente** (default "all rights reserved"). Vedi open questions.
   - **GitHub Actions illimitate** ora — nessun rischio futuro di billing block.
 
@@ -92,7 +77,7 @@ Push del commit S9 (`3bf0aa8`) ha trovato CI bloccata da **GitHub Actions billin
 
 ### Prisma deprecation **P3 carry-forward**
 
-- **Notice ricorrente nei log build**: prisma 5.22 vs deprecation. Vedi priority #1.
+- **Notice ricorrente nei log build**: prisma 5.22 vs deprecation. Vedi sezione Reminder (declassato S10).
 
 ### Phase 5 carry-forward **P1**
 
@@ -186,7 +171,7 @@ python -c "import sqlite3; c=sqlite3.connect(r'C:\Users\enzospenuso\.claude-mem\
 4. **Verify CI status**: `gh run list --branch main --limit 3` — confirm all green
 5. **Verify local sanity**: `git status -sb` (should be clean, in sync con origin/main)
 6. **Surface to user**: 1-line state recap + top 3 todos + any open questions
-7. **Ask**: "Continuiamo dalla todo #1 (decisione Prisma 6 vs 7), scegli un'altra priorità (priority #2 = branch protection è XS quick win post-flip-public), o qualcosa di nuovo?"
+7. **Ask**: "Continuiamo dalla todo #1 (TXT cleanup Porkbun, XS), scegli un'altra priorità, o qualcosa di nuovo?"
 8. **Wait for user direction** before doing anything else
 
 ### Quick context for fresh agents
@@ -199,7 +184,7 @@ python -c "import sqlite3; c=sqlite3.connect(r'C:\Users\enzospenuso\.claude-mem\
 - Login dev: `evo.dev / admin123` (hint NON visibile in prod by default, opt-in con `NEXT_PUBLIC_SHOW_DEV_HINT=1`)
 - Auth model: NextAuth v4 (v5 deferred, ancora beta), JWT cross-service, cookie `authjs.session-token`
 - CI: 3 workflow (CI/Build/Security), tutti verdi su `main` (ultimo: `3bf0aa8` da S9 post-flip-public re-run)
-- Repo visibility: **PUBLIC** (flippato 2026-05-04 in S9 per sbloccare CI billing). Branch protection ancora da configurare.
+- Repo visibility: **PUBLIC** (flippato 2026-05-04 in S9). Branch protection **attiva** su `main` da S10: 7 required checks (`lint`, `typecheck`, `test`, `build-workspaces`, `gitleaks`, `semgrep`, `npm-audit`) + linear history + no force push + no deletion.
 - Brand Studio: `/brand-studio` accessibile a `SUPERUSER` autenticati, scrive `services/app/src/styles/active-theme.css`
 - npm overrides attivi (S8 final): `postcss^8.5.10`, `uuid^14`, `exceljs.uuid^14`, `next-auth.cookie^0.7`, `@auth/core.cookie^0.7`
 - Audit: **0 vulnerabilities**
