@@ -12,6 +12,21 @@ Se Claude over-engineered (PR multipli per task coerente, ADR/README/snapshot su
 
 Sessione lunga di consolidamento operativo: forensic /handoff + GitHub workflow → radical simplification (branch protection rimossa, CI solo on PR + cron, /handoff ridotto a 1 file, dependabot grouping). S11 doc consolidation completa (Diátaxis schema canonical). Operating Baseline establishment in `docs/_meta/operating-baseline.md` come SoT cross-machine. CLAUDE.md riscritti essenziali. Direttiva SEMPLICITÀ + ROBUSTEZZA attiva.
 
+**Sessione 2026-05-04/05 in corso**: workstream brand identity attivato in `.ux-design/` (segregato). Phase 1-3 completate, 8 direzioni estetiche esplorate (α/β/γ/δ Set 1 + ε/ζ/η/θ Set 2 award-inspired light+dark). Sistema di continuità cross-session istituito (vedi sezione Active workstream sotto).
+
+## ⚡ Active workstream — Brand identity
+
+Workstream parallelo attivo. Per riprendere in nuova sessione, **Claude deve seguire** [`../.ux-design/SESSION-RESUME.md`](../.ux-design/SESSION-RESUME.md) quando l'utente accenna a "brand", "ux-design", "logo", "palette", "tipografia", "dashboard design".
+
+| Stato | Riferimento |
+| --- | --- |
+| Phase corrente + decisioni + asset | [`../.ux-design/BRAND-STATE.md`](../.ux-design/BRAND-STATE.md) |
+| Cronologia decisioni append-only | [`../.ux-design/DECISIONS-LOG.md`](../.ux-design/DECISIONS-LOG.md) |
+| Policy segregazione + struttura | [`../.ux-design/README.md`](../.ux-design/README.md) |
+| Piano originale | `~/.claude/plans/usa-superpowers-e-tutti-delegated-orbit.md` |
+
+**Phase corrente**: Phase 4 (aesthetic direction) in re-exploration — 8 direzioni esposte, decisione D1 finale pending. Phase 8/9 (motion + dashboard) bloccate da D1.
+
 ## Top priorities
 
 1. **Phase 6+ Tier 1 area port** (~6-10h): prima area completa dal legacy (raccomandata `employees/`). Ref: `docs/10-strategy/migration-strategy-pet-driven.md`
