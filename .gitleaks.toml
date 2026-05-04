@@ -1,0 +1,31 @@
+# gitleaks 8.x config — extends default ruleset with project-specific allowlist
+#
+# Read by: .github/workflows/security.yml ("gitleaks detect --source .")
+# gitleaks auto-discovers this file as gitleaks.toml at the repo root.
+#
+# Rationale:
+#   .handoff/PROJECT-LOG.md, .handoff/CHANGELOG.md, .handoff/snapshots/* and
+#   the root CHANGELOG.md are append-only journals that document past
+#   secret-detection events (e.g. "gitleaks blocker on header X — fixed by
+#   rewording to descriptive prose"). They contain pattern descriptions, not
+#   actual secrets. Without an allowlist, every session where a previous
+#   gitleaks block was logged would itself trigger a new block — a
+#   self-referential loop observed concretely in S10 handoff (2026-05-04).
+#
+# The pre-commit hook in .husky/pre-commit applies an equivalent path skip
+# (see allowlist in `case` statement) for local-side coverage.
+#
+# This is a TARGETED allowlist, not a blanket disable: source code, configs,
+# fixtures, and all other paths remain fully scanned by both layers.
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Historical session journals (descriptive prose about past detections)"
+paths = [
+  '''^\.handoff/PROJECT-LOG\.md$''',
+  '''^\.handoff/CHANGELOG\.md$''',
+  '''^\.handoff/snapshots/.*\.md$''',
+  '''^CHANGELOG\.md$''',
+]
