@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Heuresys favicon">
+  <defs>
+    <style>
+      .favicon-bg { fill: #0a0a14; }
+      .favicon-y {
+        font-family: 'Exo 2', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+        font-weight: 700;
+        font-size: 26px;
+        letter-spacing: -1.5px;
+        fill: #a855f7;
+      }
+    </style>
+  </defs>
+  <rect class="favicon-bg" width="32" height="32" rx="6" />
+  <text x="16" y="24" text-anchor="middle" class="favicon-y">y</text>
+</svg>
