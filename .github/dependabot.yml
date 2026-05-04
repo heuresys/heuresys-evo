@@ -1,4 +1,18 @@
 version: 2
+
+# Dependabot config — heuresys-evo
+#
+# Strategy (post S11 forensic plan Level 2):
+# - Patch + minor bumps: aggressively grouped to reduce per-cycle PR count
+#   (8 PR cascade observed in S10 → ~2-3 PR target). Auto-merge eligible.
+# - Major bumps: kept as single PRs for review (potential breaking changes).
+# - Named groups for workspaces with high-frequency churn (storybook, vitest,
+#   eslint, types, testing-library) keep semantic clusters together.
+# - github-actions: similar grouping (action-bumps tend to be coordinated).
+#
+# Auto-merge for patch+minor groups handled by .github/workflows/dependabot-auto-merge.yml
+# (kicks in when CI passes; major PRs require manual review/merge).
+
 updates:
   - package-ecosystem: 'npm'
     directory: '/'
@@ -11,6 +25,7 @@ updates:
     versioning-strategy: 'increase-if-necessary'
     labels: ['deps', 'rtgb']
     groups:
+      # Named semantic clusters — keep coordinated bumps together
       types:
         patterns:
           - '@types/*'
@@ -29,9 +44,35 @@ updates:
         patterns:
           - 'eslint'
           - 'eslint-*'
+      prisma:
+        patterns:
+          - 'prisma'
+          - '@prisma/*'
+      # Catch-all groups — collapse remaining patch/minor noise
+      patches:
+        applies-to: version-updates
+        update-types: ['patch']
+      minors:
+        applies-to: version-updates
+        update-types: ['minor']
+      # Major updates intentionally NOT grouped: each gets its own PR for
+      # review, since a major bump may carry breaking changes that warrant
+      # individual attention regardless of which named group it falls into.
 
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:
       interval: 'monthly'
     labels: ['ci', 'rtgb']
+    groups:
+      # Coordinated bumps to actions/* tend to land together (e.g. checkout,
+      # setup-node, upload-artifact all bumped same week in S10) — group them.
+      actions:
+        patterns:
+          - 'actions/*'
+      # Other GitHub action publishers (community, semgrep, etc.) catch-all
+      ci-tools:
+        patterns:
+          - '*'
+        exclude-patterns:
+          - 'actions/*'
