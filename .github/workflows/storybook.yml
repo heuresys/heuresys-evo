@@ -37,8 +37,11 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
+      - name: Pin npm to project-required version
+        run: npm install -g npm@11
+
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --no-audit --no-fund
 
       - name: Build Storybook
         run: npm run build-storybook --workspace=packages/ui
