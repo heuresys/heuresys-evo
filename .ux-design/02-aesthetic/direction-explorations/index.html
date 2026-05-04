@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Heuresys — 4 Direzioni Estetiche</title>
+<title>Heuresys — 8 Direzioni Estetiche</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -19,33 +19,61 @@
   .page { max-width: 1280px; margin: 0 auto; padding: 48px 32px 80px; }
   h1 { font-size: 32px; font-weight: 700; margin-bottom: 8px; letter-spacing: -1px; }
   .lead { color: #9ca3af; font-size: 15px; margin-bottom: 40px; line-height: 1.6; }
-  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .section-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #a855f7; font-weight: 600; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid #2a2a3a; }
+  .section-label.set2 { color: #fbbf24; margin-top: 56px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   .card {
     background: #16161e;
     border: 1px solid #2a2a3a;
     border-radius: 16px;
-    padding: 28px;
+    padding: 24px;
     transition: all 0.2s;
     text-decoration: none;
     color: inherit;
     display: block;
   }
   .card:hover { border-color: #4a4a6a; transform: translateY(-2px); }
+  .card.new { border-color: #fbbf24; }
+  .card.new:hover { border-color: #f59e0b; }
   .tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: #a855f7; font-weight: 600; }
-  .title { font-size: 22px; font-weight: 700; margin: 8px 0 6px; letter-spacing: -0.4px; }
-  .subtitle { font-size: 13px; color: #9ca3af; margin-bottom: 16px; line-height: 1.5; }
-  .kw { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #cbd5e1; padding: 4px 8px; background: #1f1f2e; border-radius: 4px; display: inline-block; margin: 2px 4px 2px 0; }
-  .meta { color: #6b7280; font-size: 11px; font-family: 'JetBrains Mono', monospace; margin-top: 16px; }
+  .card.new .tag { color: #fbbf24; }
+  .title { font-size: 20px; font-weight: 700; margin: 8px 0 6px; letter-spacing: -0.4px; }
+  .subtitle { font-size: 13px; color: #9ca3af; margin-bottom: 14px; line-height: 1.5; }
+  .kw { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #cbd5e1; padding: 3px 7px; background: #1f1f2e; border-radius: 4px; display: inline-block; margin: 2px 4px 2px 0; }
+  .meta { color: #6b7280; font-size: 11px; font-family: 'JetBrains Mono', monospace; margin-top: 14px; }
+  .badge-new {
+    display: inline-block;
+    background: #fbbf24;
+    color: #0d0d12;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    margin-left: 8px;
+    font-weight: 700;
+  }
+  .info-card {
+    margin-top: 56px;
+    padding: 24px;
+    background: #16161e;
+    border: 1px solid #2a2a3a;
+    border-radius: 16px;
+  }
+  .info-card p { font-size: 14px; line-height: 1.7; color: #cbd5e1; margin-top: 12px; }
+  .info-card strong { color: #fbbf24; }
 </style>
 </head>
 <body>
 <div class="page">
-  <h1>Heuresys — 4 Direzioni Estetiche</h1>
+  <h1>Heuresys — 8 Direzioni Estetiche</h1>
   <p class="lead">
-    4 direzioni veramente diverse, ciascuna con palette / tipografia / logo concept proprietari.
-    Stesso contenuto in tutti per confronto puro su <strong>forma estetica</strong>.
-    Click su una card per aprire il mockup completo.
+    Esplorazione completa: 4 direzioni iniziali + 4 nuove ispirate da award winners 2025/2026 (Centersquare Brand Impact 2025, OFF+BRAND × Lando Norris Awwwards SOTY 2025, FWA insight dual-mode).<br>
+    <strong style="color:#fbbf24">Le 4 nuove (set 2)</strong> hanno light/dark theme toggle in pari dignità.
   </p>
+
+  <!-- SET 1: Direzioni iniziali -->
+  <div class="section-label">Set 1 · Direzioni iniziali (commit 772cad9 — salvate)</div>
 
   <div class="grid">
     <a class="card" href="alpha-editorial-cinematic.html">
@@ -56,7 +84,6 @@
       <span class="kw">Geist</span>
       <span class="kw">Source Serif italic</span>
       <span class="kw">5 capability colors</span>
-      <span class="kw">glow</span>
       <div class="meta">→ "Una rivista intellettuale girata in dolly shot in dark room"</div>
     </a>
 
@@ -68,7 +95,6 @@
       <span class="kw">Fraunces serif</span>
       <span class="kw">Inter body</span>
       <span class="kw">salmon accent</span>
-      <span class="kw">paper-feel</span>
       <div class="meta">→ "Un MIT working paper aperto sul tavolo"</div>
     </a>
 
@@ -80,7 +106,6 @@
       <span class="kw">Space Grotesk</span>
       <span class="kw">JetBrains Mono</span>
       <span class="kw">engineering yellow</span>
-      <span class="kw">monogram</span>
       <div class="meta">→ "L'atlante di Le Corbusier ridisegnato per l'organizzazione"</div>
     </a>
 
@@ -92,20 +117,69 @@
       <span class="kw">Inter Tight</span>
       <span class="kw">Newsreader serif</span>
       <span class="kw">magenta financial</span>
-      <span class="kw">tabular nums</span>
       <div class="meta">→ "La prima pagina del FT della capability organizzativa"</div>
     </a>
   </div>
 
-  <div style="margin-top:48px; padding:24px; background:#16161e; border:1px solid #2a2a3a; border-radius:16px;">
-    <div class="tag">Note di lettura</div>
-    <p style="margin-top:12px; font-size:14px; line-height:1.7; color:#cbd5e1;">
-      Ognuno dei 4 mockup ha lo stesso contenuto: header con logo+nav, hero con wordmark+tagline+headline,
-      KPI block, sezione "L'intelligenza al centro", footer. Differenze tra direzioni: <strong>palette
-      complete diversa, tipografia diversa, logo concept diverso, mood diverso</strong>.<br><br>
-      Quando hai finito di esplorare le 4, dimmi quale ti ha "tirato di più" (anche solo a istinto)
-      e/o quale combinazione di elementi tra le 4 vorresti ibridare. Posso anche generare una 5° direzione
-      mash-up (es. "γ logo + α palette") se nessuna ti convince intera.
+  <!-- SET 2: Award-inspired -->
+  <div class="section-label set2">Set 2 · Award-inspired 2025-26 <span style="color:#fbbf24; font-size:9px;">[NEW · light+dark toggle]</span></div>
+
+  <div class="grid">
+    <a class="card new" href="epsilon-sculptural-variable.html">
+      <div class="tag">ε · Direction Epsilon <span class="badge-new">NEW</span></div>
+      <div class="title">Sculptural Type Variable</div>
+      <div class="subtitle">Typography is the design. Variable fonts che respirano (hover wordmark = morph). Indigo accent. Inspired CSS Awards 2025-26 typography trends.</div>
+      <span class="kw">cream warm / dark warm</span>
+      <span class="kw">Bricolage variable</span>
+      <span class="kw">Recursive variable</span>
+      <span class="kw">indigo accent</span>
+      <span class="kw">light+dark</span>
+      <div class="meta">→ "Heuresys è un type specimen scultoreo che respira"</div>
+    </a>
+
+    <a class="card new" href="zeta-architectural-warm.html">
+      <div class="tag">ζ · Direction Zeta <span class="badge-new">NEW</span></div>
+      <div class="title">Architectural Warm</div>
+      <div class="subtitle">Warm earth palette + custom iconography 5-glyph per capability dimensions. Anti-tech-cliché totale. Inspired Centersquare (Brand Impact Award 2025).</div>
+      <span class="kw">warm cream</span>
+      <span class="kw">DM Serif Display</span>
+      <span class="kw">terracotta accent</span>
+      <span class="kw">5 custom glyphs</span>
+      <span class="kw">light+dark</span>
+      <div class="meta">→ "Bottega artigianale tecnologica, non SaaS dark generico"</div>
+    </a>
+
+    <a class="card new" href="eta-swiss-computational.html">
+      <div class="tag">η · Direction Eta <span class="badge-new">NEW</span></div>
+      <div class="title">Swiss Computational Pure</div>
+      <div class="subtitle">International Style svizzero rigorosissimo. Pure white/black + 1 accent rosso. Logo monogram con compass-and-rule construction. Inspired Müller-Brockmann + Vignelli.</div>
+      <span class="kw">pure white / pure black</span>
+      <span class="kw">Inter only</span>
+      <span class="kw">red accent</span>
+      <span class="kw">12-col grid</span>
+      <span class="kw">light+dark</span>
+      <div class="meta">→ "Il New York Subway map dell'organizzazione"</div>
+    </a>
+
+    <a class="card new" href="theta-algorithmic-generative.html">
+      <div class="tag">θ · Direction Theta <span class="badge-new">NEW</span></div>
+      <div class="title">Algorithmic Generative</div>
+      <div class="subtitle">Il brand emerge dall'algoritmo. Wordmark "y" come network node, gradient blue→pink derivato dal grafo. 5 capability colorways come signature ricorrente. Inspired OFF+BRAND × Awwwards 2025.</div>
+      <span class="kw">midnight warm / off-white</span>
+      <span class="kw">Bricolage variable</span>
+      <span class="kw">5 derived colorways</span>
+      <span class="kw">network overlay</span>
+      <span class="kw">light+dark</span>
+      <div class="meta">→ "Il brand non è statico — emerge dal grafo"</div>
+    </a>
+  </div>
+
+  <div class="info-card">
+    <span class="tag">Note di lettura</span>
+    <p>
+      <strong>Set 1</strong> (α/β/γ/δ): direzioni più "categoriali" già esplorate, ognuna con singola modalità (dark per α, light per β/γ/δ).<br><br>
+      <strong>Set 2</strong> (ε/ζ/η/θ): nuove, ispirate da award winners 2025/2026, ognuna con <strong>theme toggle light/dark in pari dignità</strong>. Trend chiave assorbiti: variable typography sculpturale (CSS Awards), warm palette anti-tech (Centersquare), Swiss pure rigor (Pentagram tradition), generative network (OFF+BRAND × Lando Norris).<br><br>
+      <strong>Cosa fare ora</strong>: naviga le 8 direzioni. Per le NEW, prova il theme toggle in alto a destra (◐ Light/Dark). Quando hai trovato la combinazione che ti tira di più, dimmela. Possiamo anche ibridare elementi tra le 8 (es. "logo θ + tipografia ε + palette ζ") se nessuna ti convince intera.
     </p>
   </div>
 </div>

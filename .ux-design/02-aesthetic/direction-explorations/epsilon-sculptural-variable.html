@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ε — Sculptural Type Variable — Heuresys</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Inter:wght@300;400;500;600;700&family=Recursive:slnt,wght,CASL,CRSV,MONO@-15..0,300..900,0..1,0..1,0..1&display=swap" rel="stylesheet" />
+<style>
+  /* LIGHT (default) */
+  :root {
+    --bg: #f0ece4;          /* warm cream */
+    --paper: #faf6ec;
+    --ink: #1a1814;
+    --ink-soft: #4a4640;
+    --ink-muted: #807a72;
+    --rule: #d4cdb9;
+    --accent: #2d1f6b;       /* deep indigo */
+    --accent-soft: #c5b8ff;
+    --highlight: #ffd4a8;
+  }
+  /* DARK */
+  [data-theme="dark"] {
+    --bg: #1a1814;            /* warm graphite */
+    --paper: #211f1a;
+    --ink: #f0ece4;
+    --ink-soft: #b5b1a8;
+    --ink-muted: #807a72;
+    --rule: #3a3631;
+    --accent: #c5b8ff;       /* light indigo on dark */
+    --accent-soft: #2d1f6b;
+    --highlight: #d4a878;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.55;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .nav-bar {
+    background: var(--bg);
+    border-bottom: 1px solid var(--rule);
+    padding: 14px 32px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .header-back { font-family: 'Recursive', monospace; font-variation-settings: 'MONO' 1; font-size: 11px; color: var(--ink); text-decoration: none; }
+  .label { font-family: 'Recursive', monospace; font-variation-settings: 'MONO' 1; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink); font-weight: 600; }
+  .label-acc { background: var(--accent); color: var(--bg); padding: 2px 8px; }
+  .theme-toggle {
+    background: transparent; border: 1px solid var(--rule);
+    color: var(--ink); padding: 6px 12px;
+    font-family: 'Recursive', monospace; font-variation-settings: 'MONO' 1;
+    font-size: 11px; letter-spacing: 1px; cursor: pointer;
+    text-transform: uppercase;
+  }
+  .theme-toggle:hover { border-color: var(--ink); }
+
+  .page { max-width: 1280px; margin: 0 auto; padding: 56px 48px 96px; }
+
+  /* HERO — sculptural typography is the design */
+  .hero { padding-top: 32px; }
+  .hero .meta-row {
+    display: flex; gap: 24px; margin-bottom: 32px;
+    font-family: 'Recursive', monospace; font-variation-settings: 'MONO' 1;
+    font-size: 11px; text-transform: uppercase; letter-spacing: 2px;
+    color: var(--ink-muted);
+  }
+  .hero .meta-row .accent-tag { color: var(--accent); }
+
+  /* WORDMARK sculptural - variable weight that breathes */
+  .wordmark-sculpt {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-variation-settings: 'opsz' 96, 'wght' 800;
+    font-size: 220px;
+    line-height: 0.85;
+    letter-spacing: -10px;
+    color: var(--ink);
+    margin-bottom: 12px;
+    transition: font-variation-settings 0.6s;
+  }
+  .wordmark-sculpt:hover {
+    font-variation-settings: 'opsz' 96, 'wght' 200;
+    letter-spacing: -8px;
+  }
+  .wordmark-sculpt .y {
+    color: var(--accent);
+    font-style: italic;
+    font-variation-settings: 'opsz' 96, 'wght' 800;
+  }
+
+  .hero h1 {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-variation-settings: 'opsz' 32, 'wght' 600;
+    font-size: 64px;
+    line-height: 1.0;
+    letter-spacing: -2.5px;
+    margin-bottom: 24px;
+    margin-top: 32px;
+    max-width: 920px;
+  }
+  .hero h1 em {
+    font-style: italic;
+    font-variation-settings: 'opsz' 32, 'wght' 300;
+    color: var(--ink-soft);
+  }
+  .hero h1 .accent {
+    color: var(--accent);
+    font-variation-settings: 'opsz' 32, 'wght' 800;
+  }
+
+  .hero .lead {
+    font-size: 19px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    max-width: 720px;
+    margin-bottom: 32px;
+  }
+
+  .hero .body-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 64px; margin-top: 48px; padding-top: 32px; border-top: 1px solid var(--rule); }
+  .hero .body-text {
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--ink-soft);
+  }
+  .hero .body-text p { margin-bottom: 14px; }
+  .hero .body-text strong { color: var(--ink); font-weight: 700; }
+  .hero .body-text em {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-variation-settings: 'opsz' 14, 'wght' 600;
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .quote-block {
+    border-left: 3px solid var(--accent);
+    padding: 20px 0 20px 24px;
+  }
+  .quote-block p {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-variation-settings: 'opsz' 24, 'wght' 500;
+    font-style: italic;
+    font-size: 22px;
+    line-height: 1.4;
+    color: var(--ink);
+    margin-bottom: 12px;
+  }
+  .quote-block cite {
+    font-family: 'Recursive', monospace; font-variation-settings: 'MONO' 1;
+    font-size: 10px;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-style: normal;
+  }
+
+  /* Stats bento sculpted */
+  .stats { margin-top: 80px; padding-top: 32px; border-top: 1px solid var(--rule); }
+  .stats h2 {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-variation-settings: 'opsz' 24, 'wght' 700;
+    font-size: 32px;
+    letter-spacing: -1px;
+    margin-bottom: 32px;
+  }
+  .stats h2 em { font-style: italic; font-variation-settings: 'opsz' 24, 'wght' 400; color: var(--ink-muted); }
+  .stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; border-top: 1px solid var(--ink); border-left: 1px solid var(--ink); }
+  .stat {
+    padding: 24px;
+    border-right: 1px solid var(--ink);
+    border-bottom: 1px solid var(--ink);
+    background: var(--paper);
+  }
+  .stat .index {
+    font-family: 'Recursive', monospace; font-variation-settings: 'MONO' 1;
+    font-size: 9px;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+  .stat .num {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-variation-settings: 'opsz' 64, 'wght' 700;
+    font-size: 56px;
+    line-height: 0.95;
+    letter-spacing: -2.5px;
+    margin: 8px 0 4px;
+  }
+  .stat .num .plus {
+    color: var(--accent);
+    font-variation-settings: 'opsz' 64, 'wght' 400;
+    font-style: italic;
+  }
+  .stat .lab { font-size: 12px; color: var(--ink-soft); margin-top: 6px; }
+
+  /* Three perspectives editorial */
+  .editorial-section { margin-top: 96px; padding-top: 32px; border-top: 1px solid var(--rule); }
+  .editorial-section .kicker {
+    font-family: 'Recursive', monospace; font-variation-settings: 'MONO' 1;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+  .editorial-section h2 {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-variation-settings: 'opsz' 96, 'wght' 800;
+    font-size: 96px;
+    line-height: 0.92;
+    letter-spacing: -4px;
+    margin-bottom: 24px;
+    max-width: 1100px;
+  }
+  .editorial-section h2 em {
+    font-style: italic;
+    font-variation-settings: 'opsz' 96, 'wght' 300;
+    color: var(--ink-muted);
+  }
+  .editorial-section .lead {
+    font-size: 18px;
+    line-height: 1.7;
+    color: var(--ink-soft);
+    max-width: 720px;
+    margin-bottom: 48px;
+  }
+  .perspectives {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    border-top: 1px solid var(--ink);
+  }
+  .pers {
+    padding: 28px 32px 28px 0;
+    border-right: 1px solid var(--ink);
+  }
+  .pers:nth-child(2), .pers:nth-child(3) { padding-left: 32px; }
+  .pers:last-child { border-right: 0; padding-right: 0; }
+  .pers .num-tag {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-variation-settings: 'opsz' 96, 'wght' 800;
+    font-size: 72px;
+    color: var(--accent);
+    line-height: 0.85;
+    margin-bottom: 8px;
+  }
+  .pers h3 {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-variation-settings: 'opsz' 24, 'wght' 600;
+    font-size: 26px;
+    letter-spacing: -0.8px;
+    margin-bottom: 6px;
+  }
+  .pers .role {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-variation-settings: 'opsz' 14, 'wght' 400;
+    font-style: italic;
+    font-size: 14px;
+    color: var(--ink-muted);
+    margin-bottom: 14px;
+  }
+  .pers ul { list-style: none; padding: 0; }
+  .pers li {
+    font-size: 14px;
+    line-height: 1.55;
+    padding: 6px 0 6px 18px;
+    position: relative;
+    color: var(--ink-soft);
+  }
+  .pers li::before { content: '→'; position: absolute; left: 0; color: var(--accent); }
+
+  /* Footer */
+  .footer { margin-top: 96px; padding-top: 24px; border-top: 1px solid var(--ink); }
+  .footer-cols { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 32px; }
+  .footer .col strong {
+    display: block;
+    font-family: 'Recursive', monospace; font-variation-settings: 'MONO' 1;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    color: var(--ink-muted);
+  }
+  .footer .col p { font-size: 13px; line-height: 1.6; }
+  .footer-meta {
+    margin-top: 32px; padding-top: 16px;
+    border-top: 1px dashed var(--rule);
+    font-family: 'Recursive', monospace; font-variation-settings: 'MONO' 1;
+    font-size: 10px; color: var(--ink-muted);
+    text-transform: uppercase; letter-spacing: 1.5px;
+  }
+</style>
+</head>
+<body data-theme="dark">
+
+<nav class="nav-bar">
+  <a href="index.html" class="header-back">← 4 Direzioni</a>
+  <span class="label">ε · <span class="label-acc">Sculptural Type Variable</span></span>
+  <button class="theme-toggle" onclick="toggleTheme()">◐ Light/Dark</button>
+</nav>
+
+<div class="page">
+
+  <div class="hero">
+    <div class="meta-row">
+      <span><span class="accent-tag">▪</span> Variable typography is the design</span>
+      <span><span class="accent-tag">▪</span> Heuresys 2026 · v.0</span>
+      <span><span class="accent-tag">▪</span> Hover the wordmark</span>
+    </div>
+
+    <!-- Sculptural wordmark — hover changes weight -->
+    <div class="wordmark-sculpt">Heures<span class="y">y</span>s</div>
+
+    <h1>Il <em>layer</em> mancante <span class="accent">tra ERP, HR e BI.</span></h1>
+
+    <p class="lead">Heuresys governa la capability organizzativa come costrutto misurabile: cinque dimensioni in un grafo semantico. Decisioni diverse, non report più belli.</p>
+
+    <div class="body-grid">
+      <div class="body-text">
+        <p>La capability di un'organizzazione non è un attributo aggregato astratto. È la <strong>risultante</strong> di come processi, struttura, ruoli, competenze e performance si compongono e si vincolano reciprocamente.</p>
+        <p>Rappresentare queste cinque dimensioni e le loro relazioni in un <em>grafo semantico</em> le rende al tempo stesso osservabili, misurabili e azionabili — trasformando la consulenza organizzativa da esercizio narrativo a <strong>disciplina strumentata</strong>.</p>
+        <p>Heuresys non deriva da una scuola di pensiero ereditata. È sintesi di paper accademici, framework istituzionali (ESCO, NACE, CCNL) e offering top consulting (BCG, Deloitte SBO, Oliver Wyman/Mercer). <em>L'integrazione multi-source strumentata è il contributo originale.</em></p>
+      </div>
+      <div class="quote-block">
+        <p>SAP manages how the company runs. Heuresys manages the company's <em>ability</em> to run.</p>
+        <cite>— Slogan board-level · 2026-04</cite>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats sculpted -->
+  <div class="stats">
+    <h2>Lo strumento, <em>in cifre</em>.</h2>
+    <div class="stats-grid">
+      <div class="stat">
+        <div class="index">D-001</div>
+        <div class="num">531<span class="plus">+</span></div>
+        <div class="lab">Tabelle Database</div>
+      </div>
+      <div class="stat">
+        <div class="index">D-002</div>
+        <div class="num">17<span class="plus">K</span></div>
+        <div class="lab">Entità Knowledge Graph</div>
+      </div>
+      <div class="stat">
+        <div class="index">D-003</div>
+        <div class="num">14.011</div>
+        <div class="lab">Skill ESCO bilingue</div>
+      </div>
+      <div class="stat">
+        <div class="index">D-004</div>
+        <div class="num">3.276</div>
+        <div class="lab">NACE/ATECO 6 livelli</div>
+      </div>
+      <div class="stat">
+        <div class="index">D-005</div>
+        <div class="num">126<span class="plus">K</span></div>
+        <div class="lab">Relazioni semantiche</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Editorial section -->
+  <div class="editorial-section">
+    <div class="kicker">→ Tre prospettive · stesso grafo</div>
+    <h2>L'intelligenza<br />semantica <em>al centro.</em></h2>
+    <p class="lead">Il Knowledge Graph ESCO è il cuore di Heuresys: un grafo semantico di skill, occupazioni e relazioni che alimenta ogni decisione — dallo skill gap analysis al career bridging.</p>
+
+    <div class="perspectives">
+      <div class="pers">
+        <div class="num-tag">01</div>
+        <h3>Process Owner</h3>
+        <div class="role">Direttore Operativo / Process Manager</div>
+        <ul>
+          <li>Modellazione e monitoraggio processi business</li>
+          <li>KPI processo e identificazione colli di bottiglia</li>
+          <li>Simulazione cambiamenti organizzativi</li>
+        </ul>
+      </div>
+      <div class="pers">
+        <div class="num-tag">02</div>
+        <h3>HR Director</h3>
+        <div class="role">Direttore Risorse Umane / CHRO</div>
+        <ul>
+          <li>Talent governance e pianificazione successioni</li>
+          <li>Skill gap analysis con matching ESCO</li>
+          <li>Review cycle, calibration, compensation design</li>
+        </ul>
+      </div>
+      <div class="pers">
+        <div class="num-tag">03</div>
+        <h3>Org &amp; Systems</h3>
+        <div class="role">Direttore Organizzazione / CIO</div>
+        <ul>
+          <li>Design organizzativo e governance strutturale</li>
+          <li>Classificazione industry NACE/ATECO 6 livelli</li>
+          <li>Audit della capability e compliance</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="footer-cols">
+      <div class="col">
+        <span style="font-family: 'Bricolage Grotesque'; font-variation-settings: 'opsz' 32, 'wght' 700; font-size: 32px; letter-spacing: -1px;">Heures<span style="color: var(--accent); font-style: italic;">y</span>s</span>
+        <p style="margin-top: 8px;">Variable typography is the design. Hover the wordmark — it breathes.</p>
+      </div>
+      <div class="col">
+        <strong>Architettura</strong>
+        <p>5 dimensioni capability<br />7 layer ontological</p>
+      </div>
+      <div class="col">
+        <strong>Risorse</strong>
+        <p>Documentation API<br />Tassonomia ESCO</p>
+      </div>
+      <div class="col">
+        <strong>Contatti</strong>
+        <p>info@heuresys.com<br />Milano, Italia</p>
+      </div>
+    </div>
+    <div class="footer-meta">© 2026 Heuresys · ε direction · sculptural type variable · Bricolage Grotesque variable + Recursive variable + Inter</div>
+  </div>
+
+</div>
+
+<script>
+  const t = localStorage.getItem('heuresys-theme');
+  if (t) document.body.setAttribute('data-theme', t);
+  function toggleTheme() {
+    const cur = document.body.getAttribute('data-theme') || 'dark';
+    const next = cur === 'dark' ? 'light' : 'dark';
+    document.body.setAttribute('data-theme', next);
+    localStorage.setItem('heuresys-theme', next);
+  }
+</script>
+
+</body>
+</html>
