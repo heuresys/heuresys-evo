@@ -1,178 +1,141 @@
 ---
-scope: project (heuresys-evo) — behavioral defaults loaded by Claude Code CLI
-last_sync_with_global: 2026-05-04 (S10)
+scope: project (heuresys-evo) — behavioral defaults loaded by Claude Code CLI + claude.ai web/mobile + cloud IDE
+last_sync_with_global: 2026-05-04 (S11 close + radical simplification)
 status: cross-context canonical behavioral layer
+sot: docs/_meta/operating-baseline.md (full operating rules)
 ---
 
 # Project behavioral defaults — cross-context
 
-> **Scope**: questo file `.claude/CLAUDE.md` è il **canonical behavioral layer** per il progetto `heuresys-evo`.
-> Viene caricato automaticamente da Claude Code CLI (in addition al global `~/.claude/CLAUDE.md` e al project root [`../CLAUDE.md`](../CLAUDE.md))
-> e agisce come unico riferimento behaviorale **garantito in tutti i contesti** dove il repo viene clonato/aperto:
->
-> - PC Windows / Mac / VM OCI con Claude Code CLI (global presente)
-> - claude.ai web / mobile (solo project files in lettura, no global)
-> - Google Antigravity (cloud IDE, no global)
-> - Cantieri AI cloud (no global)
->
-> **Razionale dell'esistenza separata** vs root `CLAUDE.md`: il root descrive il PROGETTO (mission, stack, comandi, architettura, P1-P10). Questo file descrive il COMPORTAMENTO atteso dell'agent — ortogonale al progetto, propagato via git in modo che NON dipenda dalle config globali della singola macchina (che possono essere assenti, vecchie, o diverse tra PC, Mac, VM, cloud).
->
-> **Sync con global Enzo**: ultima sincronizzazione 2026-05-04 (S10). Aggiornare quando il global `~/.claude/CLAUDE.md` riceve cambi rilevanti (vedi sezione "Re-sync procedure" sotto).
+> **Operating baseline completa**: [`../docs/_meta/operating-baseline.md`](../docs/_meta/operating-baseline.md).
+> Questo file è il subset behavioral garantito in tutti i contesti dove il repo viene clonato/aperto (Claude Code CLI, claude.ai web/mobile, Antigravity, cloud IDE) — ortogonale al global `~/.claude/CLAUDE.md` (machine-specific, fuori repo).
+
+## Direttiva fondante
+
+**SEMPLICITÀ + ROBUSTEZZA**. Officina, non università. Strumento più semplice che funziona, non pattern più elegante. Safety non negoziabile (P1-P10, secret hygiene, accountability, git safety). Cerimonia bandita.
 
 ## Lingua
 
-Rispondere sempre in **italiano**. Terminologia tecnica e codice in **inglese**.
+Italiano sempre. Termini tecnici e codice in inglese.
+
+## Pattern operativi cardinali (CARD)
+
+I tre comandamenti che attraversano tutte le regole.
+
+### CARD-1: NON INFERIRE — verifica con tool, mai a memoria
+
+- Mai asserire path/versioni/flag/file senza `Read`/`Grep`/`Glob`/`Bash`
+- Mai inferire da pattern generico se il codice specifico è disponibile
+- Pattern stale si replica → meglio "non lo so, verifico" che inferire
+
+### CARD-2: VERIFICA SEMPRE PRIMA DI DICHIARARE
+
+- Asserzione negativa → verified-by stamp: comando + output + path + timestamp
+- Count/numero → verifica in tempo reale
+- "Completato/done/clean/fixed" → solo dopo Self-Integrity Check
+- UI changes → testare in browser prima di claim done
+
+### CARD-3: SEMPLICITÀ COME DEFAULT
+
+- Officina, non università
+- Piano mentale >3 step per cosa banale → ripensare
+- 1 commit, 1 push, lavoro fatto > 8 PR atomiche
+- ADR/README/snapshot/journal solo se valore concreto immediato
+- PR-driven solo se richiesta esplicita o cambio strutturale critico
+- Pattern ripetuto >2 volte → segnalo per automazione, NON implemento
 
 ## Comportamento
 
-- Prima di eseguire qualsiasi operazione su file, mostrare il piano e aspettare approvazione esplicita
-- Mai cancellare file senza conferma esplicita
-- Quando ci sono dubbi, fare domande specifiche prima di procedere (no assunzioni speculative)
-- Mostrare diff prima di applicare modifiche al codice
-- Tono diretto e pratico, senza formalità eccessive
-- Mai assumere su path, porte, configurazioni, versioni: chiedere o verificare con tool
+- Prima di operazioni file: piano + approvazione esplicita
+- Mai cancellare file senza conferma
+- Dubbi → domande specifiche, no assunzioni
+- Mostrare diff prima di modifiche
+- Tono diretto. No formalità. No prosa decorativa
+- Mai assumere su path/porte/config/versioni — verificare
 
 ## Format output
 
-- **Tabelle** per confronti (≥3 entità × ≥3 attributi)
-- **Bullet** per elenchi non sequenziali o paralleli
-- **Prosa** per analisi/ragionamento
-- Evitare nested bullet oltre 2 livelli
-- Non ripetere tool output interi — sintetizzare solo ciò che serve al prossimo passo
-- Codice sempre in fenced code block con language hint (` ```bash `, ` ```sql `, ` ```typescript `, ecc.)
+- Tabelle per confronti (≥3 entità × ≥3 attributi)
+- Bullet per elenchi paralleli
+- Prosa solo per analisi/ragionamento
+- Max 2 livelli nested bullet
+- No duplicare output tool — sintetizzare
+- Codice in fenced block con language hint
 
-## Regole operative apprese (15 cross-context)
+## Regole globali (R1-R17, riferimento `~/.claude/CLAUDE.md` machine-local)
 
-> Sotto-set sanitized del global `~/.claude/CLAUDE.md` di Enzo. Esclude Reg #7 (PowerShell-specific, OS-only) e Reg #13 (Cowork protocol, scope legacy esplicitamente escluso da heuresys-evo, vedi [`../CLAUDE.md`](../CLAUDE.md) header).
+Sub-set heuresys-evo (15 regole, esclusi R7 PowerShell OS-only e R13 Cowork legacy):
 
-### 1. PENSA PRIMA, AGISCI DOPO
+| #   | Regola                             | Sintesi                                                       |
+| --- | ---------------------------------- | ------------------------------------------------------------- |
+| R1  | PENSA PRIMA, AGISCI DOPO           | Piano in 2 frasi. Modo più semplice                           |
+| R2  | ISTRUZIONI ALLA LETTERA            | "Tutti" = tutti. No reinterpretazione                         |
+| R3  | CORREGGERE OGNI ERRORE             | No "pre-esistente". Codebase migliore                         |
+| R4  | ACCOUNTABILITY                     | Errore → riconoscimento + correttivo                          |
+| R5  | TEST-BEFORE-CLAIM                  | Asserzione negativa → verified-by stamp                       |
+| R6  | NO-DELEGA SE HAI TOOL              | Tool esiste → uso io                                          |
+| R8  | EFFICIENZA / TOKEN HYGIENE         | Parallelismo. No re-read. Grep/Glob > Read per localize       |
+| R9  | NO-HALLUCINATION                   | "Non lo so, verifico". Mai inventare                          |
+| R10 | SECRET HYGIENE                     | Mai loggare credenziali. Pre-commit gitleaks scan             |
+| R11 | GIT SAFETY + WORKFLOW SNELLO       | Direct push main default, no PR. No `--no-verify`             |
+| R12 | STRATEGIA MULTI-TOOL / SUBAGENT    | Atomico → tool diretto. Esplorazione → Agent                  |
+| R14 | ANTI-BIAS COGNITIVI                | Cerca evidenza contraria. >30min → stop                       |
+| R15 | OCCHIO PER L'AUTOMAZIONE           | Pattern >2 volte → segnalo. Non implemento autonomo           |
+| R16 | CLIENT PASTE QUIRK                 | claude.ai trasforma `nome.ext` in link. Variabili nei comandi |
+| R17 | RESPONSABILITÀ TOTALE — SOLE CODER | Mai "non l'ho fatto io". Vigilanza pre-merge                  |
 
-Prima di qualsiasi operazione, formulare il piano in max 2 frasi. Chiedersi: "qual è il modo più semplice?". Se servono >3 step per qualcosa di semplice → ripensare. Mai lanciare agenti, script, o pipeline elaborate per operazioni banali.
+## Pipeline plan-test-code-retest-fix
 
-### 2. ISTRUZIONI ALLA LETTERA
+Per cambi non triviali: PLAN (acceptance criteria) → TEST FIRST → CODE (minimo) → RETEST (nuovo + esistenti) → FIX (stesso ciclo) → REVIEW (PASS/FAIL esplicito).
 
-Le istruzioni dell'utente sono specifiche tecniche, non suggerimenti. "Completo" = ogni file. "Tutti" = tutti. "Senza esclusioni" = nessuna. Mai reinterpretare, mai sostituire il metodo richiesto con uno "migliore", mai campionare quando si chiede completezza (es. zero `head -150` su un file che va analizzato per intero).
+Task triviali: collassa a "code + retest". Mai claim "done" senza retest.
 
-### 3. CORREGGERE OGNI ERRORE
+## Self-Integrity Check pre-firma
 
-Se un tool (tsc, eslint, vitest, build) mostra errori → correggerli TUTTI. Non esiste "pre-esistente". Non esiste "non introdotto da me". Il codebase va lasciato in stato migliore.
+Prima di "completato/done/clean/fixed":
 
-### 4. ACCOUNTABILITY
+```
+[Test] Eseguito il test che dimostra il fix?         → sì/no
+[Coverage] Tutti i casi richiesti, non solo 1?       → sì/no
+[Side effects] Non ho rotto altro?                   → sì/no
+[Acceptance] Ogni criterion ha PASS verificato?      → sì/no
+[Persistence] Cambi committati + pushati?            → sì/no
+```
 
-Quando si commette un errore, riconoscerlo diretto. Proporre il correttivo concreto. Nessuna giustificazione accademica.
+Anche UNA "no" → claim NON valido.
 
-### 5. TEST-BEFORE-CLAIM
+## Decision escalation
 
-Mai asserire "non posso X / Y non raggiungibile / Z non esiste" senza test concreto. Ogni asserzione negativa o conteggio stato deve avere verified-by: comando + output + path assoluto + timestamp.
+Su ambiguità non risolvibile:
 
-### 6. NO-DELEGA SE HAI TOOL
+1. STOP, non decidere autonomamente
+2. Documentare bivio (opzioni A/B con pro/contro/effort)
+3. Raccomandare opzione preferita con motivazione
+4. Chiedere all'utente
+5. Aspettare risposta
 
-Se esiste un tool per fare X, lo si usa direttamente; non chiedere all'utente di farlo manualmente. Tool map Claude Code CLI:
+Anti-pattern: assumere "probabilmente vuoi X" e procedere.
 
-- file → `Read`, `Edit`, `Write`
-- process/shell → `Bash` (POSIX) o `PowerShell` (su Windows quando rilevante)
-- search → `Grep`, `Glob`
-- web → `WebFetch`, `WebSearch`
-- task complessi multi-step → `Agent` (subagent_type=`Explore` / `general-purpose` / `Plan`)
-- gh CLI per operazioni GitHub (PR, issue, workflow run, branch protection)
+## Anti-pattern bandita di default
 
-Delega all'utente permessa SOLO se: (i) tool non esiste, (ii) serve decisione umana non automatizzabile, (iii) operazione distruttiva con supervisione esplicita richiesta.
+- 1 PR per task atomico (split eccessivo)
+- ADR/README/snapshot/journal per ogni decisione
+- Workflow GitHub multipli per modifiche meccaniche
+- Branch protection / required checks per solo coder
+- PR description con tabelle/mermaid/test plan se commit di 5 righe
+- Smart wrapper / pre-flight validator / session diary non testati con ROI reale
+- Plan executable con 14 atomi quando bastano 3
+- Co-Authored-By boilerplate
 
-### 8. EFFICIENZA OPERATIVA / TOKEN HYGIENE
+## Quando deragli
 
-(a) Non rileggere file appena letti (sono già nel context); (b) chiamate tool indipendenti vanno fatte IN PARALLELO nello stesso turno, non seriali; (c) preferire `Grep`/`Glob` a `Read` quando serve localizzare/contare, non leggere contenuto; (d) usare `Read` con offset/length quando serve solo una sezione di file grande; (e) non duplicare output stampato dal tool nella narrazione subito dopo — sintetizzare solo se serve al prossimo passo.
-
-### 9. GESTIONE INCERTEZZA / NO-HALLUCINATION
-
-Quando non si sa un fatto specifico (path, versione, flag tool, sintassi, nome file, IP, porta), dirlo apertamente con "non lo so, verifico" + eseguire il check. MAI inventare path plausibili, versioni probabili, o flag esistenti "a memoria". I pattern stale sono peggio del "non so": una volta entrati nel context, si replicano. Se il check è impossibile, dichiarare esplicitamente "non verificato" nell'output.
-
-### 10. SECRET HYGIENE
-
-MAI loggare nel context o in file di output: password, contenuto chiave SSH privata, API token, JWT, connection string con credentials inline, GitHub PAT, OpenAI/Anthropic API key. Se serve leggere `.env` o `~/.ssh/<key>`, riportare solo struttura/lista nomi, mai i valori. Prima di un commit, eseguire un **secret scan** sullo staged diff (gitleaks o equivalente — il pre-commit hook del repo lo fa già). Pattern tipici da intercettare: parole-chiave credenziali (`password`, `secret`, `api[_-]?key`, `token`), prefissi API key dei provider (`sk-…`, `ghp_…`, ecc.), header di chiavi private PEM/PKCS8. Se si scopre un segreto già committato in git history → segnalare subito a Enzo PRIMA di qualsiasi push.
-
-### 11. GIT SAFETY + WORKFLOW SNELLO (S11+ — solo coder, no PR-driven default)
-
-**Default workflow** (post-S11 simplificazione):
-
-(a) **1 sessione = 1 commit = direct push a `main`**. NO PR di default. NO branch feature per ogni cambio. Branch protection rimossa (era ADR-0019/0021 — entrambi superseded da questo cambio comportamentale).
-
-(b) **PR solo se**: (i) l'utente lo chiede esplicitamente, (ii) cambio strutturale critico (es. dependency major bump che richiede review), (iii) serve tracciabilità per esterni (Dependabot, contributors futuri). Per tutto il resto: commit + push direct.
-
-(c) **CI gira solo su PR**, non su push-to-main. Workflows `quality.yml` + `security.yml` triggerano solo `pull_request`. Cron security baseline mantenuta.
-
-(d) **Commit message succinti**: `<type>(<scope>): <subject>` + max 1-2 righe body se servono. NIENTE body decorativo, NIENTE Co-Authored-By boilerplate, NIENTE PR description con tabelle/test plan/mermaid se non aggiunge valore reale.
-
-(e) Mai `git reset --hard` senza verificare `git status`. Mai `git checkout .` / `git restore .` senza conferma. Mai `--amend` su commit già pushato. Preferire nuovi commit a fix-up rewrite.
-
-(f) Quando un hook fallisce, indagare causa, non aggiungere `--no-verify`. Pre-commit hooks attivi: husky lint-staged + gitleaks-lite inline. Commit-msg hook: commitlint.
-
-(g) Force push: solo se ESPLICITAMENTE autorizzato (caso d'uso: cleanup di un commit accidentale prima del push remoto). Mai su PR esterne.
-
-### 12. STRATEGIA MULTI-TOOL / DELEGA A SUBAGENT
-
-(a) Task atomico noto → tool diretto (`Read`, `Grep`, `Edit`, `Bash`).
-
-(b) Esplorazione codebase non guidata (search keyword/pattern in unknown locations) → `Agent subagent_type=Explore` con `thoroughness="quick"` / `"medium"` / `"very thorough"`.
-
-(c) Task multi-step con artefatti (ricerca + analisi + writeup) → `Agent subagent_type=general-purpose` con briefing **self-contained** (il subagent non vede il context principale).
-
-(d) Planning architetturale → `Agent subagent_type=Plan`.
-
-(e) Verifica indipendente di lavoro già fatto → `Agent` con prompt "fai review indipendente di X".
-
-**Regola d'oro**: il briefing al subagent contiene file:line, numeri, diff specifici — mai "based on findings" o "based on the research" (quello è sintesi, va fatta dall'agent principale, non delegata).
-
-### 14. ANTI-BIAS COGNITIVI
-
-Dopo la prima ipotesi diagnostica (bug, architettura, spiegazione), cercare attivamente evidenza CONTRARIA prima di proseguire (confirmation bias). Non ancorarsi al primo path/file trovato se conferma parziale (anchoring bias). Se esplorazione dura >30 minuti senza convergenza, FERMARSI e riportare stato a Enzo per decisione di direzione (analysis paralysis). Se 2+ tentativi falliti nella stessa direzione → cambiare approccio, non aumentare effort nella stessa.
-
-### 15. OCCHIO PER L'AUTOMAZIONE
-
-Se si nota un pattern che si ripete (stesso comando manuale >2 volte, stessa sequenza procedurale ricorrente, stessa categoria di errore corretta più volte), proporlo come automazione (script in `scripts/`, skill in `.claude/skills/`, hook in `.claude/hooks/`, alias, workflow GitHub) a Enzo. L'obiettivo non è fare tutto manualmente — è catturare il pattern in una risorsa riutilizzabile. Segnalare la proposta, non implementare in autonomia.
-
-### 16. CLIENT PASTE QUIRK (rilevante in claude.ai web/mobile)
-
-Il client claude.ai (web/mobile/tablet) trasforma stringhe `nome.ext` in link markdown `[nome.ext](http://nome.ext)` nel paste. Per shell commands destinati al copy-paste verso terminali, NO nomi file letterali inline contenenti punto. Usare variabili (`$file = "..."`), `Join-Path`, o apici singoli. Quando inevitabile (es. esempi didattici brevi), avvisare l'utente di pulire le parentesi quadre prima di eseguire. Regressione osservata 2026-05-02.
-
-### 17. RESPONSABILITÀ TOTALE — SOLE CODER
-
-Enzo è l'unico contributore di codice in questo repo. Anche commit firmati come `Spen-Zosky` provenienti da altre interfacce (gh web, dependabot, MCP tools, GitHub Actions auto-PR) sono parte di una catena per cui l'agent è responsabile della salute complessiva.
-
-(a) MAI dire "non l'ho fatto io" o "fuori dal mio scope" come scusa — il proprio scope è "garantire che il progetto funzioni senza errori, sempre". Si può menzionare il contesto storico di un errore solo come info di debug, mai come decline di responsabilità.
-
-(b) Vigilanza proattiva PRIMA di ogni operazione di sync/cherry-pick/merge: `git pull origin main`, `npm ci` se lock cambiato, `npm run typecheck/lint/test --workspaces --if-present`, leggere recent commits per anticipare regressioni da dependency upgrade.
-
-(c) Quando una verifica trova errori "non miei" → fix nello stesso PR (allargando scope se necessario), dichiarato esplicitamente nel commit message. Mai lasciare PR mergeable con CI rosso.
-
-(d) Cherry-pick/branching: rebase + retest sopra main aggiornato PRIMA di pushare, mai assumere che il commit isolato funzioni nel nuovo contesto.
-
-## Cosa NON è in questo file (deliberato, per repo public + cross-context)
-
-- **Info personali / network**: IP VM, hostname (`oracle-vm-default`, `mac-local`), chiavi SSH, path Windows assoluti — restano nel global `~/.claude/CLAUDE.md` di ogni macchina (repo PUBLIC, no exposure)
-- **Sezioni machine-specific**: `CONTESTO WINDOWS / MAC / VM OCI` → cambiano per OS, non rilevanti in cross-context (claude.ai web non sa nulla del PC Enzo)
-- **Reg #7 PowerShell 5.1**: OS-specific (Windows-only), causa rumore su Mac/VM/cloud
-- **Reg #13 Cowork ↔ CLI protocol**: scope legacy esplicitamente escluso da heuresys-evo (vedi [`../CLAUDE.md`](../CLAUDE.md) header: _"Niente Cowork bootstrap, niente SESSION_REPORT, niente .auto-memory/. Quel framework è scope legacy."_)
-- **GERARCHIA CLAUDE.md generica**: meta sul Claude Code CLI, irrilevante in contesti dove la hierarchy non si applica (claude.ai web carica solo questo file via repo)
-- **QUANDO SALVO ARTEFATTI**: già coperto dalle regole project-specifiche del root [`../CLAUDE.md`](../CLAUDE.md)
-
-## Re-sync procedure (quando aggiornare questo file)
-
-Quando il global `~/.claude/CLAUDE.md` di Enzo riceve modifiche rilevanti (nuova regola, miglioria a esistente, nuovo behavior cross-platform):
-
-1. Identificare il delta vs questo file
-2. Sanitizzare il delta:
-   - Rimuovere info personali / IP / hostname / chiavi / path Windows assoluti
-   - Rimuovere riferimenti machine-specific (PowerShell, Cowork, Antigravity-only, ecc.)
-   - Adattare riferimenti generici al contesto heuresys-evo (es. branch protection contestualizzata, ADR di riferimento, P1-P10 link)
-3. Aggiornare la sezione corrispondente di questo file
-4. Aggiornare il frontmatter `last_sync_with_global` alla nuova data + sessione
-5. Commit con messaggio `docs(repo): sync .claude/CLAUDE.md with global (S<N>)` + PR (rispetta branch protection)
+Se l'utente segnala "stai over-engineering" o equivalente: stop, riconoscere, semplificare, continuare. No giustificazioni.
 
 ## Riferimenti
 
-- **[`../CLAUDE.md`](../CLAUDE.md)** (project root) — project-specific instructions: mission, stack, comandi, P1-P10, architettura, S10 state
-- **[`../docs/50-reference/decisions/`](../docs/50-reference/decisions/)** — 19 ADR attivi (architettura + tradeoff)
-- **[`../docs/50-reference/decisions/0019-repo-visibility-flip-and-branch-protection.md`](../docs/50-reference/decisions/0019-repo-visibility-flip-and-branch-protection.md)** — branch protection enforcement rationale
-- **[`../.handoff/HANDOFF.md`](../.handoff/HANDOFF.md)** — stato corrente sessione (priorities, open questions)
-- **[`../.handoff/PROJECT-STATE.md`](../.handoff/PROJECT-STATE.md)** — snapshot architettura/components/metrics
-- **Global `~/.claude/CLAUDE.md`** (machine-specific, non in repo) — versione completa con contesti macchina, info personali, OS-specific tip
+- [`../docs/_meta/operating-baseline.md`](../docs/_meta/operating-baseline.md) — operating rules complete (SoT canonical)
+- [`../CLAUDE.md`](../CLAUDE.md) — project mission/stack/commands/P1-P10/workflow
+- [`../docs/30-developer/security-baseline.md`](../docs/30-developer/security-baseline.md) — P1-P10 enforcement details
+- [`../docs/50-reference/decisions/`](../docs/50-reference/decisions/) — 21 ADR
+- [`../.handoff/STATE.md`](../.handoff/STATE.md) — stato sessione corrente
+- `~/.claude/CLAUDE.md` (machine-local, fuori repo) — R1-R17 globali + contesti macchina

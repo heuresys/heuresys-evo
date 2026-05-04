@@ -1,21 +1,19 @@
-# Heuresys evo — Project Instructions (Claude Code)
+# heuresys-evo — Project Instructions
 
-> Repo: `heuresys-evo` (greenfield rewrite di `heuresys.com.evo` legacy).
-> Path canonico: `/home/ubuntu/heuresys-evo/` (VM `oracle-vm-default`).
-> Niente Cowork bootstrap, niente SESSION_REPORT, niente `.auto-memory/`. Quel framework è scope legacy.
+> **Operating Baseline** (regole comportamentali complete): [`docs/_meta/operating-baseline.md`](docs/_meta/operating-baseline.md). SoT cross-machine via git.
+>
+> Repo: `heuresys-evo` (greenfield rewrite di `heuresys.com.evo` legacy). Solo coder = Enzo Spenuso. No PR-driven default.
 
 ## Session start protocol
 
-All'inizio di ogni nuova sessione:
+1. Leggi `.handoff/STATE.md`
+2. `git status -sb` (clean? in sync con `origin/main`?)
+3. Saluta: 1-line recap + top 3 priorities + open questions se rilevanti
+4. Aspetta direzione esplicita prima di toccare codice
 
-1. Leggi `.handoff/STATE.md` (unico file vivo — sostituisce HANDOFF + PROJECT-STATE post-S11 simplification)
-2. Verifica `git status -sb` (clean? in sync con origin/main?)
-3. Saluta con: 1-line recap + top 3 priorities + open questions se rilevanti
-4. Chiedi direzione e **aspetta esplicito** prima di toccare codice
+Eccezione: skip se utente apre con comando diretto self-contained.
 
-Eccezione: skip se l'utente apre con comando diretto self-contained.
-
-A fine sessione, `/handoff` aggiorna `.handoff/STATE.md` + commit + push direct su main. NO PR, NO snapshots, NO journals.
+A fine sessione, `/handoff` aggiorna `.handoff/STATE.md` + commit + push direct main.
 
 ## Mission
 
@@ -23,127 +21,109 @@ Piattaforma SaaS B2B di Organizational Intelligence & Workforce Orchestration. L
 
 ## Stack
 
-| Layer       | Tech                                                                                                       |
-| ----------- | ---------------------------------------------------------------------------------------------------------- |
-| Workspace   | npm workspaces (Node ≥20, npm ≥10) — vedi `docs/20-architecture/monorepo-workspace-strategy.md`            |
-| API Gateway | Express 5 + zod (port 8200) — `services/api-gateway`                                                       |
-| Frontend    | Next.js 16 + React 19 + Tailwind 4 (port 3200) — `services/app`                                            |
-| Workers     | BullMQ + Redis — `services/enrichment`                                                                     |
-| UI Library  | Shadcn base + Cantiere B v2 (180 components) — `packages/ui`                                               |
-| ORM         | Prisma 5.22 (566 modelli, schema in `services/app/prisma/schema.prisma`) — bump 6/7 deferred, vedi HANDOFF |
-| DB          | PostgreSQL 16 bare-metal (5432) — distinto dal legacy heuresys.com.evo che usa 5433 (container)            |
-| Cache/Queue | Redis (6380)                                                                                               |
-| Auth        | NextAuth v4 (Credentials + bcryptjs)                                                                       |
-| Test        | Vitest 4 in api-gateway/app/ui/shared/enrichment (250 test, S8 fix workspace)                              |
-| Lint/Format | ESLint 9, Prettier, Husky + lint-staged + commitlint                                                       |
+| Layer       | Tech                                                            |
+| ----------- | --------------------------------------------------------------- |
+| Workspace   | npm workspaces (Node ≥20, npm ≥10)                              |
+| API Gateway | Express 5 + zod (port 8200) — `services/api-gateway`            |
+| Frontend    | Next.js 16 + React 19 + Tailwind 4 (port 3200) — `services/app` |
+| Workers     | BullMQ + Redis (6380) — `services/enrichment`                   |
+| UI Library  | Shadcn + Cantiere B v2 (~180 component) — `packages/ui`         |
+| ORM         | Prisma 5.22 (566 modelli)                                       |
+| DB          | PostgreSQL 16 bare-metal (5432)                                 |
+| Auth        | NextAuth v4 (Credentials + bcryptjs)                            |
+| Test        | Vitest 4 (250 test verdi su 5 workspace)                        |
+| Lint/Format | ESLint 9, Prettier, Husky + lint-staged + commitlint            |
 
 ## Comandi quotidiani
 
 ```bash
-# Dev (tutti i workspace in parallelo)
-npm run dev --workspaces --if-present
-
-# Build mirato
-npm run build --workspace=services/api-gateway
-
-# Typecheck globale (pre-commit hook)
-npx tsc --noEmit -p tsconfig.base.json
-
-# Test
-npm test --workspace=services/api-gateway
-
-# Prisma
-cd services/app && npx prisma migrate dev --name <desc>   # development
+npm run dev --workspaces --if-present              # dev parallel
+npm run build --workspace=services/api-gateway     # build mirato
+npx tsc --noEmit -p tsconfig.base.json             # typecheck
+npm test --workspace=services/api-gateway          # test
+cd services/app && npx prisma migrate dev --name <desc>   # migration dev
 cd services/app && npx prisma migrate deploy              # production
 cd services/app && npx prisma migrate status              # drift check
 ```
 
-Vedi `docs/30-developer/prisma-migration-workflow.md` per workflow completo.
+## Domini
 
-## Domini & routing (VM `oracle-vm-default`, IP 80.225.82.207)
+| Dominio                                                  | Repo                      | Stack   | FE port | API port | DB port           |
+| -------------------------------------------------------- | ------------------------- | ------- | ------- | -------- | ----------------- |
+| `evo.heuresys.com` (HTTPS)                               | questo                    | systemd | 3200    | 8200     | 5432 (bare-metal) |
+| `www.heuresys.com`, `heuresys.com` (pending DNS+certbot) | `heuresys.com.evo` legacy | Docker  | 3012    | 8012     | 5433 (container)  |
 
-| Dominio                                                          | Repo                                     | Stack   | Frontend port | API port | DB port           |
-| ---------------------------------------------------------------- | ---------------------------------------- | ------- | ------------- | -------- | ----------------- |
-| `evo.heuresys.com` (HTTPS)                                       | `/home/ubuntu/heuresys-evo` (questo)     | systemd | 3200          | 8200     | 5432 (bare-metal) |
-| `www.heuresys.com`, `heuresys.com` (HTTPS — pending DNS+certbot) | `/home/ubuntu/heuresys.com.evo` (legacy) | Docker  | 3012          | 8012     | 5433 (container)  |
+VM: `oracle-vm-default` (IP 80.225.82.207). nginx vhosts in `/etc/nginx/sites-available/`.
 
-Tutto ciò che si sviluppa in questo repo deve essere servito da `evo.heuresys.com`.
-Il legacy resta intoccato: stesso server, ports diverse, repo separato.
+## Principi P1-P10 (vincolanti)
 
-nginx vhosts in `/etc/nginx/sites-available/`:
-
-- `evo.heuresys.com.conf` (active) → `/api/auth/` su 3200, `/api/` su 8200, `/` su 3200
-- `www.heuresys.com.conf` (preparato, attivabile via `scripts/enable-www-vhost.sh` dopo DNS update)
-
-## Stato attuale (2026-05-04, S10)
-
-- **Pagine Next.js evo**: 5 (`/`, `/login`, `/dashboard`, `/showcase`, `/brand-studio`)
-- **Endpoint Express evo**: 8+ (4xx-aware, scaffolding + alcuni operativi)
-- **Test totali**: 250 verdi (5 workspace, 100% passing)
-- **RLS policies**: 605 attive · **RBP role-area-permission joins**: 326
-- **`packages/ui`**: ~180 component, Storybook 9 (84 stories), pubblicato su GitHub Pages (workflow `Storybook Deploy` S10)
-- **Vulnerabilità npm audit**: 0 (S8 supply chain hardening)
-- **Repo visibility**: PUBLIC (S9 flip post billing-exhaust). Branch protection attiva su `main` (S10): 7 required checks (`lint`, `typecheck`, `test`, `build-workspaces`, `gitleaks`, `semgrep`, `npm-audit`) + linear history + no force push + no deletion. `enforce_admins=false`. Auto-merge + `allow_update_branch` enabled
-- **Migration parity legacy**: vedi `docs/30-developer/feature-parity-tracking.md`
-- **Strategia migration**: PET-driven, vedi `docs/10-strategy/migration-strategy-pet-driven.md` (Phase 6 cutover-event CANCELLATA, sostituita da Phase 6+ progressive Tier 1 port)
+| #   | Principio                      | Enforcement                                                                |
+| --- | ------------------------------ | -------------------------------------------------------------------------- |
+| P1  | Multi-tenant always            | `tenantId` in ogni query Prisma su tabelle tenant-scoped                   |
+| P2  | Auth-required default          | Endpoint pubblici = eccezioni esplicite                                    |
+| P3  | RBP enforced                   | `requirePermission(area, action)` middleware. Mai `requireRole`            |
+| P4  | Audit logged                   | `audit_logs` insert per ogni write, atomico via `auditedTransaction()`     |
+| P5  | RLS DB-level                   | Policy attiva su tabelle tenant-scoped + `SET LOCAL app.current_tenant_id` |
+| P6  | No raw SQL injection + secrets | Prisma + tagged template `$queryRaw`. No hardcode                          |
+| P7  | Validated input                | Zod schema su ogni boundary HTTP/file/IPC                                  |
+| P8  | Error logged                   | Pino + Sentry. No `console.log` in prod path                               |
+| P9  | Everything data-driven         | Ruoli/permessi/navigazione/perspective in DB                               |
+| P10 | Multi-level Platform/Tenant    | Config supporta `tenantId NULL` (Platform) e `tenantId <uuid>`             |
 
 ## Multi-tenant & RBP (sintesi)
 
-- **4 tenant** seedati: Heuresys System (platform), RTL Bank (test), SmartFood, EcoNova
-- **8 ruoli RBP**: SUPERUSER (-1), TENANT_OWNER (0), IT_ADMIN (1), HR_DIRECTOR (2), HR_MANAGER (3), DEPT_HEAD (4), LINE_MANAGER (5), EMPLOYEE (6)
-- **33 functional areas** (`rbp_functional_areas`) + **47 PET mapping** (Process/Enterprise/Talent)
-- Authorization data-driven: `@RequirePermission('AREA', 'ACTION')` (mai `requireRole`)
-- RLS attiva DB-level (P5)
+- 4 tenant: Heuresys System (platform), RTL Bank (test), SmartFood, EcoNova
+- 8 ruoli: SUPERUSER (-1), TENANT_OWNER (0), IT_ADMIN (1), HR_DIRECTOR (2), HR_MANAGER (3), DEPT_HEAD (4), LINE_MANAGER (5), EMPLOYEE (6)
+- 33 functional areas (`rbp_functional_areas`) + 47 PET mapping (Process/Enterprise/Talent)
+- RLS attiva DB-level (605 policies, 326 RBP role-area-permission joins)
 
-## Principi P1-P10 (vincolanti per ogni PR)
-
-1. **P1** Multi-tenant always — `tenantId` in ogni query
-2. **P2** Auth-required default — endpoint pubblici sono eccezione esplicita
-3. **P3** RBP enforced — `requirePermission`, mai bypass
-4. **P4** Audit logged — `audit_logs` insert per write operations
-5. **P5** RLS DB-level — policy attive su tutte le tabelle tenant-scoped
-6. **P6** No raw SQL injection — solo Prisma o `$queryRaw` con tagged template
-7. **P7** Validated input — zod schema per ogni DTO (vedi `docs/30-developer/dto-validation-with-zod-or-class-validator.md`)
-8. **P8** Error logged — Pino + Sentry, mai `console.log` in prod path
-9. **P9** Everything data-driven — ruoli, permessi, navigazione, perspective: tutto in DB
-10. **P10** Multi-level Platform/Tenant — config supporta `tenantId NULL` (Platform) e `tenantId <uuid>` (Tenant)
-
-## Convenzioni commit (commitlint)
-
-Conventional Commits con scope obbligatorio:
+## Convenzioni commit (commitlint enforced)
 
 ```
 <type>(<scope>): <subject>
 
-[optional body]
-[optional footer]
+[body 1-2 righe se serve]
 ```
 
-Types: `feat`, `fix`, `chore`, `docs`, `refactor`, `test`, `perf`, `build`, `ci`, `style`.
-Scope: `api-gateway`, `app`, `enrichment`, `ui`, `shared`, `db`, `infra`, `docs`, `repo`.
+- Types: `feat`, `fix`, `chore`, `docs`, `refactor`, `test`, `perf`, `build`, `ci`, `style`, `deps`, `config`, `security`, `adr`, `schema`, `ui`, `story`, `tokens`, `obs`, `migration`, `a11y`
+- Scope: `api-gateway`, `app`, `enrichment`, `ui`, `shared`, `db`, `infra`, `docs`, `repo`
+- Subject ≤ 70 char. No em-dash. No decorative date
+- NO Co-Authored-By boilerplate
 
-Esempi:
+## Workflow GitHub (post-S11 simplification)
 
-- `feat(api-gateway): add EmployeeModule with CRUD endpoints`
-- `fix(app): resolve hydration mismatch in dashboard widget`
-- `chore(repo): bump prisma to 6.0.1`
+- Default: 1 sessione = 1 commit = direct push main
+- PR solo se: utente esplicito | dependency major bump | cambio strutturale critico
+- Branch protection main: RIMOSSA
+- CI gira solo su PR + nightly cron security
+- Workflows attivi: `quality.yml`, `security.yml`, `storybook.yml`
+- Hooks: husky pre-commit (lint-staged + gitleaks-lite), commit-msg (commitlint)
 
-`commitlint.config.cjs` enforce. Pre-commit hook in `.husky/`.
+## Stato attuale (2026-05-04, post S11 close)
 
-## Documenti strategici di riferimento
+- Pagine Next.js: 5 (`/`, `/login`, `/dashboard`, `/showcase`, `/brand-studio`)
+- Endpoint Express: 8+ (4xx-aware)
+- Test totali: 250 verdi
+- RLS policies: 605 attive · RBP joins: 326
+- packages/ui: ~180 component, Storybook 9 (84 stories), GH Pages
+- npm audit: 0 vulnerabilities
+- Repo visibility: PUBLIC. Branch protection rimossa. CI minimal
+- Schema docs: Diátaxis numbered + meta (`docs/_meta`, `10-strategy`, `20-architecture`, `30-developer`, `40-operations`, `50-reference`, `70-planning`, `90-archive`)
+- Migration legacy → evo: PET-driven (vedi `docs/10-strategy/migration-strategy-pet-driven.md`)
 
-- `docs/10-strategy/migration-strategy-pet-driven.md` — strategia di porting dal legacy
-- `docs/_meta/governance-evo.md` — governance progetto (decisioni, ADR index)
-- `docs/20-architecture/monorepo-workspace-strategy.md` — npm workspaces, no Turborepo
-- `docs/30-developer/typescript-strict-evo.md` — TS strict, zero `any`
-- `docs/30-developer/nextjs-app-router-conventions.md` — RSC, Server Actions, parallel routes
-- `docs/30-developer/dto-validation-with-zod-or-class-validator.md` — zod + nestjs-zod
-- `docs/30-developer/prisma-migration-workflow.md` — migrate dev/deploy, baseline, drift
-- `docs/30-developer/feature-parity-tracking.md` — tracker 33 aree legacy → evo
+## Documenti strategici
 
-## Quando fare PR
+- `docs/_meta/operating-baseline.md` — **regole comportamentali complete (canonical SoT)**
+- `docs/_meta/doc-architecture.md` — schema docs/ canonical
+- `docs/_meta/governance-evo.md` — governance progetto
+- `docs/10-strategy/migration-strategy-pet-driven.md` — strategia porting
+- `docs/50-reference/decisions/` — 21 ADR (3 superseded)
+- `docs/30-developer/security-baseline.md` — P1-P10 enforcement details
 
-- Branch da `main`, naming: `<type>/<short-desc>` (es. `feat/employee-module`)
-- 1 PR = 1 funzionalità coerente. PR multi-scope vanno splittate.
-- Checklist PR description: P1-P10 review, test aggiunti, parity tracker aggiornato (se area in scope), `migrate status` clean, `tsc --noEmit` green.
-- Niente force-push su `main`. Niente `--no-verify`.
+## Quando deragli — segnale
+
+Se Claude over-engineered, ritualizza, multipli PR per task coerente, plan elaborati per cose banali, ADR/README/snapshot superflui:
+
+> "stai over-engineering" → stop, riconoscere, semplificare, continuare
+
+Vedi [`docs/_meta/operating-baseline.md`](docs/_meta/operating-baseline.md) §Anti-pattern.
