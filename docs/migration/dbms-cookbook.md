@@ -1,5 +1,7 @@
 # DBMS evo — Cookbook query reali
 
+> **Status S11**: il contenuto resta operativo (query funzionali) ma il file sarà spostato in `docs/40-operations/db-management-evo.md` (merge) o in `docs/90-archive/migration-bootstrap/` (snapshot) come parte della doc consolidation S11. Decisione finale in PR #B3.
+
 **Status**: ATTIVO (verificato 2026-05-02)
 **DB target**: PostgreSQL 16 bare-metal su VM `oracle-vm-default`, porta 5432, DB `heuresys_platform`, owner `heuresys`
 **Stato dati**: popolato (4 tenants, 274 users, 270 employees, ESCO 14k skills, RBP completo, 47 PET mapping)

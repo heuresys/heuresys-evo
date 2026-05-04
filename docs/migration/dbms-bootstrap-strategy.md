@@ -1,9 +1,13 @@
 # DBMS Bootstrap Strategy — heuresys-evo
 
+> **Status**: Historical (2026-05-01 baseline). Bootstrap completato; il workflow operativo corrente per migration è in `docs/30-developer/prisma-migration-workflow.md`. Questo documento è preservato come snapshot della strategia di partenza.
+>
 > **Versione**: 1.0 — 2026-05-01
 > **Autore**: Claude Code CLI (Opus 4.7)
 > **Scope**: strategia bootstrap progressivo del DB greenfield `heuresys-evo` partendo dallo stato verificato il 2026-05-01.
 > **Vincolo metodologico**: tutti i numeri sono `verified-by` query reale (vedi §7).
+>
+> **Migration target (S11)**: questo file sarà mosso in `docs/90-archive/migration-bootstrap/` come parte di PR #B3 della doc consolidation.
 
 ---
 
