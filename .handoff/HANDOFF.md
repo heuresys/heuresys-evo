@@ -6,6 +6,10 @@
 
 S9 (~50min, **0 commit, 0 file repo modificati**): sessione 100% out-of-band sul sistema memoria claude-mem (Windows-side, fuori repo). Operativo: (1) verificato che il fix `CLAUDE_MEM_HEALTH_TIMEOUT_MS=300000` di S8 governa anche `query_corpus` non solo health check; (2) costruito secondo corpus `heuresys-evo-prehistory` per recuperare le 179 obs siloed sotto vecchio slug `heuresys.com.evo` (era working dir pre-rename `D:\heuresys-com-evo`); (3) **rename atomica SQL** `heuresys.com.evo` → `evo.heuresys.com` su 3 tabelle SQLite (231 righe totali: observations 179, session_summaries 48, sdk_sessions 4) con snapshot pre-op `~/.claude-mem.bak-20260504T0345Z/` (30.59 MB); (4) cancellato corpus stale + rebuild corpus unificato `evo-heuresys` ora a 245 obs / 97k token / range Apr 28 → May 4. Test cross-period query OK. **Repo intoccato**, CI invariato 3/3 green su `ddc31dd`. Tutte le 5 todo S8 restano aperte.
 
+### S9 addendum (post-handoff)
+
+Push del commit S9 (`3bf0aa8`) ha trovato CI bloccata da **GitHub Actions billing exhausted** (job killed in 2s con messaggio "recent account payments have failed or your spending limit needs to be increased"). Risolto rendendo **repo pubblico** dopo pre-check sicurezza (gitleaks scan completo: 75 commit, 0 leak nella history, working tree pulito a parte node_modules false positives). Repo ora `https://github.com/heuresys/heuresys-evo` PUBLIC, GHA illimitate. 3 workflow re-run su `3bf0aa8` → tutti **success**. Conseguenze da gestire prossima sessione: license decision + branch protection setup (vedi priority #2 e open questions).
+
 ## Priorities for next session
 
 1. **Decidere strategia Prisma: bump 6.19.2 intermediate vs aspettare sessione dedicata 7** (S decisione, M-L esecuzione) — *carry-forward S8 #1*
@@ -13,22 +17,31 @@ S9 (~50min, **0 commit, 0 file repo modificati**): sessione 100% out-of-band sul
    Files (se 6.19.2): `services/app/package.json`, `services/api-gateway/package.json`, `services/{app,api-gateway}/prisma/schema.prisma` (verifica deprecation hints), regenerate clients
    Done when: decisione esplicita su 6 vs 7, e se 6 → `npm test` 250 verdi + `npx prisma generate` clean su entrambi gli schema + smoke query Postgres OK.
 
-2. **Auto-handoff retention rotation** (XS, ~10min) — *carry-forward S8 #2*
+2. **🆕 Branch protection su `main`** (XS, ~10min) — *NEW S9 addendum*
+   Repo ora pubblico → branch protection diventa configurabile gratis (era Pro-only in private). Configurare:
+   - Require status checks before merge (`CI`, `Build`, `Security` tutti required)
+   - Require linear history (no merge commits)
+   - Block force push su `main`
+   - Optional: require PR review (single contributor → potrebbe essere overkill, valutare quando arrivano collaboratori)
+   Files: nessuno (azione GitHub UI o `gh api PUT /repos/heuresys/heuresys-evo/branches/main/protection`)
+   Done when: `gh api repos/heuresys/heuresys-evo/branches/main/protection` ritorna config attiva con i 3 status checks.
+
+3. **Auto-handoff retention rotation** (XS, ~10min) — *carry-forward S8 #2*
    `.handoff/auto/` ha 17+ breadcrumbs accumulati (S7+S8+S9). Aggiungere logica `--keep-last 50` a `.claude/hooks/auto-handoff.sh` per rotation automatica.
    Files: `.claude/hooks/auto-handoff.sh`
    Done when: hook script ha logic che rimuove file `.handoff/auto/*.md` oltre i 50 più recenti, testato manualmente con file fittizi.
 
-3. **Pulire 2 record TXT `_acme-challenge.heuresys.com`** residui su Porkbun (XS, ~5min) — *carry-forward S8 #3*
+4. **Pulire 2 record TXT `_acme-challenge.heuresys.com`** residui su Porkbun (XS, ~5min) — *carry-forward S8 #3*
    Innocui ma sporchi (vecchio DNS-01 challenge da cert ECDSA). Rimuoverli da Porkbun dashboard.
    Files: nessuno (azione DNS console-side)
    Done when: `dig TXT _acme-challenge.heuresys.com +short` restituisce vuoto.
 
-4. **Review + merge Dependabot PRs** (S, ~30min) — *carry-forward S8 #4*
+5. **Review + merge Dependabot PRs** (S, ~30min) — *carry-forward S8 #4*
    4-5 PR aperti su Storybook / Anthropic SDK / pino-http. Verificare CHANGELOG, test pass, merge.
    Files: dipende dai PR aperti
    Done when: backlog Dependabot a 0 o motivata chiusura WONTFIX.
 
-5. **Storybook publish CI** (M, ~2h) — *carry-forward S8 #5*
+6. **Storybook publish CI** (M, ~2h) — *carry-forward S8 #5*
    84 stories pronte ma nessun deploy preview. Aggiungere job GitHub Actions che builda `storybook-static/` e pubblica su Chromatic OR su gh-pages OR Vercel preview URL.
    Files: nuovo `.github/workflows/storybook.yml`, eventualmente `packages/ui/package.json` script
    Done when: PR con storybook job verde, preview URL accessibile (anche dietro auth se serve).
@@ -40,6 +53,7 @@ S9 (~50min, **0 commit, 0 file repo modificati**): sessione 100% out-of-band sul
 - **Auto-handoff retention**: il `--keep-last 50` proposto è il giusto threshold? O preferisci `--keep-days 7`? *(carry-forward S8)*
 - **Phase 5 cutover go/no-go decision** (carry-forward S6): tag `rtg/evo/phase5/ready-for-go-no-go` quando emettere?
 - **claude-mem backup pulizia**: il snapshot `~/.claude-mem.bak-20260504T0345Z/` (30.59 MB) può essere cancellato dopo X giorni di uso senza problemi. Quando? Default proposto: 7 giorni → cancellazione 2026-05-11.
+- **🆕 License decision** (S9 addendum): repo ora public senza LICENSE → "all rights reserved" by default (codice visibile ma non legalmente riusabile). Decisione esplicita migliore di default. Opzioni: (a) lasciare consapevolmente (proprietary protected), (b) aggiungere LICENSE proprietary tipo "Source-Available, viewable only", (c) open source license (MIT/Apache) se vuoi contribuzioni esterne. Coerente con SaaS B2B = (a) o (b).
 
 ### Carry-forward (still open, exploratory)
 
@@ -61,9 +75,16 @@ S9 (~50min, **0 commit, 0 file repo modificati**): sessione 100% out-of-band sul
 
 ### Operational **P3**
 
-- **Auto-handoff breadcrumbs accumulati** in `.handoff/auto/` (17+ in 48h). Vedi priority #2.
-- **2 TXT `_acme-challenge.heuresys.com` residui** su Porkbun. Vedi priority #3.
+- **Auto-handoff breadcrumbs accumulati** in `.handoff/auto/` (17+ in 48h). Vedi priority #3.
+- **2 TXT `_acme-challenge.heuresys.com` residui** su Porkbun. Vedi priority #4.
 - **claude-mem backup `~/.claude-mem.bak-20260504T0345Z/`** (30.59 MB) da cancellare dopo grace period. Vedi open questions.
+
+### Repository visibility **P2 carry-forward S9**
+
+- **Repo è ora PUBLIC** (`https://github.com/heuresys/heuresys-evo`). Cambio motivato da CI billing exhausted in S9. History pulita verificata con gitleaks (75 commit, 0 leak), nessuna esposizione di secret. Conseguenze:
+  - **Branch protection assente** (era Pro-only in private, ora gratis ma da configurare). Vedi priority #2.
+  - **License assente** (default "all rights reserved"). Vedi open questions.
+  - **GitHub Actions illimitate** ora — nessun rischio futuro di billing block.
 
 ### Supply chain **P3**
 
@@ -165,7 +186,7 @@ python -c "import sqlite3; c=sqlite3.connect(r'C:\Users\enzospenuso\.claude-mem\
 4. **Verify CI status**: `gh run list --branch main --limit 3` — confirm all green
 5. **Verify local sanity**: `git status -sb` (should be clean, in sync con origin/main)
 6. **Surface to user**: 1-line state recap + top 3 todos + any open questions
-7. **Ask**: "Continuiamo dalla todo #1 (decisione Prisma 6 vs 7), scegli un'altra priorità, o qualcosa di nuovo?"
+7. **Ask**: "Continuiamo dalla todo #1 (decisione Prisma 6 vs 7), scegli un'altra priorità (priority #2 = branch protection è XS quick win post-flip-public), o qualcosa di nuovo?"
 8. **Wait for user direction** before doing anything else
 
 ### Quick context for fresh agents
@@ -177,7 +198,8 @@ python -c "import sqlite3; c=sqlite3.connect(r'C:\Users\enzospenuso\.claude-mem\
 - Tools dev: vitest 4, npm 11, Node 20, Prisma 5.22 (pending bump 6 or 7)
 - Login dev: `evo.dev / admin123` (hint NON visibile in prod by default, opt-in con `NEXT_PUBLIC_SHOW_DEV_HINT=1`)
 - Auth model: NextAuth v4 (v5 deferred, ancora beta), JWT cross-service, cookie `authjs.session-token`
-- CI: 3 workflow (CI/Build/Security), tutti verdi su `main` (ultimo: `ddc31dd` da S8)
+- CI: 3 workflow (CI/Build/Security), tutti verdi su `main` (ultimo: `3bf0aa8` da S9 post-flip-public re-run)
+- Repo visibility: **PUBLIC** (flippato 2026-05-04 in S9 per sbloccare CI billing). Branch protection ancora da configurare.
 - Brand Studio: `/brand-studio` accessibile a `SUPERUSER` autenticati, scrive `services/app/src/styles/active-theme.css`
 - npm overrides attivi (S8 final): `postcss^8.5.10`, `uuid^14`, `exceljs.uuid^14`, `next-auth.cookie^0.7`, `@auth/core.cookie^0.7`
 - Audit: **0 vulnerabilities**
