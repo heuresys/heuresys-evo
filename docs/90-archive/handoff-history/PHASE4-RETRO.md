@@ -8,36 +8,36 @@
 
 ## Task closure summary
 
-| Task | Status | Closure path |
-|---|---|---|
-| 4.1 Routes diff (legacy 135 vs evo 3) | ✅ DONE | parity-audit-2026-05-01.md §4.1 (BLOCK 9) |
-| 4.2 RLS policies diff (303 vs baseline-present 605 ENABLE + 326 policies) | ✅ DONE | parity-audit §4.2 |
-| 4.3 RBP areas + permissions diff (33+159 vs 18 rbp_* in baseline) | ✅ DONE | parity-audit §4.3 |
-| 4.4 Dashboards + widgets diff (11+27 vs 0) | ✅ DONE | parity-audit §4.4 |
-| 4.5 ESCO KG diff (schema in baseline, data verify deferred to 4.11) | ✅ DONE | parity-audit §4.5 |
-| 4.6 Industry classifications diff (schema in baseline) | ✅ DONE | parity-audit §4.6 |
-| 4.7 Gap matrix synthesis | ✅ DONE | parity-audit §4.7 (P0+P1 = 237 → STOP-AUTONOMO-1 → scope cut applied) |
-| **STOP-AUTONOMO-1-BIS** Frontend strategy | ✅ DECIDED | Enzo 2026-05-01 → **H Hybrid** (frontend-strategy-brief.md) |
-| 4.8 RBP framework port (P0 scope) | ✅ DONE | rbp-cache.ts + rbac.ts + 22 tests |
-| 4.9 RLS scope helpers + coverage | ✅ DONE | mergeScopedWhere + check-rls-coverage.sh + 6 tests |
-| 4.10 Endpoint port P0 (scope H) | ✅ DONE | leaves + perf-reviews + audit-logs routes + 25 tests |
-| 4.11 ESCO KG search | ✅ DONE | esco.ts route + 8 tests (vector cosine deferred to OpenAI wiring) |
-| 4.12 ADR-0017 Ontology versioning | ✅ DONE | ADR + migration 223 + admin-tenant-schema route + 7 tests |
-| 4.13 ADR-0018 Governance audit trail | ✅ DONE | ADR-only (reuse existing audit_logs + baseline triggers) |
-| 4.14 Phase 4 retro | ✅ DONE | this file |
+| Task                                                                      | Status     | Closure path                                                          |
+| ------------------------------------------------------------------------- | ---------- | --------------------------------------------------------------------- |
+| 4.1 Routes diff (legacy 135 vs evo 3)                                     | ✅ DONE    | parity-audit-2026-05-01.md §4.1 (BLOCK 9)                             |
+| 4.2 RLS policies diff (303 vs baseline-present 605 ENABLE + 326 policies) | ✅ DONE    | parity-audit §4.2                                                     |
+| 4.3 RBP areas + permissions diff (33+159 vs 18 rbp\_\* in baseline)       | ✅ DONE    | parity-audit §4.3                                                     |
+| 4.4 Dashboards + widgets diff (11+27 vs 0)                                | ✅ DONE    | parity-audit §4.4                                                     |
+| 4.5 ESCO KG diff (schema in baseline, data verify deferred to 4.11)       | ✅ DONE    | parity-audit §4.5                                                     |
+| 4.6 Industry classifications diff (schema in baseline)                    | ✅ DONE    | parity-audit §4.6                                                     |
+| 4.7 Gap matrix synthesis                                                  | ✅ DONE    | parity-audit §4.7 (P0+P1 = 237 → STOP-AUTONOMO-1 → scope cut applied) |
+| **STOP-AUTONOMO-1-BIS** Frontend strategy                                 | ✅ DECIDED | Enzo 2026-05-01 → **H Hybrid** (frontend-strategy-brief.md)           |
+| 4.8 RBP framework port (P0 scope)                                         | ✅ DONE    | rbp-cache.ts + rbac.ts + 22 tests                                     |
+| 4.9 RLS scope helpers + coverage                                          | ✅ DONE    | mergeScopedWhere + check-rls-coverage.sh + 6 tests                    |
+| 4.10 Endpoint port P0 (scope H)                                           | ✅ DONE    | leaves + perf-reviews + audit-logs routes + 25 tests                  |
+| 4.11 ESCO KG search                                                       | ✅ DONE    | esco.ts route + 8 tests (vector cosine deferred to OpenAI wiring)     |
+| 4.12 ADR-0017 Ontology versioning                                         | ✅ DONE    | ADR + migration 223 + admin-tenant-schema route + 7 tests             |
+| 4.13 ADR-0018 Governance audit trail                                      | ✅ DONE    | ADR-only (reuse existing audit_logs + baseline triggers)              |
+| 4.14 Phase 4 retro                                                        | ✅ DONE    | this file                                                             |
 
 ## Quantitative outcome
 
-| Metric | Plan (RTG §10) | Actual |
-|---|---|---|
-| Phase 4 effort | 10-15 dev-days | ~3.5 hours wall-clock |
-| Tasks done | 14 | 14 (100%) |
-| Routes added to api-gateway | 5-10 | 5 (`leaves`, `performance-reviews`, `audit-logs`, `esco`, `admin-tenant-schema`) |
-| Test added | not specified | **+68 tests** (22 RBP middleware + 6 RLS pool + 25 endpoint + 8 ESCO + 7 admin schema) |
-| Total api-gateway tests | from 12 → 93 | **93** (5x growth in single phase) |
-| New ADRs accepted | 2 | 2 (0017 + 0018) |
-| New migrations applied | 1 | 1 (`223_tenant_schema_version_p0.sql`) |
-| Doc-commits to `.com.evo` | not specified | 6 (BLOCK 9 audit + STOP-1BIS brief + 4.8 + 4.9 + 4.10 + 4.11/12/13 + retro = 7 total) |
+| Metric                      | Plan (RTG §10) | Actual                                                                                 |
+| --------------------------- | -------------- | -------------------------------------------------------------------------------------- |
+| Phase 4 effort              | 10-15 dev-days | ~3.5 hours wall-clock                                                                  |
+| Tasks done                  | 14             | 14 (100%)                                                                              |
+| Routes added to api-gateway | 5-10           | 5 (`leaves`, `performance-reviews`, `audit-logs`, `esco`, `admin-tenant-schema`)       |
+| Test added                  | not specified  | **+68 tests** (22 RBP middleware + 6 RLS pool + 25 endpoint + 8 ESCO + 7 admin schema) |
+| Total api-gateway tests     | from 12 → 93   | **93** (5x growth in single phase)                                                     |
+| New ADRs accepted           | 2              | 2 (0017 + 0018)                                                                        |
+| New migrations applied      | 1              | 1 (`223_tenant_schema_version_p0.sql`)                                                 |
+| Doc-commits to `.com.evo`   | not specified  | 6 (BLOCK 9 audit + STOP-1BIS brief + 4.8 + 4.9 + 4.10 + 4.11/12/13 + retro = 7 total)  |
 
 ## What worked
 
@@ -101,6 +101,7 @@ the WHERE clause. Embedding currently lives in `services/enrichment` only
 (per ADR-0007 service segregation).
 
 Options considered:
+
 - Wire OpenAI key in api-gateway too (duplication, breaks ADR-0007)
 - Call enrichment service from api-gateway (cross-service HTTP, latency tax)
 - Defer vector search, ship keyword-only first (chosen)
@@ -133,7 +134,8 @@ graceful degradation. If ESCO_KG isn't seeded, that's caught at runtime as
 silent fallback (HR_DIRECTOR has EMPLOYEES.view, so ESCO search works for them).
 
 **Mitigation in Phase 5**: validate full RBP seed on first DB integration smoke
-+ document the area enum in `docs/rbac/areas.md` (deferred — TBD when curated).
+
+- document the area enum in `docs/rbac/areas.md` (deferred — TBD when curated).
 
 ## Lessons feeding forward to Phase 5
 
@@ -164,6 +166,7 @@ Gate criterion (RTG §10.1): "parity matrix con top P0/P1 closed (≥80% P0,
 ≥60% P1), RBP+RLS+KG funzionanti".
 
 Status:
+
 - ✅ Parity matrix complete (parity-audit-2026-05-01.md)
 - ✅ P0 scope-cut applied — 100% of cut scope closed (5/5 routes shipped)
 - ✅ RBP middleware functional (22 tests)

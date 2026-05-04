@@ -8,23 +8,23 @@
 
 ## Task closure summary
 
-| Task | Status | Closure path |
-|---|---|---|
-| 3.1 OWNER AES TOTP key decision | OWNER-DEFERRED | Pending Enzo decision: recovery v1 / re-encrypt / skip-for-now. Tracked in `docs/bridge/windows-handoff.md` |
-| 3.2 TOTP authorize step | OWNER-BLOCKED | Skip-owner-blocked (depends 3.1) |
-| 3.3 TOTP integration test | OWNER-BLOCKED | Skip-owner-blocked (depends 3.2) |
-| 3.4 packages/shared coverage | ✅ DONE | 70 unit tests, 86.6% stmts coverage |
-| 3.5 services/api-gateway coverage | ✅ DONE | 12 contract tests, RLS isolation verified |
-| 3.6 services/app coverage | ✅ DONE | 12 unit tests + minor refactor (extracted `authorizeCredentials`) |
-| 3.6.b middleware redirect tests | DEFERRED | NextAuth v5 mocking complexity — fold into Phase 4 e2e |
-| 3.7 packages/ui coverage | ✅ DONE | 29 component tests, 94.7% stmts |
-| 3.8 coverage report | ✅ DONE | `docs/test-coverage/baseline-2026-05-01.md` |
-| 3.8 ADR-0002 promote | DEFERRED | Honor-the-ADR — promote requires first integration test (Phase 4 task 4.10) |
-| 3.9 enrichment scaffold | ✅ DONE | services/enrichment from stub to working worker |
-| 3.10 enrichment smoke handler | ✅ DONE | esco-match handler + 7 tests, forward-compatible with Phase 4 vector pipeline |
-| 3.11 middleware → proxy rename | ✅ DONE | Next 16 file convention applied + 3 comment refs updated |
-| 3.12 update plan file | N/A | `noble-dazzling-gizmo.md` not in `~/.claude/plans/` (likely archived) |
-| 3.13 Phase 3 retro | ✅ DONE | this file |
+| Task                              | Status         | Closure path                                                                                                |
+| --------------------------------- | -------------- | ----------------------------------------------------------------------------------------------------------- |
+| 3.1 OWNER AES TOTP key decision   | OWNER-DEFERRED | Pending Enzo decision: recovery v1 / re-encrypt / skip-for-now. Tracked in `docs/bridge/windows-handoff.md` |
+| 3.2 TOTP authorize step           | OWNER-BLOCKED  | Skip-owner-blocked (depends 3.1)                                                                            |
+| 3.3 TOTP integration test         | OWNER-BLOCKED  | Skip-owner-blocked (depends 3.2)                                                                            |
+| 3.4 packages/shared coverage      | ✅ DONE        | 70 unit tests, 86.6% stmts coverage                                                                         |
+| 3.5 services/api-gateway coverage | ✅ DONE        | 12 contract tests, RLS isolation verified                                                                   |
+| 3.6 services/app coverage         | ✅ DONE        | 12 unit tests + minor refactor (extracted `authorizeCredentials`)                                           |
+| 3.6.b middleware redirect tests   | DEFERRED       | NextAuth v5 mocking complexity — fold into Phase 4 e2e                                                      |
+| 3.7 packages/ui coverage          | ✅ DONE        | 29 component tests, 94.7% stmts                                                                             |
+| 3.8 coverage report               | ✅ DONE        | `docs/test-coverage/baseline-2026-05-01.md`                                                                 |
+| 3.8 ADR-0002 promote              | DEFERRED       | Honor-the-ADR — promote requires first integration test (Phase 4 task 4.10)                                 |
+| 3.9 enrichment scaffold           | ✅ DONE        | services/enrichment from stub to working worker                                                             |
+| 3.10 enrichment smoke handler     | ✅ DONE        | esco-match handler + 7 tests, forward-compatible with Phase 4 vector pipeline                               |
+| 3.11 middleware → proxy rename    | ✅ DONE        | Next 16 file convention applied + 3 comment refs updated                                                    |
+| 3.12 update plan file             | N/A            | `noble-dazzling-gizmo.md` not in `~/.claude/plans/` (likely archived)                                       |
+| 3.13 Phase 3 retro                | ✅ DONE        | this file                                                                                                   |
 
 **Net done**: 9 (3.4-3.11). **N/A**: 1 (3.12). **Owner-deferred**: 3 (3.1-3.3).
 **Implicit deferred**: 1 (3.6.b middleware redirect).
@@ -102,7 +102,7 @@ vitest 2.1.9), failing coverage runs with `BaseCoverageProvider` not exported.
 Fix: pin to `@vitest/coverage-v8@2.1.9`. Lost ~5 min debugging.
 
 **Lesson**: when installing companion test packages, pin to exact version of the
-host package (vitest@X → @vitest/*@X). Don't trust npm's default-latest with
+host package (vitest@X → @vitest/\*@X). Don't trust npm's default-latest with
 beta/peer-imprecise SDKs.
 
 ### RTL 16 + vitest 2 don't auto-cleanup
@@ -116,14 +116,14 @@ Captured in HANDOFF Known issues for future jsdom suites.
 
 ## Quantitative outcome
 
-| Metric | Plan (RTG §9.1) | Actual |
-|---|---|---|
-| Phase 3 effort estimate | 8-12 dev-days | ~3 hours wall-clock |
-| Tests delivered | 30 (10 per workspace × 3) | **123** (4 workspaces) |
-| Coverage % avg | not specified | 67.7% Stmts (weighted avg) |
-| New services from stub | 1 (enrichment) | 1 |
-| ADRs promoted | 1 (ADR-0002 → Accepted) | 0 (deferred per honor-the-ADR) |
-| Doc commits to .com.evo | not estimated | 7 (PH3-T4 to PH3-T13) |
+| Metric                  | Plan (RTG §9.1)           | Actual                         |
+| ----------------------- | ------------------------- | ------------------------------ |
+| Phase 3 effort estimate | 8-12 dev-days             | ~3 hours wall-clock            |
+| Tests delivered         | 30 (10 per workspace × 3) | **123** (4 workspaces)         |
+| Coverage % avg          | not specified             | 67.7% Stmts (weighted avg)     |
+| New services from stub  | 1 (enrichment)            | 1                              |
+| ADRs promoted           | 1 (ADR-0002 → Accepted)   | 0 (deferred per honor-the-ADR) |
+| Doc commits to .com.evo | not estimated             | 7 (PH3-T4 to PH3-T13)          |
 
 The 4-day estimate-to-actual delta (8-12 days vs 3 hours) is consistent with the
 pattern observed in Phase 2 retro: phase work that is "scaffold + first
@@ -151,17 +151,18 @@ implementation" benefits from concentrated session focus + reusable patterns.
 
 ## What stays open after Phase 3 partial-close
 
-| Item | Owner | Phase fit |
-|---|---|---|
-| 3.1 AES TOTP key decision | Enzo | gate for 3.2 + 3.3 |
-| 3.2 TOTP authorize implementation | CLI | gated on 3.1 |
-| 3.3 TOTP integration test | CLI | gated on 3.2 |
-| 3.6.b middleware redirect tests | CLI | fold into Phase 4 e2e |
-| ADR-0002 promote | CLI | naturally at Phase 4 task 4.10 |
+| Item                              | Owner | Phase fit                      |
+| --------------------------------- | ----- | ------------------------------ |
+| 3.1 AES TOTP key decision         | Enzo  | gate for 3.2 + 3.3             |
+| 3.2 TOTP authorize implementation | CLI   | gated on 3.1                   |
+| 3.3 TOTP integration test         | CLI   | gated on 3.2                   |
+| 3.6.b middleware redirect tests   | CLI   | fold into Phase 4 e2e          |
+| ADR-0002 promote                  | CLI   | naturally at Phase 4 task 4.10 |
 
 ## Phase 3 closure decision
 
 **Phase 3 closes as PARTIAL-DONE (10/13 = 77%)**. Tag emission:
+
 - ✅ tag `rtg/evo/phase3/test-coverage-baseline` (3.4-3.8 closure marker)
 - ✅ tag `rtg/evo/phase3/enrichment-scaffold` (3.9-3.10 closure marker)
 - ✅ tag `rtg/evo/phase3/dx-cleanup` (3.11 closure marker)

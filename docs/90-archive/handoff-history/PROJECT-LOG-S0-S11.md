@@ -196,7 +196,7 @@ CI green su tutti i 6 commit (CI ✅ Build ✅ Security ✅).
 
 ### Decisions
 
-- **next-auth v5 NOT migrated, cookie override invece**: `next-auth@5.0.0-beta.31` è ancora beta (latest stable resta 4.24.14 dopo anni). Portare in prod (`evo.heuresys.com` live) un beta per chiudere 3 vulns *low* è sproporzionato. L'override `cookie@^0.7` chiude la vuln class senza cambiare versione major. La migration v5 resta opzione aperta in branch dedicato quando v5 stable lands.
+- **next-auth v5 NOT migrated, cookie override invece**: `next-auth@5.0.0-beta.31` è ancora beta (latest stable resta 4.24.14 dopo anni). Portare in prod (`evo.heuresys.com` live) un beta per chiudere 3 vulns _low_ è sproporzionato. L'override `cookie@^0.7` chiude la vuln class senza cambiare versione major. La migration v5 resta opzione aperta in branch dedicato quando v5 stable lands.
 - **Prisma 7 deferred dopo esplorazione tecnica**: bump a 7.8.0 ha esposto `Error P1012: datasource property 'url' is no longer supported`. Prisma 7 richiede: rimuovere `url` da schema, creare `prisma.config.ts` per app + api-gateway, installare `@prisma/adapter-pg`, refactor singleton `db.ts`/`pool.ts` con `new PrismaClient({ adapter })`, regenerate client (output shape diverso), risolvere TS errors. Effort realistico: 6-8h, non 3h come stimato. Da fare su staging branch dedicato con E2E pesante, non a fine sessione lunga su prod live.
 - **C-bis tooling fix incluso anche se fuori scope HANDOFF**: regola CLAUDE.md #3 ("non esiste pre-esistente, correggere ogni errore tooling") + #5 ("test-before-claim") dopo richiamo dell'utente sul mio iniziale "non miei". Sia `vitest.workspace.ts` (S7 regressione del bump vitest 2→4) sia `tsconfig.base.json` (drift mai verificato standalone) erano fix XS che non andavano lasciati indietro.
 - **`.env.bak` retention policy: rimossi subito**: nessun `.env.bak-pre-authfix-*` trovato (già rimossi pre-handoff). Solo `.gitignore.bak` orphan + 2 nginx `.bak` rimossi su raccomandazione esplicita del HANDOFF S7.
@@ -210,7 +210,7 @@ CI green su tutti i 6 commit (CI ✅ Build ✅ Security ✅).
 
 - **npm overrides nested non rigenerano il lock automaticamente**: se `package-lock.json` ha già una entry per `node_modules/<pkg>/node_modules/<dep>`, npm la considera consistente e non rifa resolution anche aggiungendo override nested. Soluzione: rimuovere chirurgicamente l'entry dal lock JSON (via `node -e`) + `rm -rf` la nested dir + `npm install`. Pattern: usato 2 volte in S8 (uuid via exceljs, cookie via next-auth/@auth/core).
 - **"non mio" ≠ "OK ignorarlo"**: errori di tool (tsc/eslint/audit) emergenti da comandi standalone vanno verificati con `git stash` su HEAD pulito (tested: regola 5 TEST-BEFORE-CLAIM). Anche se confermati pre-esistenti, regola 3 ("non esiste pre-esistente") obbliga al fix. Costo XS per tooling fix evita debt accumulation cross-session.
-- **Major migrations: read changelog/docs *prima* di toccare versioni**: stima HANDOFF "3h" per Prisma 5→7 era basata su esperienza Prisma <=6 (additive minor breakings). Prisma 7 è un *paradigm shift* (driver adapter + url out of schema + new generator). Lezione: consultare `context7`/changelog upstream prima di accettare un bump major in HANDOFF, eventualmente proporre intermediate (5→6→7 invece di 5→7 direct).
+- **Major migrations: read changelog/docs _prima_ di toccare versioni**: stima HANDOFF "3h" per Prisma 5→7 era basata su esperienza Prisma <=6 (additive minor breakings). Prisma 7 è un _paradigm shift_ (driver adapter + url out of schema + new generator). Lezione: consultare `context7`/changelog upstream prima di accettare un bump major in HANDOFF, eventualmente proporre intermediate (5→6→7 invece di 5→7 direct).
 - **Stable vs beta in prod**: `next-auth@5` ha `beta: 5.0.0-beta.31` come unico v5 release dopo anni. Default policy: NON portare beta in prod, anche per chiudere vulns low. Workaround conservativo (override transitive) prefer.
 
 ### References
@@ -364,7 +364,7 @@ Plus infra (non in git): nginx vhost, certbot certs, systemd drop-in, .env updat
 
 ### Mandato
 
-Post-S4 close, l'utente chiede di verificare il setup memoria/tooling esistente nei suoi vari Claude installs (CLI + Desktop + plugins + MCP) e consigliare cosa portare nel `.evo`. Ricordava `claude-mem` + `.auto-memory/` + un'interfaccia grafica nel v1 repo. Recon ha mostrato: `.auto-memory/` è Cowork-specific (vive in Banco Cowork workspace `Heuresys-HRMS\.auto-memory\`, 71 SR_*), `claude-mem` v12.4.7 è un tool open-source di terzi (Alex Newman, AGPL-3.0) già scaricato in `~/.claude/plugins/marketplaces/thedotmack/` ma non enabled, e `claude-hud` (statusline HUD) anche scaricato ma non enabled. L'utente ha autorizzato Tier 2 (claude-mem) sicuro + Tier 1 (claude-hud) integrato nel suo statusline custom esistente preservandone i contenuti.
+Post-S4 close, l'utente chiede di verificare il setup memoria/tooling esistente nei suoi vari Claude installs (CLI + Desktop + plugins + MCP) e consigliare cosa portare nel `.evo`. Ricordava `claude-mem` + `.auto-memory/` + un'interfaccia grafica nel v1 repo. Recon ha mostrato: `.auto-memory/` è Cowork-specific (vive in Banco Cowork workspace `Heuresys-HRMS\.auto-memory\`, 71 SR\_\*), `claude-mem` v12.4.7 è un tool open-source di terzi (Alex Newman, AGPL-3.0) già scaricato in `~/.claude/plugins/marketplaces/thedotmack/` ma non enabled, e `claude-hud` (statusline HUD) anche scaricato ma non enabled. L'utente ha autorizzato Tier 2 (claude-mem) sicuro + Tier 1 (claude-hud) integrato nel suo statusline custom esistente preservandone i contenuti.
 
 ### Tasks completati
 
@@ -865,4 +865,3 @@ Sessione 1 (initial scaffold + DBMS infrastructure):
 - Snapshot rollback: `~/.claude-mem.bak-20260504T0345Z/` (claude-mem state pre-rename)
 
 ---
-

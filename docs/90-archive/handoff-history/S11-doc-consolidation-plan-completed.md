@@ -9,6 +9,7 @@
 ## Contesto
 
 Audit S10 (S10 close, 2026-05-04) ha trovato:
+
 - **67 file `.md` su 18 location** in `docs/`
 - **3 schemi di naming** convivono (numbered `NN-name`, flat semantic, meta)
 - **5 problemi strutturali critici** identificati (vedi sezione sotto)
@@ -19,13 +20,13 @@ Problema centrale: doc della stessa classe in subdir diverse (es. `docs/architec
 
 ## Top 5 problemi (riferimento)
 
-| # | Problema | Severity |
-| --- | --- | --- |
-| P1 | `docs/architecture/overview.md` flat **vs** `docs/20-architecture/` numbered (8 file) | Critica — doppia SoT |
-| P2 | ~~Collisione ADR-0017 (Cantiere A vs B)~~ | ✅ **risolto in S10 PR #16** (rinominato `0020-tenant-ontology-versioning.md`) |
-| P3 | Triplicazione `docs/runbooks/` + `docs/40-operations/` + `docs/guides/` (overlapping operational/dev how-to) | Alta |
-| P4 | `docs/cutover/` orphaned (paradigm cutover-event abbandonato post-PET-driven) | Alta — dead docs |
-| P5 | `docs/strategy/` SCREAMING_SNAKE outlier; `docs/api/` + `docs/glossary/` dir vuote; `docs/glossary.md` + `docs/glossary/` ambiguità | Media — pulizia |
+| #   | Problema                                                                                                                            | Severity                                                                       |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| P1  | `docs/architecture/overview.md` flat **vs** `docs/20-architecture/` numbered (8 file)                                               | Critica — doppia SoT                                                           |
+| P2  | ~~Collisione ADR-0017 (Cantiere A vs B)~~                                                                                           | ✅ **risolto in S10 PR #16** (rinominato `0020-tenant-ontology-versioning.md`) |
+| P3  | Triplicazione `docs/runbooks/` + `docs/40-operations/` + `docs/guides/` (overlapping operational/dev how-to)                        | Alta                                                                           |
+| P4  | `docs/cutover/` orphaned (paradigm cutover-event abbandonato post-PET-driven)                                                       | Alta — dead docs                                                               |
+| P5  | `docs/strategy/` SCREAMING_SNAKE outlier; `docs/api/` + `docs/glossary/` dir vuote; `docs/glossary.md` + `docs/glossary/` ambiguità | Media — pulizia                                                                |
 
 ## Schema target proposto: Diátaxis numbered + meta
 
@@ -140,14 +141,14 @@ docs/
 
 Per minimizzare conflitti e preservare branch protection (7 required checks per ogni PR):
 
-| PR # in S11 | Scope | Files affected | Effort |
-| --- | --- | --- | --- |
-| **#A** | Fase A non-distruttiva | `docs/README.md`, `docs/_meta/doc-architecture.md` (NEW), `.claude/rules/doc-placement.md` (NEW), `decisions/README.md`, `migration/*.md` headers, ADR headers | ~3h |
-| **#B1** | Move strategy + glossary | 5 file move + glossary.md move | ~1h |
-| **#B2** | Move architecture (riscrittura overview) | `architecture/overview.md` → `20-architecture/` + content rewrite Express | ~2h |
-| **#B3** | Move runbooks + guides + merge security | runbooks/ → 40-operations/runbooks/; guides/onboarding → 30-developer/; security merge | ~2h |
-| **#B4** | Crea 90-archive + bulk move historical | 90-archive/ NEW + move hardening/audits/test-coverage/cutover/migration | ~1h |
-| **#C** | Bulk link fix | grep+sed all .md files post-move | ~2h |
+| PR # in S11 | Scope                                    | Files affected                                                                                                                                                 | Effort |
+| ----------- | ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
+| **#A**      | Fase A non-distruttiva                   | `docs/README.md`, `docs/_meta/doc-architecture.md` (NEW), `.claude/rules/doc-placement.md` (NEW), `decisions/README.md`, `migration/*.md` headers, ADR headers | ~3h    |
+| **#B1**     | Move strategy + glossary                 | 5 file move + glossary.md move                                                                                                                                 | ~1h    |
+| **#B2**     | Move architecture (riscrittura overview) | `architecture/overview.md` → `20-architecture/` + content rewrite Express                                                                                      | ~2h    |
+| **#B3**     | Move runbooks + guides + merge security  | runbooks/ → 40-operations/runbooks/; guides/onboarding → 30-developer/; security merge                                                                         | ~2h    |
+| **#B4**     | Crea 90-archive + bulk move historical   | 90-archive/ NEW + move hardening/audits/test-coverage/cutover/migration                                                                                        | ~1h    |
+| **#C**      | Bulk link fix                            | grep+sed all .md files post-move                                                                                                                               | ~2h    |
 
 Totale ~6 PR sequenziali in S11. Ognuno passa cascade auto-merge.
 

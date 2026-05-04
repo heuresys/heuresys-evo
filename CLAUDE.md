@@ -6,62 +6,16 @@
 
 ## Session start protocol
 
-All'inizio di ogni nuova sessione, **come primo atto** (prima di rispondere a qualsiasi
-domanda dell'utente):
+All'inizio di ogni nuova sessione:
 
-1. Leggi `.handoff/HANDOFF.md` per priorities + open questions correnti
-2. Leggi `.handoff/PROJECT-STATE.md` per architettura/components/metrics
-3. Scansiona `.handoff/auto/` per breadcrumbs più recenti del `HANDOFF.md` mtime — surface eventuali stati post-handoff
-4. Verifica `git status -sb` (working tree clean? in sync con `origin/main`?)
-5. Verifica `gh run list --branch main --limit 3` (CI verde?)
-6. Saluta l'utente con: 1-line state recap + top 3 priorities (numerate) + open questions (se rilevanti)
-7. Chiedi: "Continuiamo dalla todo #1, scegli un'altra priorità, o qualcosa di nuovo?"
-8. **Aspetta direzione esplicita** prima di toccare codice o eseguire operazioni
+1. Leggi `.handoff/STATE.md` (unico file vivo — sostituisce HANDOFF + PROJECT-STATE post-S11 simplification)
+2. Verifica `git status -sb` (clean? in sync con origin/main?)
+3. Saluta con: 1-line recap + top 3 priorities + open questions se rilevanti
+4. Chiedi direzione e **aspetta esplicito** prima di toccare codice
 
-Eccezione: salta il protocol solo se l'utente apre con un comando diretto e self-contained
-(es. `git status`, `npm test`, una domanda specifica su un file). In quei casi rispondi
-diretto, ma cita comunque eventuali priority bloccanti dal HANDOFF se rilevanti.
+Eccezione: skip se l'utente apre con comando diretto self-contained.
 
-A fine sessione, attivare la skill `handoff` (alias: "chiudi sessione", "fine sessione",
-"/handoff") che aggiorna i 4 file `.handoff/{HANDOFF,PROJECT-STATE,PROJECT-LOG,CHANGELOG}.md`
-
-- snapshot dated.
-
-## Session diary protocol
-
-Durante la sessione, dopo ogni evento significativo, append una riga a
-`.handoff/session-diary.md` con schema `- HH:MM <type> — <description>`.
-Tipi: `pr`, `decision`, `blocker`, `discovery`, `commit`, `note`.
-
-Eventi target:
-
-- PR aperto, mergeato, conflict emerso, rebase eseguito
-- Decisione architetturale (alternativa scelta + razionale 1-line)
-- Blocker (cosa ha bloccato, cosa l'ha sbloccato)
-- Discovery (dependency inattesa, motivo di un version pin, gotcha di runtime)
-- Commit significativo su `main` fuori dal normale cascade
-- Note generiche worth-keeping che non rientrano negli altri tipi
-
-Lo scopo è spostare il costo di composizione di `PROJECT-LOG.md` da
-"ricostruzione 4h+ a fine sessione" a "review + merge durante /handoff".
-La skill `handoff` legge il diary in Step 3 (compute delta) + Step 4a
-(metabolizza in PROJECT-LOG entry), poi Step 4f tronca il file lasciando
-solo l'header. Il diary è committato come parte del cycle di /handoff
-(non gitignored): la storia delle entries vive in `PROJECT-LOG.md` e
-nei dated snapshots.
-
-## Smart-commit handoff (alternative manuale)
-
-Per chiudere la sessione senza invocare la skill (es. shell-only context),
-dopo aver aggiornato i 4 file `.handoff/`:
-
-```bash
-scripts/handoff-close.sh <session_number> "<topic>"
-```
-
-Lo script esegue: pre-flight pattern scan + branch + commit + push + PR +
-auto-merge in un singolo comando idempotente. Il PR cade su CI light
-(`.github/actions/handoff-only-detect`) e auto-mergia in ~30s.
+A fine sessione, `/handoff` aggiorna `.handoff/STATE.md` + commit + push direct su main. NO PR, NO snapshots, NO journals.
 
 ## Mission
 

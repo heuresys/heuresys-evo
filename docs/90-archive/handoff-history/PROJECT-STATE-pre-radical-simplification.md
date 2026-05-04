@@ -71,37 +71,37 @@ Phase corrente: **Phase 5 cutover-prep complete** + **add-on dev tools** + **sup
 
 ## Components
 
-| Component                              | Status | Note                                                                                |
-| -------------------------------------- | ------ | ----------------------------------------------------------------------------------- |
-| `services/app` (Next.js 16)            | ✅      | `/`, `/login`, `/dashboard`, `/showcase`, `/brand-studio` live su evo.heuresys.com  |
-| `services/api-gateway` (Express 5+TS)  | ✅      | RLS aware, RBP enforced, 93 test contract. **Express 5, NON NestJS** (S10 fix CLAUDE.md drift) |
-| `services/enrichment` (BullMQ)         | 🚧     | Worker scaffold, smoke handler `esco-match`, 7 test                                |
-| `services/marketing`                   | ⏳     | Skeleton scaffold (port 3100 dev), no prod deploy                                   |
-| `services/playground`                  | 🧊     | Stub, sandbox dev-only                                                               |
-| `packages/ui`                          | ✅      | 180+ component, Storybook 9 (84 stories, S10 deploy preview live), 64 test, vitest 4 |
-| `packages/shared`                      | ✅      | Role enum, Zod schemas, 70 test                                                     |
-| `services/app/brand-studio` page       | ✅      | SUPERUSER-only, localStorage draft + cookie preview + file Apply                   |
-| `services/app/login` dev hint gating   | ✅      | `NEXT_PUBLIC_SHOW_DEV_HINT=1` opt-in (S8). Anonymous prod load no longer leaks creds |
-| nginx vhost `evo.heuresys.com`         | ✅      | HTTPS LE, `/api/auth/` + `/api/` + `/` proxied                                     |
-| nginx vhost `www.heuresys.com` + apex  | ✅      | HTTPS LE (ECDSA, www+apex SAN), proxy a Docker legacy                              |
-| systemd `heuresys-app.service`         | ✅      | drop-in NODE_OPTIONS=4096 + TimeoutStartSec=600                                    |
-| systemd `heuresys-api-gateway.service` | ✅      | AUTH_SECRET allineato per cross-service JWT                                         |
-| Cross-service JWT auth                 | ✅      | shared `AUTH_SECRET`+`NEXTAUTH_SECRET`, cookie `authjs.session-token`               |
-| RBP framework                          | ✅      | 33 functional areas, 326 join-permissions, cache TTL 5min                           |
-| RLS                                    | ✅      | 605 policies attive su tabelle tenant-scoped                                        |
-| CI workflow `CI`                       | ✅      | npm@11 pinned, NODE_OPTIONS=4096 typecheck, lint+test green                         |
-| CI workflow `Build`                    | ✅      | next build standalone green                                                         |
-| CI workflow `Security`                 | ✅      | gitleaks CLI self-host + npm audit + semgrep                                        |
-| CI workflow `Storybook Deploy`         | ✅ NEW S10 | Build su PR + deploy su main → GitHub Pages. URL `https://heuresys.github.io/heuresys-evo/` |
-| **Branch protection on `main`**        | ✅ NEW S10 | 7 required checks + linear history + no force push + no deletion. enforce_admins=false. ADR-0019 |
-| **Auto-handoff retention rotation**    | ✅ NEW S10 | `--keep-last 50` in `.claude/hooks/auto-handoff.sh` + first rotation 194→50 |
-| **Cross-context CLAUDE.md**            | ✅ NEW S10 | `.claude/CLAUDE.md` con 15 regole sanitized + frontmatter sync date. Per coerenza behavior in PC/Mac/VM/claude.ai web/Antigravity/cloud |
-| **Wiki external imported (selective)** | ✅ NEW S10 | 6 file foundation in `docs/10-strategy/` + `docs/20-architecture/` + `docs/30-developer/`. Wikilinks preserved, resolution deferred S11 |
-| **S11 doc consolidation plan**         | ✅ NEW S10 | `.handoff/S11-doc-consolidation-plan.md` (236 righe executable, 13 atomi, 3 fasi, schema target Diátaxis) |
-| Storybook                              | ✅      | 84 stories pubblicate live, vite 7.3.2                                              |
-| Root `vitest.config.ts` (was workspace) | ✅ S8 | vitest 4 `defineConfig({test:{projects}})` idiom, picks up tutti 5 progetti (250 test) |
-| `tsconfig.base.json`                   | ✅ S8 | `files: []` canonical base marker                                                   |
-| Supply chain (npm audit)               | ✅      | **0 vulnerabilities** (S8 + S10 Lotto B major bumps non hanno regredito)         |
+| Component                               | Status     | Note                                                                                                                                    |
+| --------------------------------------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `services/app` (Next.js 16)             | ✅         | `/`, `/login`, `/dashboard`, `/showcase`, `/brand-studio` live su evo.heuresys.com                                                      |
+| `services/api-gateway` (Express 5+TS)   | ✅         | RLS aware, RBP enforced, 93 test contract. **Express 5, NON NestJS** (S10 fix CLAUDE.md drift)                                          |
+| `services/enrichment` (BullMQ)          | 🚧         | Worker scaffold, smoke handler `esco-match`, 7 test                                                                                     |
+| `services/marketing`                    | ⏳         | Skeleton scaffold (port 3100 dev), no prod deploy                                                                                       |
+| `services/playground`                   | 🧊         | Stub, sandbox dev-only                                                                                                                  |
+| `packages/ui`                           | ✅         | 180+ component, Storybook 9 (84 stories, S10 deploy preview live), 64 test, vitest 4                                                    |
+| `packages/shared`                       | ✅         | Role enum, Zod schemas, 70 test                                                                                                         |
+| `services/app/brand-studio` page        | ✅         | SUPERUSER-only, localStorage draft + cookie preview + file Apply                                                                        |
+| `services/app/login` dev hint gating    | ✅         | `NEXT_PUBLIC_SHOW_DEV_HINT=1` opt-in (S8). Anonymous prod load no longer leaks creds                                                    |
+| nginx vhost `evo.heuresys.com`          | ✅         | HTTPS LE, `/api/auth/` + `/api/` + `/` proxied                                                                                          |
+| nginx vhost `www.heuresys.com` + apex   | ✅         | HTTPS LE (ECDSA, www+apex SAN), proxy a Docker legacy                                                                                   |
+| systemd `heuresys-app.service`          | ✅         | drop-in NODE_OPTIONS=4096 + TimeoutStartSec=600                                                                                         |
+| systemd `heuresys-api-gateway.service`  | ✅         | AUTH_SECRET allineato per cross-service JWT                                                                                             |
+| Cross-service JWT auth                  | ✅         | shared `AUTH_SECRET`+`NEXTAUTH_SECRET`, cookie `authjs.session-token`                                                                   |
+| RBP framework                           | ✅         | 33 functional areas, 326 join-permissions, cache TTL 5min                                                                               |
+| RLS                                     | ✅         | 605 policies attive su tabelle tenant-scoped                                                                                            |
+| CI workflow `CI`                        | ✅         | npm@11 pinned, NODE_OPTIONS=4096 typecheck, lint+test green                                                                             |
+| CI workflow `Build`                     | ✅         | next build standalone green                                                                                                             |
+| CI workflow `Security`                  | ✅         | gitleaks CLI self-host + npm audit + semgrep                                                                                            |
+| CI workflow `Storybook Deploy`          | ✅ NEW S10 | Build su PR + deploy su main → GitHub Pages. URL `https://heuresys.github.io/heuresys-evo/`                                             |
+| **Branch protection on `main`**         | ✅ NEW S10 | 7 required checks + linear history + no force push + no deletion. enforce_admins=false. ADR-0019                                        |
+| **Auto-handoff retention rotation**     | ✅ NEW S10 | `--keep-last 50` in `.claude/hooks/auto-handoff.sh` + first rotation 194→50                                                             |
+| **Cross-context CLAUDE.md**             | ✅ NEW S10 | `.claude/CLAUDE.md` con 15 regole sanitized + frontmatter sync date. Per coerenza behavior in PC/Mac/VM/claude.ai web/Antigravity/cloud |
+| **Wiki external imported (selective)**  | ✅ NEW S10 | 6 file foundation in `docs/10-strategy/` + `docs/20-architecture/` + `docs/30-developer/`. Wikilinks preserved, resolution deferred S11 |
+| **S11 doc consolidation plan**          | ✅ NEW S10 | `.handoff/S11-doc-consolidation-plan.md` (236 righe executable, 13 atomi, 3 fasi, schema target Diátaxis)                               |
+| Storybook                               | ✅         | 84 stories pubblicate live, vite 7.3.2                                                                                                  |
+| Root `vitest.config.ts` (was workspace) | ✅ S8      | vitest 4 `defineConfig({test:{projects}})` idiom, picks up tutti 5 progetti (250 test)                                                  |
+| `tsconfig.base.json`                    | ✅ S8      | `files: []` canonical base marker                                                                                                       |
+| Supply chain (npm audit)                | ✅         | **0 vulnerabilities** (S8 + S10 Lotto B major bumps non hanno regredito)                                                                |
 
 ## Key files and paths
 
@@ -142,26 +142,26 @@ Phase corrente: **Phase 5 cutover-prep complete** + **add-on dev tools** + **sup
 
 ## Metrics
 
-| Metric                            | Current   | Δ vs S9 (2026-05-04 04:00) |
-| --------------------------------- | --------- | -------------------------- |
-| Pages Next.js evo                 | 5         | (steady)                   |
-| Endpoint Express evo (4xx-aware)  | 8+        | (steady)                   |
-| RLS policies live                 | 605       | (steady)                   |
-| RBP role-area-permission joins    | 326       | (steady)                   |
-| Test totali (5 workspace)         | 250       | (steady)                   |
-| `packages/ui` component count     | ~180      | (steady)                   |
-| **Vulnerabilità npm audit**       | **0**     | (steady, anche post Lotto B major) |
-| Workflow CI/Build/Security        | 3 ✅       | (steady)                   |
-| **Workflow CI nuovi**             | **+1** Storybook Deploy | NEW S10 |
-| Domini HTTPS attivi               | 3         | (steady)                   |
-| systemd unit production           | 3         | (steady)                   |
-| **PR mergeati S10**               | **13**    | +13 (Dependabot 8 + my 5)  |
-| **ADR attivi**                    | **19+1**  | +1 (0019) + 1 renamed (0017→0020) |
-| **Doc files `.md` totali**        | **~95**   | +6 wiki imported, +3 ADR/runbook NEW |
-| **Branch protection**             | **ACTIVE** | NEW S10 (era assente)     |
-| **GitHub Pages**                  | **ACTIVE** | NEW S10 (workflow source) |
-| **Auto-merge enabled**            | **YES**   | NEW S10                    |
-| Commit dalla S6                   | ~50       | +14 sessione corrente      |
+| Metric                           | Current                 | Δ vs S9 (2026-05-04 04:00)           |
+| -------------------------------- | ----------------------- | ------------------------------------ |
+| Pages Next.js evo                | 5                       | (steady)                             |
+| Endpoint Express evo (4xx-aware) | 8+                      | (steady)                             |
+| RLS policies live                | 605                     | (steady)                             |
+| RBP role-area-permission joins   | 326                     | (steady)                             |
+| Test totali (5 workspace)        | 250                     | (steady)                             |
+| `packages/ui` component count    | ~180                    | (steady)                             |
+| **Vulnerabilità npm audit**      | **0**                   | (steady, anche post Lotto B major)   |
+| Workflow CI/Build/Security       | 3 ✅                    | (steady)                             |
+| **Workflow CI nuovi**            | **+1** Storybook Deploy | NEW S10                              |
+| Domini HTTPS attivi              | 3                       | (steady)                             |
+| systemd unit production          | 3                       | (steady)                             |
+| **PR mergeati S10**              | **13**                  | +13 (Dependabot 8 + my 5)            |
+| **ADR attivi**                   | **19+1**                | +1 (0019) + 1 renamed (0017→0020)    |
+| **Doc files `.md` totali**       | **~95**                 | +6 wiki imported, +3 ADR/runbook NEW |
+| **Branch protection**            | **ACTIVE**              | NEW S10 (era assente)                |
+| **GitHub Pages**                 | **ACTIVE**              | NEW S10 (workflow source)            |
+| **Auto-merge enabled**           | **YES**                 | NEW S10                              |
+| Commit dalla S6                  | ~50                     | +14 sessione corrente                |
 
 ## Backlog (overflow from HANDOFF priorities)
 
