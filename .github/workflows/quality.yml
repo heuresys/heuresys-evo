@@ -1,10 +1,23 @@
-name: CI
+name: Quality
 
 on:
   pull_request:
     branches: [main]
   push:
     branches: [main]
+
+concurrency:
+  group: quality-${{ github.ref }}
+  cancel-in-progress: true
+
+# Consolidates the previous ci.yml (lint + typecheck + test) and build.yml
+# (build-workspaces) into one workflow. Job names are preserved verbatim so
+# branch protection's required-checks list keeps matching without API
+# changes. All jobs share the .github/actions/setup-node-prisma composite
+# (single point of truth for checkout + node + npm + prisma generate cache).
+#
+# Jobs guard heavy steps on .github/actions/handoff-only-detect so docs-only
+# PRs land green in <60s.
 
 jobs:
   lint:
@@ -17,20 +30,10 @@ jobs:
         uses: ./.github/actions/handoff-only-detect
       - if: steps.scope.outputs.handoff_only == 'true'
         run: echo "Handoff-only PR — emitting fast green status (lint skipped, no source changes)"
-      - uses: actions/setup-node@v6
-        if: steps.scope.outputs.handoff_only != 'true'
+      - if: steps.scope.outputs.handoff_only != 'true'
+        uses: ./.github/actions/setup-node-prisma
         with:
-          node-version: '20'
-          cache: 'npm'
-      - if: steps.scope.outputs.handoff_only != 'true'
-        run: npm install -g npm@11
-      - if: steps.scope.outputs.handoff_only != 'true'
-        run: npm ci
-      - name: Generate Prisma clients (offline from schema)
-        if: steps.scope.outputs.handoff_only != 'true'
-        run: |
-          npx --prefix services/app prisma generate --schema services/app/prisma/schema.prisma
-          npx --prefix services/api-gateway prisma generate --schema services/api-gateway/prisma/schema.prisma
+          fetch-depth: '1'
       - if: steps.scope.outputs.handoff_only != 'true'
         run: npm run lint
 
@@ -48,20 +51,10 @@ jobs:
         uses: ./.github/actions/handoff-only-detect
       - if: steps.scope.outputs.handoff_only == 'true'
         run: echo "Handoff-only PR — emitting fast green status (typecheck skipped, no source changes)"
-      - uses: actions/setup-node@v6
-        if: steps.scope.outputs.handoff_only != 'true'
+      - if: steps.scope.outputs.handoff_only != 'true'
+        uses: ./.github/actions/setup-node-prisma
         with:
-          node-version: '20'
-          cache: 'npm'
-      - if: steps.scope.outputs.handoff_only != 'true'
-        run: npm install -g npm@11
-      - if: steps.scope.outputs.handoff_only != 'true'
-        run: npm ci
-      - name: Generate Prisma clients (offline from schema)
-        if: steps.scope.outputs.handoff_only != 'true'
-        run: |
-          npx --prefix services/app prisma generate --schema services/app/prisma/schema.prisma
-          npx --prefix services/api-gateway prisma generate --schema services/api-gateway/prisma/schema.prisma
+          fetch-depth: '1'
       - if: steps.scope.outputs.handoff_only != 'true'
         run: npm run typecheck
 
@@ -84,15 +77,10 @@ jobs:
         uses: ./.github/actions/handoff-only-detect
       - if: steps.scope.outputs.handoff_only == 'true'
         run: echo "Handoff-only PR — emitting fast green status (tests skipped, no source changes)"
-      - uses: actions/setup-node@v6
-        if: steps.scope.outputs.handoff_only != 'true'
+      - if: steps.scope.outputs.handoff_only != 'true'
+        uses: ./.github/actions/setup-node-prisma
         with:
-          node-version: '20'
-          cache: 'npm'
-      - if: steps.scope.outputs.handoff_only != 'true'
-        run: npm install -g npm@11
-      - if: steps.scope.outputs.handoff_only != 'true'
-        run: npm ci
+          fetch-depth: '1'
       - if: steps.scope.outputs.handoff_only != 'true'
         run: npm run test:unit
       - if: steps.scope.outputs.handoff_only != 'true'
@@ -100,3 +88,23 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL_TEST }}
           REDIS_URL: redis://localhost:6379
+
+  build-workspaces:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - id: scope
+        uses: ./.github/actions/handoff-only-detect
+      - if: steps.scope.outputs.handoff_only == 'true'
+        run: echo "Handoff-only PR — emitting fast green status (build skipped, no source changes)"
+      - if: steps.scope.outputs.handoff_only != 'true'
+        uses: ./.github/actions/setup-node-prisma
+        with:
+          fetch-depth: '1'
+      - if: steps.scope.outputs.handoff_only != 'true'
+        run: npm run build --workspaces --if-present
+        env:
+          NEXT_TELEMETRY_DISABLED: '1'
