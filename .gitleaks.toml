@@ -24,8 +24,6 @@ useDefault = true
 [allowlist]
 description = "Historical session journals (descriptive prose about past detections)"
 paths = [
-  '''^\.handoff/PROJECT-LOG\.md$''',
-  '''^\.handoff/CHANGELOG\.md$''',
-  '''^\.handoff/snapshots/.*\.md$''',
+  '''^\.handoff/.*\.md$''',
   '''^CHANGELOG\.md$''',
 ]
