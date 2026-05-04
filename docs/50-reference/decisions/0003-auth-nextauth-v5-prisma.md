@@ -4,7 +4,7 @@
 **Date**: 2026-04-27 (original) · Superseded: vedi ADR-0009 timeline
 **Authors**: Enzo Spenuso
 
-> **Nota di supersessione**: la decisione originale di adottare NextAuth v5 (Auth.js beta) è stata superata dalla strategia stack (`docs/decisions/0009-stack-version-strategy.md`) che ha pinnato **NextAuth v4** stable in produzione. Migrazione a v5 deferred fino a release stable v5 (probabilmente Q3-Q4 2026 — vedi HANDOFF carry-forward "next-auth v5 timing").
+> **Nota di supersessione**: la decisione originale di adottare NextAuth v5 (Auth.js beta) è stata superata dalla strategia stack (`docs/50-reference/decisions/0009-stack-version-strategy.md`) che ha pinnato **NextAuth v4** stable in produzione. Migrazione a v5 deferred fino a release stable v5 (probabilmente Q3-Q4 2026 — vedi HANDOFF carry-forward "next-auth v5 timing").
 
 ## Context
 
@@ -138,7 +138,7 @@ Saltare TOTP, andare direttamente a passkey come 2FA primario.
 
 ### Negative
 
-- **RLS multi-tenant non è un pattern documentato out-of-the-box**: il session callback custom + helper `withTenant()` sono codice nostro. Servirà documentazione interna chiara (`docs/runbooks/auth-rls.md`) e test integration espliciti per evitare regressioni dove una query sfugge al wrapping.
+- **RLS multi-tenant non è un pattern documentato out-of-the-box**: il session callback custom + helper `withTenant()` sono codice nostro. Servirà documentazione interna chiara (`docs/40-operations/runbooks/auth-rls.md`) e test integration espliciti per evitare regressioni dove una query sfugge al wrapping.
 - **TOTP custom in Credentials provider**: Auth.js v5 supporta i Credentials providers ma il flow multi-step (password → TOTP challenge → finalize) richiede pattern specifici (multi-step credentials, oppure due provider chained, oppure custom server action che chiama `signIn` solo dopo TOTP verified). Da validare la pattern esatta al momento dell'implementazione (S5) consultando la doc Auth.js v5 corrente.
 - **Mapping users esistente**: la tabella `users` ha shape diverso da quello standard Auth.js. Il Prisma schema deve usare `@@map("users")` + field mapping puntuale (es. `passwordHash @map("password_hash")`); il Credentials provider non passa per Account/Session table standard.
 - **Migration 222 richiesta**: nuove tabelle `Account`, `Session`, `VerificationToken` da creare. Anche con session strategy `jwt`, alcune funzionalità future (verifica email, reset password) richiedono `VerificationToken`. Schema standard ma occupa spazio.
@@ -152,7 +152,7 @@ Saltare TOTP, andare direttamente a passkey come 2FA primario.
 - [ ] **Module augmentation TS** in `packages/shared`: estendere il type `Session` di Auth.js con i campi custom (`tenantId`, `role`, `employeeId`, `permissions`).
 - [ ] **Helper `withTenant(tenantId, fn)`**: implementazione iniziale in `services/api-gateway/src/db/pool.ts`; se replicato in `services/app/src/lib/db.ts` senza divergenze, estrarre in `packages/shared/src/db/with-tenant.ts` (refactor S5).
 - [ ] **Test integration login flow**: scenario completo `username+password → TOTP → session attiva → query con RLS → logout`. Usa testcontainers (ADR-0002).
-- [ ] **Runbook auth-RLS** (`docs/runbooks/auth-rls.md`): documentare il pattern, errori comuni (query fuori da `withTenant` → zero rows misterioso), troubleshooting.
+- [ ] **Runbook auth-RLS** (`docs/40-operations/runbooks/auth-rls.md`): documentare il pattern, errori comuni (query fuori da `withTenant` → zero rows misterioso), troubleshooting.
 - [ ] **WebAuthn/passkey** come 2FA alternativo a TOTP: roadmap post-launch, NextAuth v5 supporta `Passkey` provider.
 - [ ] **Audit log** delle login attempts (success/fail/lockout): tabella `auth_audit` (out-of-scope ADR-0003, separato).
 - [ ] **OAuth providers** Microsoft Entra ID + Google Workspace: roadmap quando il primo cliente lo richiede; nessun rework architetturale richiesto.

@@ -131,7 +131,7 @@ nginx vhosts in `/etc/nginx/sites-available/`:
 - **Vulnerabilità npm audit**: 0 (S8 supply chain hardening)
 - **Repo visibility**: PUBLIC (S9 flip post billing-exhaust). Branch protection attiva su `main` (S10): 7 required checks (`lint`, `typecheck`, `test`, `build-workspaces`, `gitleaks`, `semgrep`, `npm-audit`) + linear history + no force push + no deletion. `enforce_admins=false`. Auto-merge + `allow_update_branch` enabled
 - **Migration parity legacy**: vedi `docs/30-developer/feature-parity-tracking.md`
-- **Strategia migration**: PET-driven, vedi `docs/strategy/MIGRATION_STRATEGY_PET_DRIVEN.md` (Phase 6 cutover-event CANCELLATA, sostituita da Phase 6+ progressive Tier 1 port)
+- **Strategia migration**: PET-driven, vedi `docs/10-strategy/migration-strategy-pet-driven.md` (Phase 6 cutover-event CANCELLATA, sostituita da Phase 6+ progressive Tier 1 port)
 
 ## Multi-tenant & RBP (sintesi)
 
@@ -178,7 +178,7 @@ Esempi:
 
 ## Documenti strategici di riferimento
 
-- `docs/strategy/MIGRATION_STRATEGY_PET_DRIVEN.md` — strategia di porting dal legacy
+- `docs/10-strategy/migration-strategy-pet-driven.md` — strategia di porting dal legacy
 - `docs/_meta/governance-evo.md` — governance progetto (decisioni, ADR index)
 - `docs/20-architecture/monorepo-workspace-strategy.md` — npm workspaces, no Turborepo
 - `docs/30-developer/typescript-strict-evo.md` — TS strict, zero `any`

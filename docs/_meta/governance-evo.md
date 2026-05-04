@@ -4,11 +4,11 @@
 **Scope**: principi P1-P10 + RBP + PET + decoupling da CLAUDE.md root legacy. Onboarding in ≤30 min.
 **Audience**: nuovi dev evo, reviewer PR, architect.
 
-> ⚠️ **Open issue (S10)**: la formulazione P1-P10 in questo doc differisce da quella in `CLAUDE.md` root (es. P4 qui = "RLS first", P4 in CLAUDE.md = "Audit logged"). Da consolidare in S11: scegliere canonical formulation tra `CLAUDE.md`, questo doc e `docs/strategy/MIGRATION_STRATEGY_PET_DRIVEN.md` §Governance, e propagare.
+> ⚠️ **Open issue (S10)**: la formulazione P1-P10 in questo doc differisce da quella in `CLAUDE.md` root (es. P4 qui = "RLS first", P4 in CLAUDE.md = "Audit logged"). Da consolidare in S11: scegliere canonical formulation tra `CLAUDE.md`, questo doc e `docs/10-strategy/migration-strategy-pet-driven.md` §Governance, e propagare.
 
 ## Principi P1-P10
 
-Sintesi (full text in `docs/strategy/MIGRATION_STRATEGY_PET_DRIVEN.md` §Governance):
+Sintesi (full text in `docs/10-strategy/migration-strategy-pet-driven.md` §Governance):
 
 | #   | Principio                                        | Implicazione operativa evo                                                                     |
 | --- | ------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
@@ -23,7 +23,7 @@ Sintesi (full text in `docs/strategy/MIGRATION_STRATEGY_PET_DRIVEN.md` §Governa
 | P9  | Everything data-driven via DBMS                  | Ruoli, navigation, widget, perspectives, prompts: tutto in tabelle. Zero array hardcoded       |
 | P10 | Multi-level Platform/Tenant                      | Ogni config supporta scope Platform (`tenant_id IS NULL`) e scope Tenant (`tenant_id = X`)     |
 
-Derogations D1-D4 (TBD: ricostruire elenco completo da `docs/strategy/MIGRATION_STRATEGY_PET_DRIVEN.md` Sezione 0 quando portata in evo).
+Derogations D1-D4 (TBD: ricostruire elenco completo da `docs/10-strategy/migration-strategy-pet-driven.md` Sezione 0 quando portata in evo).
 
 ## PET — 47 mapping aree × lenti
 
@@ -112,7 +112,7 @@ Cosa l'evo NON eredita:
 
 1. Clone repo, `pnpm install` in root.
 2. Leggere in ordine:
-   - `docs/strategy/MIGRATION_STRATEGY_PET_DRIVEN.md` (§Governance + §Tier list)
+   - `docs/10-strategy/migration-strategy-pet-driven.md` (§Governance + §Tier list)
    - `docs/20-architecture/nestjs-module-conventions.md`
    - `docs/20-architecture/prisma-data-access-pattern.md`
    - `docs/20-architecture/rls-with-prisma-pattern.md`
@@ -127,7 +127,7 @@ Cosa l'evo NON eredita:
 
 ## Riferimenti
 
-- `docs/strategy/MIGRATION_STRATEGY_PET_DRIVEN.md` — full text P1-P10, Tier list, derogations
+- `docs/10-strategy/migration-strategy-pet-driven.md` — full text P1-P10, Tier list, derogations
 - `docs/_meta/migration-doc-audit.md` — audit doc legacy
-- `docs/migration/dbms-cookbook.md` — query reali DBMS
+- `docs/90-archive/migration-bootstrap/dbms-cookbook.md` — query reali DBMS
 - Legacy `CLAUDE.md` root — riferimento storico, non vincolante per evo

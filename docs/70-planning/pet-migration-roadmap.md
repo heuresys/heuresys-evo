@@ -2,7 +2,7 @@
 
 Vision PET (Process / Enterprise / Talent) come fil rouge della migrazione legacy → evo. Le 47 mappature `rbp_area_perspectives` (PRIMARY+SECONDARY) guidano l'ordine di porting per costruire **una storia coerente** sin dal Tier 1.
 
-Riferimenti normativi: `docs/strategy/MIGRATION_STRATEGY_PET_DRIVEN.md` §3, `docs/migration/dbms-cookbook.md` §4.
+Riferimenti normativi: `docs/10-strategy/migration-strategy-pet-driven.md` §3, `docs/90-archive/migration-bootstrap/dbms-cookbook.md` §4.
 
 ## Tier 1 — Cross-cutting + Abilitatori (~30-40 pagine, 80-120 endpoint)
 

@@ -1,7 +1,7 @@
 # Feature Parity Tracking — Legacy → evo
 
 > Tracker manuale dello stato di porting delle 33 functional areas + 47 PET mapping dal legacy `heuresys.com.evo` (Express+Next.js mix) verso evo (Express 5 + Next.js 16).
-> **Aggiornamento**: ad ogni PET-driven migration step (vedi `docs/strategy/MIGRATION_STRATEGY_PET_DRIVEN.md`) — l'autore della PR aggiorna la riga corrispondente.
+> **Aggiornamento**: ad ogni PET-driven migration step (vedi `docs/10-strategy/migration-strategy-pet-driven.md`) — l'autore della PR aggiorna la riga corrispondente.
 > **Baseline corrente**: 2026-05-04 (S10): 5 pagine evo + 8+ endpoint, 250 test verdi, 0 vulns npm audit. Vedi `.handoff/PROJECT-STATE.md` per breakdown completo.
 
 ## Schema colonne

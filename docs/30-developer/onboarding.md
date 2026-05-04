@@ -134,11 +134,11 @@ Il commit-msg hook accetta:
 
 ## 10. Quando hai dubbi
 
-- **Decisioni architetturali**: leggi `docs/decisions/`
-- **Workflow DB**: `docs/guides/prisma-workflow.md`
-- **Security**: `docs/guides/security.md` (post-B4)
+- **Decisioni architetturali**: leggi `docs/50-reference/decisions/`
+- **Workflow DB**: `docs/30-developer/prisma-migration-workflow.md`
+- **Security**: `docs/30-developer/security-baseline.md` (post-B4)
 - **Roadmap hardening**: `/home/ubuntu/heuresys.com.evo/ROAD_TO_GLORY_EVO_HARDENING.md`
-- **Stato sessione**: `docs/hardening/session-*-closure.md`
+- **Stato sessione**: `docs/90-archive/hardening/session-*-closure.md`
 
 ## 11. Quick troubleshooting
 

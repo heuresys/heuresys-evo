@@ -96,7 +96,7 @@ Phase corrente: **Phase 5 cutover-prep complete** + **add-on dev tools** + **sup
 | **Branch protection on `main`**        | ✅ NEW S10 | 7 required checks + linear history + no force push + no deletion. enforce_admins=false. ADR-0019 |
 | **Auto-handoff retention rotation**    | ✅ NEW S10 | `--keep-last 50` in `.claude/hooks/auto-handoff.sh` + first rotation 194→50 |
 | **Cross-context CLAUDE.md**            | ✅ NEW S10 | `.claude/CLAUDE.md` con 15 regole sanitized + frontmatter sync date. Per coerenza behavior in PC/Mac/VM/claude.ai web/Antigravity/cloud |
-| **Wiki external imported (selective)** | ✅ NEW S10 | 6 file foundation in `docs/strategy/` + `docs/20-architecture/` + `docs/30-developer/`. Wikilinks preserved, resolution deferred S11 |
+| **Wiki external imported (selective)** | ✅ NEW S10 | 6 file foundation in `docs/10-strategy/` + `docs/20-architecture/` + `docs/30-developer/`. Wikilinks preserved, resolution deferred S11 |
 | **S11 doc consolidation plan**         | ✅ NEW S10 | `.handoff/S11-doc-consolidation-plan.md` (236 righe executable, 13 atomi, 3 fasi, schema target Diátaxis) |
 | Storybook                              | ✅      | 84 stories pubblicate live, vite 7.3.2                                              |
 | Root `vitest.config.ts` (was workspace) | ✅ S8 | vitest 4 `defineConfig({test:{projects}})` idiom, picks up tutti 5 progetti (250 test) |
@@ -132,11 +132,11 @@ Phase corrente: **Phase 5 cutover-prep complete** + **add-on dev tools** + **sup
 - `.claude/hooks/auto-handoff.sh` — **S10 update** retention `--keep-last 50`
 - `.handoff/S11-doc-consolidation-plan.md` — **NEW S10** S11 priority #1 executable plan
 - `.handoff/snapshots/` — HANDOFF history (`HANDOFF-{date}.md`)
-- `docs/decisions/0019-repo-visibility-flip-and-branch-protection.md` — **NEW S10** ADR
-- `docs/decisions/0020-tenant-ontology-versioning.md` — **renamed S10** (was 0017, collision con 0017-design-system)
-- `docs/runbooks/storybook-deploy.md` — **NEW S10** ops runbook
+- `docs/50-reference/decisions/0019-repo-visibility-flip-and-branch-protection.md` — **NEW S10** ADR
+- `docs/50-reference/decisions/0020-tenant-ontology-versioning.md` — **renamed S10** (was 0017, collision con 0017-design-system)
+- `docs/40-operations/runbooks/storybook-deploy.md` — **NEW S10** ops runbook
 - Wiki imported S10:
-  - `docs/strategy/HEURESYS_VISION.md`, `THEORETICAL_FOUNDATIONS.md`, `EXTERNAL_FRAMEWORKS_REFERENCE.md`, `COMPETITIVE_LANDSCAPE.md`
+  - `docs/10-strategy/heuresys-vision.md`, `THEORETICAL_FOUNDATIONS.md`, `EXTERNAL_FRAMEWORKS_REFERENCE.md`, `COMPETITIVE_LANDSCAPE.md`
   - `docs/20-architecture/knowledge-graph-esco.md`
   - `docs/30-developer/rbp-data-model.md`
 

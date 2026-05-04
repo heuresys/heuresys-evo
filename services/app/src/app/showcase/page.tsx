@@ -259,7 +259,7 @@ export default async function ShowcasePage() {
         implicito (postgres user). Vedi{' '}
         <a
           className="text-blue-700 underline"
-          href="https://github.com/heuresys/heuresys-evo/blob/main/docs/migration/dbms-cookbook.md"
+          href="https://github.com/heuresys/heuresys-evo/blob/main/docs/90-archive/migration-bootstrap/dbms-cookbook.md"
         >
           dbms-cookbook.md
         </a>{' '}

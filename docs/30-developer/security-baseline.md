@@ -1,7 +1,7 @@
 # Security Baseline — heuresys-evo
 
 > **Status**: Canonical SoT for security operations + P1-P10 enforcement rules.
-> **Source**: consolidated da `docs/guides/security.md` (RTGB B4.12 reference) + `.claude/rules/security.md` (P1-P10 enforcement) + cross-cutting concerns di `docs/20-architecture/overview.md`.
+> **Source**: consolidated da `docs/30-developer/security-baseline.md` (RTGB B4.12 reference) + `.claude/rules/security.md` (P1-P10 enforcement) + cross-cutting concerns di `docs/20-architecture/overview.md`.
 >
 > **Status S11**: questo file è il SoT operativo. `.claude/rules/security.md` resta come thin pointer per loading automatico Claude Code CLI; le regole effettive vivono qui.
 

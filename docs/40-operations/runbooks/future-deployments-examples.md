@@ -97,5 +97,5 @@ Once a deployment is ready to go live:
 2. Uncomment all sections including the `name:` header
 3. Add required secrets via `gh secret set <NAME>`
 4. Open a PR and let it merge through the standard 4 mandatory + 3 optional checks
-5. Update `docs/architecture/overview.md` with the new deployment topology
+5. Update `docs/20-architecture/overview.md` with the new deployment topology
 6. Add an ADR entry if the deployment introduces a non-trivial architectural choice

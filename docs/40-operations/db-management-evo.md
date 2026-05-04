@@ -195,4 +195,4 @@ Pool connessioni applicative per ridurre overhead `pg_stat_activity` quando work
 - `infra/scripts/backup-daily.sh`, `backup-weekly-dr.sh` — automazione backup
 - `infra/scripts/check-rls-coverage.sh` — gate CI P5
 - `docs/40-operations/incident-runbook-evo.md` §DB restore — procedura emergency
-- `docs/migration/dbms-cookbook.md` — pattern migration baseline-squash
+- `docs/90-archive/migration-bootstrap/dbms-cookbook.md` — pattern migration baseline-squash

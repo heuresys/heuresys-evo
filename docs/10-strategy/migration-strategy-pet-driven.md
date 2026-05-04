@@ -7,7 +7,7 @@
 **Companion docs**:
 
 - `docs/_meta/migration-doc-audit.md` (audit doc legacy → classificazione A/B/C/D)
-- `docs/migration/dbms-bootstrap-strategy.md` (strategia DBMS evo)
+- `docs/90-archive/migration-bootstrap/dbms-bootstrap-strategy.md` (strategia DBMS evo)
 
 ---
 
@@ -197,8 +197,8 @@ Lo "schema bootstrap" è **già fatto**. Il gap reale evo è:
 
 - `ROAD_TO_GLORY.md` (legacy repo) — Phase 0-5 SoT, Phase 6+ superseded da questo doc
 - `docs/_meta/migration-doc-audit.md` — classificazione doc legacy A/B/C/D
-- `docs/migration/dbms-bootstrap-strategy.md` — strategia bootstrap DBMS evo
-- `docs/architecture/ADR-WORKSPACE-AS-COWORK-CONTEXT.md` — modello workspace
+- `docs/90-archive/migration-bootstrap/dbms-bootstrap-strategy.md` — strategia bootstrap DBMS evo
+- `docs/20-architecture/ADR-WORKSPACE-AS-COWORK-CONTEXT.md` — modello workspace
 - `rbp_area_perspectives` (DB table) — mapping 47 PET PRIMARY+SECONDARY
 
 ---
