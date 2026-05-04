@@ -15,6 +15,8 @@ permissions:
 
 jobs:
   gitleaks:
+    # Always runs (cheap ~10s + security baseline). Allowlist for descriptive
+    # journal files lives in gitleaks.toml at repo root.
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -41,18 +43,30 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - id: scope
+        uses: ./.github/actions/handoff-only-detect
+      - if: steps.scope.outputs.handoff_only == 'true'
+        run: echo "Handoff-only PR — emitting fast green status (npm-audit skipped, no dependency changes)"
       - uses: actions/setup-node@v6
+        if: steps.scope.outputs.handoff_only != 'true'
         with:
           node-version: '20.x'
           cache: 'npm'
-      - run: npm install -g npm@11
-      - run: npm ci --no-audit --no-fund
+      - if: steps.scope.outputs.handoff_only != 'true'
+        run: npm install -g npm@11
+      - if: steps.scope.outputs.handoff_only != 'true'
+        run: npm ci --no-audit --no-fund
       - name: npm audit (production deps)
+        if: steps.scope.outputs.handoff_only != 'true'
         run: npm audit --omit=dev --audit-level=high
         continue-on-error: true
       - name: npm audit JSON report
+        if: steps.scope.outputs.handoff_only != 'true'
         run: npm audit --omit=dev --json > audit-report.json || true
       - uses: actions/upload-artifact@v7
+        if: steps.scope.outputs.handoff_only != 'true'
         with:
           name: npm-audit-report
           path: audit-report.json
@@ -65,7 +79,14 @@ jobs:
       image: returntocorp/semgrep
     steps:
       - uses: actions/checkout@v6
-      - run: semgrep ci --config=p/owasp-top-ten --config=p/typescript --config=p/javascript --config=p/secrets
+        with:
+          fetch-depth: 0
+      - id: scope
+        uses: ./.github/actions/handoff-only-detect
+      - if: steps.scope.outputs.handoff_only == 'true'
+        run: echo "Handoff-only PR — emitting fast green status (semgrep skipped, no source changes)"
+      - if: steps.scope.outputs.handoff_only != 'true'
+        run: semgrep ci --config=p/owasp-top-ten --config=p/typescript --config=p/javascript --config=p/secrets
         env:
           SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
         continue-on-error: true

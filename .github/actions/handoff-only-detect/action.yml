@@ -1,0 +1,50 @@
+name: 'Detect handoff-only PR'
+description: |
+  Sets output `handoff_only=true` when the current PR diff vs base touches
+  only documentation paths that do not require heavy CI validation:
+  .handoff/** and root CHANGELOG.md.
+
+  Heavy jobs (lint, typecheck, test, build, npm-audit, semgrep) gate their
+  expensive steps on `handoff_only != 'true'` and emit a fast green status
+  instead. gitleaks always runs (security baseline).
+
+  For non-PR events (push to main, schedule, workflow_dispatch) the output
+  is always `false` so heavy jobs run normally.
+
+outputs:
+  handoff_only:
+    description: 'true if PR is restricted to .handoff/** and CHANGELOG.md'
+    value: ${{ steps.detect.outputs.handoff_only }}
+
+runs:
+  using: 'composite'
+  steps:
+    - id: detect
+      shell: bash
+      run: |
+        set -euo pipefail
+        if [ "${GITHUB_EVENT_NAME:-}" != "pull_request" ]; then
+          echo "handoff_only=false" >> "$GITHUB_OUTPUT"
+          echo "Non-PR event (${GITHUB_EVENT_NAME:-?}) — heavy jobs run normally"
+          exit 0
+        fi
+        base="${GITHUB_BASE_REF:-main}"
+        git fetch origin "$base" --depth=50 --quiet || true
+        diff="$(git diff --name-only "origin/${base}...HEAD" 2>/dev/null || true)"
+        if [ -z "$diff" ]; then
+          # Defensive: empty diff (shouldn't happen on real PR) -> treat as heavy
+          echo "handoff_only=false" >> "$GITHUB_OUTPUT"
+          echo "Empty diff vs origin/${base} — defaulting to heavy"
+          exit 0
+        fi
+        # Anything outside .handoff/ and root CHANGELOG.md disqualifies fast-path
+        non_doc="$(echo "$diff" | grep -vE '^\.handoff/|^CHANGELOG\.md$' || true)"
+        if [ -z "$non_doc" ]; then
+          echo "handoff_only=true" >> "$GITHUB_OUTPUT"
+          echo "Handoff-only PR detected. Files:"
+          echo "$diff" | sed 's/^/  /'
+        else
+          echo "handoff_only=false" >> "$GITHUB_OUTPUT"
+          echo "PR includes non-handoff paths — heavy jobs run normally:"
+          echo "$non_doc" | sed 's/^/  /'
+        fi

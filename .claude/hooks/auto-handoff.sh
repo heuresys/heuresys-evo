@@ -10,14 +10,31 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 AUTO_DIR="$REPO_ROOT/.handoff/auto"
 
+cd "$REPO_ROOT" 2>/dev/null || exit 0
+
+# Skip breadcrumb if there's nothing to recover:
+# (a) working tree clean (no uncommitted changes), AND
+# (b) current branch is in sync with its upstream (no local-only commits).
+# In that state the next session can resume from origin/main + .handoff/HANDOFF.md
+# without needing the per-Stop snapshot. Reduces breadcrumb noise from ~50/session
+# to only the events where state actually diverges from remote.
+GIT_STATUS=$(git status --short 2>/dev/null || echo "")
+HAS_UPSTREAM=$(git rev-parse --abbrev-ref --symbolic-full-name '@{u}' 2>/dev/null || echo "")
+if [ -z "$GIT_STATUS" ] && [ -n "$HAS_UPSTREAM" ]; then
+  AHEAD=$(git rev-list --count '@{u}..HEAD' 2>/dev/null || echo "0")
+  BEHIND=$(git rev-list --count 'HEAD..@{u}' 2>/dev/null || echo "0")
+  if [ "$AHEAD" = "0" ] && [ "$BEHIND" = "0" ]; then
+    exit 0
+  fi
+fi
+
 mkdir -p "$AUTO_DIR"
 
 TIMESTAMP="$(date -u +%Y%m%d-%H%M%S)"
 OUT="$AUTO_DIR/$TIMESTAMP.md"
 
-BRANCH=$(cd "$REPO_ROOT" && git branch --show-current 2>/dev/null || echo "?")
-LAST_COMMIT=$(cd "$REPO_ROOT" && git log -1 --oneline 2>/dev/null || echo "?")
-GIT_STATUS=$(cd "$REPO_ROOT" && git status --short 2>/dev/null || echo "")
+BRANCH=$(git branch --show-current 2>/dev/null || echo "?")
+LAST_COMMIT=$(git log -1 --oneline 2>/dev/null || echo "?")
 
 cat > "$OUT" <<EOF
 # Auto-handoff breadcrumb — $TIMESTAMP

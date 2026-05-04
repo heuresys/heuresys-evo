@@ -27,6 +27,42 @@ A fine sessione, attivare la skill `handoff` (alias: "chiudi sessione", "fine se
 
 - snapshot dated.
 
+## Session diary protocol
+
+Durante la sessione, dopo ogni evento significativo, append una riga a
+`.handoff/session-diary.md` con schema `- HH:MM <type> — <description>`.
+Tipi: `pr`, `decision`, `blocker`, `discovery`, `commit`, `note`.
+
+Eventi target:
+
+- PR aperto, mergeato, conflict emerso, rebase eseguito
+- Decisione architetturale (alternativa scelta + razionale 1-line)
+- Blocker (cosa ha bloccato, cosa l'ha sbloccato)
+- Discovery (dependency inattesa, motivo di un version pin, gotcha di runtime)
+- Commit significativo su `main` fuori dal normale cascade
+- Note generiche worth-keeping che non rientrano negli altri tipi
+
+Lo scopo è spostare il costo di composizione di `PROJECT-LOG.md` da
+"ricostruzione 4h+ a fine sessione" a "review + merge durante /handoff".
+La skill `handoff` legge il diary in Step 3 (compute delta) + Step 4a
+(metabolizza in PROJECT-LOG entry), poi Step 4f tronca il file lasciando
+solo l'header. Il diary è committato come parte del cycle di /handoff
+(non gitignored): la storia delle entries vive in `PROJECT-LOG.md` e
+nei dated snapshots.
+
+## Smart-commit handoff (alternative manuale)
+
+Per chiudere la sessione senza invocare la skill (es. shell-only context),
+dopo aver aggiornato i 4 file `.handoff/`:
+
+```bash
+scripts/handoff-close.sh <session_number> "<topic>"
+```
+
+Lo script esegue: pre-flight pattern scan + branch + commit + push + PR +
+auto-merge in un singolo comando idempotente. Il PR cade su CI light
+(`.github/actions/handoff-only-detect`) e auto-mergia in ~30s.
+
 ## Mission
 
 Piattaforma SaaS B2B di Organizational Intelligence & Workforce Orchestration. Layer ontologico tra ERP/HR/BI per governare processi, struttura, ruoli, competenze e performance via Knowledge Graph ESCO bilingue (IT/EN).
