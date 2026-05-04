@@ -670,3 +670,58 @@ Sessione 1 (initial scaffold + DBMS infrastructure):
 - Snapshot HANDOFF: `.handoff/snapshots/HANDOFF-2026-04-27.md`
 
 ---
+
+## 2026-05-04 — Sessione 9: claude-mem tooling maintenance (no project code touched)
+
+- **Duration**: ~50min (3:00 → 3:55 GMT+2)
+- **Focus**: out-of-band maintenance del sistema memoria claude-mem (Windows-side, fuori repo). Zero righe di codice progetto modificate, zero nuovi commit.
+
+### Tasks completed
+
+1. **Verifica fix CLAUDE_MEM_HEALTH_TIMEOUT_MS=300000 (Option B di S8)** — env var ereditata correttamente in nuova sessione (`echo $env:` = 300000), `query_corpus("evo-heuresys", ...)` funziona senza timeout 4500ms, conferma definitiva che la var governa anche il code path query (non solo health check).
+2. **Costruito secondo corpus `heuresys-evo-prehistory`** dal vecchio slug `heuresys.com.evo` (179 obs Apr 28-29). Scoperta: lo slug coincide col nome del repo legacy Docker ma in realtà cattura le obs del greenfield pre-rename del working dir (`D:\heuresys-com-evo` → `D:\evo.heuresys.com`).
+3. **Rename atomica `heuresys.com.evo` → `evo.heuresys.com`** in 3 tabelle SQLite (observations 179 + session_summaries 48 + sdk_sessions 4 = **231 righe**) via `BEGIN IMMEDIATE` + WAL mode, worker live, no race. Snapshot pre-op `~/.claude-mem.bak-20260504T0345Z/` (30.59 MB).
+4. **Cancellato corpus stale** + `rebuild_corpus("evo-heuresys")` → 245 obs, 97k token, range Apr 28 → May 4. Reprime + test cross-period query: recupera correttamente sia infrastruttura S1-S6 sia hardening S7-S8.
+
+### Files changed (all OUTSIDE repo)
+
+- `~/.claude-mem/claude-mem.db` — 231 row updates (project field rename)
+- `~/.claude-mem/corpora/heuresys-evo-prehistory.corpus.json` — deleted
+- `~/.claude-mem/corpora/evo-heuresys.corpus.json` — rebuilt (245 obs)
+- `C:\Users\enzospenuso\.claude\projects\D--evo-heuresys-com\memory\reference_claude_mem_timeout_fix.md` — riscritto completo (timeout fix + slug unification + topology + naming trap storico + fallback procedure)
+- `C:\Users\enzospenuso\.claude\projects\D--evo-heuresys-com\memory\MEMORY.md` — index riga aggiornata
+
+### Files NOT changed (repo invariato)
+
+- Zero file in `D:\evo.heuresys.com\` (a parte questo handoff a fine sessione)
+- Zero commit, working tree pulito (solo `M CLAUDE.md` pre-esistente da prima della sessione)
+- CI status invariato: 3/3 green su `ddc31dd`
+
+### Decisions
+
+- **Procedere con SQL UPDATE diretto** invece di tenere dual-corpus: claude-mem v10.3.1 non espone API merge/rename via MCP (la colonna schema-level `merged_into_project` esiste ma feature non esposta). DB locale-only, snapshot reversibile, rischio gestito.
+- **Worker live durante UPDATE**: SQLite WAL + `BEGIN IMMEDIATE` gestisce concorrenza. Skip stop worker per evitare break MCP calls in-session.
+
+### Blockers / failures
+
+- _Nessuno_. Operazione lineare, tutti gli step OK al primo tentativo.
+
+### Open carry-forward
+
+- **Backup snapshot 30.59 MB** in `~/.claude-mem.bak-20260504T0345Z/`. Cancellabile dopo qualche giorno di uso confermato senza problemi: `Remove-Item "C:\Users\enzospenuso\.claude-mem.bak-20260504T0345Z" -Recurse -Force`.
+- **Tutte le 5 todo S8 restano aperte** (sessione non ha toccato il backlog progetto). Top 1 confermata: decisione Prisma 6 vs 7.
+
+### Lezione operativa
+
+- **claude-mem schema lesson**: 3 tabelle hanno colonna `project` (`observations`, `session_summaries`, `sdk_sessions`). Future rename/merge devono coprire tutte e 3, altrimenti session_summaries e sdk_sessions restano siloed.
+- **Chroma vector store è project-agnostic**: una sola collection GUID-named globale. La rename SQL del project field NON impatta i vector embeddings — verificato empiricamente con query semantica post-rename funzionante.
+- **`rebuild_corpus` rilegge il filtro stored**: il corpus aveva filter `project='evo.heuresys.com'`, dopo SQL rename ha automaticamente catturato anche le 179 + 4 obs prima invisibili. Niente bisogno di rebuild con filtro nuovo.
+
+### References
+
+- Memory file aggiornato: `C:\Users\enzospenuso\.claude\projects\D--evo-heuresys-com\memory\reference_claude_mem_timeout_fix.md`
+- Snapshot HANDOFF: `.handoff/snapshots/HANDOFF-2026-05-04-2.md` (questa sessione, 2nd snapshot del giorno dopo S8 mattina)
+- Snapshot rollback: `~/.claude-mem.bak-20260504T0345Z/` (claude-mem state pre-rename)
+
+---
+

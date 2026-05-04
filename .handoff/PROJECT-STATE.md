@@ -1,6 +1,6 @@
 # Project state — heuresys.com.evo (greenfield `heuresys-evo`)
 
-> Snapshot: 2026-05-04 (S8 close — supply chain closure 5→0 vulns + tooling drift fixes + Prisma 7 deferred) · Engine version: 0.5.3 · See `HANDOFF.md` for next steps · See `PROJECT-LOG.md` for history
+> Snapshot: 2026-05-04 (S9 close — claude-mem tooling maintenance only, project state invariato da S8) · Engine version: 0.5.3 · See `HANDOFF.md` for next steps · See `PROJECT-LOG.md` for history
 
 ## Overview
 
