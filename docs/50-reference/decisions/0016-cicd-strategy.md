@@ -52,7 +52,7 @@ Grouping: `@types/*`, `vitest/*`, `@testing-library/*`, `@storybook/*`, `eslint-
 
 ### Branch protection ✅ ENFORCED (S10, 2026-05-04)
 
-**Status**: attiva su `main` da S10. Vedi `docs/decisions/0019-repo-visibility-flip-and-branch-protection.md` per la decision dettagliata.
+**Status**: attiva su `main` da S10. Vedi `docs/50-reference/decisions/0019-repo-visibility-flip-and-branch-protection.md` per la decision dettagliata.
 
 Configurazione applicata:
 

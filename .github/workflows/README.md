@@ -36,7 +36,7 @@ Razionale documentato in **ADR-0021** (replaces ADR-0019 strict-7).
 
 ## Convenzioni
 
-- I template di workflow non ancora attivati vivono in `docs/runbooks/future-deployments-examples.md` (non come `.yml.example` nella dir workflows, evita confusione con i workflow attivi)
+- I template di workflow non ancora attivati vivono in `docs/40-operations/runbooks/future-deployments-examples.md` (non come `.yml.example` nella dir workflows, evita confusione con i workflow attivi)
 - Secret in GitHub Settings → Secrets → Actions, mai hardcoded
 - Path-based filtering (`paths:` in trigger) per evitare run inutili sui monorepo
 - Cache npm via `actions/setup-node@v6` con `cache: 'npm'` (centralizzato in composite `setup-node-prisma`)
@@ -48,7 +48,7 @@ Razionale documentato in **ADR-0021** (replaces ADR-0019 strict-7).
 - E2E completi cross-service — possibile workflow `e2e.yml` schedulato (notturno o pre-release)
 - Release tagging automatico — quando il versioning si stabilizza
 
-Template per `deploy-app-api` e `deploy-marketing` in `docs/runbooks/future-deployments-examples.md`.
+Template per `deploy-app-api` e `deploy-marketing` in `docs/40-operations/runbooks/future-deployments-examples.md`.
 
 ## Note PostgreSQL
 

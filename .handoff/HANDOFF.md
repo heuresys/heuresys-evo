@@ -191,5 +191,5 @@ echo $env:CLAUDE_MEM_HEALTH_TIMEOUT_MS
 - claude-mem: corpus unificato `evo-heuresys`, fix timeout `CLAUDE_MEM_HEALTH_TIMEOUT_MS=300000` attivo
 - ADR: 19 attivi + 0020 (renumbered da 0017 collision); ADR-0019 NEW (visibility flip + branch protection); ADR-0003/0005 superseded
 - **Doc cross-context**: `.claude/CLAUDE.md` (S10 NEW) embedda 15 behavioral rules sanitized del global per supporto multi-context (PC/Mac/VM/claude.ai web/Antigravity/cloud)
-- **Wiki external imported S10**: 6 file foundation in `docs/strategy/` + `docs/20-architecture/` + `docs/30-developer/` (367 wikilink preserved, resolution deferred S11)
+- **Wiki external imported S10**: 6 file foundation in `docs/10-strategy/` + `docs/20-architecture/` + `docs/30-developer/` (367 wikilink preserved, resolution deferred S11)
 - **Doc consolidation pending S11**: piano executable in `.handoff/S11-doc-consolidation-plan.md` (~14h, 6 PR sequenziali)

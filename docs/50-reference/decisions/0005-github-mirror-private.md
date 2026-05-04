@@ -5,7 +5,7 @@
 **Authors**: Cantiere B (autonomous)
 **Phase**: RTGB B0/B6
 
-> **Nota di supersessione (S10, 2026-05-04)**: questo ADR riflette la situazione iniziale (repo privato, push direct su main, no branch protection). Dal 2026-05-04 il repo è **PUBLIC** (flippato in S9 dopo CI billing exhausted) e ha **branch protection attiva** su main (7 required checks + linear history + no force push). La sezione "Public repo: rejected" è quindi superata. Vedi `docs/decisions/0019-repo-visibility-flip-and-branch-protection.md` per la nuova decision corrente.
+> **Nota di supersessione (S10, 2026-05-04)**: questo ADR riflette la situazione iniziale (repo privato, push direct su main, no branch protection). Dal 2026-05-04 il repo è **PUBLIC** (flippato in S9 dopo CI billing exhausted) e ha **branch protection attiva** su main (7 required checks + linear history + no force push). La sezione "Public repo: rejected" è quindi superata. Vedi `docs/50-reference/decisions/0019-repo-visibility-flip-and-branch-protection.md` per la nuova decision corrente.
 
 ## Context
 

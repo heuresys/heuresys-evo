@@ -1,6 +1,6 @@
 # Contributing to heuresys-evo
 
-> Workflow di contribuzione per il greenfield evo. Per onboarding base vedi `docs/guides/onboarding.md`.
+> Workflow di contribuzione per il greenfield evo. Per onboarding base vedi `docs/30-developer/onboarding.md`.
 
 ## Branch & commit workflow
 
@@ -21,7 +21,7 @@ L'evo è autonomous-mode (Cantiere B): si committa direttamente su `main` per RT
 
 Per qualsiasi decisione architetturale con impact > 1gg di lavoro:
 
-1. Crea `docs/decisions/NNNN-<slug>.md` con next number
+1. Crea `docs/50-reference/decisions/NNNN-<slug>.md` con next number
 2. Sezioni obbligatorie:
    - **Status** (Proposed / Accepted / Superseded by ADR-XXXX / Deprecated)
    - **Date** (YYYY-MM-DD)
@@ -32,7 +32,7 @@ Per qualsiasi decisione architetturale con impact > 1gg di lavoro:
    - **Alternatives considered** (cosa è stato rifiutato e perché)
    - **Consequences** (positive + negative)
    - **References**
-3. ADR template + numbering automatico via tooling: `docs/decisions/0001-postgresql-bare-metal.md` come reference style.
+3. ADR template + numbering automatico via tooling: `docs/50-reference/decisions/0001-postgresql-bare-metal.md` come reference style.
 4. Status iniziale `Proposed` → diventa `Accepted` quando il commit relativo è merged.
 5. Supersede esplicito: il nuovo ADR ha `**Supersedes**: ADR-XXXX` + il vecchio aggiorna `Status` a `Superseded by ADR-NEW`.
 
@@ -53,7 +53,7 @@ L'evo non pubblica package npm; le release sono deployment events sulla VM OCI.
 1. Tag SemVer: `git tag v0.x.y` quando si vuole snapshot per rollback
 2. Tag RTGB phase: `rtgb/phase<N>/done` quando una phase Cantiere B è chiusa
 3. Tag milestone: `rtgb/v1.0-evo-hardened` per closure finale Cantiere B
-4. Deployment manuale (post-cutover) — vedi runbook `docs/runbooks/deploy.md`
+4. Deployment manuale (post-cutover) — vedi runbook `docs/40-operations/runbooks/deploy.md`
 
 ## File modificati ad alto impact
 
@@ -62,14 +62,14 @@ L'evo non pubblica package npm; le release sono deployment events sulla VM OCI.
 | `package.json` workspace top-level | Cantiere B (RTGB) o consenso | Cambia surface deps cross-workspace         |
 | `services/*/prisma/schema.prisma`  | Owner del service            | Deve passare `prisma-verify`                |
 | `db/migrations/*.sql`              | Owner della migration        | Append-only, no edit di migration applicate |
-| `docs/decisions/*`                 | Author dell'ADR              | Aggiorna `Status` quando supersede          |
+| `docs/50-reference/decisions/*`    | Author dell'ADR              | Aggiorna `Status` quando supersede          |
 | `.husky/*`                         | Cantiere B                   | Modifiche affettano tutti i committers      |
 | `.github/workflows/*`              | Cantiere B                   | Test su feature branch prima di main        |
 
 ## Communication
 
 - **Bug critici / security**: aprire issue con label `urgent` (privato repo)
-- **Domande architettura**: leggi prima `docs/decisions/`, poi apri issue label `question`
+- **Domande architettura**: leggi prima `docs/50-reference/decisions/`, poi apri issue label `question`
 - **Roadmap RTGB**: `/home/ubuntu/heuresys.com.evo/ROAD_TO_GLORY_EVO_HARDENING.md`
 
 ## Code style enforcement

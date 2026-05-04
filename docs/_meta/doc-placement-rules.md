@@ -36,18 +36,22 @@ trigger applicabile dall'alto.
 - Se la doc copre 2+ categorie: scegliere quella PIÙ specifica, lasciare cross-link dalle altre. Non duplicare.
 - Se la doc è temporary (es. session plan): può vivere in `.handoff/` invece di `docs/`. `.handoff/` è working journal, `docs/` è sustained reference.
 
-## Pattern legacy (durante transizione S11)
+## Pattern legacy (transizione S11 completata)
 
-Path legacy ancora presenti dopo PR #A (Phase A non-distruttiva):
+Tutti i path legacy sono stati migrati in S11 doc consolidation (PR #34, #35, #36, #37, #38, #39):
 
-- `docs/architecture/` → migrerà a `20-architecture/` in PR #B1
-- `docs/strategy/` (SCREAMING) → migrerà a `10-strategy/` in PR #B1
-- `docs/runbooks/` → migrerà a `40-operations/runbooks/` in PR #B2
-- `docs/guides/` → migrerà a `30-developer/` in PR #B2
-- `docs/cutover/`, `docs/hardening/`, `docs/audits/`, `docs/test-coverage/`, `docs/migration/` → migreranno a `90-archive/<topic>/` in PR #B3
+- ~~`docs/architecture/`~~ → ✅ `docs/20-architecture/`
+- ~~`docs/strategy/` (SCREAMING)~~ → ✅ `docs/10-strategy/` (kebab-case)
+- ~~`docs/runbooks/`~~ → ✅ `docs/40-operations/runbooks/`
+- ~~`docs/guides/onboarding.md`~~ → ✅ `docs/30-developer/onboarding.md`
+- ~~`docs/guides/security.md` + `.claude/rules/security.md`~~ → ✅ `docs/30-developer/security-baseline.md` (consolidated)
+- ~~`docs/guides/prisma-workflow.md`~~ → ✅ appendix in `docs/30-developer/prisma-migration-workflow.md`
+- ~~`docs/cutover/`~~ → ✅ `docs/90-archive/cutover-event-paradigm/` (paradigm abbandonato)
+- ~~`docs/hardening/`, `docs/audits/`, `docs/test-coverage/`, `docs/migration/`~~ → ✅ `docs/90-archive/<topic>/`
+- ~~`docs/decisions/`~~ → ✅ `docs/50-reference/decisions/`
+- ~~`docs/glossary.md`~~ → ✅ `docs/_meta/glossary.md`
 
-Durante la transizione, **per nuove doc**: USARE già il path canonical (numbered).
-**Per modifiche a doc esistenti** in path legacy: lasciare in place finché il move PR non passa, **NON** duplicare creando il file nel canonical path.
+**Per nuove doc**: USARE il path canonical numbered (vedi tabella sopra). Non re-creare path legacy.
 
 ## Self-test
 

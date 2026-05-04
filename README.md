@@ -19,7 +19,7 @@ Piattaforma SaaS B2B di **Organizational Intelligence & Workforce Orchestration*
 Prerequisiti:
 
 - Node 20+ (`>=20.0.0`), npm 10+ (`>=10.0.0`)
-- PostgreSQL 16 bare-metal (vedi [ADR-0001](docs/decisions/0001-postgresql-bare-metal.md))
+- PostgreSQL 16 bare-metal (vedi [ADR-0001](docs/50-reference/decisions/0001-postgresql-bare-metal.md))
 - Redis 7+ (per BullMQ enrichment futuro)
 
 Setup:
@@ -48,7 +48,7 @@ Servizi default:
 
 ## Architettura
 
-Monorepo a 2 tier ([ADR-0006](docs/decisions/0006-monorepo-boundary.md)):
+Monorepo a 2 tier ([ADR-0006](docs/50-reference/decisions/0006-monorepo-boundary.md)):
 
 - `services/*` — applicazioni eseguibili (HTTP-only cross-service)
 - `packages/*` — librerie pure (riusate dai services)
@@ -58,13 +58,13 @@ Authentication:
 - Issuer cookie: `services/app` (NextAuth v4) → cookie `authjs.session-token` con AUTH_SECRET condiviso
 - Reader cookie: `services/api-gateway` (`@auth/express` v0.12)
 - Strategy: JWT only, no DB sessions
-- Vedi [ADR-0007](docs/decisions/0007-auth-dual-system.md) e [ADR-0009](docs/decisions/0009-stack-version-strategy.md)
+- Vedi [ADR-0007](docs/50-reference/decisions/0007-auth-dual-system.md) e [ADR-0009](docs/50-reference/decisions/0009-stack-version-strategy.md)
 
 Multi-tenancy:
 
 - Postgres RLS con `SET app.current_tenant_id = '<uuid>'` per transazione
 - App principal `heuresys_app_user` (no BYPASSRLS), system `heuresys_app_admin` (BYPASSRLS) per migration/seed
-- Vedi [ADR-0008](docs/decisions/0008-multi-tenant-rls-evo.md) e [ADR-0010](docs/decisions/0010-rls-coverage-strategy.md)
+- Vedi [ADR-0008](docs/50-reference/decisions/0008-multi-tenant-rls-evo.md) e [ADR-0010](docs/50-reference/decisions/0010-rls-coverage-strategy.md)
 
 ## Testing
 
@@ -100,12 +100,12 @@ State: `.rtg-state-evo/state.json` (gitignored). Dashboard: `.rtg-state-evo/dash
 
 ## Documenti chiave
 
-- [`docs/hardening/README.md`](docs/hardening/README.md) — entry point Cantiere B
-- [`docs/decisions/`](docs/decisions/) — 19 ADR attivi (architettura + tradeoff)
-- [`docs/guides/prisma-workflow.md`](docs/guides/prisma-workflow.md) — workflow DB
-- [`docs/guides/onboarding.md`](docs/guides/onboarding.md) — developer setup step-by-step
-- [`docs/guides/security.md`](docs/guides/security.md) — security baseline (B4)
-- [`docs/runbooks/`](docs/runbooks/) — common operations
+- [`docs/90-archive/hardening/README.md`](docs/90-archive/hardening/README.md) — entry point Cantiere B
+- [`docs/50-reference/decisions/`](docs/50-reference/decisions/) — 19 ADR attivi (architettura + tradeoff)
+- [`docs/30-developer/prisma-migration-workflow.md`](docs/30-developer/prisma-migration-workflow.md) — workflow DB
+- [`docs/30-developer/onboarding.md`](docs/30-developer/onboarding.md) — developer setup step-by-step
+- [`docs/30-developer/security-baseline.md`](docs/30-developer/security-baseline.md) — security baseline (B4)
+- [`docs/40-operations/runbooks/`](docs/40-operations/runbooks/) — common operations
 
 ## License
 

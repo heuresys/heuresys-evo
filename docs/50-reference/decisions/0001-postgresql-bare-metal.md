@@ -71,4 +71,4 @@ Implicazioni concrete:
 - Documentare procedura di setup Postgres locale in `db/scripts/setup-local.sh`
 - Definire policy di backup automatizzato (cron + Object Storage OCI) in `db/scripts/backup.sh`
 - Decidere strategia test CI per database (ADR futuro)
-- Documentare strategia di upgrade DBMS in `docs/runbooks/postgres-upgrade.md`
+- Documentare strategia di upgrade DBMS in `docs/40-operations/runbooks/postgres-upgrade.md`

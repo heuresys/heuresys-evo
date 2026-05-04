@@ -6,7 +6,7 @@
 
 ## Cambio paradigma rispetto al legacy plan
 
-Il piano cutover originale (legacy `docs/cutover/`) prevedeva un **cutover-event globale**: data X, traffico tutto su evo, legacy congelato. Per l'evo si **scarta** quel modello a favore di **phased per area funzionale**, perché:
+Il piano cutover originale (legacy `docs/90-archive/cutover-event-paradigm/`) prevedeva un **cutover-event globale**: data X, traffico tutto su evo, legacy congelato. Per l'evo si **scarta** quel modello a favore di **phased per area funzionale**, perché:
 
 - 33 aree funzionali con accoppiamento variabile: portarne tutte in un colpo è rischio sistemico.
 - DBMS condiviso (stesso PostgreSQL): legacy ed evo coesistono sullo stesso schema, eliminando il problema "data sync".
@@ -15,7 +15,7 @@ Il piano cutover originale (legacy `docs/cutover/`) prevedeva un **cutover-event
 
 ## Pattern: dual-write + traffic shadowing per area Tier 1
 
-Tier list definita in `docs/strategy/MIGRATION_STRATEGY_PET_DRIVEN.md`. Ogni area Tier 1 (alto valore + basso rischio) attraversa 4 step:
+Tier list definita in `docs/10-strategy/migration-strategy-pet-driven.md`. Ogni area Tier 1 (alto valore + basso rischio) attraversa 4 step:
 
 | Step | Stato        | Write path   | Read path                                 | Validation                                    |
 | ---- | ------------ | ------------ | ----------------------------------------- | --------------------------------------------- |
@@ -82,7 +82,7 @@ Mai global revert. Per area in step N:
 - Step 3 → 2: switch reverse proxy back a legacy read. Verificare che dual-write sia ancora attivo (deve esserlo). Impatto: 1-5 min downtime breve (proxy reload).
 - Step 4 → 3: ripristinare endpoint legacy (revert tag deprecated, redeploy legacy se decommissionato). Caso peggiore: 1-3h se richiede redeploy.
 
-Ogni rollback richiede `incident_report.md` + RCA in `docs/cutover/incidents/`.
+Ogni rollback richiede `incident_report.md` + RCA in `docs/90-archive/cutover-event-paradigm/incidents/`.
 
 ## Edge cases
 
@@ -93,6 +93,6 @@ Ogni rollback richiede `incident_report.md` + RCA in `docs/cutover/incidents/`.
 
 ## Riferimenti
 
-- `docs/strategy/MIGRATION_STRATEGY_PET_DRIVEN.md` — Tier list aree + criteri ranking
+- `docs/10-strategy/migration-strategy-pet-driven.md` — Tier list aree + criteri ranking
 - `docs/_meta/migration-doc-audit.md` — audit doc legacy
 - `api-versioning-strategy.md` — proxy `/api/v1` evo → legacy per aree non ancora portate

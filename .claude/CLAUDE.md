@@ -92,7 +92,7 @@ MAI loggare nel context o in file di output: password, contenuto chiave SSH priv
 
 ### 11. GIT SAFETY (rinforzato per heuresys-evo S10)
 
-(a) **Branch protection ATTIVA su `main`** (ADR-0019, S10): no force push, no `--no-verify` bypass, ogni cambio passa via PR + 7 required checks (`lint`, `typecheck`, `test`, `build-workspaces`, `gitleaks`, `semgrep`, `npm-audit`) + linear history + no deletion. Override emergenza con `gh pr merge --admin` consentito solo motivato esplicito nel commit message.
+(a) **Branch protection ATTIVA su `main`** (ADR-0021, S11 — supersedes ADR-0019 strict 7-check): no force push, no `--no-verify` bypass, ogni cambio passa via PR + 4 mandatory checks (`lint`, `typecheck`, `test`, `gitleaks`) + 3 optional (`build-workspaces`, `npm-audit`, `semgrep`) + linear history + no deletion. Override emergenza con `gh pr merge --admin` consentito solo motivato esplicito nel commit message.
 
 (b) Mai `git reset --hard` senza verificare `git status` e prevenire perdita work-in-progress.
 
@@ -171,8 +171,8 @@ Quando il global `~/.claude/CLAUDE.md` di Enzo riceve modifiche rilevanti (nuova
 ## Riferimenti
 
 - **[`../CLAUDE.md`](../CLAUDE.md)** (project root) — project-specific instructions: mission, stack, comandi, P1-P10, architettura, S10 state
-- **[`../docs/decisions/`](../docs/decisions/)** — 19 ADR attivi (architettura + tradeoff)
-- **[`../docs/decisions/0019-repo-visibility-flip-and-branch-protection.md`](../docs/decisions/0019-repo-visibility-flip-and-branch-protection.md)** — branch protection enforcement rationale
+- **[`../docs/50-reference/decisions/`](../docs/50-reference/decisions/)** — 19 ADR attivi (architettura + tradeoff)
+- **[`../docs/50-reference/decisions/0019-repo-visibility-flip-and-branch-protection.md`](../docs/50-reference/decisions/0019-repo-visibility-flip-and-branch-protection.md)** — branch protection enforcement rationale
 - **[`../.handoff/HANDOFF.md`](../.handoff/HANDOFF.md)** — stato corrente sessione (priorities, open questions)
 - **[`../.handoff/PROJECT-STATE.md`](../.handoff/PROJECT-STATE.md)** — snapshot architettura/components/metrics
 - **Global `~/.claude/CLAUDE.md`** (machine-specific, non in repo) — versione completa con contesti macchina, info personali, OS-specific tip
