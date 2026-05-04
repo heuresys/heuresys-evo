@@ -49,15 +49,11 @@ jobs:
         uses: ./.github/actions/handoff-only-detect
       - if: steps.scope.outputs.handoff_only == 'true'
         run: echo "Handoff-only PR — emitting fast green status (npm-audit skipped, no dependency changes)"
-      - uses: actions/setup-node@v6
-        if: steps.scope.outputs.handoff_only != 'true'
+      - if: steps.scope.outputs.handoff_only != 'true'
+        uses: ./.github/actions/setup-node-prisma
         with:
-          node-version: '20.x'
-          cache: 'npm'
-      - if: steps.scope.outputs.handoff_only != 'true'
-        run: npm install -g npm@11
-      - if: steps.scope.outputs.handoff_only != 'true'
-        run: npm ci --no-audit --no-fund
+          fetch-depth: '1'
+          generate-prisma: 'false'
       - name: npm audit (production deps)
         if: steps.scope.outputs.handoff_only != 'true'
         run: npm audit --omit=dev --audit-level=high

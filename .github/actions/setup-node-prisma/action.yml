@@ -1,0 +1,68 @@
+name: 'Setup Node + Prisma'
+description: |
+  DRY composite that performs the standard heuresys-evo CI bootstrap:
+  checkout (configurable depth), Node 20 + npm@11, `npm ci`, and Prisma
+  client generation for services/app and services/api-gateway.
+
+  Prisma generate output is cached on (lockfile hash + schema hashes) so
+  repeated runs across jobs and PRs hit cache when neither schema nor deps
+  changed. Cache miss path runs `prisma generate` for both schemas.
+
+  Use this in every job that needs to import workspace code or run
+  Prisma-aware tooling (lint, typecheck, test, build, etc.). Replaces ~5
+  duplicated steps per job with a single `uses:` line.
+
+inputs:
+  fetch-depth:
+    description: 'git history depth (default 1; pass 0 for full history needed by handoff-only-detect diff)'
+    required: false
+    default: '1'
+  node-version:
+    description: 'Node.js version'
+    required: false
+    default: '20'
+  generate-prisma:
+    description: 'whether to run prisma generate (set false for jobs that do not need the client)'
+    required: false
+    default: 'true'
+
+runs:
+  using: 'composite'
+  steps:
+    - uses: actions/checkout@v6
+      with:
+        fetch-depth: ${{ inputs.fetch-depth }}
+
+    - uses: actions/setup-node@v6
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: 'npm'
+
+    - name: Install npm@11 (matches lockfile generator)
+      shell: bash
+      run: npm install -g npm@11
+
+    - name: npm ci
+      shell: bash
+      run: npm ci --no-audit --no-fund
+
+    - name: Restore Prisma generate cache
+      if: inputs.generate-prisma == 'true'
+      id: prisma-cache
+      uses: actions/cache@v4
+      with:
+        path: |
+          services/app/node_modules/.prisma
+          services/app/node_modules/@prisma/client
+          services/api-gateway/node_modules/.prisma
+          services/api-gateway/node_modules/@prisma/client
+        key: prisma-${{ runner.os }}-${{ hashFiles('services/app/prisma/schema.prisma', 'services/api-gateway/prisma/schema.prisma', 'package-lock.json') }}
+        restore-keys: |
+          prisma-${{ runner.os }}-
+
+    - name: Generate Prisma clients
+      if: inputs.generate-prisma == 'true' && steps.prisma-cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        npx --prefix services/app prisma generate --schema services/app/prisma/schema.prisma
+        npx --prefix services/api-gateway prisma generate --schema services/api-gateway/prisma/schema.prisma
