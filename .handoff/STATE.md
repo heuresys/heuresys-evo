@@ -10,7 +10,7 @@ Se Claude over-engineered (PR multipli per task coerente, ADR/README/snapshot su
 
 ## Last session brief
 
-S11 + behavioral consolidation: doc consolidation + workflow simplification radicale + behavioral baseline establishment. Branch protection rimossa, CI solo on PR + cron, /handoff ridotto a 1 file, CLAUDE.md riscritti essenziali, operating-baseline.md canonical SoT in repo.
+Sessione lunga di consolidamento operativo: forensic /handoff + GitHub workflow → radical simplification (branch protection rimossa, CI solo on PR + cron, /handoff ridotto a 1 file, dependabot grouping). S11 doc consolidation completa (Diátaxis schema canonical). Operating Baseline establishment in `docs/_meta/operating-baseline.md` come SoT cross-machine. CLAUDE.md riscritti essenziali. Direttiva SEMPLICITÀ + ROBUSTEZZA attiva.
 
 ## Top priorities
 
