@@ -1,69 +1,57 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-04 (S11 close + Operating Baseline establishment)
+> Updated: 2026-05-05 (sessione brand identity close)
 
-## ⚠️ DIRETTIVA OPERATIVA ATTIVA — 2026-05-04
+## ⚠️ DIRETTIVA OPERATIVA ATTIVA
 
-**SEMPLICITÀ + ROBUSTEZZA** come pilastri. Officina, non università. Vedi [`docs/_meta/operating-baseline.md`](../docs/_meta/operating-baseline.md) per regole comportamentali complete (canonical SoT cross-machine via git).
-
-Se Claude over-engineered (PR multipli per task coerente, ADR/README/snapshot superflui, plan elaborati per cose banali, smart wrapper non testati): **segnale "stai over-engineering"** → stop, riconoscere, semplificare, continuare.
+**SEMPLICITÀ + ROBUSTEZZA**. Officina, non università. Vedi [`docs/_meta/operating-baseline.md`](../docs/_meta/operating-baseline.md). Se Claude over-engineered: "stai over-engineering" → stop, semplificare, continuare.
 
 ## Last session brief
 
-Sessione lunga di consolidamento operativo: forensic /handoff + GitHub workflow → radical simplification (branch protection rimossa, CI solo on PR + cron, /handoff ridotto a 1 file, dependabot grouping). S11 doc consolidation completa (Diátaxis schema canonical). Operating Baseline establishment in `docs/_meta/operating-baseline.md` come SoT cross-machine. CLAUDE.md riscritti essenziali. Direttiva SEMPLICITÀ + ROBUSTEZZA attiva.
-
-**Sessione 2026-05-04/05 in corso**: workstream brand identity attivato in `.ux-design/` (segregato). Phase 1-3 completate, 8 direzioni estetiche esplorate (α/β/γ/δ Set 1 + ε/ζ/η/θ Set 2 award-inspired light+dark). Sistema di continuità cross-session istituito (vedi sezione Active workstream sotto).
+Avviato workstream brand identity in `.ux-design/` (segregato). Phase 1-3 + 5 + 7 completed. 8 direzioni estetiche esplorate (α/β/γ/δ Set 1 + ε/ζ/η/θ Set 2 award-inspired light+dark). **Sistema di continuità cross-session istituito**: 3 SoT files in `.ux-design/` + slash command `/brand` + skill `brand-resume` + auto-memory entry. Decisione D1 (scelta direzione) pending.
 
 ## ⚡ Active workstream — Brand identity
 
-Workstream parallelo attivo. Per riprendere in nuova sessione, **Claude deve seguire** [`../.ux-design/SESSION-RESUME.md`](../.ux-design/SESSION-RESUME.md) quando l'utente accenna a "brand", "ux-design", "logo", "palette", "tipografia", "dashboard design".
+In nuova sessione: **digita `/brand`** o di' "lavoriamo sul brand". Claude segue protocollo automatico.
 
-| Stato | Riferimento |
+| File | Scopo |
 | --- | --- |
-| Phase corrente + decisioni + asset | [`../.ux-design/BRAND-STATE.md`](../.ux-design/BRAND-STATE.md) |
-| Cronologia decisioni append-only | [`../.ux-design/DECISIONS-LOG.md`](../.ux-design/DECISIONS-LOG.md) |
-| Policy segregazione + struttura | [`../.ux-design/README.md`](../.ux-design/README.md) |
-| Piano originale | `~/.claude/plans/usa-superpowers-e-tutti-delegated-orbit.md` |
-
-**Phase corrente**: Phase 4 (aesthetic direction) in re-exploration — 8 direzioni esposte, decisione D1 finale pending. Phase 8/9 (motion + dashboard) bloccate da D1.
+| [`../.ux-design/SESSION-RESUME.md`](../.ux-design/SESSION-RESUME.md) | Protocollo 8-step ripresa |
+| [`../.ux-design/BRAND-STATE.md`](../.ux-design/BRAND-STATE.md) | SoT stato, decisioni, asset, setup |
+| [`../.ux-design/DECISIONS-LOG.md`](../.ux-design/DECISIONS-LOG.md) | Cronologia L1-L13 append-only |
+| [`../.claude/commands/brand.md`](../.claude/commands/brand.md) | Slash command `/brand` |
+| [`../.claude/skills/brand-resume/SKILL.md`](../.claude/skills/brand-resume/SKILL.md) | Skill `brand-resume` |
 
 ## Top priorities
 
-1. **Phase 6+ Tier 1 area port** (~6-10h): prima area completa dal legacy (raccomandata `employees/`). Ref: `docs/10-strategy/migration-strategy-pet-driven.md`
-2. **Prisma 5.22 → 6.x intermediate** (~1-2h, low risk): bump per chiudere deprecation warning. Major 7 deferred (refactor 6-8h)
-3. **License decision repo public**: "all rights reserved" implicit (status quo) | "Source-Available proprietary" | OSS (MIT/Apache)
+1. **Brand D1 — scelta aesthetic direction** (~30min): scegliere tra 8 (α/β/γ/δ + ε/ζ/η/θ light+dark). Bloccante per Phase 5/6/7/8/9/10/11/12. Naviga `http://127.0.0.1:8765/02-aesthetic/direction-explorations/index.html` (server local da avviare via `/brand`).
+2. **Phase 6+ Tier 1 area port** (~6-10h): prima area completa dal legacy (raccomandata `employees/`). Ref: `docs/10-strategy/migration-strategy-pet-driven.md`
+3. **Prisma 5.22 → 6.x intermediate** (~1-2h, low risk): bump per chiudere deprecation warning.
 
 ## Open questions
 
+- **Brand D1**: aesthetic direction finale tra 8 esposte. Vedi `BRAND-STATE.md` § Decisioni pending.
+- **PR #28**: prisma 5→7 grouped major, manual review pending
+- **PR #33**: commitlint config-conventional 19→20, manual review pending (effort XS)
 - **next-auth v5 stable timing**: Q3-Q4 2026 atteso. No beta in prod
-- **PR #28 prisma 5→7 grouped major**: aperto, manual review pending
-- **PR #33 commitlint config-conventional 19→20**: aperto, manual review pending (effort XS)
+- **License decision repo public**: pending
 
 ## Stack snapshot
 
-- API Gateway: Express 5 (port 8200)
-- Frontend: Next.js 16 + React 19 + Tailwind 4 (port 3200)
-- Workers: BullMQ + Redis (6380)
-- ORM: Prisma 5.22, schema 566 modelli
-- DB: PostgreSQL 16 bare-metal (5432) — distinto dal legacy (5433 container)
-- Auth: NextAuth v4 (Credentials + bcryptjs)
-- Test: Vitest 4 (250 test verdi)
-- CI: gitleaks (always) + lint/typecheck/test/build/npm-audit/semgrep (only on PR + nightly cron)
+API Gateway Express 5 (8200) · Frontend Next.js 16 + React 19 + Tailwind 4 (3200) · Workers BullMQ + Redis (6380) · ORM Prisma 5.22, 566 modelli · DB PostgreSQL 16 (5432) · Auth NextAuth v4 · Test Vitest 4 (250 verdi) · CI gitleaks always + lint/typecheck/test/build/audit/semgrep on PR + cron.
 
 ## Verification
 
 ```bash
-git status -sb               # working tree clean
-git log --oneline -5         # recent commits readable
-gh pr list --state open      # 2 PR pending manual review (#28, #33)
-cat docs/_meta/operating-baseline.md | head -20   # baseline operativa accessibile
+git status -sb              # working tree clean
+git log --oneline -5        # recent commits readable
+gh pr list --state open     # 2 PR pending (#28, #33)
+ls .ux-design/02-aesthetic/direction-explorations/  # 8 mockup HTML + index
 ```
 
 ## Riferimenti
 
-- **[`docs/_meta/operating-baseline.md`](../docs/_meta/operating-baseline.md)** — operating rules canonical SoT (cross-machine via git)
-- [`CLAUDE.md`](../CLAUDE.md) (root) — project mission/stack/commands/P1-P10/workflow
-- [`.claude/CLAUDE.md`](../.claude/CLAUDE.md) — cross-context behavioral defaults
-- [`docs/_meta/doc-architecture.md`](../docs/_meta/doc-architecture.md) — schema canonical docs/
-- [`docs/50-reference/decisions/`](../docs/50-reference/decisions/) — 21 ADR (3 superseded)
-- [`docs/90-archive/handoff-history/`](../docs/90-archive/handoff-history/) — pre-S11 archive
+- **Operating baseline**: [`../docs/_meta/operating-baseline.md`](../docs/_meta/operating-baseline.md)
+- **CLAUDE.md root**: [`../CLAUDE.md`](../CLAUDE.md) (include § Brand workstream)
+- **Doc architecture**: [`../docs/_meta/doc-architecture.md`](../docs/_meta/doc-architecture.md)
+- **ADR**: [`../docs/50-reference/decisions/`](../docs/50-reference/decisions/)
