@@ -1,10 +1,18 @@
 # ADR-0019: Repository visibility flip (private → public) + branch protection enforcement
 
-**Status**: Accepted
+**Status**: Superseded
 **Date**: 2026-05-04 (S9-S10)
 **Authors**: Enzo Spenuso
 **Supersedes**: ADR-0005 (GitHub mirror privato come backup, non workflow)
+**Superseded by**: ADR-0021 (branch protection rebalanced 4+3 invece di 7 mandatory)
 **Phase**: post-S9 hardening + S10 PR-driven workflow enablement
+
+> **Note S11**: la sezione "Step 2 — Branch protection attiva" di questo ADR descrive la
+> configurazione iniziale STRICT 7-check. Quella sub-decisione è stata sostituita da
+> ADR-0021 dopo forense S10 che ha mostrato over-engineering relativo (frizione
+> sproporzionata al rischio reale per solo coder + auto-merge + nightly cron). Il resto
+> dell'ADR (visibility flip, allow_auto_merge, allow_update_branch, workflow PR-driven)
+> resta in vigore.
 
 ## Context
 

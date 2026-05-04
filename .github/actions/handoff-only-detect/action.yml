@@ -2,7 +2,10 @@ name: 'Detect handoff-only PR'
 description: |
   Sets output `handoff_only=true` when the current PR diff vs base touches
   only documentation paths that do not require heavy CI validation:
-  .handoff/** and root CHANGELOG.md.
+
+    - .handoff/**           (session journals)
+    - docs/**/*.md          (project documentation, post S11 doc consolidation)
+    - <root>/*.md           (top-level docs: README, CLAUDE, CHANGELOG, etc.)
 
   Heavy jobs (lint, typecheck, test, build, npm-audit, semgrep) gate their
   expensive steps on `handoff_only != 'true'` and emit a fast green status
@@ -11,9 +14,13 @@ description: |
   For non-PR events (push to main, schedule, workflow_dispatch) the output
   is always `false` so heavy jobs run normally.
 
+  NB: the output name `handoff_only` is preserved for backward compatibility
+  with existing workflow references; semantically the gate now matches
+  "doc-only PR" (handoff is a subset).
+
 outputs:
   handoff_only:
-    description: 'true if PR is restricted to .handoff/** and CHANGELOG.md'
+    description: 'true if PR is restricted to .handoff/**, docs/**/*.md, or root *.md'
     value: ${{ steps.detect.outputs.handoff_only }}
 
 runs:
