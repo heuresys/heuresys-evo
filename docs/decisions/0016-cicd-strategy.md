@@ -50,22 +50,37 @@ Schedule:
 
 Grouping: `@types/*`, `vitest/*`, `@testing-library/*`, `@storybook/*`, `eslint-*` (riduce PR noise).
 
-### Branch protection
+### Branch protection ✅ ENFORCED (S10, 2026-05-04)
 
-Manual setup post-MVP traffic (deferred):
+**Status**: attiva su `main` da S10. Vedi `docs/decisions/0019-repo-visibility-flip-and-branch-protection.md` per la decision dettagliata.
+
+Configurazione applicata:
 
 ```bash
-gh api repos/heuresys/heuresys-evo/branches/main/protection \
-  -X PUT \
-  -f required_status_checks.contexts[]='ci.lint-typecheck-test' \
-  -f required_status_checks.contexts[]='build.build-workspaces' \
-  -f required_status_checks.contexts[]='security.gitleaks' \
-  -f enforce_admins=false \
-  -f required_pull_request_reviews=null \
-  -f restrictions=null
+gh api repos/heuresys/heuresys-evo/branches/main/protection -X PUT --input - <<'EOF'
+{
+  "required_status_checks": {
+    "strict": true,
+    "contexts": ["lint", "typecheck", "test", "build-workspaces", "gitleaks", "semgrep", "npm-audit"]
+  },
+  "enforce_admins": false,
+  "required_pull_request_reviews": null,
+  "restrictions": null,
+  "required_linear_history": true,
+  "allow_force_pushes": false,
+  "allow_deletions": false,
+  "required_conversation_resolution": false
+}
+EOF
 ```
 
-Pre-MVP: branch protection NON abilitata (autonomous-mode push diretto).
+7 required status checks (granularità per-job, non per-workflow): garantisce che ogni job singolo passi prima del merge. Linear history obbligatoria, force push e deletion bloccati. `enforce_admins=false` consente override emergenza.
+
+Workflow PR-driven attivato + auto-merge + auto-update branch:
+
+- `gh pr merge <PR> --squash --auto --delete-branch` mette PR in cascade automatica
+- `allow_update_branch: true` consente a GitHub di auto-aggiornare branch BEHIND main
+- Branch protection sostituisce ADR-0005 push direct workflow
 
 ## Alternatives considered
 
@@ -97,8 +112,8 @@ Negative:
 
 ## Future work
 
-- B10.4 storybook deploy preview (richiede B7+B8 completati — readyish)
-- B10.5 branch protection enforcement (post-MVP traffic)
+- ✅ B10.4 storybook deploy preview — **DONE** (S10, 2026-05-04): workflow `Storybook Deploy` su GitHub Pages, URL `https://heuresys.github.io/heuresys-evo/`, vedi `.github/workflows/storybook.yml`
+- ✅ B10.5 branch protection enforcement — **DONE** (S10, 2026-05-04), vedi sezione "Branch protection" sopra + ADR-0019
 - Coverage report artifact su PR comment via `coverage-action` (B11+)
 - Bundle size budget enforcement (size-limit) per services/app
 

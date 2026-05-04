@@ -1,7 +1,8 @@
 # Feature Parity Tracking — Legacy → evo
 
-> Tracker manuale dello stato di porting delle 33 functional areas + 47 PET mapping dal legacy `heuresys.com.evo` (Express+Next.js mix) verso evo (NestJS + Next.js 16).
+> Tracker manuale dello stato di porting delle 33 functional areas + 47 PET mapping dal legacy `heuresys.com.evo` (Express+Next.js mix) verso evo (Express 5 + Next.js 16).
 > **Aggiornamento**: ad ogni PET-driven migration step (vedi `docs/strategy/MIGRATION_STRATEGY_PET_DRIVEN.md`) — l'autore della PR aggiorna la riga corrispondente.
+> **Baseline corrente**: 2026-05-04 (S10): 5 pagine evo + 8+ endpoint, 250 test verdi, 0 vulns npm audit. Vedi `.handoff/PROJECT-STATE.md` per breakdown completo.
 
 ## Schema colonne
 
@@ -15,7 +16,7 @@
 | `pages_total`         | int                                                              | Pagine UI legacy in scope                                                                   |
 | `endpoints_total`     | int                                                              | Route API legacy in scope                                                                   |
 | `pages_ported`        | int                                                              | Pagine già su Next.js 16 evo                                                                |
-| `endpoints_ported`    | int                                                              | Route già su NestJS api-gateway evo                                                         |
+| `endpoints_ported`    | int                                                              | Route già su Express api-gateway evo                                                        |
 | `blockers`            | testo                                                            | Bloccanti aperti (Prisma model mancante, dep esterna, ecc.)                                 |
 
 ## Definizioni transizione
@@ -25,25 +26,25 @@
 - `evo-complete` → 100% porting, ma legacy ancora attivo (parallelo)
 - `cutover-ready` → smoke test E2E pass su evo, blockers vuoto, traffico legacy può essere ruotato
 
-## Stato corrente (baseline 2026-05-01)
+## Stato corrente (baseline 2026-05-04, S10)
 
-| area_code            | persp | legacy_status | evo_status  | tier | pages_total | endpoints_total | pages_ported | endpoints_ported | blockers                                         |
-| -------------------- | ----- | ------------- | ----------- | ---- | ----------- | --------------- | ------------ | ---------------- | ------------------------------------------------ |
-| CORE_HR              | T     | full          | evo-partial | 1    | 14          | 28              | 1            | 0                | NestJS EmployeeModule WIP                        |
-| AUTH                 | E     | full          | evo-partial | 1    | 2           | 6               | 2            | 0                | NextAuth credentials OK; JWT provider BE pending |
-| RBP_GOVERNANCE       | E     | full          | legacy-only | 1    | 8           | 16              | 0            | 0                | RBPCacheService da portare in NestJS             |
-| TALENT               | T     | full          | legacy-only | 2    | 9           | 21              | 0            | 0                | dipende ESCO embeddings + KG service             |
-| ESCO                 | T     | full          | legacy-only | 2    | 4           | 12              | 0            | 0                | pgvector setup evo + 14k skills import           |
-| PERFORMANCE          | T     | full          | legacy-only | 2    | 6           | 14              | 0            | 0                | dipende CORE_HR cutover                          |
-| COMPENSATION         | T     | full          | legacy-only | 2    | 5           | 11              | 0            | 0                | tabelle CCNL multi-tenant                        |
-| LEARNING             | T     | partial       | legacy-only | 2    | 4           | 9               | 0            | 0                | bridge ESCO skills ↔ corsi                       |
-| ANALYTICS_HR         | T     | full          | legacy-only | 2    | 7           | 18              | 0            | 0                | rebuild widget engine evo                        |
-| ANALYTICS_PROCESS    | P     | full          | legacy-only | 2    | 5           | 11              | 0            | 0                | —                                                |
-| ANALYTICS_ENTERPRISE | E     | partial       | legacy-only | 3    | 4           | 8               | 0            | 0                | —                                                |
-| PLATFORM_NAVIGATOR   | E     | full          | legacy-only | 1    | 1           | 3               | 0            | 0                | nav DBMS-driven, P9 enforce                      |
-| PERSPECTIVES         | E     | full          | legacy-only | 1    | 3           | 6               | 0            | 0                | rbp_perspectives + 47 mapping seed               |
-| WORKSPACE            | E     | full          | legacy-only | 1    | 2           | 9               | 1            | 0                | dashboard widget engine v2                       |
-| ...                  | ...   | ...           | ...         | ...  | ...         | ...             | ...          | ...              | ...                                              |
+| area_code            | persp | legacy_status | evo_status  | tier | pages_total | endpoints_total | pages_ported | endpoints_ported | blockers                                          |
+| -------------------- | ----- | ------------- | ----------- | ---- | ----------- | --------------- | ------------ | ---------------- | ------------------------------------------------- |
+| CORE_HR              | T     | full          | evo-partial | 1    | 14          | 28              | 1            | 0                | Express EmployeeModule WIP                        |
+| AUTH                 | E     | full          | evo-partial | 1    | 2           | 6               | 2            | 0                | NextAuth credentials OK; JWT provider BE pending  |
+| RBP_GOVERNANCE       | E     | full          | legacy-only | 1    | 8           | 16              | 0            | 0                | RBPCacheService da portare in Express api-gateway |
+| TALENT               | T     | full          | legacy-only | 2    | 9           | 21              | 0            | 0                | dipende ESCO embeddings + KG service              |
+| ESCO                 | T     | full          | legacy-only | 2    | 4           | 12              | 0            | 0                | pgvector setup evo + 14k skills import            |
+| PERFORMANCE          | T     | full          | legacy-only | 2    | 6           | 14              | 0            | 0                | dipende CORE_HR cutover                           |
+| COMPENSATION         | T     | full          | legacy-only | 2    | 5           | 11              | 0            | 0                | tabelle CCNL multi-tenant                         |
+| LEARNING             | T     | partial       | legacy-only | 2    | 4           | 9               | 0            | 0                | bridge ESCO skills ↔ corsi                        |
+| ANALYTICS_HR         | T     | full          | legacy-only | 2    | 7           | 18              | 0            | 0                | rebuild widget engine evo                         |
+| ANALYTICS_PROCESS    | P     | full          | legacy-only | 2    | 5           | 11              | 0            | 0                | —                                                 |
+| ANALYTICS_ENTERPRISE | E     | partial       | legacy-only | 3    | 4           | 8               | 0            | 0                | —                                                 |
+| PLATFORM_NAVIGATOR   | E     | full          | legacy-only | 1    | 1           | 3               | 0            | 0                | nav DBMS-driven, P9 enforce                       |
+| PERSPECTIVES         | E     | full          | legacy-only | 1    | 3           | 6               | 0            | 0                | rbp_perspectives + 47 mapping seed                |
+| WORKSPACE            | E     | full          | legacy-only | 1    | 2           | 9               | 1            | 0                | dashboard widget engine v2                        |
+| ...                  | ...   | ...           | ...         | ...  | ...         | ...             | ...          | ...              | ...                                               |
 
 > Tabella completa (33 righe) generata da query SQL — vedi sezione successiva. Riga 14+ omesse per brevità.
 

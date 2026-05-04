@@ -13,8 +13,11 @@
                                   |
          +------------------------v-------------------------+
          |        services/app  (Next.js 16 App Router)     |
+         |   - / (landing)                                  |
          |   - /login (client island login-form.tsx)        |
          |   - /dashboard (server component)                |
+         |   - /showcase (UI components catalog)            |
+         |   - /brand-studio (SUPERUSER theme designer)     |
          |   - proxy.ts (Edge middleware, getToken JWT)     |
          |   - lib/auth.ts (NextAuth v4 + Credentials)      |
          |   port :3200                                     |
@@ -30,7 +33,8 @@
          |   - cookieParser, cors, pino w/ request_id       |
          |   - metrics middleware -> /metrics               |
          |   - /auth/*  Auth.js Express                     |
-         |   - /employees   Zod-validated, RLS-scoped        |
+         |   - /employees, /tenants, /perspectives,         |
+         |     /audit-logs, /rbp-areas + others (8+)        |
          |   - /health, /health/ready, /metrics             |
          |   port :8200                                     |
          +-------+----------+-------------------------------+
@@ -103,7 +107,7 @@
 ## External services
 
 - **PostgreSQL 16 bare-metal**: ADR-0001, vector + RLS extensions
-- **GitHub mirror**: `heuresys/heuresys-evo` private (ADR-0005), CI workflows in `.github/workflows/`
+- **GitHub mirror**: `heuresys/heuresys-evo` PUBLIC (ADR-0019, S9-S10 — supersedes ADR-0005), CI workflows in `.github/workflows/`, branch protection attiva (7 required checks + linear history + no force push). Storybook deploy preview: `https://heuresys.github.io/heuresys-evo/`
 - **Prometheus** (target deploy): scraperà `/metrics` su port :8200
 - **Redis** (futuro): per BullMQ queue di `services/enrichment`
 
@@ -138,7 +142,7 @@ Multi-istanza horizontal scaling: deferred (richiede swap rate-limit a Redis-bac
 
 ## References
 
-- [docs/decisions/](../decisions/) — 15 ADR attivi
+- [docs/decisions/](../decisions/) — 19 ADR attivi (2 superseded: 0003, 0005)
 - [docs/guides/](../guides/) — operational guides
 - [docs/runbooks/](../runbooks/) — common ops
 - [docs/hardening/](../hardening/) — RTGB Cantiere B state
