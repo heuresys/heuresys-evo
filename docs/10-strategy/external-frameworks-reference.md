@@ -136,7 +136,7 @@ Questo documento è **pre-ingest**: orienta la produzione di source pages e conc
 - **Integrazione in Heuresys**:
   - **Già integrato**: [[esco-knowledge-graph]] è core Heuresys (14k skill + 3k occupation + 126k relation + embeddings)
   - Arricchire [[esco-knowledge-graph]] con il **riferimento formale ufficiale** (URL classification, versioning upstream)
-  - Dettaglio per [[kg-ontology-formalism]]: ESCO usa **RDF/OWL/SKOS** ma Heuresys ha scelto **Property Graph** (via [[kg-graph-layer]] pg_age) — c'è un _impedance mismatch_ gestito via conversione. Ipotesi di chiarimento futuro concept nuovo: `esco-ontology-formal` che documenti formalmente questa traduzione
+  - Dettaglio per [[kg-ontology-formalism]]: ESCO usa **RDF/OWL/SKOS** ma Heuresys ha scelto **Property Graph** (via [[kg-graph-layer]] pg*age) — c'è un \_impedance mismatch* gestito via conversione. Ipotesi di chiarimento futuro concept nuovo: `esco-ontology-formal` che documenti formalmente questa traduzione
   - **Tesi strategic**: ESCO come "public good" è il differenziatore chiave Heuresys vs Workday Skills Cloud (proprietario, ML-based, opaco)
 
 ---
