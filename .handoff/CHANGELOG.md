@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **`NEXT_PUBLIC_SHOW_DEV_HINT` env flag** (2026-05-04): opt-in flag for the `/login` "Dev seed: evo.dev / admin123" hint. Set to `1` only in local dev / staging. Default off in production. Documented in `services/app/.env.local.example`.
 - **Brand Studio dev tool** (`/brand-studio`, 2026-05-03): Server Component gated by `SUPERUSER` role that mounts the existing `ThemeBuilderWizard` from `@heuresys/ui` and lets the user generate design tokens, preview them site-wide via a 24h cookie, and apply them to the project by writing `services/app/src/styles/active-theme.css` (imported by the root layout). Defense in depth via `assertSuperuser()` in every Server Action. CSS payload validated (size cap 8KB, regex blacklist) on both server and client. Audit header (username + timestamp) written into the generated CSS file.
 - **`packages/ui` `ThemeBuilderWizard` `onChange` prop** (2026-05-03): optional callback that emits `ThemeBuilderState` on every internal state change. Non-breaking; lets consumers react to live state without waiting for the final Export action.
 - **HTTPS for `www.heuresys.com` and `heuresys.com`** (2026-05-03): nginx vhost `/etc/nginx/sites-available/www.heuresys.com.conf` proxies `/` → `127.0.0.1:3012` (legacy frontend) and `/api/` → `127.0.0.1:8012` (legacy api-gateway, with `/api/X → /X` rewrite). Let's Encrypt ECDSA cert with `www` + apex SAN, auto-redirect HTTP→HTTPS. Activation script `scripts/enable-www-vhost.sh` (idempotent, DNS preflight, certbot integration).
@@ -23,6 +24,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Root `vitest.workspace.ts` → `vitest.config.ts`** (2026-05-04): migrated from removed `defineWorkspace` (vitest 2/3 helper) to `defineConfig({ test: { projects: [...] } })` (vitest 4 idiom). Added missing `services/enrichment` project — root `npx vitest run` now picks up all 250 tests (was 243, regression pre-S6).
+- **`tsconfig.base.json` `files: []`** (2026-05-04): canonical TS marker for "this is a base config, not meant to be built standalone". Eliminates 24 spurious JSX errors when invoked with `tsc -p tsconfig.base.json`. CI typecheck (per-workspace) was always correct.
+- **`/login` page copy**: removed unconditional dev seed hint, now gated by `NEXT_PUBLIC_SHOW_DEV_HINT=1`.
 - **`packages/ui` `xlsx` → `exceljs`** (2026-05-03): `parseExcel` / `exportExcel` riscritte sopra `exceljs@^4.4.0` (Apache 2.0). Public API preservata. **BREAKING:** `exportExcel` è ora `Promise<void>` invece di `void` — zero callers attuali nel repo, nessun consumer impattato.
 - **`vitest` 2.1.9 → ^4.1.0** (2026-05-03) in tutti e 5 i workspace + root. Pulls in `vite@7` + `esbuild>0.24.2`. Nessuna API breakage osservata in 250 test, solo 1 test ha richiesto annotazione esplicita generic `vi.fn<TFn>()`.
 - **`heuresys-app.service` systemd unit** (2026-05-03): drop-in `build-mem.conf` con `NODE_OPTIONS=--max-old-space-size=4096` e `TimeoutStartSec=600` per evitare OOM su `npm run build` (services/app standalone build con 566 modelli Prisma + 180 components UI + brand-studio).
@@ -49,6 +53,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+- **npm audit reaches 0 vulnerabilities** (2026-05-04): closed remaining 5 vulns from S7 (3 low cookie + 2 moderate uuid):
+  - `"exceljs": { "uuid": "^14.0.0" }` nested override (closes GHSA-w5hq-g745-h8pq buffer bounds in v3/v5/v6, exceljs 4.4.0 still pins uuid<14 transitively)
+  - `"next-auth": { "cookie": "^0.7.0" }` + `"@auth/core": { "cookie": "^0.7.0" }` nested overrides (closes GHSA-pxg6-pf52-xh8x cookie name/path/domain out of bounds)
+  - **Anonymous `/login` no longer leaks dev credentials**: hint `evo.dev / admin123` now hidden by default in production, requires `NEXT_PUBLIC_SHOW_DEV_HINT=1` opt-in for dev/staging.
 - **Brand Studio defense in depth** (2026-05-03): role check (`SUPERUSER`) replicato in ogni Server Action (`assertSuperuser()`), oltre alla page-level guard. CSS payload validato (size cap 8KB, regex blacklist `</style|<script>`) sia server-side (al cookie set + file write) sia client-side (al cookie read + `<style>` apply). File writes su path fisso `services/app/src/styles/active-theme.css` (no path traversal). `style.textContent` invece di React unsafe HTML injection per evitare XSS.
 - **npm overrides** (2026-05-03): pinned `postcss: ^8.5.10` (closes GHSA-qx2v-qp2m-jg93 XSS via `</style>`) e `uuid: ^14.0.0` (closes GHSA-w5hq-g745-h8pq buffer bounds in v3/v5/v6).
 - **`vitest` 4.x bump** (2026-05-03): pulls in `esbuild>0.24.2`, closes GHSA-67mh-4wv8-2f99 (dev server CORS leak).

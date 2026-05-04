@@ -5,6 +5,80 @@
 
 ---
 
+## 2026-05-04 — Sessione 8 · supply chain closure + Prisma 7 exploration
+
+**Duration**: ~1h (23:50 first read → 00:43 last commit, UTC)
+**Branch**: `main`
+**Agent**: Claude Opus 4.7 (1M context)
+**Commits this session**: 6
+
+### Mandato
+
+L'utente ha chiesto di "procedere con tutte" le 5 priorities elencate dall'HANDOFF S7. La sessione si è espansa includendo 2 fix di tooling drift pre-esistenti emersi durante la verifica (vitest workspace + tsconfig.base) e ha terminato con un'esplorazione di Prisma 7 che ha rivelato un refactor architetturale superiore allo stimato — la cui esecuzione è stata deferita a una sessione dedicata.
+
+### Tasks completati
+
+- ✅ A — Cleanup `.bak` (priority #5): rimosso `services/app/prisma/schema.prisma.bak-pre-pull-20260502T0047Z` tracked in git (S6 leftover, 1882 deletions), `.gitignore.bak` orphan, 2 nginx `.bak` (`pre-authfix` + `pre-greenfield`) — see commit `6b2f1fc`
+- ✅ B — Gate dev hint `/login` (priority #1): `process.env.NEXT_PUBLIC_SHOW_DEV_HINT === '1'` opt-in, default off in prod. Documentato in `.env.local.example` — see commit `d034a81`
+- ✅ C — Override exceljs uuid (priority #4): `"exceljs": { "uuid": "^14.0.0" }` nested in `package.json`. `npm audit` -2 moderate. Tecnica: rimozione chirurgica entry `node_modules/exceljs/node_modules/uuid` dal lock + nested dir + `npm install` per forzare re-resolve — see commit `620ff79`
+- ✅ C-bis (BONUS, non in HANDOFF) — Tooling drift fix:
+  - `tsconfig.base.json` ora ha `"files": []` (canonical "this is base, not standalone build"). Eliminati 24 spurious JSX errors quando lanciato con `tsc -p tsconfig.base.json`
+  - `vitest.workspace.ts` → `vitest.config.ts`, migrato `defineWorkspace` (rimosso in vitest 4) → `defineConfig` + `test.projects` (idiom v4). Aggiunto `services/enrichment/vitest.config.ts` ai project (regressione pre-S6: root `vitest run` ora picks up tutti 250 test, prima 243)
+  - see commit `10dd31d`
+- ✅ D-light — Override cookie@^0.7 (in sostituzione di priority #2 next-auth v5 migration): `"next-auth": { "cookie": "^0.7.0" }` + `"@auth/core": { "cookie": "^0.7.0" }`. Chiude le 3 low cookie vulns (GHSA-pxg6-pf52-xh8x). Bonus: catturato anche `node_modules/msw/node_modules/cookie` (dev-only). `npm audit` ora **0 vulnerabilities** — see commit `0f08ec4`
+- ⏸️ E-rollback — Prisma 5.22 → 7 (priority #3): tentativo bumped a 7.8.0 ha rivelato refactor architetturale (`url` rimosso da schema, serve `prisma.config.ts` + driver adapter). Rolled back a 5.22.0. Lock cleanup come side-effect di `npm prune` (-27 lines: rimossi `jose@5`, `oauth4webapi@2`, `@types/cookie@0.6` orfani da prior next-auth install) — see commit `88d8d29`
+
+### Files changed (vs `3fc42fd` last handoff commit)
+
+```
+M  package.json                                       (+11 -1)
+M  package-lock.json                                  (-79)
+M  services/app/.env.local.example                    (+4 -0)
+M  services/app/src/app/login/page.tsx                (+10 -3)
+M  tsconfig.base.json                                 (+3 -1)
+A  vitest.config.ts                                   (+22 -0)
+D  vitest.workspace.ts                                (-15)
+D  services/app/prisma/schema.prisma.bak-pre-pull-20260502T0047Z (-1882)
+8 files changed, 45 insertions(+), 1981 deletions(-)
+```
+
+### Commits
+
+- `6b2f1fc` chore(repo): cleanup orphaned .bak backups post-S7
+- `d034a81` feat(app): gate /login dev hint behind NEXT_PUBLIC_SHOW_DEV_HINT
+- `620ff79` chore(repo): force uuid 14 in exceljs nested install (closes 2 moderate vulns)
+- `10dd31d` fix(repo): tsconfig.base + vitest root config tooling drift
+- `0f08ec4` chore(repo): force cookie@^0.7 in next-auth + @auth/core (closes 3 low vulns)
+- `88d8d29` chore(repo): defer Prisma 7 bump (architectural refactor required)
+
+CI green su tutti i 6 commit (CI ✅ Build ✅ Security ✅).
+
+### Decisions
+
+- **next-auth v5 NOT migrated, cookie override invece**: `next-auth@5.0.0-beta.31` è ancora beta (latest stable resta 4.24.14 dopo anni). Portare in prod (`evo.heuresys.com` live) un beta per chiudere 3 vulns *low* è sproporzionato. L'override `cookie@^0.7` chiude la vuln class senza cambiare versione major. La migration v5 resta opzione aperta in branch dedicato quando v5 stable lands.
+- **Prisma 7 deferred dopo esplorazione tecnica**: bump a 7.8.0 ha esposto `Error P1012: datasource property 'url' is no longer supported`. Prisma 7 richiede: rimuovere `url` da schema, creare `prisma.config.ts` per app + api-gateway, installare `@prisma/adapter-pg`, refactor singleton `db.ts`/`pool.ts` con `new PrismaClient({ adapter })`, regenerate client (output shape diverso), risolvere TS errors. Effort realistico: 6-8h, non 3h come stimato. Da fare su staging branch dedicato con E2E pesante, non a fine sessione lunga su prod live.
+- **C-bis tooling fix incluso anche se fuori scope HANDOFF**: regola CLAUDE.md #3 ("non esiste pre-esistente, correggere ogni errore tooling") + #5 ("test-before-claim") dopo richiamo dell'utente sul mio iniziale "non miei". Sia `vitest.workspace.ts` (S7 regressione del bump vitest 2→4) sia `tsconfig.base.json` (drift mai verificato standalone) erano fix XS che non andavano lasciati indietro.
+- **`.env.bak` retention policy: rimossi subito**: nessun `.env.bak-pre-authfix-*` trovato (già rimossi pre-handoff). Solo `.gitignore.bak` orphan + 2 nginx `.bak` rimossi su raccomandazione esplicita del HANDOFF S7.
+
+### Blockers / failures
+
+- **Prisma 7 schema validation P1012**: bumpato `prisma@7.8.0` + `@prisma/client@7.8.0`, lanciato `npx prisma generate` → errore "datasource property `url` is no longer supported in schema files". Tried: nessun lavoro ulteriore (validation ferma il flow). State: ROLLED BACK a 5.22.0. Documentazione del refactor required salvata nel commit `88d8d29` body per la sessione futura.
+- **npm overrides + lock**: il primo tentativo override `"$uuid"` shorthand non ha rigenerato il lock (`npm install` "up to date"). Required workaround: rimozione chirurgica entry nested dal `package-lock.json` + `rm -rf` nested dir + `npm install`. Pattern riusabile, da memorizzare per future override transitive.
+
+### Lezione operativa cross-project
+
+- **npm overrides nested non rigenerano il lock automaticamente**: se `package-lock.json` ha già una entry per `node_modules/<pkg>/node_modules/<dep>`, npm la considera consistente e non rifa resolution anche aggiungendo override nested. Soluzione: rimuovere chirurgicamente l'entry dal lock JSON (via `node -e`) + `rm -rf` la nested dir + `npm install`. Pattern: usato 2 volte in S8 (uuid via exceljs, cookie via next-auth/@auth/core).
+- **"non mio" ≠ "OK ignorarlo"**: errori di tool (tsc/eslint/audit) emergenti da comandi standalone vanno verificati con `git stash` su HEAD pulito (tested: regola 5 TEST-BEFORE-CLAIM). Anche se confermati pre-esistenti, regola 3 ("non esiste pre-esistente") obbliga al fix. Costo XS per tooling fix evita debt accumulation cross-session.
+- **Major migrations: read changelog/docs *prima* di toccare versioni**: stima HANDOFF "3h" per Prisma 5→7 era basata su esperienza Prisma <=6 (additive minor breakings). Prisma 7 è un *paradigm shift* (driver adapter + url out of schema + new generator). Lezione: consultare `context7`/changelog upstream prima di accettare un bump major in HANDOFF, eventualmente proporre intermediate (5→6→7 invece di 5→7 direct).
+- **Stable vs beta in prod**: `next-auth@5` ha `beta: 5.0.0-beta.31` come unico v5 release dopo anni. Default policy: NON portare beta in prod, anche per chiudere vulns low. Workaround conservativo (override transitive) prefer.
+
+### References
+
+- Commit message body di `88d8d29` ha il dettaglio tecnico completo del Prisma 7 refactor required (driver adapter, prisma.config.ts, schema cleanup) — leggi quello prima di riaprire la priority Prisma 7.
+- `.handoff/snapshots/HANDOFF-2026-05-04.md` — snapshot S8 (questa sessione).
+
+---
+
 ## 2026-05-03 — S7-bis · Post-close micro-entry — Cowork config cleanup pull
 
 **Duration**: ~2 min (post-S7 close, pull from PC)
