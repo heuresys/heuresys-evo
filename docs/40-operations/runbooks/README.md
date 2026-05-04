@@ -2,13 +2,18 @@
 
 Operational runbooks per `heuresys-evo`. Ogni runbook copre uno scenario specifico con steps eseguibili, rollback e validation.
 
-## Index
+## Index (file presenti)
 
 - [`db-reset.md`](./db-reset.md) — reset DB di test (locale + CI)
-- [`deploy.md`](./deploy.md) — deploy su VM OCI (post-cutover)
 - [`rollback.md`](./rollback.md) — rollback di una phase RTGB o di un commit
-- [`rotate-secrets.md`](./rotate-secrets.md) — rotation di AUTH_SECRET / DB pwd / API keys
-- [`monitoring-bootstrap.md`](./monitoring-bootstrap.md) — setup Prometheus + Grafana (deferred, B11+)
+- [`storybook-deploy.md`](./storybook-deploy.md) — deploy Storybook su GitHub Pages
+- [`future-deployments-examples.md`](./future-deployments-examples.md) — template YAML per deploy non ancora attivati (app+api, marketing)
+
+## Runbook deferred (non ancora scritti)
+
+- `deploy.md` — deploy su VM OCI (post-cutover, prossima sessione)
+- `rotate-secrets.md` — rotation AUTH_SECRET / DB pwd / API keys
+- `monitoring-bootstrap.md` — setup Prometheus + Grafana
 
 ## Convenzioni runbook
 

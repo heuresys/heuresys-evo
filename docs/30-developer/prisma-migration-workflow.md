@@ -123,3 +123,83 @@ psql -d heuresys_evo -c "\d users" | grep locale
 ```
 
 CI verifica: `prisma generate` non produce diff non committati, `prisma migrate status` clean.
+
+---
+
+## Appendix: legacy `db pull` workflow (RTGB B2, pre 2026-05-02)
+
+> **Status**: Historical reference. Il workflow attuale usa `prisma migrate dev/deploy` (sezioni sopra). Questa appendix documenta l'approccio legacy che ha portato alla baseline 2026-05-02 (566 modelli post `db pull`).
+
+In greenfield evo era stato adottato **introspection** (`prisma db pull`) come source of truth, NON `prisma migrate`. Lo schema DB era owned dalle migration SQL in `db/migrations/`, e Prisma era solo un typed query client mirroring quello schema.
+
+### Flow legacy
+
+```
+db/migrations/*.sql   ←  authoritative DDL (psql)
+        │
+        ▼
+   psql apply        →  Postgres state
+        │
+        ▼
+   prisma db pull    →  prisma/schema.prisma (services/<svc>/)
+        │
+        ▼
+   prisma generate   →  @prisma/client typings
+```
+
+### Daily commands legacy (per service)
+
+```bash
+# 1. Apply SQL migrations (canonical via db/scripts/migrate.sh)
+DATABASE_URL=... db/scripts/migrate.sh
+
+# 2. Pull DB schema into Prisma
+cd services/api-gateway   # or services/app
+npx prisma db pull --schema=prisma/schema.prisma
+
+# 3. Optional: prune (remove tables not used by this service from schema)
+./scripts/prune-prisma-schema.sh   # see services/api-gateway/scripts/
+
+# 4. Regenerate client
+npx prisma generate
+```
+
+### Verify in sync legacy (RTGB B2.1)
+
+`scripts/hardening/prisma-verify.sh <workspace>` esegue temp `db pull` + diff vs `schema.prisma` committato. Exit non-zero on drift.
+
+```bash
+DATABASE_URL=... ./scripts/hardening/prisma-verify.sh services/api-gateway
+```
+
+Wired come husky pre-commit gate (B2.2) solo quando `schema.prisma` è staged.
+
+### RLS coverage legacy (RTGB B2.3)
+
+`db/scripts/rls-coverage.sql` enumera tenant-aware tables e valida RLS pattern (vedi ADR-0008/0010).
+
+```bash
+psql "$DATABASE_URL" -f db/scripts/rls-coverage.sql
+```
+
+### Rationale legacy "introspection-first"
+
+- Legacy `.com.evo` aveva standardizzato raw SQL migrations + introspection
+- `prisma migrate` avrebbe richiesto a Prisma owning della migration history, in conflitto con DDL hand-written che includeva RLS policies, triggers, e indici `pgvector` non fully introspectable da Prisma
+- Pull-based generation manteneva `schema.prisma` slim (filtered via prune script per service)
+
+### Pitfalls comuni legacy
+
+- **Forgetting `DATABASE_URL`** prima di `db pull` → silent failure o wrong target
+- **Different schemas per service** (api-gateway vs app) → run prune script per ogni service
+- **RLS during `db pull`**: introspection runs come connecting role. Use BYPASSRLS role (`heuresys_app_admin`) per full schema visibility
+
+### Migration to current workflow (2026-05-02)
+
+Il greenfield è transitato a `migrate dev/deploy` post baseline. Il workflow legacy `db pull` rimane utile per:
+
+- Re-baseline puntuale dopo modifiche manuali al DB (drift detection)
+- Audit periodico schema vs codice
+- Bootstrap di un nuovo servizio che deve generare il proprio `schema.prisma`
+
+Per workflow operativo corrente: vedi sezioni sopra (Daily commands, Naming convention, Drift detection, Rollback, Seeding).
