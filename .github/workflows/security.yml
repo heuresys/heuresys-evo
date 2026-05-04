@@ -52,7 +52,7 @@ jobs:
         continue-on-error: true
       - name: npm audit JSON report
         run: npm audit --omit=dev --json > audit-report.json || true
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: npm-audit-report
           path: audit-report.json
