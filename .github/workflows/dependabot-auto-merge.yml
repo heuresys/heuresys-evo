@@ -1,14 +1,17 @@
 name: Dependabot Auto-merge
 
-# Auto-merge Dependabot PRs that are low-risk (patch + minor + grouped).
-# Major bumps are intentionally excluded — they get manual review since
-# breaking changes can hide in semver-major even within a grouped PR.
+# Auto-merge Dependabot PRs that are low-risk (patch + minor, singleton or grouped).
+# Major bumps are intentionally excluded — they get manual review since breaking
+# changes can hide in semver-major even within a grouped PR. Verified S11 PR #28:
+# prisma 5→7 was grouped (named `prisma`) and would have auto-merged under the
+# original condition `update-type=patch||minor||group!=''`; only the mandatory
+# checks failing prevented disaster. This workflow now gates on update-type alone.
 #
 # Flow:
 # 1. Dependabot opens PR (grouped per .github/dependabot.yml).
 # 2. This workflow inspects the PR via dependabot/fetch-metadata.
-# 3. If update-type is patch / minor / grouped → enable auto-merge (squash).
-#    If major → leave PR open, label "needs-manual-review", do not auto-merge.
+# 3. If update-type is patch or minor → enable auto-merge (squash).
+#    If major → leave PR open, label "needs-manual-review", post a comment.
 # 4. Branch protection's required checks must still pass before the merge fires;
 #    auto-merge only signals intent, GitHub waits for green CI as usual.
 
@@ -31,23 +34,26 @@ jobs:
         with:
           github-token: '${{ secrets.GITHUB_TOKEN }}'
 
-      - name: Auto-merge patch + minor + grouped
-        if: |
-          steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
-          steps.metadata.outputs.update-type == 'version-update:semver-minor' ||
-          steps.metadata.outputs.dependency-group != ''
+      - name: Auto-merge non-major bumps (singleton or grouped)
+        # Auto-merge any PR that is NOT a major bump. Patch + minor are
+        # always safe within semver guarantees; grouped patch+minor are
+        # safe by definition. Major bumps — even those caught inside a
+        # named group like `prisma` — are intentionally NOT auto-merged
+        # because breaking changes hide in semver-major regardless of
+        # group membership (verified S11 PR #28: prisma 5→7 grouped major
+        # would have triggered auto-merge under the previous condition,
+        # masked only by mandatory checks failing).
+        if: steps.metadata.outputs.update-type != 'version-update:semver-major'
         run: gh pr merge --squash --auto --delete-branch "$PR_URL"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Flag major bumps for manual review
-        if: |
-          steps.metadata.outputs.update-type == 'version-update:semver-major' &&
-          steps.metadata.outputs.dependency-group == ''
+        if: steps.metadata.outputs.update-type == 'version-update:semver-major'
         run: |
           gh pr edit "$PR_URL" --add-label "needs-manual-review"
-          gh pr comment "$PR_URL" --body "Major version bump detected — auto-merge intentionally skipped. Review breaking changes in upstream changelog before merging."
+          gh pr comment "$PR_URL" --body "Major version bump detected (\`${{ steps.metadata.outputs.dependency-names }}\` — group: \`${{ steps.metadata.outputs.dependency-group }}\`) — auto-merge intentionally skipped. Review upstream changelog for breaking changes before merging manually."
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
