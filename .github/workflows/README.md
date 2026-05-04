@@ -1,7 +1,7 @@
 # GitHub Actions Workflows
 
 Pipeline CI/CD del progetto. Workflow consolidati post-S11 (PR #A workflow consolidation):
-4 active workflow + 1 composite action sharing setup.
+3 active workflow + 2 composite actions sharing setup.
 
 ## Workflow attivi
 
