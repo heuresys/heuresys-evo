@@ -90,23 +90,23 @@ Quando non si sa un fatto specifico (path, versione, flag tool, sintassi, nome f
 
 MAI loggare nel context o in file di output: password, contenuto chiave SSH privata, API token, JWT, connection string con credentials inline, GitHub PAT, OpenAI/Anthropic API key. Se serve leggere `.env` o `~/.ssh/<key>`, riportare solo struttura/lista nomi, mai i valori. Prima di un commit, eseguire un **secret scan** sullo staged diff (gitleaks o equivalente — il pre-commit hook del repo lo fa già). Pattern tipici da intercettare: parole-chiave credenziali (`password`, `secret`, `api[_-]?key`, `token`), prefissi API key dei provider (`sk-…`, `ghp_…`, ecc.), header di chiavi private PEM/PKCS8. Se si scopre un segreto già committato in git history → segnalare subito a Enzo PRIMA di qualsiasi push.
 
-### 11. GIT SAFETY (rinforzato per heuresys-evo S10)
+### 11. GIT SAFETY + WORKFLOW SNELLO (S11+ — solo coder, no PR-driven default)
 
-(a) **Branch protection ATTIVA su `main`** (ADR-0021, S11 — supersedes ADR-0019 strict 7-check): no force push, no `--no-verify` bypass, ogni cambio passa via PR + 4 mandatory checks (`lint`, `typecheck`, `test`, `gitleaks`) + 3 optional (`build-workspaces`, `npm-audit`, `semgrep`) + linear history + no deletion. Override emergenza con `gh pr merge --admin` consentito solo motivato esplicito nel commit message.
+**Default workflow** (post-S11 simplificazione):
 
-(b) Mai `git reset --hard` senza verificare `git status` e prevenire perdita work-in-progress.
+(a) **1 sessione = 1 commit = direct push a `main`**. NO PR di default. NO branch feature per ogni cambio. Branch protection rimossa (era ADR-0019/0021 — entrambi superseded da questo cambio comportamentale).
 
-(c) Mai `git checkout .` / `git restore .` senza conferma (distrugge uncommitted changes).
+(b) **PR solo se**: (i) l'utente lo chiede esplicitamente, (ii) cambio strutturale critico (es. dependency major bump che richiede review), (iii) serve tracciabilità per esterni (Dependabot, contributors futuri). Per tutto il resto: commit + push direct.
 
-(d) Mai `--amend` su commit già pushato (riscrive storia condivisa, blocked anyway dalla branch protection).
+(c) **CI gira solo su PR**, non su push-to-main. Workflows `quality.yml` + `security.yml` triggerano solo `pull_request`. Cron security baseline mantenuta.
 
-(e) Preferire nuovi commit a fix-up rewrite.
+(d) **Commit message succinti**: `<type>(<scope>): <subject>` + max 1-2 righe body se servono. NIENTE body decorativo, NIENTE Co-Authored-By boilerplate, NIENTE PR description con tabelle/test plan/mermaid se non aggiunge valore reale.
 
-(f) Prima di destructive op, proporre alternativa safer.
+(e) Mai `git reset --hard` senza verificare `git status`. Mai `git checkout .` / `git restore .` senza conferma. Mai `--amend` su commit già pushato. Preferire nuovi commit a fix-up rewrite.
 
-(g) Quando un hook fallisce, indagare causa, non aggiungere `--no-verify`.
+(f) Quando un hook fallisce, indagare causa, non aggiungere `--no-verify`. Pre-commit hooks attivi: husky lint-staged + gitleaks-lite inline. Commit-msg hook: commitlint.
 
-(h) Workflow PR-driven default: `gh pr create` + `gh pr merge --squash --auto --delete-branch` per cascade automatico (`allow_auto_merge` + `allow_update_branch` abilitati sul repo).
+(g) Force push: solo se ESPLICITAMENTE autorizzato (caso d'uso: cleanup di un commit accidentale prima del push remoto). Mai su PR esterne.
 
 ### 12. STRATEGIA MULTI-TOOL / DELEGA A SUBAGENT
 
