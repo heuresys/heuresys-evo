@@ -42,6 +42,12 @@
     "uuid": "^14.0.0",
     "exceljs": {
       "uuid": "^14.0.0"
+    },
+    "next-auth": {
+      "cookie": "^0.7.0"
+    },
+    "@auth/core": {
+      "cookie": "^0.7.0"
     }
   }
 }
