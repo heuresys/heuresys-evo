@@ -13,13 +13,17 @@ export default async function LoginPage({
   searchParams?: Promise<{ error?: string }>;
 }) {
   const sp = (await searchParams) ?? {};
+  const showDevHint = process.env.NEXT_PUBLIC_SHOW_DEV_HINT === '1';
   return (
     <main className="flex min-h-screen items-center justify-center bg-neutral-50 p-6">
       <div className="w-full max-w-sm rounded-lg border border-neutral-200 bg-white p-8 shadow-sm">
         <h1 className="text-2xl font-semibold">Sign in</h1>
-        <p className="mt-1 text-sm text-neutral-500">
-          Use your Heuresys credentials. Dev seed: <code>evo.dev</code> / <code>admin123</code>.
-        </p>
+        <p className="mt-1 text-sm text-neutral-500">Use your Heuresys credentials.</p>
+        {showDevHint ? (
+          <p className="mt-1 text-xs text-amber-600">
+            Dev seed: <code>evo.dev</code> / <code>admin123</code>.
+          </p>
+        ) : null}
 
         <LoginForm initialError={sp.error} />
       </div>
