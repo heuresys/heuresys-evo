@@ -1,0 +1,30 @@
+{
+  "$schema": "studio.manifest.v1",
+  "version": "1.0.0",
+  "route": "<ROUTE>",
+  "route_source": "services/app/src/app/<ROUTE>/",
+  "backup_timestamp": "<BACKUP_TS>",
+  "backup_path": ".ux-design/.backups/<ROUTE>/<BACKUP_TS>-pre-promote/",
+  "staging_source": ".ux-design/10-staging/<ROUTE>/<STAGING_TS>/",
+  "staging_timestamp": "<STAGING_TS>",
+  "operation": "promote",
+  "author": {
+    "name": "<AUTHOR_NAME>",
+    "email": "<AUTHOR_EMAIL>"
+  },
+  "git": {
+    "pre_promote_commit": "<PRE_COMMIT_SHA>",
+    "pre_promote_branch": "<BRANCH>",
+    "post_promote_commit": null,
+    "remote": "origin",
+    "pushed": false
+  },
+  "reason": "<REASON_OBBLIGATORIA>",
+  "files": [],
+  "checks_passed": {
+    "brand_audit": null,
+    "anti_slop": null,
+    "verification": null
+  },
+  "iso_timestamp": "<ISO_TIMESTAMP>"
+}
