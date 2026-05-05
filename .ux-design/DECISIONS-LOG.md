@@ -570,6 +570,28 @@ Persistenza garantita: tutti i file in git, sincronizzati cross-machine. Skill l
 
 ---
 
+## L26 — 2026-05-05 — Skill `studio` + namespace `/studio:*` per workflow clone↔promote↔backup di route Next.js
+
+**Decisione**: creata skill `studio` in `.claude/skills/studio/` con 7 slash command namespaced (`/studio`, `/studio:clone`, `/studio:diff`, `/studio:promote`, `/studio:restore`, `/studio:backup-list`, `/studio:status`) per disciplinare il ciclo di modifica di route Next.js attraverso il dominio brand identity. Vincolo: **modifiche a `services/app/src/app/<route>/` passano sempre attraverso `.ux-design/10-staging/` con backup restorable obbligatorio**.
+
+**Contesto**: Enzo ha richiesto "una skill molto strutturata e completa per gestire le attività di sviluppo del frontend e delle interfacce web che include la gestione del brand identity, la creazione/modifica di oggetti sperimentali, la promozione di esempi/prototipi a oggetti di produzione". Modello: clone → manipola → promote (con gate B audit + C anti-slop + D verification + E user confirm) → backup pre-promote in `.ux-design/.backups/<route>/<TS>-pre-promote/` con `MANIFEST.json`.
+
+**Conseguenza**:
+
+- Granularità: pagina intera (route Next.js) — `<route>/page.tsx` + `_components/` + co-located `loading.tsx`/`error.tsx`/`layout.tsx`/`actions.ts`/`route.ts`
+- Path clone: `.ux-design/10-staging/<route>/<YYYY-MM-DD-HHMM>/`
+- Path backup: `.ux-design/.backups/<route>/<YYYY-MM-DD-HHMM>-pre-promote/` con `MANIFEST.json` (schema `studio.manifest.v1`)
+- Promozione atomica: dry-run + 5 gate (A-E) + 2 fail-safe (F repo clean, G husky) + commit (NO push automatico)
+- Skill orchestrate: `superpowers:brainstorming` (gate A), `superpowers:verification-before-completion` (gate D), `/brand:audit` (gate B), `/brand:anti-slop` (gate C), opzionali `frontend-design`, `frontend-design-pro:design`, `figma:figma-implement-design`
+- Drift detection: sha256 file produzione confrontato con `.source-hashes.json` generato al clone
+- Script Bash POSIX cross-platform (Windows Git Bash + Mac zsh + VM Ubuntu)
+- 3-modi attivazione: slash command `/studio` · skill `studio` auto-trigger · auto-memory `feedback_studio_workstream.md`
+- OUT-OF-SCOPE day-1: token CSS (vedi `/brand-studio` URL), asset brand (vedi `/brand:*`), componenti `packages/ui/`, cross-route refactor, DB/migration
+- Plan d'origine: `~/.claude/plans/voglio-creare-una-skill-magical-castle.md`
+- Implementation in 5 commit phases (skeleton, clone, read-only, promote, restore + integration)
+
+**Disambiguazione naming**: `studio` skill (filesystem) ≠ `/brand-studio` URL (route Next.js wizard token CSS). Zero overlap. La pagina `/brand-studio` può essere clonata via `/studio:clone brand-studio` come qualsiasi altra route.
+
 ## Decisioni scartate (per riferimento)
 
 | Direzione                                                         | Motivo scarto                                                  | Reference                            |

@@ -2,7 +2,7 @@
 
 > **Single Source of Truth** per stato corrente del workstream brand identity. Aggiorna questo file ogni volta che cambia phase, viene presa una decisione, o si producono asset significativi. Per la cronologia completa cronologica, vedi `DECISIONS-LOG.md`.
 >
-> **Last update**: 2026-05-05 (Phase 8 motion enriched · **L25 logo PERMANENT regole** applied a 13 HTML + 6 SVG)
+> **Last update**: 2026-05-05 (Phase 8 motion enriched · L25 logo PERMANENT · **L26 skill `studio` + namespace `/studio:*` per clone↔promote↔backup di route Next.js**)
 
 ## Current phase
 

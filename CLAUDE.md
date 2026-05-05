@@ -36,6 +36,32 @@ Workstream parallelo per costruzione brand identity completa di Heuresys, segreg
 
 **Phase corrente** (verifica sempre in `BRAND-STATE.md` per stato aggiornato): Phase 4 aesthetic direction in re-exploration (8 direzioni esposte α-θ, scelta finale pending).
 
+## Studio workstream (active)
+
+Workflow disciplinato per modifiche a route Next.js in produzione: ogni edit passa attraverso il dominio brand identity (`.ux-design/10-staging/`) con backup restorable obbligatorio prima della ri-promozione. **Mai modificare direttamente `services/app/src/app/<route>/`** — sempre clone → manipola → promote.
+
+**Trigger di attivazione**: se Enzo dice "iteriamo sulla pagina /\<route\>", "clona la pagina di X", "lavoriamo sulla dashboard", "promote staging", "rollback design", o si riferisce a "staging" / "drift produzione" — segui il protocollo in [`.claude/skills/studio/SKILL.md`](.claude/skills/studio/SKILL.md) prima di rispondere.
+
+**Attivazione esplicita** (3 modi ridondanti):
+
+- Slash command `/studio` (entry) + namespace `/studio:*` (vedi [`.claude/commands/studio/`](.claude/commands/studio/))
+- Skill `studio` (vedi [`.claude/skills/studio/SKILL.md`](.claude/skills/studio/SKILL.md))
+- Trigger keyword detection via auto-memory `~/.claude/projects/D--evo-heuresys-com/memory/feedback_studio_workstream.md`
+
+| Sub-command                        | Scopo                                                                                                            |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `/studio`                          | Entry interattivo: lista staging attivi + ultimi backup + menu next action                                       |
+| `/studio:clone <route>`            | Crea staging in `.ux-design/10-staging/<route>/<TS>/` con README pre-popolato (gate A brainstorming)             |
+| `/studio:diff <route> [<TS>]`      | Diff staging vs produzione (read-only)                                                                           |
+| `/studio:promote <route> <TS>`     | 5-gate flow: brand audit + anti-slop + verification + dry-run + conferma → backup + overwrite + commit (NO push) |
+| `/studio:restore <route> <bkp-TS>` | Rollback istantaneo da backup (commit revert nuovo, NO history rewrite)                                          |
+| `/studio:backup-list [<route>]`    | Tabella backup disponibili da MANIFEST.json                                                                      |
+| `/studio:status`                   | Stato consolidato: staging attivi · ultimi backup · drift produzione vs ultimo backup                            |
+
+**Disambiguazione**: la skill `studio` opera su filesystem (clone file source) ed è distinta dalla pagina URL `/brand-studio` (route runtime con wizard token CSS). Zero overlap.
+
+**OUT-OF-SCOPE day-1**: token CSS (vedi `/brand-studio` URL), asset brand (vedi `/brand:*`), componenti `packages/ui/` isolati, cross-route refactor, DB/migration.
+
 ## Mission
 
 Piattaforma SaaS B2B di Organizational Intelligence & Workforce Orchestration. Layer ontologico tra ERP/HR/BI per governare processi, struttura, ruoli, competenze e performance via Knowledge Graph ESCO bilingue (IT/EN).
