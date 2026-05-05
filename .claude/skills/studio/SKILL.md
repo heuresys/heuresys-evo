@@ -42,17 +42,23 @@ Trigger implicito:
 
 ## Cosa fa la skill
 
-Espone 7 sotto-comandi via namespace slash command `/studio:*`:
+Espone 8 sotto-comandi via namespace slash command `/studio:*`:
 
-| Comando                               | Cosa fa                                                                                         | Side-effect su FS                  | Side-effect su git    |
-| ------------------------------------- | ----------------------------------------------------------------------------------------------- | ---------------------------------- | --------------------- |
-| `/studio`                             | Entry interattivo: lista staging attivi + ultimi backup + menu next action                      | nessuno                            | nessuno               |
-| `/studio:clone <route>`               | Copia route produzione → `.ux-design/10-staging/<route>/<TS>/` con README pre-popolato          | crea staging dir + copia file      | nessuno               |
-| `/studio:diff <route> [<TS>]`         | `git diff --no-index --stat` staging vs produzione + per-file diff                              | nessuno                            | nessuno               |
-| `/studio:promote <route> <TS>`        | Dry-run + 5 gate + backup pre-promote in `.ux-design/.backups/` + overwrite produzione + commit | crea backup + overwrite produzione | crea commit (NO push) |
-| `/studio:restore <route> <backup-TS>` | Preview MANIFEST + conferma + restore da backup → produzione + commit di revert                 | overwrite produzione               | crea commit (NO push) |
-| `/studio:backup-list [<route>]`       | Tabella backup disponibili filtrata per route opzionale                                         | nessuno                            | nessuno               |
-| `/studio:status`                      | Tabella consolidata: route → staging count · ultimo backup · drift produzione                   | nessuno                            | nessuno               |
+| Comando                               | Cosa fa                                                                                          | Side-effect su FS                                | Side-effect su git    |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------ | ------------------------------------------------ | --------------------- |
+| `/studio`                             | Entry interattivo: lista staging attivi + ultimi backup + menu next action                       | nessuno                                          | nessuno               |
+| `/studio:clone <route>`               | Iterazione su pagina implementata: copia route produzione → staging                              | crea staging dir + copia file                    | nessuno               |
+| `/studio:bootstrap <mockup> <route>`  | Prima promozione greenfield: scaffold + mockup HTML come reference + README workflow translation | crea staging dir + copia scaffold + copia mockup | nessuno               |
+| `/studio:diff <route> [<TS>]`         | `git diff --no-index --stat` staging vs produzione + per-file diff                               | nessuno                                          | nessuno               |
+| `/studio:promote <route> <TS>`        | Dry-run + 5 gate + backup pre-promote in `.ux-design/.backups/` + overwrite produzione + commit  | crea backup + overwrite produzione               | crea commit (NO push) |
+| `/studio:restore <route> <backup-TS>` | Preview MANIFEST + conferma + restore da backup → produzione + commit di revert                  | overwrite produzione                             | crea commit (NO push) |
+| `/studio:backup-list [<route>]`       | Tabella backup disponibili filtrata per route opzionale                                          | nessuno                                          | nessuno               |
+| `/studio:status`                      | Tabella consolidata: route → staging count · ultimo backup · drift produzione                    | nessuno                                          | nessuno               |
+
+**Quando usare `/studio:clone` vs `/studio:bootstrap`**:
+
+- `clone` — la route è **già implementata** (page.tsx ricca, non scaffold). Iterazione visiva su asset finito.
+- `bootstrap` — la route è **scaffold** (page.tsx minima) e c'è un mockup HTML in `.ux-design/06-mockups/...` da tradurre. Prima implementazione greenfield.
 
 ## Workflow happy path
 

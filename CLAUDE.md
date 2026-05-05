@@ -48,15 +48,18 @@ Workflow disciplinato per modifiche a route Next.js in produzione: ogni edit pas
 - Skill `studio` (vedi [`.claude/skills/studio/SKILL.md`](.claude/skills/studio/SKILL.md))
 - Trigger keyword detection via auto-memory `~/.claude/projects/D--evo-heuresys-com/memory/feedback_studio_workstream.md`
 
-| Sub-command                        | Scopo                                                                                                            |
-| ---------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| `/studio`                          | Entry interattivo: lista staging attivi + ultimi backup + menu next action                                       |
-| `/studio:clone <route>`            | Crea staging in `.ux-design/10-staging/<route>/<TS>/` con README pre-popolato (gate A brainstorming)             |
-| `/studio:diff <route> [<TS>]`      | Diff staging vs produzione (read-only)                                                                           |
-| `/studio:promote <route> <TS>`     | 5-gate flow: brand audit + anti-slop + verification + dry-run + conferma → backup + overwrite + commit (NO push) |
-| `/studio:restore <route> <bkp-TS>` | Rollback istantaneo da backup (commit revert nuovo, NO history rewrite)                                          |
-| `/studio:backup-list [<route>]`    | Tabella backup disponibili da MANIFEST.json                                                                      |
-| `/studio:status`                   | Stato consolidato: staging attivi · ultimi backup · drift produzione vs ultimo backup                            |
+| Sub-command                          | Scopo                                                                                                            |
+| ------------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
+| `/studio`                            | Entry interattivo: lista staging attivi + ultimi backup + menu next action                                       |
+| `/studio:clone <route>`              | Iterazione su pagina già implementata: clone produzione → staging                                                |
+| `/studio:bootstrap <mockup> <route>` | Prima promozione greenfield: scaffold + mockup HTML come reference + README con workflow translation             |
+| `/studio:diff <route> [<TS>]`        | Diff staging vs produzione (read-only)                                                                           |
+| `/studio:promote <route> <TS>`       | 5-gate flow: brand audit + anti-slop + verification + dry-run + conferma → backup + overwrite + commit (NO push) |
+| `/studio:restore <route> <bkp-TS>`   | Rollback istantaneo da backup (commit revert nuovo, NO history rewrite)                                          |
+| `/studio:backup-list [<route>]`      | Tabella backup disponibili da MANIFEST.json                                                                      |
+| `/studio:status`                     | Stato consolidato: staging attivi · ultimi backup · drift produzione vs ultimo backup                            |
+
+**Quando usare `clone` vs `bootstrap`**: `clone` se la pagina è già implementata (iterazione); `bootstrap` se la pagina è scaffold e c'è un mockup HTML in `.ux-design/06-mockups/` da tradurre (prima implementazione).
 
 **Disambiguazione**: la skill `studio` opera su filesystem (clone file source) ed è distinta dalla pagina URL `/brand-studio` (route runtime con wizard token CSS). Zero overlap.
 
