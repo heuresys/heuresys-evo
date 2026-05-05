@@ -2,7 +2,7 @@
 
 > **Single Source of Truth** per stato corrente del workstream brand identity. Aggiorna questo file ogni volta che cambia phase, viene presa una decisione, o si producono asset significativi. Per la cronologia completa cronologica, vedi `DECISIONS-LOG.md`.
 >
-> **Last update**: 2026-05-05 (post 8 direzioni esplorate)
+> **Last update**: 2026-05-05 (post 99-samples library integration — L14)
 
 ## Current phase
 
@@ -37,15 +37,16 @@
 | `.ux-design/` versionato cross-machine via git (Option A)                                                                       | 2026-05-04 | DECISIONS-LOG L5                        |
 | Scope vincolante: nessun import da `.ux-design/` in production code                                                             | 2026-05-04 | `README.md`                             |
 | Light+dark dual mode in pari dignità per Set 2 direzioni                                                                        | 2026-05-05 | DECISIONS-LOG L8                        |
+| `99-samples/` library integrata + adozione pattern DESIGN.md a 9 sezioni canoniche                                              | 2026-05-05 | DECISIONS-LOG L14                       |
 
 ## Decisioni pending (blocking)
 
-| #      | Domanda                                                                         | Opzioni esposte                                                                                                                                                                                       | Influenza                                            |
-| ------ | ------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
-| **D1** | Aesthetic direction finale                                                      | 8 direzioni: α Editorial Cinematic / β Brutalist Paper / γ Industrial Blueprint / δ Quantitative FT / ε Sculptural Variable / ζ Architectural Warm / η Swiss Computational / θ Algorithmic Generative | Phase 5/6/7/8/9/10/11/12 — bloccante per quasi tutto |
-| **D2** | Audience positioning α PMI / β Enterprise / γ Dual-track                        | Esposte in `audience-positioning.md`, β raccomandata                                                                                                                                                  | Voice tweaks, dashboard density, marketing surface   |
-| **D3** | Logo strategy: preservare wordmark Exo 2 sito legacy o esplorare nuovo concept? | Sciolto vincolo "definitivo", esplorazione aperta                                                                                                                                                     | Phase 7 logo derivati va ripreso dopo scelta D1      |
-| **D4** | Body+Mono pairing definitivo                                                    | Dipende da scelta D1 (ogni direzione ha proprio pairing)                                                                                                                                              | Phase 6                                              |
+| #      | Domanda                                                                         | Opzioni esposte                                                                                                                                                                                                                                                                                                                                                                  | Influenza                                            |
+| ------ | ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| **D1** | Aesthetic direction finale                                                      | 8 direzioni: α Editorial Cinematic / β Brutalist Paper / γ Industrial Blueprint / δ Quantitative FT / ε Sculptural Variable / ζ Architectural Warm / η Swiss Computational / θ Algorithmic Generative. **Famiglia raccomandata da 99-samples mapping**: Data-Dense Pro (γ/δ in nostre direzioni) ref. ClickHouse/PostHog, secondaria Editorial Minimalism (η) ref. Linear/Vercel | Phase 5/6/7/8/9/10/11/12 — bloccante per quasi tutto |
+| **D2** | Audience positioning α PMI / β Enterprise / γ Dual-track                        | Esposte in `audience-positioning.md`, β raccomandata                                                                                                                                                                                                                                                                                                                             | Voice tweaks, dashboard density, marketing surface   |
+| **D3** | Logo strategy: preservare wordmark Exo 2 sito legacy o esplorare nuovo concept? | Sciolto vincolo "definitivo", esplorazione aperta                                                                                                                                                                                                                                                                                                                                | Phase 7 logo derivati va ripreso dopo scelta D1      |
+| **D4** | Body+Mono pairing definitivo                                                    | Dipende da scelta D1 (ogni direzione ha proprio pairing)                                                                                                                                                                                                                                                                                                                         | Phase 6                                              |
 
 ## Asset inventory (verificato 2026-05-05)
 
@@ -92,6 +93,16 @@
 ### `04-motion-language/`, `05-theme-variants/`, `06-mockups/`, `07-brand-book/`, `08-promotion/`
 
 Vuoti — popolazione dopo scelta D1.
+
+### `99-samples/` (read-only reference library, integrata 2026-05-05 — L14)
+
+- `README.md` — indice + mapping 8 direzioni Heuresys ↔ famiglie 99-samples
+- `voltagent-design-md/` — 12 spec YAML (Linear, Stripe, Vercel, ClickHouse, PostHog, HashiCorp, Notion, Sentry, Supabase, Apple, Claude, WIRED)
+- `rohitg00-frameworks/` — 8 framework prosa (editorial, data-dense ⭐, warm, glass, cinematic, terminal)
+- `rohitg00-prompts/` — 6 workflow templates (`family-picker` ⭐, `brand-to-design-md`, `audit-live-site`, `3-designer-debate`, `remix-two-brands`, `break-default-aesthetic` ⭐)
+- `rohitg00-recipes/token-budget-claude-design.md` — recipe quota Pro per Claude Design cloud
+
+**Skill/agent candidati derivabili** (top 3): `brand-family-picker`, `brand-3-designer-debate`, `brand-anti-slop`. Altri 5: `brand-design-md-generator`, `brand-audit-live`, `brand-remix`, `brand-token-budget`, agent `brand-strategist`.
 
 ## Setup tecnico per resume
 

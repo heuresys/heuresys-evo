@@ -175,6 +175,26 @@ Persistenza garantita: tutti i file in git, sincronizzati cross-machine. Skill l
 
 ---
 
+## L14 — 2026-05-05 — Integrazione brand reference library `.ux-design/99-samples/`
+
+**Decisione**: creazione della knowledge base interna `99-samples/` con 27 file curati da fonti esterne (VoltAgent/awesome-design-md, rohitg00/awesome-claude-design, getdesign.md, Department of Product). Adozione del pattern canonico **DESIGN.md a 9 sezioni** (Visual Theme / Color / Typography / Components / Layout / Depth / Do-Don't / Responsive / Agent Prompt Guide) come format target per il futuro `heuresys.DESIGN.md`.
+
+**Contesto**: Enzo: "ti invio dei link da cui puoi attingere per esempi e setup dimostrativi ed anche trarre informazioni per creati skills, agenti, plugin e tools in genere per arricchire questa tua capacità di governare processi di definizione di brand identity". Adozione filosofia "design-as-markdown" (LLM read markdown best, no parsing/config).
+
+**Conseguenza**:
+
+- 12 spec YAML brand reference (`voltagent-design-md/`) — Linear, Stripe, Vercel, ClickHouse, PostHog, HashiCorp, Notion, Sentry, Supabase, Apple, Claude, WIRED
+- 8 framework prosa narrativi (`rohitg00-frameworks/`) per 6 famiglie (editorial, data-dense, warm, glass, cinematic, terminal)
+- 6 workflow prompt templates (`rohitg00-prompts/`) — `family-picker`, `brand-to-design-md`, `audit-live-site`, `3-designer-debate`, `remix-two-brands`, `break-default-aesthetic`
+- 1 token-budget recipe per Claude Design cloud
+- README indice in `99-samples/README.md` con mapping 8 direzioni Heuresys ↔ famiglie standard
+- 8 candidati skill/agent identificati per derivazione futura (top 3: `brand-family-picker`, `brand-3-designer-debate`, `brand-anti-slop`)
+- Famiglia raccomandata per Heuresys (B2B enterprise + dashboard-heavy + ontologico): **Data-Dense Pro** (ClickHouse/PostHog) con disciplina Editorial Minimalism (Linear/Vercel) come secondaria
+
+**Vincolo scope**: tutti i file in `99-samples/` sono read-only references; nessun import in production code (rispetta scope vincolante L1).
+
+---
+
 ## Decisioni scartate (per riferimento)
 
 | Direzione                                                         | Motivo scarto                                                  | Reference                            |
