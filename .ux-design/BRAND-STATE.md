@@ -2,25 +2,25 @@
 
 > **Single Source of Truth** per stato corrente del workstream brand identity. Aggiorna questo file ogni volta che cambia phase, viene presa una decisione, o si producono asset significativi. Per la cronologia completa cronologica, vedi `DECISIONS-LOG.md`.
 >
-> **Last update**: 2026-05-05 (post Set 1 dual-theme rewrite + Set 4 μ persona variants + L17)
+> **Last update**: 2026-05-05 (D1 CHIUSA — μ-architect legacy palette fissato come modello base — L21)
 
 ## Current phase
 
-| Phase                             | Status                                                                                                                                                  | Note                                                                                                                            |
-| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| 1 — Setup                         | ✅ Completed                                                                                                                                            | `.ux-design/` struttura + README                                                                                                |
-| 2 — Brand foundations             | ✅ Completed                                                                                                                                            | foundations + voice + 4 personas + audience-positioning + dashboard architecture                                                |
-| 3 — Aesthetic capture sito legacy | ✅ Completed                                                                                                                                            | 8 screenshot www.heuresys.com + moodboard + heuresys-com-current-style                                                          |
-| 4 — Aesthetic direction           | 🟡 **In progress (re-opened)**                                                                                                                          | 8 direzioni esplorate (α/β/γ/δ Set 1, ε/ζ/η/θ Set 2 award-inspired). **Decisione finale pending.**                              |
-| 5 — Color palette                 | ✅ Initial palette-final.md scritto. Sarà rivisto dopo scelta direction                                                                                 |
-| 6 — Typography pairing            | 🟡 **In progress**                                                                                                                                      | Heading: TBD da scelta direction. B1 Geist convinced + 4 alternative B1-B4 mostrate. Set 2 reset typography per ogni direction. |
-| 7 — Logo derivati                 | ✅ 5 derivati prodotti (canonical + monochrome dark/light + mark + favicon + og-image). **Logo concept stesso under reconsideration** dopo 8 direzioni. |
-| 8 — Motion language               | ⏳ Pending (dopo scelta direction)                                                                                                                      |
-| 9 ⭐⭐ — Dashboard mockup         | ⏳ Pending **FOCUS MASSIMO**                                                                                                                            |
-| 10 — Altre surface                | ⏳ Pending                                                                                                                                              |
-| 11 — Theme variants JSON          | ⏳ Pending                                                                                                                                              |
-| 12 — Brand book v0                | ⏳ Pending                                                                                                                                              |
-| 13 — Promotion checklist          | ⏳ Pending                                                                                                                                              |
+| Phase                             | Status                           | Note                                                                                                                                                                 |
+| --------------------------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1 — Setup                         | ✅ Completed                     | `.ux-design/` struttura + README                                                                                                                                     |
+| 2 — Brand foundations             | ✅ Completed                     | foundations + voice + 4 personas + audience-positioning + dashboard architecture                                                                                     |
+| 3 — Aesthetic capture sito legacy | ✅ Completed                     | 8 screenshot www.heuresys.com + moodboard + heuresys-com-current-style                                                                                               |
+| 4 — Aesthetic direction           | ✅ **CHIUSA — D1 risolto**       | 32 direzioni esplorate (Set 1+2+3+4+5). **D1 = μ-architect-legacy** (Set 5 Systems POV con palette legacy www.heuresys.com)                                          |
+| 5 — Color palette                 | 🟡 **Da finalizzare** (post-D1)  | Token system già nel `legacy-palette.css`. Da consolidare in `palette-final.md` v2 + DESIGN.md a 9 sezioni canoniche.                                                |
+| 6 — Typography pairing            | 🟡 **Da chiudere** (post-D1)     | Stack: **Exo 2** wordmark + **Inter** body + **JetBrains Mono** data. Da scrivere `typography-final.md`.                                                             |
+| 7 — Logo derivati                 | 🟡 **Da rifare**                 | Logo legacy preservato come base. SVG canonical da rifare con y `#a855f7` (oggi è purple `#a855f7` corretto). 5 derivati da rigenerare.                              |
+| 8 — Motion language               | 🟡 **Sbloccata** (post-D1)       | Planning prototipi: glow effect wordmark · gradient transitions · KG topology hover · KPI sparkline animate · scroll-triggered reveals.                              |
+| 9 ⭐⭐ — Dashboard mockup         | 🟡 **Sbloccata · FOCUS MASSIMO** | μ-architect-legacy = template base. Da derivare 4-5 dashboard mockup specifici (HR Director · Capability Graph · Skills Heatmap · Employee Journey · Org & Systems). |
+| 10 — Altre surface                | ⏳ Pending                       |
+| 11 — Theme variants JSON          | ⏳ Pending                       |
+| 12 — Brand book v0                | ⏳ Pending                       |
+| 13 — Promotion checklist          | ⏳ Pending                       |
 
 ## Decisioni stabilite
 

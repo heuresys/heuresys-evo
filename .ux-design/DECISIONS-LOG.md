@@ -175,6 +175,54 @@ Persistenza garantita: tutti i file in git, sincronizzati cross-machine. Skill l
 
 ---
 
+## L21 — 2026-05-05 — **D1 CHIUSA** · μ-architect-legacy fissato come modello base · Phases 5-9 sbloccate
+
+**Decisione**: D1 (aesthetic direction finale) **risolta**. Modello base scelto: **`mu-architect-legacy.html`** (Set 5 — Systems Architect POV con palette legacy `www.heuresys.com`).
+
+**Contesto**: Enzo dopo aver visto le 32 mockup esplorate (16 base + 16 Set 5 legacy variants): "fissiamo la dashboard architect come modello di partenza e sblocchiamo le fasi successive".
+
+**Caratteristiche del modello base**:
+
+| Aspetto             | Valore                                                                                            |
+| ------------------- | ------------------------------------------------------------------------------------------------- |
+| Family              | Data-Dense Pro · Systems POV (Architect)                                                          |
+| Palette base        | Legacy `www.heuresys.com` capture 2026-05-04 (variant C cinematic dark)                           |
+| Bg dark             | `#0a0d18` (near-black navy)                                                                       |
+| Bg light            | `#f4f5f7`                                                                                         |
+| Brand primary       | `#3b82f6` (blue) — link, focus, CTA gradient start                                                |
+| Accent              | `#a855f7` (purple) — logo y, glow, gradient end                                                   |
+| Gradient            | `linear-gradient(135deg, #3b82f6 → #a855f7)`                                                      |
+| Glow                | `drop-shadow(0 0 30px rgba(168,85,247,0.25))` sotto wordmark                                      |
+| Wordmark            | **Exo 2 700** + y `#a855f7` weight 500, no italic (L18 sans-serif compliant)                      |
+| Body typography     | Inter 400-500-600-700                                                                             |
+| Mono                | JetBrains Mono                                                                                    |
+| Layout              | Sidebar 220px + workspace · token explorer + governance + RBAC matrix + spacing grid reveal       |
+| Trustworthy/Courage | 60T/40C exact (family-picker output match)                                                        |
+| Anti-slop           | Compliant (single accent, no teal, container nesting ≤3, no animated dots, no 3-col feature grid) |
+
+**Conseguenza · Phases sbloccate**:
+
+| Phase                     | Status post-D1 | Output target                                                                                                                               | Effort      |
+| ------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| 5 — Color palette finale  | 🟡 Sbloccata   | `03-visual-identity/color/palette-final.md` v2 + `02-aesthetic/heuresys.DESIGN.md` (9 sezioni canoniche)                                    | 1-2h        |
+| 6 — Typography pairing    | 🟡 Sbloccata   | `03-visual-identity/typography/typography-final.md` con Exo 2 + Inter + JetBrains Mono spec                                                 | 30 min      |
+| 7 — Logo derivati         | 🟡 Sbloccata   | 5 SVG canonical aggiornati in `03-visual-identity/logo/final/`: wordmark · monochrome dark/light · mark · favicon · og-image                | 2-3h        |
+| 8 — Motion language       | 🟡 Sbloccata   | `04-motion-language/motion-final.md` + 5-8 prototipi animati: glow · gradient transitions · KG hover · sparkline · scroll-triggered reveals | 4-6h        |
+| 9 ⭐⭐ — Dashboard mockup | 🟡 Sbloccata   | 4-5 dashboard surface specifici basati sul template μ-architect: HR Director · Capability Graph · Skills Heatmap · Employee Journey · Org   | 6-10h FOCUS |
+| 10 — Altre surface        | ⏳ Pending     | Login · onboarding · empty state · error 404 · settings (post-Phase 9)                                                                      | 4h          |
+| 11 — Theme variants JSON  | ⏳ Pending     | `05-theme-variants/heuresys-theme.json` ThemeBuilderWizard format                                                                           | 2h          |
+| 12 — Brand book v0        | ⏳ Pending     | `07-brand-book/brand-book-v0.md` consolidamento finale                                                                                      | 4h          |
+
+**Direzioni alternative esplorate** (32 totali) restano archiviate come "explored alternatives" in `02-aesthetic/direction-explorations/` per reference futura. Nessuna eliminata.
+
+**Open questions risolte da L21**:
+
+- D2 audience positioning: implicitamente confermata β Enterprise (μ-architect è enterprise-first)
+- D3 logo strategy: preservare wordmark legacy + applicare standard L16/L18 a tutte le surface (y `#a855f7` purple, weight 500, no italic per Exo 2 sans)
+- D4 body+mono pairing: Inter + JetBrains Mono confermati (lock dal modello)
+
+---
+
 ## L20 — 2026-05-05 — Set 5 estensione palette legacy a tutti 16 mockup via CSS overlay
 
 **Decisione**: estendere la palette legacy `www.heuresys.com` a TUTTI i 16 mockup direction-explorations come **Set 5** (legacy palette variant set). Implementazione via CSS overlay esterno `legacy-palette.css` + `!important` overrides invece di rewrite manuale di 16 file.
