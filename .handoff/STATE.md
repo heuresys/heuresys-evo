@@ -1,6 +1,6 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-05 (post Phase 8 motion enriched · Phase 9 5/5 + L22 + L23 · L25 logo PERMANENT)
+> Updated: 2026-05-05 (post sessione skill `studio` v1.1.0 · 6 slash command `/brand:*` · 9 commit)
 
 ## ⚠️ DIRETTIVA OPERATIVA ATTIVA
 
@@ -8,55 +8,55 @@
 
 ## Last session brief
 
-**Phase 8 + Phase 9 chiuse · L22-L25 layout/logo finalizzati**. Phase 9: 5 dashboard production-ready (HR Director · Capability Graph · Skills Heatmap · Employee Journey · Org & Systems) + index hub + L22 layout v2 (sidebar collapsible, tenant-mini, no-gradient buttons) + L23 architect-style cross-dashboard (logo legacy, bordered avatars, sticky header+footer fisso, scroll indipendenti, footer dynamic context-aware). Phase 8: 5 motion prototipi enriched playground (6 sezioni each: live demo + live controls + use case map + alternatives compare + anti-pattern + integration code) + `motion-final.md` SoT. **L25 logo PERMANENT**: `h` lowercase · tutte lettere identiche peso/size/style · solo `y` color diverso · embed ovunque (header + footer + meta). Applicato a 13 HTML + 6 SVG canonical. Commit pushati: f27e094 → 6bb7596 (10 commit).
+**Sessione doppia: brand sub-commands + skill studio**. Promossi 6 prompt template `99-samples/rohitg00-prompts/*` a slash command namespaced `/brand:family-picker`, `/brand:designer-debate`, `/brand:anti-slop`, `/brand:audit`, `/brand:extract`, `/brand:remix`. Poi creata skill **`studio` v1.1.0** in 7 fase: 9 sub-command (`/studio`, `:clone`, `:bootstrap`, `:diff`, `:promote`, `:restore`, `:backup-list`, `:status`, `:doctor`) per ciclo clone↔promote↔backup di route Next.js attraverso `.ux-design/10-staging/` + backup restorable in `.ux-design/.backups/<route>/<TS>-pre-promote/` con `MANIFEST.json`. Promote a 5-gate (motivazione · brand audit · anti-slop · verification · user confirm) + 2 fail-safe (repo clean · husky). Self-evolution: `/studio:doctor` (8 categorie check + auto-fix), JSONL log append-only `.logs/usage.jsonl` (gitignored), `references/lessons-learned.md` append-only, `CHANGELOG.md` semver. Bug trovato e fixato: drift detection CR/LF strip su Windows Git Bash. Plan: `~/.claude/plans/voglio-creare-una-skill-magical-castle.md`. Commit pushati: `fdf6a5d → df8dec1` (9 commit).
 
-## ⚡ Active workstream — Brand identity
+## ⚡ Active workstream — Brand identity + Studio
 
-In nuova sessione: **digita `/brand`** o di' "lavoriamo sul brand".
+In nuova sessione: **digita `/brand`** o "lavoriamo sul brand" · per route work **`/studio`** o "iteriamo sulla pagina X".
 
-| File                                                                                            | Scopo                                                                |
-| ----------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| [`../.ux-design/BRAND-STATE.md`](../.ux-design/BRAND-STATE.md)                                  | SoT — Phase 1-9 done, L25 active                                     |
-| [`../.ux-design/02-aesthetic/heuresys.DESIGN.md`](../.ux-design/02-aesthetic/heuresys.DESIGN.md) | DESIGN.md 10 sezioni (Section 3 logo rule L25 aggiornata)             |
-| [`../.ux-design/02-aesthetic/logo-standard.md`](../.ux-design/02-aesthetic/logo-standard.md)   | **L25 PERMANENT** in cima · regole canoniche aggiornate               |
-| [`../.ux-design/04-motion-language/motion-final.md`](../.ux-design/04-motion-language/motion-final.md) | Phase 8 SoT motion language                                       |
-| [`../.ux-design/DECISIONS-LOG.md`](../.ux-design/DECISIONS-LOG.md)                              | L1-L25 cronologia append-only                                         |
+| File                                                                          | Scopo                                                                              |
+| ----------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| [`../.ux-design/BRAND-STATE.md`](../.ux-design/BRAND-STATE.md)                | SoT brand — Phase 1-9 done, L25 active, **L26 skill studio**                       |
+| [`../.ux-design/DECISIONS-LOG.md`](../.ux-design/DECISIONS-LOG.md)            | L1-L26 cronologia append-only                                                      |
+| [`../.claude/skills/studio/SKILL.md`](../.claude/skills/studio/SKILL.md)      | Skill studio v1.1.0 entry + 9 sub-command + 3-modi attivazione                     |
+| [`../.claude/skills/studio/CHANGELOG.md`](../.claude/skills/studio/CHANGELOG.md) | Versioning skill-level semver (v1.0.0, v1.1.0)                                  |
 
 ## Top priorities
 
-1. **Visual review by Enzo** dei 5 dashboard + 5 motion prototypes con L25 applicato (~30 min). Test live su `http://127.0.0.1:8765/`. Possibili fix retroattivi su logo/footer/motion.
-2. **Phase 10 — Altre surface** (~4h): login · onboarding · empty state · 404 · settings. Pattern reusable da Phase 9 dashboard layout v2 + L23 customizations.
-3. **Phase 11 — Theme variants JSON** (~2h): `05-theme-variants/heuresys-theme.json` ThemeBuilderWizard format. Tokens da `palette-final.md` + `motion-final.md`.
-4. **Phase 12 — Brand book v0** (~4h): consolidamento finale `07-brand-book/brand-book-v0.md`.
+1. **Test happy-path /studio** (~30 min): test 6 (`/studio:promote --confirmed`) + test 8 (`/studio:restore`) + test 7 (husky fail) su route canary `dashboard`. Smoke test 1-5 e 9-12 PASS, restanti richiedono modifica reale produzione.
+2. **Visual review by Enzo** dei 5 dashboard + 5 motion prototypes con L25 applicato (~30 min). Test su `http://127.0.0.1:8765/`. Possibili fix retroattivi.
+3. **Phase 10 — Altre surface** (~4h): login · onboarding · empty state · 404 · settings. Pattern reusable da Phase 9 dashboard layout v2 + L23 customizations. Usare `/studio:bootstrap` per prima promozione.
+4. **Phase 11 — Theme variants JSON** (~2h): `05-theme-variants/heuresys-theme.json` ThemeBuilderWizard format.
+5. **Phase 12 — Brand book v0** (~4h): consolidamento finale `07-brand-book/brand-book-v0.md`.
 
 ## Open questions
 
-- **Direction-explorations Set 1-5** (32 mockup archivio): aggiornarli retroattivamente con L25 logo o lasciare archivio storico? Default lasciare.
+- **Direction-explorations Set 1-5** (32 mockup archivio): retro-update L25 logo o lasciare? Default lasciare.
+- **`/studio:doctor --apply`** future: regen tabella sub-command da frontmatter `description` di `commands/studio/*.md` (non implementato day-1).
 - **PR #28** prisma 5→7 grouped major: manual review pending
 - **PR #33** commitlint 19→20: manual review pending (XS)
 - **License decision repo public**: pending
-- **Phase 11 promotion to packages/ui**: tokens da `legacy-palette.css` + `palette-final.md` + `motion-final.md` da promuovere a production tokens (post brand book v0)
+- **Phase 11 promotion to packages/ui**: tokens da `legacy-palette.css` + `palette-final.md` + `motion-final.md` post brand book v0
 
 ## Stack snapshot
 
-API Gateway Express 5 (8200) · Frontend Next.js 16 + React 19 + Tailwind 4 (3200) · Workers BullMQ + Redis (6380) · ORM Prisma 5.22, 566 modelli · DB PostgreSQL 16 (5432) · Auth NextAuth v4 · Test Vitest 4 (250 verdi) · HTTP preview `0.0.0.0:8765` (LAN: `192.168.1.8`) · `.ux-design/`: 5 dashboard production + 5 motion prototypes enriched + 32 mockup direction-explorations archivio + 6 SVG canonical L25.
+API Gateway Express 5 (8200) · Frontend Next.js 16 + React 19 + Tailwind 4 (3200) · Workers BullMQ + Redis (6380) · ORM Prisma 5.22 · DB PostgreSQL 16 (5432) · Auth NextAuth v4 · Test Vitest 4 (250 verdi) · HTTP preview `0.0.0.0:8765` (LAN: `192.168.1.8`). `.ux-design/`: 5 dashboard prod-ready + 5 motion enriched + 32 mockup archivio + 6 SVG canonical L25. **Skill studio v1.1.0**: 30 file (1 SKILL.md + 9 commands + 8 references + 9 scripts + 2 templates + CHANGELOG). **Brand sub-commands**: 6 wrappers `99-samples/rohitg00-prompts/*` → `/brand:*`.
 
 ## Verification
 
 ```bash
 git status -sb              # working tree clean
-git log --oneline -10       # recent: 6bb7596 L25 logo, a86514b motion enriched, 7c53b05 Phase 8
-ls .ux-design/06-mockups/dashboards/       # 5 dashboard + index
-ls .ux-design/04-motion-language/          # 5 prototypes + index + motion-final.md
-curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8765/06-mockups/dashboards/index.html      # 200
-curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8765/04-motion-language/index.html        # 200
+git log --oneline -12       # recent: df8dec1 doctor row, b99a825 self-evolution, 9af7643 bootstrap
+bash .claude/skills/studio/scripts/doctor.sh   # 50 pass · 0 fail · 1 warn
+ls .claude/skills/studio/                      # SKILL.md + CHANGELOG + 4 dirs
+ls .claude/commands/studio/                    # 9 .md
+ls .claude/commands/brand/                     # 6 .md
 ```
 
 ## Riferimenti
 
 - **Operating baseline**: [`../docs/_meta/operating-baseline.md`](../docs/_meta/operating-baseline.md)
-- **CLAUDE.md root**: [`../CLAUDE.md`](../CLAUDE.md) § Brand workstream
-- **Modello base D1**: `.ux-design/02-aesthetic/direction-explorations/mu-architect-legacy.html`
-- **Logo SVG canonical** (L25): `.ux-design/03-visual-identity/logo/final/heuresys-wordmark.svg`
-- **Phase 9 hub**: `.ux-design/06-mockups/dashboards/index.html`
-- **Phase 8 hub**: `.ux-design/04-motion-language/index.html`
+- **CLAUDE.md root**: [`../CLAUDE.md`](../CLAUDE.md) § Brand workstream + § Studio workstream
+- **Plan studio**: `~/.claude/plans/voglio-creare-una-skill-magical-castle.md`
+- **Self-evolution doc**: [`../.claude/skills/studio/references/self-evolution.md`](../.claude/skills/studio/references/self-evolution.md)
+- **Lessons learned**: [`../.claude/skills/studio/references/lessons-learned.md`](../.claude/skills/studio/references/lessons-learned.md)
