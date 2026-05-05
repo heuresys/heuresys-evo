@@ -2,25 +2,25 @@
 
 > **Single Source of Truth** per stato corrente del workstream brand identity. Aggiorna questo file ogni volta che cambia phase, viene presa una decisione, o si producono asset significativi. Per la cronologia completa cronologica, vedi `DECISIONS-LOG.md`.
 >
-> **Last update**: 2026-05-05 (D1 CHIUSA — μ-architect legacy palette fissato come modello base — L21)
+> **Last update**: 2026-05-05 (Phase 9 5/5 dashboard complete · L22 layout v2 · solid color buttons · sidebar collapsible)
 
 ## Current phase
 
-| Phase                             | Status                           | Note                                                                                                                                                                 |
-| --------------------------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1 — Setup                         | ✅ Completed                     | `.ux-design/` struttura + README                                                                                                                                     |
-| 2 — Brand foundations             | ✅ Completed                     | foundations + voice + 4 personas + audience-positioning + dashboard architecture                                                                                     |
-| 3 — Aesthetic capture sito legacy | ✅ Completed                     | 8 screenshot www.heuresys.com + moodboard + heuresys-com-current-style                                                                                               |
-| 4 — Aesthetic direction           | ✅ **CHIUSA — D1 risolto**       | 32 direzioni esplorate (Set 1+2+3+4+5). **D1 = μ-architect-legacy** (Set 5 Systems POV con palette legacy www.heuresys.com)                                          |
-| 5 — Color palette                 | 🟡 **Da finalizzare** (post-D1)  | Token system già nel `legacy-palette.css`. Da consolidare in `palette-final.md` v2 + DESIGN.md a 9 sezioni canoniche.                                                |
-| 6 — Typography pairing            | 🟡 **Da chiudere** (post-D1)     | Stack: **Exo 2** wordmark + **Inter** body + **JetBrains Mono** data. Da scrivere `typography-final.md`.                                                             |
-| 7 — Logo derivati                 | 🟡 **Da rifare**                 | Logo legacy preservato come base. SVG canonical da rifare con y `#a855f7` (oggi è purple `#a855f7` corretto). 5 derivati da rigenerare.                              |
-| 8 — Motion language               | 🟡 **Sbloccata** (post-D1)       | Planning prototipi: glow effect wordmark · gradient transitions · KG topology hover · KPI sparkline animate · scroll-triggered reveals.                              |
-| 9 ⭐⭐ — Dashboard mockup         | 🟡 **Sbloccata · FOCUS MASSIMO** | μ-architect-legacy = template base. Da derivare 4-5 dashboard mockup specifici (HR Director · Capability Graph · Skills Heatmap · Employee Journey · Org & Systems). |
-| 10 — Altre surface                | ⏳ Pending                       |
-| 11 — Theme variants JSON          | ⏳ Pending                       |
-| 12 — Brand book v0                | ⏳ Pending                       |
-| 13 — Promotion checklist          | ⏳ Pending                       |
+| Phase                             | Status                          | Note                                                                                                                                                                                  |
+| --------------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1 — Setup                         | ✅ Completed                    | `.ux-design/` struttura + README                                                                                                                                                      |
+| 2 — Brand foundations             | ✅ Completed                    | foundations + voice + 4 personas + audience-positioning + dashboard architecture                                                                                                      |
+| 3 — Aesthetic capture sito legacy | ✅ Completed                    | 8 screenshot www.heuresys.com + moodboard + heuresys-com-current-style                                                                                                                |
+| 4 — Aesthetic direction           | ✅ **CHIUSA — D1 risolto**      | 32 direzioni esplorate (Set 1+2+3+4+5). **D1 = μ-architect-legacy** (Set 5 Systems POV con palette legacy www.heuresys.com)                                                           |
+| 5 — Color palette                 | 🟡 **Da finalizzare** (post-D1) | Token system già nel `legacy-palette.css`. Da consolidare in `palette-final.md` v2 + DESIGN.md a 9 sezioni canoniche.                                                                 |
+| 6 — Typography pairing            | 🟡 **Da chiudere** (post-D1)    | Stack: **Exo 2** wordmark + **Inter** body + **JetBrains Mono** data. Da scrivere `typography-final.md`.                                                                              |
+| 7 — Logo derivati                 | 🟡 **Da rifare**                | Logo legacy preservato come base. SVG canonical da rifare con y `#a855f7` (oggi è purple `#a855f7` corretto). 5 derivati da rigenerare.                                               |
+| 8 — Motion language               | 🟡 **Sbloccata** (post-D1)      | Planning prototipi: glow effect wordmark · gradient transitions · KG topology hover · KPI sparkline animate · scroll-triggered reveals.                                               |
+| 9 ⭐⭐ — Dashboard mockup         | 🟢 **5 / 5 complete** (L22)     | HR Director Overview · Capability Graph · Skills Heatmap · Employee Journey · Org & Systems · index hub. Layout v2: solid buttons, sidebar collapsible, tenant-mini, h4 collassabili. |
+| 10 — Altre surface                | ⏳ Pending                      |
+| 11 — Theme variants JSON          | ⏳ Pending                      |
+| 12 — Brand book v0                | ⏳ Pending                      |
+| 13 — Promotion checklist          | ⏳ Pending                      |
 
 ## Decisioni stabilite
 
@@ -105,9 +105,20 @@
 - `typography/pairing-explorations.html` — Set originale 3 pairing (Inter Tight / Geist / Space Grotesk)
 - `typography/pairing-b-alternatives.html` — 4 alternative B-style (Geist / Manrope / DM Sans / Plus Jakarta)
 
-### `04-motion-language/`, `05-theme-variants/`, `06-mockups/`, `07-brand-book/`, `08-promotion/`
+### `04-motion-language/`, `05-theme-variants/`, `07-brand-book/`, `08-promotion/`
 
-Vuoti — popolazione dopo scelta D1.
+Vuoti — popolazione dopo Phase 9 chiusura.
+
+### `06-mockups/dashboards/` (Phase 9 · L22 layout v2 · 5 surface complete)
+
+- `index.html` — navigation hub 5 dashboard con persona + tenant + scope badges
+- `hr-director-overview.html` — Maria CHRO · RTL Bank · KPI ring + skill gap matrix + activity feed live + succession ready
+- `capability-graph.html` — Davide IT · RTL Bank · KG topology SVG + ontology breakdown + top entities by edge density + ESCO sync
+- `skills-heatmap.html` — Maria CHRO · RTL Bank · matrice 8 dept × 12 skill heatmap + filters + distribution histogram + critical list
+- `employee-journey.html` — Andrea EMP · RTL Bank · profile hero + career arc 5 stage + skill evolution 4q + capability radar + 3 bridging suggestions
+- `org-systems.html` — Davide IT · Heuresys System · 4 tenant fleet + RBAC matrix + integration health + audit log live + system metrics
+
+**Shared layout v2 (L22)**: nav-bar (back + wordmark Heuresys + label phase + theme toggle) · sidebar 240px collapsible 64px (toggle button + tenant-mini card + h4 sezioni collassabili + user-card bottom) · workspace (ws-header + KPI ring + content panels + ws-footer). Buttons solid color (no gradient). Persistence dark/light + sidebar state in localStorage.
 
 ### `99-samples/` (read-only reference library, integrata 2026-05-05 — L14)
 

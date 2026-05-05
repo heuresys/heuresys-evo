@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Skills Heatmap — Heuresys Dashboard Phase 9</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  /* Heuresys Dashboard — Skills Heatmap
+     Persona: Maria CHRO (level 2) · 8 dept × 12 ESCO skill matrix
+     Template base: mu-architect-legacy.html (D1 modello base · L21)
+     Focus: Coverage heat (red P0 critical → green OK) · drill filter · distribution
+  */
+
+  :root {
+    --bg: #0a0d18;
+    --paper: #14182a;
+    --surface-1: #14182a;
+    --surface-2: #1c2138;
+    --surface-3: #252b48;
+    --ink: #f4f5f7;
+    --ink-soft: #c8cad2;
+    --ink-muted: #8b8e99;
+    --ink-tertiary: #5e6168;
+    --rule: #232838;
+    --rule-strong: #3a4055;
+    --brand-blue: #3b82f6;
+    --brand-blue-deep: #2452c8;
+    --accent: #a855f7;
+    --accent-deep: #7e3fc8;
+    --accent-soft: #2a1a44;
+    --gradient: linear-gradient(135deg, #3b82f6 0%, #a855f7 100%);
+    --glow: 0 0 30px rgba(168, 85, 247, 0.25);
+    --semantic-success: #5fb87a;
+    --semantic-warning: #f59e0b;
+    --semantic-info: #3b82f6;
+    --semantic-danger: #ff6b6b;
+    --heat-0: rgba(255, 107, 107, 0.85);
+    --heat-1: rgba(255, 107, 107, 0.55);
+    --heat-2: rgba(245, 158, 11, 0.55);
+    --heat-3: rgba(245, 158, 11, 0.30);
+    --heat-4: rgba(95, 184, 122, 0.30);
+    --heat-5: rgba(95, 184, 122, 0.55);
+    --heat-6: rgba(95, 184, 122, 0.85);
+  }
+  [data-theme="light"] {
+    --bg: #f4f5f7;
+    --paper: #ffffff;
+    --surface-1: #ffffff;
+    --surface-2: #ebecf0;
+    --surface-3: #e0e2e8;
+    --ink: #0a0d18;
+    --ink-soft: #2a2d38;
+    --ink-muted: #6a6d75;
+    --ink-tertiary: #9ea0a8;
+    --rule: #d8dae0;
+    --rule-strong: #b6b9c2;
+    --brand-blue: #2452c8;
+    --accent: #7e3fc8;
+    --accent-deep: #5e2898;
+    --accent-soft: #ede0fa;
+    --gradient: linear-gradient(135deg, #2452c8 0%, #7e3fc8 100%);
+    --glow: 0 0 20px rgba(126, 63, 200, 0.15);
+    --semantic-success: #2da147;
+    --semantic-warning: #b8860b;
+    --semantic-danger: #c54545;
+    --heat-0: rgba(197, 69, 69, 0.85);
+    --heat-1: rgba(197, 69, 69, 0.45);
+    --heat-2: rgba(184, 134, 11, 0.50);
+    --heat-3: rgba(184, 134, 11, 0.25);
+    --heat-4: rgba(45, 161, 71, 0.25);
+    --heat-5: rgba(45, 161, 71, 0.50);
+    --heat-6: rgba(45, 161, 71, 0.85);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--ink); font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; line-height: 1.5; transition: background 0.15s linear, color 0.15s linear; font-feature-settings: 'tnum' 1, 'cv11' 1; }
+
+  .nav-bar { background: var(--surface-1); border-bottom: 1px solid var(--rule); padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; position: relative; }
+  .nav-bar::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: var(--accent); opacity: 0.5; }
+  .header-back { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink); text-decoration: none; }
+  .label { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink); font-weight: 600; }
+  .label-ph9 { background: var(--accent); color: #ffffff; padding: 2px 10px; border-radius: 3px; }
+  .theme-toggle { background: transparent; border: 1px solid var(--ink); color: var(--ink); padding: 6px 12px; font-family: 'JetBrains Mono', monospace; font-size: 11px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; border-radius: 4px; }
+  .theme-toggle:hover { background: var(--ink); color: var(--bg); }
+
+  .wordmark { font-family: 'Exo 2', sans-serif; font-weight: 700; font-size: 22px; letter-spacing: -0.5px; color: var(--ink); line-height: 1; filter: drop-shadow(var(--glow)); }
+  .wordmark .y { color: var(--accent); font-weight: 500; }
+
+  .app { display: grid; grid-template-columns: 240px 1fr; min-height: calc(100vh - 51px); }
+  .sidebar { background: var(--surface-1); border-right: 1px solid var(--rule); padding: 16px; }
+  .sidebar-section { margin-bottom: 20px; }
+  .sidebar-section h4 { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--ink-tertiary); padding: 8px 12px; margin-bottom: 4px; }
+  .sidebar-link { display: flex; align-items: center; gap: 10px; padding: 7px 12px; font-size: 13px; color: var(--ink-soft); border-radius: 4px; cursor: pointer; }
+  .sidebar-link:hover { background: var(--surface-2); color: var(--ink); }
+  .sidebar-link.active { background: var(--surface-3); color: var(--ink); border-left: 2px solid var(--brand-blue); padding-left: 10px; }
+  .sidebar-link .glyph { width: 18px; height: 18px; flex-shrink: 0; opacity: 0.7; }
+  .sidebar-link.active .glyph { opacity: 1; }
+  .sidebar-link .num { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-muted); }
+
+  .user-card { margin-top: 24px; padding: 12px; background: var(--surface-2); border: 1px solid var(--rule); border-radius: 6px; display: flex; align-items: center; gap: 10px; }
+  .user-card .avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-family: 'Inter'; font-weight: 600; font-size: 14px; color: white; flex-shrink: 0; }
+  .user-card .info .name { font-size: 13px; font-weight: 600; color: var(--ink); }
+  .user-card .info .role { font-size: 11px; color: var(--ink-muted); font-family: 'JetBrains Mono', monospace; letter-spacing: 0.5px; }
+
+  .workspace { padding: 24px 32px 48px; overflow-x: auto; }
+  .ws-header { display: flex; justify-content: space-between; align-items: flex-end; padding-bottom: 20px; border-bottom: 1px solid var(--rule); margin-bottom: 24px; }
+  .ws-header .title-block .breadcrumb { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 8px; }
+  .ws-header h1 { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 28px; letter-spacing: -0.8px; line-height: 1; color: var(--ink); }
+  .ws-header h1 em { color: var(--accent); font-style: normal; font-weight: 700; }
+  .ws-header .actions { display: flex; gap: 10px; align-items: center; }
+  .ws-header .tenant-pill { background: var(--surface-2); border: 1px solid var(--rule-strong); padding: 6px 12px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink); letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px; }
+  .tenant-pill .dot { width: 6px; height: 6px; background: var(--semantic-success); border-radius: 50%; }
+  .btn { padding: 8px 16px; border-radius: 6px; font-family: 'Inter'; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid transparent; text-decoration: none; display: inline-block; line-height: 1.5; }
+  .btn-primary { background: var(--accent); color: #ffffff; }
+  .btn-primary:hover { background: var(--accent-deep); }
+  .btn-ghost { background: transparent; color: var(--ink-soft); border: 1px solid var(--rule-strong); }
+  .btn-ghost:hover { color: var(--ink); border-color: var(--ink); }
+
+  /* Filter bar */
+  .filter-bar { background: var(--surface-1); border: 1px solid var(--rule); border-radius: 8px; padding: 14px 18px; margin-bottom: 14px; display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+  .filter-bar .group { display: flex; align-items: center; gap: 8px; }
+  .filter-bar .group .lbl { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--ink-muted); letter-spacing: 1.5px; text-transform: uppercase; }
+  .filter-pill { background: var(--surface-2); border: 1px solid var(--rule); padding: 4px 10px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-soft); letter-spacing: 0.5px; cursor: pointer; }
+  .filter-pill.active { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
+  .filter-pill:hover { color: var(--ink); }
+  .filter-bar .search { flex: 1; min-width: 200px; background: var(--surface-2); border: 1px solid var(--rule); padding: 6px 10px; border-radius: 4px; color: var(--ink); font-family: 'Inter'; font-size: 12px; }
+
+  /* KPI ring 4-col compact */
+  .kpi-ring { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+  .kpi-card { background: var(--surface-1); border: 1px solid var(--rule); border-radius: 8px; padding: 16px 20px; }
+  .kpi-card .kpi-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--ink-muted); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 8px; }
+  .kpi-card .kpi-num { font-family: 'Inter'; font-weight: 700; font-size: 28px; letter-spacing: -1px; line-height: 1; font-variant-numeric: tabular-nums; color: var(--ink); }
+  .kpi-card .kpi-num .delta { font-size: 12px; font-weight: 500; margin-left: 8px; }
+  .kpi-card .delta.up { color: var(--semantic-success); }
+  .kpi-card .delta.warn { color: var(--semantic-warning); }
+  .kpi-card .delta.danger { color: var(--semantic-danger); }
+  .kpi-card .kpi-sub { font-size: 11px; color: var(--ink-muted); margin-top: 6px; }
+
+  /* Heatmap matrix */
+  .heatmap-wrap { background: var(--surface-1); border: 1px solid var(--rule); border-radius: 8px; margin-bottom: 24px; overflow: hidden; }
+  .hm-head { padding: 14px 18px; border-bottom: 1px solid var(--rule); display: flex; justify-content: space-between; align-items: center; }
+  .hm-head h2 { font-family: 'Inter'; font-weight: 600; font-size: 16px; letter-spacing: -0.3px; color: var(--ink); }
+  .hm-head h2 em { color: var(--accent); font-style: normal; font-weight: 600; }
+  .hm-head .legend { display: flex; align-items: center; gap: 4px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-muted); letter-spacing: 0.5px; }
+  .hm-head .legend .swatch { width: 14px; height: 12px; border: 1px solid var(--rule); }
+  .hm-head .legend .swatch:first-of-type { border-top-left-radius: 2px; border-bottom-left-radius: 2px; }
+  .hm-head .legend .swatch:last-of-type { border-top-right-radius: 2px; border-bottom-right-radius: 2px; }
+
+  .heatmap-scroll { overflow-x: auto; }
+  table.heatmap { width: 100%; border-collapse: collapse; font-family: 'Inter'; font-size: 12px; font-variant-numeric: tabular-nums; }
+  table.heatmap th { padding: 10px 6px; font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--ink-muted); font-weight: 600; background: var(--surface-2); border-bottom: 1px solid var(--rule); border-right: 1px solid var(--rule); text-align: center; vertical-align: bottom; height: 100px; }
+  table.heatmap th.row-head { text-align: left; padding: 10px 14px; min-width: 200px; height: auto; }
+  table.heatmap th .vlabel { writing-mode: vertical-lr; transform: rotate(180deg); white-space: nowrap; padding: 4px 0; }
+  table.heatmap th .esco-id { font-size: 8px; color: var(--ink-tertiary); margin-bottom: 4px; display: block; writing-mode: horizontal-tb; transform: none; }
+  table.heatmap td { padding: 0; text-align: center; border-bottom: 1px solid var(--rule); border-right: 1px solid var(--rule); height: 44px; min-width: 64px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink); position: relative; }
+  table.heatmap td.dept-cell { padding: 10px 14px; font-family: 'Inter'; font-size: 13px; font-weight: 500; color: var(--ink); text-align: left; background: var(--surface-1); }
+  table.heatmap td.dept-cell .meta { display: block; font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--ink-muted); letter-spacing: 0.5px; margin-top: 2px; }
+  table.heatmap td.heat { cursor: pointer; }
+  table.heatmap td.heat:hover { outline: 2px solid var(--accent); outline-offset: -2px; z-index: 2; }
+  .heat-0 { background: var(--heat-0); color: #fff; }
+  .heat-1 { background: var(--heat-1); }
+  .heat-2 { background: var(--heat-2); }
+  .heat-3 { background: var(--heat-3); }
+  .heat-4 { background: var(--heat-4); }
+  .heat-5 { background: var(--heat-5); }
+  .heat-6 { background: var(--heat-6); color: var(--ink); }
+
+  /* Bottom: distribution chart + critical list */
+  .bottom-split { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 24px; }
+  .panel { background: var(--surface-1); border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; }
+  .panel-head { padding: 14px 18px; border-bottom: 1px solid var(--rule); display: flex; justify-content: space-between; align-items: center; }
+  .panel-head h2 { font-family: 'Inter'; font-weight: 600; font-size: 16px; }
+  .panel-head h2 em { color: var(--accent); font-style: normal; font-weight: 600; }
+  .panel-head .meta { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-muted); letter-spacing: 1px; text-transform: uppercase; }
+  .panel-body { padding: 18px; }
+
+  /* Distribution histogram */
+  .histogram { display: flex; align-items: flex-end; gap: 4px; height: 200px; padding: 0 4px; }
+  .histo-bar { flex: 1; background: var(--accent); opacity: 0.85; border-radius: 3px 3px 0 0; position: relative; transition: opacity 0.15s; }
+  .histo-bar:hover { opacity: 1; }
+  .histo-bar .val { position: absolute; top: -18px; left: 50%; transform: translateX(-50%); font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--ink-soft); letter-spacing: 0.5px; }
+  .histo-axis { display: flex; gap: 4px; padding: 8px 4px 0; border-top: 1px solid var(--rule); margin-top: 4px; }
+  .histo-axis .tick { flex: 1; font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--ink-muted); text-align: center; letter-spacing: 0.5px; }
+  .histo-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 16px 0 0; border-top: 1px solid var(--rule); margin-top: 12px; }
+  .histo-summary .stat .lbl { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--ink-muted); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 4px; }
+  .histo-summary .stat .val { font-family: 'Inter'; font-weight: 700; font-size: 18px; color: var(--ink); }
+
+  /* Critical list */
+  .crit-row { padding: 12px 18px; border-bottom: 1px solid var(--rule); display: flex; align-items: center; gap: 12px; }
+  .crit-row:last-child { border-bottom: 0; }
+  .crit-row:hover { background: var(--surface-2); cursor: pointer; }
+  .crit-row .badge { width: 28px; height: 28px; border-radius: 4px; background: rgba(255,107,107,0.2); color: var(--semantic-danger); font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; letter-spacing: 0.5px; }
+  .crit-row .info { flex: 1; min-width: 0; }
+  .crit-row .info .skill { font-family: 'Inter'; font-weight: 600; font-size: 13px; color: var(--ink); }
+  .crit-row .info .meta { font-size: 11px; color: var(--ink-muted); margin-top: 2px; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.5px; }
+  .crit-row .gap-num { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--semantic-danger); font-weight: 600; }
+  .crit-row .arrow { color: var(--ink-tertiary); font-family: 'JetBrains Mono', monospace; font-size: 14px; }
+
+  /* === LAYOUT v2 — header logo + sidebar collapsible + tenant-mini === */
+  .nav-bar { padding: 10px 24px; }
+  .nav-bar .nav-left { display: flex; align-items: center; gap: 16px; }
+  .wordmark-sm { font-family: 'Exo 2', sans-serif; font-weight: 700; font-size: 18px; letter-spacing: -0.4px; color: var(--ink); line-height: 1; filter: drop-shadow(0 0 12px rgba(168,85,247,0.20)); }
+  .wordmark-sm .y { color: var(--accent); font-weight: 500; }
+  .app { transition: grid-template-columns 0.2s ease; }
+  body[data-sidebar="collapsed"] .app { grid-template-columns: 64px 1fr; }
+  .sidebar { transition: padding 0.2s ease; }
+  .sidebar-header { display: flex; justify-content: flex-end; padding: 0 0 12px; border-bottom: 1px solid var(--rule); margin-bottom: 12px; }
+  body[data-sidebar="collapsed"] .sidebar-header { justify-content: center; }
+  .sidebar-toggle { background: transparent; border: 1px solid var(--rule-strong); color: var(--ink-soft); width: 28px; height: 28px; border-radius: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+  .sidebar-toggle:hover { color: var(--ink); border-color: var(--accent); }
+  .sidebar-toggle svg { width: 14px; height: 14px; }
+  body[data-sidebar="collapsed"] .sidebar-toggle svg { transform: rotate(180deg); }
+  .tenant-mini { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--surface-2); border: 1px solid var(--rule); border-radius: 6px; margin-bottom: 18px; }
+  .tenant-mini .t-avatar { width: 32px; height: 32px; border-radius: 6px; background: var(--accent); color: white; font-family: 'Inter'; font-weight: 700; font-size: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; letter-spacing: -0.5px; }
+  .tenant-mini .t-info { min-width: 0; flex: 1; }
+  .tenant-mini .t-info .t-name { font-family: 'Inter'; font-weight: 600; font-size: 13px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tenant-mini .t-info .t-meta { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-muted); letter-spacing: 0.5px; margin-top: 2px; }
+  body[data-sidebar="collapsed"] .tenant-mini .t-info { display: none; }
+  body[data-sidebar="collapsed"] .tenant-mini { padding: 8px; justify-content: center; }
+  body[data-sidebar="collapsed"] .sidebar-link span:not(.glyph) { display: none; }
+  body[data-sidebar="collapsed"] .sidebar-link .num { display: none; }
+  body[data-sidebar="collapsed"] .sidebar-section h4 { display: none; }
+  body[data-sidebar="collapsed"] .sidebar-link { padding: 8px; justify-content: center; }
+  body[data-sidebar="collapsed"] .user-card .info { display: none; }
+  body[data-sidebar="collapsed"] .user-card { padding: 8px; justify-content: center; }
+  .sidebar-section h4 { cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; transition: color 0.15s; }
+  .sidebar-section h4:hover { color: var(--ink-soft); }
+  .sidebar-section h4 .chev { font-size: 9px; opacity: 0.5; transition: transform 0.2s; display: inline-block; }
+  .sidebar-section.collapsed h4 .chev { transform: rotate(-90deg); }
+  .sidebar-section.collapsed > *:not(h4) { display: none; }
+
+  .ws-footer { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--rule); display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-muted); letter-spacing: 1px; text-transform: uppercase; }
+</style>
+</head>
+<body>
+
+<nav class="nav-bar">
+  <div class="nav-left">
+    <a href="../../02-aesthetic/direction-explorations/index.html" class="header-back">← UX-design</a>
+    <div class="wordmark-sm">heures<span class="y">y</span>s</div>
+  </div>
+  <span class="label">PHASE 9 · DASHBOARD MOCKUP · <span class="label-ph9">SKILLS HEATMAP</span></span>
+  <button class="theme-toggle" onclick="toggleTheme()">◐ Light/Dark</button>
+</nav>
+
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <button class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Toggle sidebar">
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M 9,3 L 5,7 L 9,11" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+
+    <div class="tenant-mini">
+      <div class="t-avatar">RB</div>
+      <div class="t-info">
+        <div class="t-name">RTL Bank</div>
+        <div class="t-meta">banking · prod</div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <h4 onclick="toggleSection(this)">Workspace <span class="chev">▾</span></h4>
+      <div class="sidebar-link">
+        <svg class="glyph" viewBox="0 0 16 16" fill="none" stroke="currentColor"><rect x="2" y="2" width="5" height="5" stroke-width="1.5"/><rect x="9" y="2" width="5" height="5" stroke-width="1.5"/><rect x="2" y="9" width="5" height="5" stroke-width="1.5"/><rect x="9" y="9" width="5" height="5" stroke-width="1.5"/></svg>
+        Overview
+      </div>
+      <div class="sidebar-link">
+        <svg class="glyph" viewBox="0 0 16 16" fill="none" stroke="currentColor"><circle cx="8" cy="5" r="2.5" stroke-width="1.5"/><path d="M 3,14 Q 8,9 13,14" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Talent registry<span class="num">1.247</span>
+      </div>
+      <div class="sidebar-link active">
+        <svg class="glyph" viewBox="0 0 16 16" fill="none" stroke="currentColor"><rect x="2" y="2" width="3" height="3" stroke-width="1.2"/><rect x="6" y="2" width="3" height="3" stroke-width="1.2"/><rect x="10" y="2" width="3" height="3" stroke-width="1.2"/><rect x="2" y="6" width="3" height="3" stroke-width="1.2"/><rect x="6" y="6" width="3" height="3" stroke-width="1.2" fill="currentColor" opacity="0.4"/><rect x="10" y="6" width="3" height="3" stroke-width="1.2"/><rect x="2" y="10" width="3" height="3" stroke-width="1.2"/><rect x="6" y="10" width="3" height="3" stroke-width="1.2"/><rect x="10" y="10" width="3" height="3" stroke-width="1.2"/></svg>
+        Skills heatmap<span class="num">96</span>
+      </div>
+      <div class="sidebar-link">
+        <svg class="glyph" viewBox="0 0 16 16" fill="none" stroke="currentColor"><line x1="2" y1="13" x2="2" y2="6" stroke-width="1.5"/><line x1="6" y1="13" x2="6" y2="3" stroke-width="1.5"/><line x1="10" y1="13" x2="10" y2="8" stroke-width="1.5"/><line x1="14" y1="13" x2="14" y2="5" stroke-width="1.5"/></svg>
+        Skill gap analysis<span class="num">47</span>
+      </div>
+      <div class="sidebar-link">
+        <svg class="glyph" viewBox="0 0 16 16" fill="none" stroke="currentColor"><path d="M 3,13 L 13,13 L 13,3" stroke-width="1.5"/><circle cx="3" cy="13" r="1" fill="currentColor"/><circle cx="13" cy="3" r="1" fill="currentColor"/></svg>
+        Career bridging
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <h4 onclick="toggleSection(this)">Department <span class="chev">▾</span></h4>
+      <div class="sidebar-link">Risk Modelling<span class="num">142</span></div>
+      <div class="sidebar-link">Credit Risk<span class="num">187</span></div>
+      <div class="sidebar-link">IT Architecture<span class="num">98</span></div>
+      <div class="sidebar-link">Compliance<span class="num">76</span></div>
+      <div class="sidebar-link">Treasury<span class="num">54</span></div>
+      <div class="sidebar-link">Data Science<span class="num">42</span></div>
+      <div class="sidebar-link">Operations<span class="num">312</span></div>
+      <div class="sidebar-link">HR & People<span class="num">28</span></div>
+    </div>
+
+    <div class="user-card">
+      <div class="avatar">MC</div>
+      <div class="info">
+        <div class="name">Maria Conti</div>
+        <div class="role">CHRO · level 2</div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="workspace">
+
+    <div class="ws-header">
+      <div class="title-block">
+        <div class="breadcrumb">Talent · Skills heatmap · Q1 2026</div>
+        <h1>Coverage skill <em>per dipartimento</em></h1>
+      </div>
+      <div class="actions">
+        <div class="tenant-pill">
+          <span class="dot"></span>
+          <span>RTL Bank · prod</span>
+        </div>
+        <a class="btn btn-ghost">Export CSV</a>
+        <a class="btn btn-primary">Genera training plan →</a>
+      </div>
+    </div>
+
+    <!-- KPI ring -->
+    <div class="kpi-ring">
+      <div class="kpi-card">
+        <div class="kpi-label">CRITICAL CELLS · P0</div>
+        <div class="kpi-num">12<span class="delta danger">+3</span></div>
+        <div class="kpi-sub">cells &lt; 50% coverage · 8 dept × 12 skill</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">WARNING CELLS · P1</div>
+        <div class="kpi-num">23<span class="delta warn">+2</span></div>
+        <div class="kpi-sub">cells 50-70% coverage · da monitorare</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">HEALTHY CELLS · OK</div>
+        <div class="kpi-num">61<span class="delta up">+8</span></div>
+        <div class="kpi-sub">cells &gt;= 70% coverage · target raggiunto</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">AVG COVERAGE</div>
+        <div class="kpi-num">72,3%<span class="delta up">+4,1%</span></div>
+        <div class="kpi-sub">media weighted full matrix · 96 cells</div>
+      </div>
+    </div>
+
+    <!-- Filter bar -->
+    <div class="filter-bar">
+      <div class="group">
+        <span class="lbl">Priority</span>
+        <span class="filter-pill active">All</span>
+        <span class="filter-pill">P0</span>
+        <span class="filter-pill">P1</span>
+        <span class="filter-pill">OK</span>
+      </div>
+      <div class="group">
+        <span class="lbl">Capability</span>
+        <span class="filter-pill active">All 5</span>
+        <span class="filter-pill">Process</span>
+        <span class="filter-pill">Role</span>
+        <span class="filter-pill">Competency</span>
+      </div>
+      <div class="group">
+        <span class="lbl">Cycle</span>
+        <span class="filter-pill active">Q1 2026</span>
+        <span class="filter-pill">Q4 2025</span>
+        <span class="filter-pill">Δ trend</span>
+      </div>
+      <input type="text" class="search" placeholder="cerca skill ESCO ID o nome IT/EN..." />
+    </div>
+
+    <!-- Heatmap matrix -->
+    <div class="heatmap-wrap">
+      <div class="hm-head">
+        <h2>Heatmap · <em>8 dept × 12 ESCO skills</em> · Q1 2026 calibration</h2>
+        <div class="legend">
+          <span>0%</span>
+          <span class="swatch heat-0"></span>
+          <span class="swatch heat-1"></span>
+          <span class="swatch heat-2"></span>
+          <span class="swatch heat-3"></span>
+          <span class="swatch heat-4"></span>
+          <span class="swatch heat-5"></span>
+          <span class="swatch heat-6"></span>
+          <span>100%</span>
+        </div>
+      </div>
+      <div class="heatmap-scroll">
+        <table class="heatmap">
+          <thead>
+            <tr>
+              <th class="row-head">Department</th>
+              <th><span class="esco-id">e/3022</span><div class="vlabel">Modellazione finanziaria</div></th>
+              <th><span class="esco-id">e/2011</span><div class="vlabel">Analisi rischio creditizio</div></th>
+              <th><span class="esco-id">e/4044</span><div class="vlabel">ML applicato</div></th>
+              <th><span class="esco-id">e/4408</span><div class="vlabel">Architettura cloud Azure</div></th>
+              <th><span class="esco-id">e/5520</span><div class="vlabel">Compliance Basel III/IV</div></th>
+              <th><span class="esco-id">e/1107</span><div class="vlabel">Pianificazione successioni</div></th>
+              <th><span class="esco-id">e/3340</span><div class="vlabel">Stress testing</div></th>
+              <th><span class="esco-id">e/2298</span><div class="vlabel">SQL avanzato</div></th>
+              <th><span class="esco-id">e/4451</span><div class="vlabel">Python data science</div></th>
+              <th><span class="esco-id">e/8801</span><div class="vlabel">Comunicazione board</div></th>
+              <th><span class="esco-id">e/6612</span><div class="vlabel">GDPR &amp; privacy</div></th>
+              <th><span class="esco-id">e/9912</span><div class="vlabel">Project mgmt agile</div></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="dept-cell">Risk Modelling<span class="meta">42 emp · @stefania.b</span></td>
+              <td class="heat heat-0">31%</td>
+              <td class="heat heat-2">63%</td>
+              <td class="heat heat-3">68%</td>
+              <td class="heat heat-1">42%</td>
+              <td class="heat heat-5">81%</td>
+              <td class="heat heat-3">66%</td>
+              <td class="heat heat-2">58%</td>
+              <td class="heat heat-5">78%</td>
+              <td class="heat heat-4">71%</td>
+              <td class="heat heat-3">64%</td>
+              <td class="heat heat-4">73%</td>
+              <td class="heat heat-3">67%</td>
+            </tr>
+            <tr>
+              <td class="dept-cell">Credit Risk<span class="meta">87 emp · @luca.f</span></td>
+              <td class="heat heat-2">54%</td>
+              <td class="heat heat-1">47%</td>
+              <td class="heat heat-2">61%</td>
+              <td class="heat heat-3">66%</td>
+              <td class="heat heat-6">94%</td>
+              <td class="heat heat-4">72%</td>
+              <td class="heat heat-3">68%</td>
+              <td class="heat heat-4">71%</td>
+              <td class="heat heat-3">65%</td>
+              <td class="heat heat-3">67%</td>
+              <td class="heat heat-5">82%</td>
+              <td class="heat heat-4">74%</td>
+            </tr>
+            <tr>
+              <td class="dept-cell">IT Architecture<span class="meta">38 emp · @davide.r</span></td>
+              <td class="heat heat-3">66%</td>
+              <td class="heat heat-3">68%</td>
+              <td class="heat heat-5">82%</td>
+              <td class="heat heat-1">49%</td>
+              <td class="heat heat-3">69%</td>
+              <td class="heat heat-4">71%</td>
+              <td class="heat heat-3">65%</td>
+              <td class="heat heat-6">93%</td>
+              <td class="heat heat-6">96%</td>
+              <td class="heat heat-3">68%</td>
+              <td class="heat heat-5">85%</td>
+              <td class="heat heat-5">81%</td>
+            </tr>
+            <tr>
+              <td class="dept-cell">Compliance<span class="meta">26 emp · @maria.c</span></td>
+              <td class="heat heat-3">68%</td>
+              <td class="heat heat-3">66%</td>
+              <td class="heat heat-3">67%</td>
+              <td class="heat heat-3">69%</td>
+              <td class="heat heat-6">98%</td>
+              <td class="heat heat-5">81%</td>
+              <td class="heat heat-3">68%</td>
+              <td class="heat heat-3">66%</td>
+              <td class="heat heat-3">67%</td>
+              <td class="heat heat-5">82%</td>
+              <td class="heat heat-6">92%</td>
+              <td class="heat heat-4">71%</td>
+            </tr>
+            <tr>
+              <td class="dept-cell">Treasury<span class="meta">18 emp · @giulia.m</span></td>
+              <td class="heat heat-4">73%</td>
+              <td class="heat heat-3">68%</td>
+              <td class="heat heat-2">61%</td>
+              <td class="heat heat-3">66%</td>
+              <td class="heat heat-4">72%</td>
+              <td class="heat heat-3">68%</td>
+              <td class="heat heat-4">71%</td>
+              <td class="heat heat-3">68%</td>
+              <td class="heat heat-2">60%</td>
+              <td class="heat heat-3">66%</td>
+              <td class="heat heat-4">73%</td>
+              <td class="heat heat-3">68%</td>
+            </tr>
+            <tr>
+              <td class="dept-cell">Data Science<span class="meta">14 emp · @chiara.l</span></td>
+              <td class="heat heat-2">58%</td>
+              <td class="heat heat-2">61%</td>
+              <td class="heat heat-6">95%</td>
+              <td class="heat heat-3">66%</td>
+              <td class="heat heat-2">59%</td>
+              <td class="heat heat-3">66%</td>
+              <td class="heat heat-3">68%</td>
+              <td class="heat heat-6">94%</td>
+              <td class="heat heat-6">97%</td>
+              <td class="heat heat-3">66%</td>
+              <td class="heat heat-3">68%</td>
+              <td class="heat heat-3">69%</td>
+            </tr>
+            <tr>
+              <td class="dept-cell">Operations<span class="meta">98 emp · @paolo.v</span></td>
+              <td class="heat heat-2">59%</td>
+              <td class="heat heat-3">66%</td>
+              <td class="heat heat-1">42%</td>
+              <td class="heat heat-2">61%</td>
+              <td class="heat heat-3">68%</td>
+              <td class="heat heat-3">66%</td>
+              <td class="heat heat-3">67%</td>
+              <td class="heat heat-3">68%</td>
+              <td class="heat heat-2">58%</td>
+              <td class="heat heat-3">68%</td>
+              <td class="heat heat-3">68%</td>
+              <td class="heat heat-5">82%</td>
+            </tr>
+            <tr>
+              <td class="dept-cell">HR &amp; People<span class="meta">14 emp · @maria.c</span></td>
+              <td class="heat heat-1">38%</td>
+              <td class="heat heat-1">42%</td>
+              <td class="heat heat-1">36%</td>
+              <td class="heat heat-2">59%</td>
+              <td class="heat heat-3">66%</td>
+              <td class="heat heat-6">94%</td>
+              <td class="heat heat-2">58%</td>
+              <td class="heat heat-2">56%</td>
+              <td class="heat heat-2">54%</td>
+              <td class="heat heat-6">96%</td>
+              <td class="heat heat-5">83%</td>
+              <td class="heat heat-4">71%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Bottom split: distribution + critical list -->
+    <div class="bottom-split">
+
+      <!-- Distribution histogram -->
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Distribution coverage · <em>96 cells</em></h2>
+          <span class="meta">avg 72,3% · σ 14,8</span>
+        </div>
+        <div class="panel-body">
+          <div class="histogram">
+            <div class="histo-bar" style="height: 8%;"><span class="val">2</span></div>
+            <div class="histo-bar" style="height: 18%;"><span class="val">5</span></div>
+            <div class="histo-bar" style="height: 22%;"><span class="val">7</span></div>
+            <div class="histo-bar" style="height: 38%;"><span class="val">12</span></div>
+            <div class="histo-bar" style="height: 55%;"><span class="val">17</span></div>
+            <div class="histo-bar" style="height: 78%;"><span class="val">24</span></div>
+            <div class="histo-bar" style="height: 65%;"><span class="val">20</span></div>
+            <div class="histo-bar" style="height: 32%;"><span class="val">9</span></div>
+          </div>
+          <div class="histo-axis">
+            <span class="tick">30%</span>
+            <span class="tick">40%</span>
+            <span class="tick">50%</span>
+            <span class="tick">60%</span>
+            <span class="tick">70%</span>
+            <span class="tick">80%</span>
+            <span class="tick">90%</span>
+            <span class="tick">100%</span>
+          </div>
+          <div class="histo-summary">
+            <div class="stat"><div class="lbl">P25</div><div class="val">61,4%</div></div>
+            <div class="stat"><div class="lbl">MEDIAN</div><div class="val">72,3%</div></div>
+            <div class="stat"><div class="lbl">P75</div><div class="val">82,1%</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Critical list -->
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Top critical · <em>P0 cells</em></h2>
+          <span class="meta">12 cells &lt; 50%</span>
+        </div>
+        <div class="crit-row">
+          <div class="badge">P0</div>
+          <div class="info">
+            <div class="skill">Modellazione finanziaria avanzata</div>
+            <div class="meta">e/3022 · Risk Modelling · 42 emp</div>
+          </div>
+          <div class="gap-num">31%</div>
+          <div class="arrow">→</div>
+        </div>
+        <div class="crit-row">
+          <div class="badge">P0</div>
+          <div class="info">
+            <div class="skill">ML applicato</div>
+            <div class="meta">e/4044 · HR &amp; People · 14 emp</div>
+          </div>
+          <div class="gap-num">36%</div>
+          <div class="arrow">→</div>
+        </div>
+        <div class="crit-row">
+          <div class="badge">P0</div>
+          <div class="info">
+            <div class="skill">Modellazione finanziaria avanzata</div>
+            <div class="meta">e/3022 · HR &amp; People · 14 emp</div>
+          </div>
+          <div class="gap-num">38%</div>
+          <div class="arrow">→</div>
+        </div>
+        <div class="crit-row">
+          <div class="badge">P0</div>
+          <div class="info">
+            <div class="skill">Architettura cloud Azure</div>
+            <div class="meta">e/4408 · Risk Modelling · 42 emp</div>
+          </div>
+          <div class="gap-num">42%</div>
+          <div class="arrow">→</div>
+        </div>
+        <div class="crit-row">
+          <div class="badge">P0</div>
+          <div class="info">
+            <div class="skill">ML applicato</div>
+            <div class="meta">e/4044 · Operations · 98 emp</div>
+          </div>
+          <div class="gap-num">42%</div>
+          <div class="arrow">→</div>
+        </div>
+        <div class="crit-row">
+          <div class="badge">P0</div>
+          <div class="info">
+            <div class="skill">Analisi rischio creditizio</div>
+            <div class="meta">e/2011 · HR &amp; People · 14 emp</div>
+          </div>
+          <div class="gap-num">42%</div>
+          <div class="arrow">→</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ws-footer">
+      <span>SOURCE · ESCO 1.2.0 · 96 cells (8 dept × 12 skill) · Q1 2026 calibration</span>
+      <span>Phase 9 Mockup · Heuresys DESIGN.md · L21 modello base</span>
+    </div>
+  </main>
+</div>
+
+<script>
+  const t = localStorage.getItem('heuresys-theme');
+  if (t) document.documentElement.setAttribute('data-theme', t);
+  const sb = localStorage.getItem('heuresys-sidebar');
+  if (sb) document.body.setAttribute('data-sidebar', sb);
+  function toggleTheme() {
+    const cur = document.documentElement.getAttribute('data-theme') || 'dark';
+    const next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('heuresys-theme', next);
+  }
+  function toggleSidebar() {
+    const cur = document.body.getAttribute('data-sidebar') || 'open';
+    const next = cur === 'open' ? 'collapsed' : 'open';
+    document.body.setAttribute('data-sidebar', next);
+    localStorage.setItem('heuresys-sidebar', next);
+  }
+  function toggleSection(el) {
+    el.parentElement.classList.toggle('collapsed');
+  }
+</script>
+
+</body>
+</html>

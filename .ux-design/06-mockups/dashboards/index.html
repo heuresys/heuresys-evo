@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Phase 9 · Dashboard Mockups — Heuresys</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0a0d18;
+    --surface-1: #14182a;
+    --surface-2: #1c2138;
+    --surface-3: #252b48;
+    --ink: #f4f5f7;
+    --ink-soft: #c8cad2;
+    --ink-muted: #8b8e99;
+    --rule: #232838;
+    --rule-strong: #3a4055;
+    --brand-blue: #3b82f6;
+    --accent: #a855f7;
+    --accent-deep: #7e3fc8;
+    --accent-soft: #2a1a44;
+  }
+  [data-theme="light"] {
+    --bg: #f4f5f7;
+    --surface-1: #ffffff;
+    --surface-2: #ebecf0;
+    --surface-3: #e0e2e8;
+    --ink: #0a0d18;
+    --ink-soft: #2a2d38;
+    --ink-muted: #6a6d75;
+    --rule: #d8dae0;
+    --rule-strong: #b6b9c2;
+    --brand-blue: #2452c8;
+    --accent: #7e3fc8;
+    --accent-deep: #5e2898;
+    --accent-soft: #ede0fa;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--ink); font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; line-height: 1.5; min-height: 100vh; padding: 48px 32px; }
+  .container { max-width: 1200px; margin: 0 auto; }
+  .head { display: flex; justify-content: space-between; align-items: flex-end; padding-bottom: 32px; border-bottom: 1px solid var(--rule); margin-bottom: 40px; }
+  .head .breadcrumb { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 12px; }
+  .head h1 { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 36px; letter-spacing: -1px; line-height: 1.1; color: var(--ink); }
+  .head h1 em { color: var(--accent); font-style: normal; font-weight: 700; }
+  .head .wordmark { font-family: 'Exo 2', sans-serif; font-weight: 700; font-size: 22px; letter-spacing: -0.5px; color: var(--ink); filter: drop-shadow(0 0 18px rgba(168,85,247,0.25)); }
+  .head .wordmark .y { color: var(--accent); font-weight: 500; }
+  .theme-toggle { background: transparent; border: 1px solid var(--ink); color: var(--ink); padding: 6px 12px; font-family: 'JetBrains Mono', monospace; font-size: 11px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; border-radius: 4px; }
+  .theme-toggle:hover { background: var(--ink); color: var(--bg); }
+  .meta-row { display: flex; gap: 14px; align-items: center; margin-bottom: 32px; flex-wrap: wrap; }
+  .pill { font-family: 'JetBrains Mono', monospace; font-size: 10px; padding: 4px 10px; border-radius: 3px; letter-spacing: 1px; text-transform: uppercase; font-weight: 600; }
+  .pill-phase { background: var(--accent); color: white; }
+  .pill-status { background: var(--surface-2); color: var(--ink); border: 1px solid var(--rule-strong); }
+  .pill-d1 { background: var(--accent-soft); color: var(--accent); border: 1px solid var(--accent); }
+
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+  .card { background: var(--surface-1); border: 1px solid var(--rule); border-radius: 10px; padding: 24px; text-decoration: none; color: var(--ink); display: block; transition: border-color 0.15s, transform 0.15s; }
+  .card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .card .num { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent); letter-spacing: 1.5px; margin-bottom: 12px; }
+  .card h2 { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 22px; letter-spacing: -0.5px; margin-bottom: 8px; color: var(--ink); }
+  .card .desc { font-size: 13px; color: var(--ink-soft); margin-bottom: 16px; line-height: 1.55; }
+  .card .meta { display: flex; gap: 12px; padding-top: 12px; border-top: 1px solid var(--rule); }
+  .card .meta-item { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-muted); letter-spacing: 0.5px; }
+  .card .meta-item strong { color: var(--ink); font-weight: 600; }
+
+  .footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--rule); display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-muted); letter-spacing: 1px; text-transform: uppercase; }
+  .back-link { color: var(--ink); text-decoration: none; padding-bottom: 1px; border-bottom: 1px solid var(--ink-muted); }
+  .back-link:hover { border-color: var(--accent); color: var(--accent); }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="head">
+    <div>
+      <div class="breadcrumb">UX-design · 06-mockups · dashboards</div>
+      <h1>Phase 9 · <em>dashboard mockup</em></h1>
+    </div>
+    <div style="text-align: right;">
+      <div class="wordmark">heures<span class="y">y</span>s</div>
+      <button class="theme-toggle" onclick="toggleTheme()" style="margin-top: 12px;">◐ Light/Dark</button>
+    </div>
+  </div>
+
+  <div class="meta-row">
+    <span class="pill pill-phase">PHASE 9 · FOCUS MASSIMO</span>
+    <span class="pill pill-d1">D1 modello base · μ-architect-legacy</span>
+    <span class="pill pill-status">5 / 5 surface · L21 + L22</span>
+    <a class="back-link" href="../../02-aesthetic/direction-explorations/index.html">← 32 direzioni esplorate</a>
+  </div>
+
+  <div class="grid">
+
+    <a class="card" href="hr-director-overview.html">
+      <div class="num">01 · OVERVIEW</div>
+      <h2>HR Director Overview</h2>
+      <p class="desc">Talent &amp; capability al colpo d'occhio · KPI ring · skill gap critical · activity feed live · succession ready 8 ruoli.</p>
+      <div class="meta">
+        <span class="meta-item">PERSONA · <strong>Maria CHRO</strong></span>
+        <span class="meta-item">TENANT · <strong>RTL Bank</strong></span>
+        <span class="meta-item">SCOPE · <strong>strategic</strong></span>
+      </div>
+    </a>
+
+    <a class="card" href="capability-graph.html">
+      <div class="num">02 · ONTOLOGY</div>
+      <h2>Capability Graph</h2>
+      <p class="desc">Knowledge Graph topology · 14.011 skill ESCO · 5 capability types · ontology breakdown · top entities by edge density.</p>
+      <div class="meta">
+        <span class="meta-item">PERSONA · <strong>Davide IT_ADMIN</strong></span>
+        <span class="meta-item">SOURCE · <strong>ESCO 1.2.0</strong></span>
+        <span class="meta-item">SCOPE · <strong>technical</strong></span>
+      </div>
+    </a>
+
+    <a class="card" href="skills-heatmap.html">
+      <div class="num">03 · ANALYSIS</div>
+      <h2>Skills Heatmap</h2>
+      <p class="desc">Coverage matrix 8 dept × 12 ESCO skill · heat critical→OK · filter priority/capability · distribution histogram · top P0 critical.</p>
+      <div class="meta">
+        <span class="meta-item">PERSONA · <strong>Maria CHRO</strong></span>
+        <span class="meta-item">CYCLE · <strong>Q1 2026</strong></span>
+        <span class="meta-item">SCOPE · <strong>tactical</strong></span>
+      </div>
+    </a>
+
+    <a class="card" href="employee-journey.html">
+      <div class="num">04 · INDIVIDUAL</div>
+      <h2>Employee Journey</h2>
+      <p class="desc">Profilo persona · career arc 5 milestones · skill evolution 4 quarters · capability radar 5-axis · 3 bridging suggestions.</p>
+      <div class="meta">
+        <span class="meta-item">PERSONA · <strong>Andrea EMPLOYEE</strong></span>
+        <span class="meta-item">ROLE · <strong>Quant Analyst Jr</strong></span>
+        <span class="meta-item">SCOPE · <strong>self-service</strong></span>
+      </div>
+    </a>
+
+    <a class="card" href="org-systems.html" style="grid-column: 1 / -1;">
+      <div class="num">05 · PLATFORM</div>
+      <h2>Org &amp; Systems</h2>
+      <p class="desc">Multi-tenant governance · 4 tenant fleet · RBAC matrix 8 roles × 33 areas · integration health · audit log live · system metrics.</p>
+      <div class="meta">
+        <span class="meta-item">PERSONA · <strong>Davide IT_ADMIN</strong></span>
+        <span class="meta-item">SCOPE · <strong>platform-level · tenant-agnostic</strong></span>
+        <span class="meta-item">RLS · <strong>605 policies</strong></span>
+      </div>
+    </a>
+  </div>
+
+  <div class="footer">
+    <span>Heuresys · Phase 9 dashboard mockup · L21 D1 modello base · L22 layout v2</span>
+    <span>5 surface · light+dark · sidebar collapsible · solid color buttons</span>
+  </div>
+</div>
+
+<script>
+  const t = localStorage.getItem('heuresys-theme');
+  if (t) document.documentElement.setAttribute('data-theme', t);
+  function toggleTheme() {
+    const cur = document.documentElement.getAttribute('data-theme') || 'dark';
+    const next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('heuresys-theme', next);
+  }
+</script>
+
+</body>
+</html>

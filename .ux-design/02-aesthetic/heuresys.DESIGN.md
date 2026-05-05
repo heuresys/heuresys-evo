@@ -174,11 +174,13 @@ HTML pattern: `<span class="wordmark">heures<span class="y">y</span>s</span>`
 
 ## 4. Component Stylings
 
-**Buttons**:
+**Buttons** (L22 · solid color only, NO gradient):
 
-- Primary CTA: `background: var(--gradient)`, white text, radius 6px, padding 10px/20px, weight 600, font-size 14px. Hover: brightness up 5%.
+- Primary CTA: `background: var(--accent)`, white text, radius 6px, padding 10px/20px, weight 600, font-size 14px. Hover: `background: var(--accent-deep)`. **Mai gradient** (L22).
 - Secondary: `background: var(--surface-2)`, `border: 1px solid var(--rule-strong)`, `color: var(--ink)`. Hover: `background: var(--surface-3)`.
 - Ghost / link: `background: transparent`, `color: var(--ink-soft)`. Hover: `color: var(--ink)`.
+
+**Object backgrounds rule (L22)**: nessun `var(--gradient)` come `background` di oggetti UI riconoscibili (button, avatar/initials circle, badge pill, progress bar fill, milestone dot, KPI ring fill). Usare `var(--accent)` solid o `var(--accent-soft)` tinted. Gradient ammesso SOLO come decoration line (e.g. `nav-bar::after` 2px border) o dentro `<linearGradient>` SVG dataviz (graph edges, radar fills).
 
 **Cards**:
 
@@ -208,14 +210,19 @@ HTML pattern: `<span class="wordmark">heures<span class="y">y</span>s</span>`
 - Stable: `background: var(--surface-3)`, `color: var(--ink-muted)`.
 - Warn: `background: var(--surface-3)`, `color: var(--semantic-warning)`.
 
-**Sidebar nav**:
+**Sidebar nav (L22 · v2 layout)**:
 
-- Width 220px (collapsible to 48px icon rail).
-- Section heading: mono uppercase 9px tracking 2px, `color: var(--ink-tertiary)`.
-- Link: 6px/12px padding, font 13px, `color: var(--ink-soft)`. Hover: bg `var(--surface-2)`.
-- Active: bg `var(--surface-3)`, optional `border-left: 2px solid var(--brand-blue)`.
+- Width 240px default · collapsible a 64px icon rail (toggle button in alto, persistente in `localStorage` come `heuresys-sidebar`).
+- **Logo Heuresys** SEMPRE nel nav-bar (header), MAI in sidebar.
+- **Tenant logo** sempre in cima sidebar via `.tenant-mini` card: `t-avatar` (rounded square 32px, `background: var(--accent)` solid) + `t-name` (Inter 600 13px) + `t-meta` (mono 10px sector/env). In modalità collapsed: solo `.t-avatar` visibile.
+- Section heading (`h4`): mono uppercase 9px tracking 2px, `color: var(--ink-tertiary)`. **Cliccabile** (`onclick="toggleSection(this)"`) per espandere/comprimere la sezione. Include `<span class="chev">▾</span>` che ruota -90° quando sezione collassata.
+- Section collassata via `.sidebar-section.collapsed > *:not(h4) { display: none }` — niente wrapper extra.
+- Link: 7px/12px padding, font 13px, `color: var(--ink-soft)`. Hover: bg `var(--surface-2)`.
+- Active: bg `var(--surface-3)`, `border-left: 2px solid var(--brand-blue)`.
+- Sidebar toggle button: 28x28px, `border: 1px solid var(--rule-strong)`, hover `border-color: var(--accent)`. Icona chevron `<` che ruota a `>` in stato collapsed.
+- User card in fondo sidebar (avatar 36px `background: var(--accent)` solid + name + role mono).
 
-**Wordmark logo**: vedi sezione 3 + L16/L18 standard.
+**Wordmark logo**: vedi sezione 3 + L16/L18 standard. Posizione canonical: nav-bar di ogni surface (mai duplicato in sidebar).
 
 ---
 
@@ -277,7 +284,7 @@ NO drop-shadow on cards/buttons/inputs.
 - Show more data per screen, not less (capability operating system promise)
 - Use mono for numbers, IDs, anything copyable
 - Use `font-variant-numeric: tabular-nums` always-on
-- Apply gradient blue→purple SOLO a CTA + hero text moments + headline emphasis
+- Apply gradient blue→purple SOLO come decoration line (nav-bar bottom 2px) o dataviz SVG (`<linearGradient>` per graph edges, radar fills). MAI come `background` di pulsanti, avatar, badge, progress bar (L22)
 - Lock spacing to 4px multiples
 - Use border-based depth (no shadows on cards)
 - Apply glow drop-shadow sotto wordmark hero (signature legacy element)
@@ -290,7 +297,7 @@ NO drop-shadow on cards/buttons/inputs.
 - Round corners beyond 8px (data-dense aesthetic)
 - Use serif fonts (lock to Exo 2 + Inter + JetBrains Mono)
 - Center-align numeric data (always right-align)
-- Apply gradient to large section backgrounds (only CTA + text)
+- Apply gradient to button backgrounds, avatar/initials circle, badge pill, progress bar fill, milestone dot, KPI ring (use `var(--accent)` solid). Gradient OK only on decoration lines + SVG dataviz (L22)
 - Animate chart rendering beyond 200ms
 - Use drop shadows on cards or buttons
 - Introduce purple-pink gradient hero clichés (anti-slop reject)
@@ -345,7 +352,7 @@ When generating UI for Heuresys:
 3. **Always**:
    - Apply L16 + L18 logo standard (y in `var(--accent)`, weight 500, NO italic for sans, italic OK for serif)
    - Keep container nesting ≤ 3
-   - Use `var(--gradient)` for CTA buttons + hero text moments
+   - Use `var(--accent)` solid (NOT `var(--gradient)`) for button backgrounds, avatar circle, badge, progress bar fill (L22). Gradient reserved per decoration line + SVG dataviz
    - Apply `var(--glow)` drop-shadow under wordmark hero
    - Verify WCAG AA contrast for any text/background pair
    - Lock spacing to multiples of 4px
@@ -369,6 +376,33 @@ When generating UI for Heuresys:
    - [ ] No teal, no purple-pink gradient anywhere
 
 If any check fails, regenerate the offending region.
+
+---
+
+## 10. Layout patterns Phase 9 (L22)
+
+**Dashboard 5-surface family** (`06-mockups/dashboards/`):
+
+| Surface              | Persona target | Sidebar tenant | Scope         |
+| -------------------- | -------------- | -------------- | ------------- |
+| HR Director Overview | Maria CHRO     | RTL Bank       | strategic     |
+| Capability Graph     | Davide IT      | RTL Bank       | technical     |
+| Skills Heatmap       | Maria CHRO     | RTL Bank       | tactical      |
+| Employee Journey     | Andrea EMP     | RTL Bank       | self-service  |
+| Org & Systems        | Davide IT      | Heuresys Sys   | platform-wide |
+
+**Shared structure**:
+
+- `<nav class="nav-bar">` — `nav-left` (back link + wordmark-sm Heuresys) + `label` PHASE/PILL + theme toggle
+- `<aside class="sidebar">` — `sidebar-header` (toggle button) + `tenant-mini` card + N `sidebar-section` (h4 collapsibili) + `user-card` in fondo
+- `<main class="workspace">` — `ws-header` (breadcrumb + h1 + actions) + KPI ring 4-col + content panels (split 2:1 / 1:1 / full) + `ws-footer`
+
+**Persistence**:
+
+- `localStorage.heuresys-theme` = `dark` | `light`
+- `localStorage.heuresys-sidebar` = `open` | `collapsed`
+
+**Navigation hub**: `06-mockups/dashboards/index.html` lista 5 surfaces con badge persona + tenant + scope.
 
 ---
 

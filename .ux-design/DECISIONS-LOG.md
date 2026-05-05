@@ -409,6 +409,53 @@ Persistenza garantita: tutti i file in git, sincronizzati cross-machine. Skill l
 
 ---
 
+## L22 — 2026-05-05 — Phase 9 5/5 dashboard complete + layout v2 (sidebar collapsible · header logo · tenant-mini · solid color buttons)
+
+**Decisione**: chiusura Phase 9 con 5 dashboard surface complete e adozione **layout v2** che applica 4 regole brand-wide:
+
+1. **Logo Heuresys nel header** (nav-bar `nav-left`) di tutti i dashboard, MAI nella sidebar. Wordmark Exo 2 700 + y `var(--accent)` weight 500 + glow drop-shadow 12px (versione `wordmark-sm` 18px per nav-bar).
+2. **Tenant logo nella sidebar** via `.tenant-mini` card in cima (sotto il toggle): rounded square 32px `t-avatar` + `t-name` Inter 600 13px + `t-meta` mono 10px sector/env. RTL Bank per dashboard tenant-scoped, Heuresys System per platform-level (Org & Systems).
+3. **Sidebar collassabile** 240px → 64px via toggle button in alto sidebar (chevron icon che ruota). State persistito in `localStorage.heuresys-sidebar`. Sezioni `<h4>` cliccabili per espandere/comprimere via `.sidebar-section.collapsed > *:not(h4) { display: none }` — niente wrapper extra. Chevron `▾` ruota a `-90°` quando collapsed.
+4. **Buttons solid color** (NO gradient): `.btn-primary { background: var(--accent) }` + hover `var(--accent-deep)`. Regola estesa a TUTTI gli sfondi di oggetti UI riconoscibili: avatar (`.user-card .avatar`, `.profile-hero .pic`, `.t-avatar`), badge pill (`.label-ph9`), progress bar fill (`.density-bar`, `.histo-bar`, `.bridge-card .ring-fill`), milestone dot (`.arc-event.done .dot`), succession candidate top, etc. Gradient ammesso SOLO come decoration line (`nav-bar::after` 2px) o `<linearGradient>` SVG dataviz (graph edges, radar fills).
+
+**Contesto**: dopo lancio Phase 9 con HR Director Overview (L21), Enzo richiede:
+
+- "nelle dashboard la sidebar deve essere comprimibile e deve avere il comando comprimi/espandi (icona) in alto"
+- "le voci di menù della sidebar devono essere collassabili ed espandibili"
+- "il logo heuresys deve essere posizionato nel header. Nella sidebar va inserito il logo del tenant"
+- "non voglio pulsanti con gradienti di colore ma solo solid color secondo lo schema"
+- "questo vale anche per lo sfondo di altri oggetti, come ad esempio il cerchio con le iniziali dell'utente attivo"
+
+**Conseguenza · 5 dashboard surface complete**:
+
+| #   | File                        | Persona              | Tenant       | Scope         | Highlight                                                                                                 |
+| --- | --------------------------- | -------------------- | ------------ | ------------- | --------------------------------------------------------------------------------------------------------- |
+| 01  | `hr-director-overview.html` | Maria CHRO · level 2 | RTL Bank     | strategic     | KPI ring · skill gap matrix · activity feed live · succession ready 8 ruoli                               |
+| 02  | `capability-graph.html`     | Davide IT · level 1  | RTL Bank     | technical     | KG topology SVG hero · ontology breakdown 5 capability · top entities by edge density · ESCO sync         |
+| 03  | `skills-heatmap.html`       | Maria CHRO · level 2 | RTL Bank     | tactical      | matrice 8 dept × 12 ESCO skill · heat critical→OK · filters · distribution histogram · top P0 critical    |
+| 04  | `employee-journey.html`     | Andrea EMP · level 6 | RTL Bank     | self-service  | profile hero · career arc 5 stage · skill evolution 4q · capability radar 5-axis · 3 bridging suggestions |
+| 05  | `org-systems.html`          | Davide IT · level 1  | Heuresys Sys | platform-wide | 4 tenant fleet · RBAC matrix 8 roles × 33 areas · integration health · audit log live · system metrics    |
+
+**Shared structure** (tutti 5):
+
+- `<nav class="nav-bar">` con `nav-left` (back + wordmark-sm) + label PHASE 9 + theme toggle
+- `<aside class="sidebar">` con `sidebar-header` (toggle) + `tenant-mini` + N `sidebar-section` (h4 collapsibili) + `user-card`
+- `<main class="workspace">` con `ws-header` + KPI ring + content panels + `ws-footer`
+
+**Persistence**: `localStorage` chiavi `heuresys-theme` (dark/light) + `heuresys-sidebar` (open/collapsed).
+
+**Index navigation hub**: `06-mockups/dashboards/index.html` con grid 5 card (badges persona + tenant + scope).
+
+**Verifica**: HTTP 200 confermato su tutti i 5 dashboard + index hub via `http://127.0.0.1:8765/06-mockups/dashboards/`.
+
+**DESIGN.md aggiornato**: Section 4 (Buttons solid + Object backgrounds rule + Sidebar nav v2) · Section 7 (Do/Don't gradient regola) · Section 9 (Agent Prompt Guide rule) · NUOVA Section 10 (Layout patterns Phase 9).
+
+**Open questions emerse durante L22**:
+
+- D5 · icon library standard: Enzo ha richiesto "showcase delle 10 librerie di icone più moderne e minimaliste utilizzate in dashboard wow in rete" — pagina demo da costruire come prossimo step.
+
+---
+
 ## Decisioni scartate (per riferimento)
 
 | Direzione                                                         | Motivo scarto                                                  | Reference                            |
