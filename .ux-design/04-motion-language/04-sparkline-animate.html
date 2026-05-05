@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>04 · Sparkline animate — Heuresys Motion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0a0d18; --surface-1: #14182a; --surface-2: #1c2138; --ink: #f4f5f7;
+    --ink-soft: #c8cad2; --ink-muted: #8b8e99; --rule: #232838;
+    --brand-blue: #3b82f6; --accent: #a855f7; --accent-soft: #2a1a44;
+    --success: #5fb87a; --warning: #f59e0b;
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  [data-theme="light"] {
+    --bg: #f4f5f7; --surface-1: #ffffff; --surface-2: #ebecf0; --ink: #0a0d18;
+    --ink-soft: #2a2d38; --ink-muted: #6a6d75; --rule: #d8dae0;
+    --brand-blue: #2452c8; --accent: #7e3fc8; --accent-soft: #ede0fa;
+    --success: #2da147; --warning: #b8860b;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--ink); font-family: 'Inter', sans-serif; min-height: 100vh; transition: background 200ms ease-out, color 200ms ease-out; }
+  .nav-bar { padding: 12px 24px; border-bottom: 1px solid var(--rule); display: flex; justify-content: space-between; align-items: center; }
+  .header-back { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink); text-decoration: none; }
+  .wordmark-sm { font-family: 'Exo 2'; font-weight: 700; font-size: 18px; color: var(--brand-blue); letter-spacing: -0.4px; }
+  .wordmark-sm .y { color: var(--accent); font-weight: 500; }
+  .label { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink); font-weight: 600; }
+  .label-pill { background: var(--accent); color: white; padding: 2px 10px; border-radius: 3px; }
+  .toggle { background: transparent; border: 1px solid var(--ink); color: var(--ink); padding: 6px 12px; font-family: 'JetBrains Mono', monospace; font-size: 11px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; border-radius: 4px; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 48px 32px; }
+  .head { padding-bottom: 32px; border-bottom: 1px solid var(--rule); margin-bottom: 32px; }
+  .breadcrumb { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 12px; }
+  h1 { font-family: 'Inter'; font-weight: 700; font-size: 32px; letter-spacing: -0.8px; }
+  h1 em { color: var(--accent); font-style: normal; }
+  .lead { font-size: 14px; color: var(--ink-muted); max-width: 720px; margin-top: 12px; }
+
+  .replay-bar { display: flex; gap: 12px; margin-bottom: 24px; }
+  .replay-btn { padding: 10px 20px; background: var(--accent); color: white; border: none; border-radius: 6px; font-family: 'Inter'; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 150ms var(--ease-out); }
+  .replay-btn:hover { background: var(--brand-blue); }
+  .replay-btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--rule); }
+
+  .kpi-ring { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 32px; }
+  .kpi { background: var(--surface-1); border: 1px solid var(--rule); border-radius: 8px; padding: 20px 24px; }
+  .kpi .lbl { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--ink-muted); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px; display: flex; justify-content: space-between; }
+  .kpi .lbl .delta { color: var(--success); font-weight: 600; }
+  .kpi .lbl .delta.warn { color: var(--warning); }
+  .kpi .num { font-family: 'Inter'; font-weight: 700; font-size: 36px; letter-spacing: -1px; color: var(--ink); line-height: 1; font-variant-numeric: tabular-nums; margin-bottom: 16px; }
+  .kpi svg { width: 100%; height: 56px; display: block; }
+  .kpi .spark { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .kpi .spark-area { fill: var(--accent); fill-opacity: 0.12; }
+  .kpi .sub { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-muted); margin-top: 8px; letter-spacing: 0.5px; }
+
+  /* Animated state */
+  .kpi.animate .spark { stroke-dasharray: var(--len); stroke-dashoffset: var(--len); animation: draw 200ms var(--ease-out) forwards; }
+  .kpi.animate .spark-area { opacity: 0; animation: fade-in 200ms var(--ease-out) forwards; animation-delay: 100ms; }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  @keyframes fade-in { to { opacity: 1; } }
+
+  .spec { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 32px; }
+  .spec-card { background: var(--surface-1); border: 1px solid var(--rule); border-radius: 8px; padding: 20px 24px; }
+  .spec-card h3 { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
+  .spec-card .row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--rule); font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+  .spec-card .row:last-child { border-bottom: 0; }
+  .spec-card .row .name { color: var(--ink-muted); }
+  .spec-card .row .val { color: var(--ink); font-weight: 600; }
+
+  .footer-mini { padding-top: 24px; border-top: 1px solid var(--rule); font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-muted); letter-spacing: 1px; text-transform: uppercase; display: flex; justify-content: space-between; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .kpi.animate .spark { stroke-dashoffset: 0 !important; animation: none !important; }
+    .kpi.animate .spark-area { opacity: 1 !important; animation: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav-bar">
+  <a class="header-back" href="index.html">← Motion prototypes</a>
+  <span class="label"><span class="wordmark-sm">Heures<span class="y">y</span>s</span> · MOTION · <span class="label-pill">04 SPARKLINE ANIMATE</span></span>
+  <button class="toggle" onclick="toggleTheme()">◐ Light/Dark</button>
+</nav>
+
+<div class="container">
+  <div class="head">
+    <div class="breadcrumb">04-motion-language · prototype 04</div>
+    <h1>KPI sparkline <em>draw + count-up</em></h1>
+    <p class="lead">Quando KPI card entra in viewport: sparkline si disegna L→R via stroke-dashoffset 200ms · area sotto fade-in 100ms · numero count-up da 0 al valore finale 200ms ease-out. Vincolo anti-slop: max 200ms, no rallenta lettura.</p>
+  </div>
+
+  <div class="replay-bar">
+    <button class="replay-btn" onclick="play()">▶ Replay animation</button>
+    <button class="replay-btn ghost" onclick="resetCards()">↻ Reset</button>
+  </div>
+
+  <div class="kpi-ring">
+    <div class="kpi" data-target="14011" data-suffix="">
+      <div class="lbl"><span>NODES TOTAL</span><span class="delta">+312</span></div>
+      <div class="num">0</div>
+      <svg viewBox="0 0 200 56" preserveAspectRatio="none">
+        <path class="spark-area" d="M0,42 L20,38 L40,40 L60,32 L80,28 L100,30 L120,22 L140,18 L160,14 L180,10 L200,8 L200,56 L0,56 Z"/>
+        <path class="spark" d="M0,42 L20,38 L40,40 L60,32 L80,28 L100,30 L120,22 L140,18 L160,14 L180,10 L200,8"/>
+      </svg>
+      <div class="sub">11 quarters · ESCO baseline</div>
+    </div>
+    <div class="kpi" data-target="42087" data-suffix="">
+      <div class="lbl"><span>EDGES TOTAL</span><span class="delta">+1.847</span></div>
+      <div class="num">0</div>
+      <svg viewBox="0 0 200 56" preserveAspectRatio="none">
+        <path class="spark-area" d="M0,48 L20,44 L40,40 L60,42 L80,30 L100,28 L120,24 L140,18 L160,14 L180,10 L200,6 L200,56 L0,56 Z"/>
+        <path class="spark" d="M0,48 L20,44 L40,40 L60,42 L80,30 L100,28 L120,24 L140,18 L160,14 L180,10 L200,6"/>
+      </svg>
+      <div class="sub">density 0.43 · 3.0 avg/node</div>
+    </div>
+    <div class="kpi" data-target="82.4" data-suffix="%" data-decimals="1">
+      <div class="lbl"><span>COVERAGE</span><span class="delta">+6,1%</span></div>
+      <div class="num">0</div>
+      <svg viewBox="0 0 200 56" preserveAspectRatio="none">
+        <path class="spark-area" d="M0,40 L20,42 L40,38 L60,34 L80,36 L100,30 L120,26 L140,28 L160,20 L180,16 L200,12 L200,56 L0,56 Z"/>
+        <path class="spark" d="M0,40 L20,42 L40,38 L60,34 L80,36 L100,30 L120,26 L140,28 L160,20 L180,16 L200,12"/>
+      </svg>
+      <div class="sub">skill mapped tenant</div>
+    </div>
+  </div>
+
+  <div class="spec">
+    <div class="spec-card">
+      <h3>Sparkline draw</h3>
+      <div class="row"><span class="name">Technique</span><span class="val">stroke-dasharray</span></div>
+      <div class="row"><span class="name">Duration</span><span class="val">200ms</span></div>
+      <div class="row"><span class="name">Easing</span><span class="val">ease-out</span></div>
+      <div class="row"><span class="name">Direction</span><span class="val">L → R</span></div>
+      <div class="row"><span class="name">Area fade-in delay</span><span class="val">100ms</span></div>
+      <div class="row"><span class="name">Trigger</span><span class="val">IntersectionObserver</span></div>
+    </div>
+    <div class="spec-card">
+      <h3>Number count-up</h3>
+      <div class="row"><span class="name">Duration</span><span class="val">200ms</span></div>
+      <div class="row"><span class="name">Easing</span><span class="val">ease-out</span></div>
+      <div class="row"><span class="name">Locale</span><span class="val">it-IT (1.234,56)</span></div>
+      <div class="row"><span class="name">Trigger</span><span class="val">in-viewport once</span></div>
+      <div class="row"><span class="name">Anti-slop</span><span class="val">max 200ms · no rallenta</span></div>
+      <div class="row"><span class="name">Reduced motion</span><span class="val">snap to value</span></div>
+    </div>
+  </div>
+
+  <div class="footer-mini">
+    <span>Heuresys · Phase 8 · prototype 04 · L24</span>
+    <span>SPEC · motion-final.md · 200ms ease-out · stroke-dasharray + count-up</span>
+  </div>
+</div>
+
+<script>
+  const t = localStorage.getItem('heuresys-theme');
+  if (t) document.documentElement.setAttribute('data-theme', t);
+  function toggleTheme() {
+    const c = document.documentElement.getAttribute('data-theme') || 'dark';
+    const n = c === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', n);
+    localStorage.setItem('heuresys-theme', n);
+  }
+
+  const fmt = new Intl.NumberFormat('it-IT', { maximumFractionDigits: 1 });
+  function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
+
+  function animateNum(el, target, decimals = 0, suffix = '') {
+    const start = performance.now();
+    const dur = 200;
+    function step(now) {
+      const t = Math.min(1, (now - start) / dur);
+      const v = target * easeOut(t);
+      el.textContent = decimals > 0 ? fmt.format(v.toFixed(decimals)) + suffix : fmt.format(Math.round(v)) + suffix;
+      if (t < 1) requestAnimationFrame(step);
+      else el.textContent = decimals > 0 ? fmt.format(target) + suffix : fmt.format(target) + suffix;
+    }
+    requestAnimationFrame(step);
+  }
+
+  function animateCard(card) {
+    const path = card.querySelector('.spark');
+    const len = path.getTotalLength();
+    path.style.setProperty('--len', len);
+    card.classList.remove('animate');
+    void card.offsetWidth; // force reflow
+    card.classList.add('animate');
+    const numEl = card.querySelector('.num');
+    const target = parseFloat(card.dataset.target);
+    const decimals = parseInt(card.dataset.decimals || 0);
+    const suffix = card.dataset.suffix || '';
+    numEl.textContent = '0';
+    animateNum(numEl, target, decimals, suffix);
+  }
+
+  function play() {
+    document.querySelectorAll('.kpi').forEach((c, i) => {
+      setTimeout(() => animateCard(c), i * 60);
+    });
+  }
+  function resetCards() {
+    document.querySelectorAll('.kpi').forEach(c => {
+      c.classList.remove('animate');
+      c.querySelector('.num').textContent = '0';
+    });
+  }
+
+  // Auto-trigger via IntersectionObserver
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting && !e.target.dataset.played) {
+        e.target.dataset.played = '1';
+        animateCard(e.target);
+      }
+    });
+  }, { threshold: 0.5 });
+  document.querySelectorAll('.kpi').forEach(c => io.observe(c));
+</script>
+</body>
+</html>

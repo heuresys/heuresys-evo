@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>05 · Scroll reveals — Heuresys Motion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0a0d18; --surface-1: #14182a; --surface-2: #1c2138; --ink: #f4f5f7;
+    --ink-soft: #c8cad2; --ink-muted: #8b8e99; --rule: #232838;
+    --brand-blue: #3b82f6; --accent: #a855f7;
+    --success: #5fb87a; --warning: #f59e0b;
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  [data-theme="light"] {
+    --bg: #f4f5f7; --surface-1: #ffffff; --surface-2: #ebecf0; --ink: #0a0d18;
+    --ink-soft: #2a2d38; --ink-muted: #6a6d75; --rule: #d8dae0;
+    --brand-blue: #2452c8; --accent: #7e3fc8;
+    --success: #2da147; --warning: #b8860b;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--ink); font-family: 'Inter', sans-serif; min-height: 100vh; transition: background 200ms ease-out, color 200ms ease-out; }
+  .nav-bar { padding: 12px 24px; border-bottom: 1px solid var(--rule); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--bg); z-index: 10; }
+  .header-back { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink); text-decoration: none; }
+  .wordmark-sm { font-family: 'Exo 2'; font-weight: 700; font-size: 18px; color: var(--brand-blue); letter-spacing: -0.4px; }
+  .wordmark-sm .y { color: var(--accent); font-weight: 500; }
+  .label { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink); font-weight: 600; }
+  .label-pill { background: var(--accent); color: white; padding: 2px 10px; border-radius: 3px; }
+  .toggle { background: transparent; border: 1px solid var(--ink); color: var(--ink); padding: 6px 12px; font-family: 'JetBrains Mono', monospace; font-size: 11px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; border-radius: 4px; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 48px 32px; }
+  .head { padding-bottom: 32px; border-bottom: 1px solid var(--rule); margin-bottom: 32px; }
+  .breadcrumb { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 12px; }
+  h1 { font-family: 'Inter'; font-weight: 700; font-size: 32px; letter-spacing: -0.8px; }
+  h1 em { color: var(--accent); font-style: normal; }
+  .lead { font-size: 14px; color: var(--ink-muted); max-width: 720px; margin-top: 12px; }
+
+  .replay-bar { display: flex; gap: 12px; margin-bottom: 24px; position: sticky; top: 56px; background: var(--bg); padding: 12px 0; z-index: 5; border-bottom: 1px solid var(--rule); }
+  .replay-btn { padding: 10px 20px; background: var(--accent); color: white; border: none; border-radius: 6px; font-family: 'Inter'; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .replay-btn:hover { background: var(--brand-blue); }
+  .replay-btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--rule); }
+
+  /* Reveal pattern */
+  .reveal { opacity: 0; transform: translateY(8px); transition: opacity 300ms var(--ease-out), transform 300ms var(--ease-out); }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+
+  /* Stagger delay via inline style or CSS variable */
+  .stagger > .reveal { transition-delay: calc(var(--i, 0) * 60ms); }
+
+  /* Sample sections */
+  section { padding: 56px 0; border-bottom: 1px solid var(--rule); }
+  section h2 { font-family: 'Inter'; font-weight: 700; font-size: 24px; letter-spacing: -0.5px; margin-bottom: 8px; }
+  section h2 em { color: var(--accent); font-style: normal; }
+  section .meta { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 24px; }
+
+  .kpi-ring { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .kpi { background: var(--surface-1); border: 1px solid var(--rule); border-radius: 8px; padding: 18px 20px; }
+  .kpi .lbl { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--ink-muted); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 8px; }
+  .kpi .num { font-family: 'Inter'; font-weight: 700; font-size: 28px; letter-spacing: -1px; color: var(--ink); }
+
+  .panels { display: grid; grid-template-columns: 2fr 1fr; gap: 14px; }
+  .panel { background: var(--surface-1); border: 1px solid var(--rule); border-radius: 8px; padding: 20px 24px; }
+  .panel h3 { font-family: 'Inter'; font-weight: 600; font-size: 16px; margin-bottom: 12px; }
+  .panel ul { list-style: none; padding: 0; }
+  .panel li { padding: 8px 0; border-bottom: 1px solid var(--rule); font-size: 13px; color: var(--ink-soft); display: flex; justify-content: space-between; }
+  .panel li:last-child { border-bottom: 0; }
+  .panel li strong { color: var(--ink); font-weight: 600; }
+  .panel .accent { color: var(--accent); }
+
+  .feat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .feat { background: var(--surface-1); border: 1px solid var(--rule); border-radius: 8px; padding: 20px; }
+  .feat .icon { width: 36px; height: 36px; border-radius: 8px; background: var(--accent); display: flex; align-items: center; justify-content: center; color: white; font-family: 'JetBrains Mono'; font-weight: 700; margin-bottom: 12px; }
+  .feat h4 { font-family: 'Inter'; font-weight: 600; font-size: 14px; margin-bottom: 6px; }
+  .feat p { font-size: 12px; color: var(--ink-muted); }
+
+  .spec-final { background: var(--surface-1); border: 1px solid var(--accent); border-radius: 12px; padding: 28px 32px; margin-bottom: 24px; }
+  .spec-final h3 { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); margin-bottom: 16px; }
+  .spec-final .row { display: grid; grid-template-columns: 200px 1fr; padding: 8px 0; border-bottom: 1px solid var(--rule); font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+  .spec-final .row:last-child { border-bottom: 0; }
+  .spec-final .row .name { color: var(--ink-muted); }
+  .spec-final .row .val { color: var(--ink); }
+
+  .footer-mini { padding-top: 24px; border-top: 1px solid var(--rule); font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-muted); letter-spacing: 1px; text-transform: uppercase; display: flex; justify-content: space-between; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav-bar">
+  <a class="header-back" href="index.html">← Motion prototypes</a>
+  <span class="label"><span class="wordmark-sm">Heures<span class="y">y</span>s</span> · MOTION · <span class="label-pill">05 SCROLL REVEALS</span></span>
+  <button class="toggle" onclick="toggleTheme()">◐ Light/Dark</button>
+</nav>
+
+<div class="container">
+  <div class="head reveal">
+    <div class="breadcrumb">04-motion-language · prototype 05</div>
+    <h1>Scroll-triggered <em>reveals</em></h1>
+    <p class="lead">Sezioni dashboard appaiono con opacity 0→1 + translateY 8px→0 in 300ms ease-out. Stagger 60ms per child consecutivo. One-shot: una volta rivelato, NON re-anima al re-scroll.</p>
+  </div>
+
+  <div class="replay-bar">
+    <button class="replay-btn" onclick="replayAll()">↻ Replay all reveals</button>
+    <button class="replay-btn ghost" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">↑ Scroll top</button>
+  </div>
+
+  <section>
+    <h2 class="reveal"><em>KPI ring</em> · 4 metriche operative</h2>
+    <div class="meta reveal">section reveal · stagger 60ms tra child</div>
+    <div class="kpi-ring stagger">
+      <div class="kpi reveal" style="--i: 0;"><div class="lbl">TENANTS</div><div class="num">4</div></div>
+      <div class="kpi reveal" style="--i: 1;"><div class="lbl">SKILLS</div><div class="num">14.011</div></div>
+      <div class="kpi reveal" style="--i: 2;"><div class="lbl">EDGES</div><div class="num">42.087</div></div>
+      <div class="kpi reveal" style="--i: 3;"><div class="lbl">UPTIME</div><div class="num">99,97%</div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="reveal">Panel split · <em>activity feed</em></h2>
+    <div class="meta reveal">2-col content · reveal indipendente</div>
+    <div class="panels stagger">
+      <div class="panel reveal" style="--i: 0;">
+        <h3>Skill gap critical · top P0</h3>
+        <ul>
+          <li><span>Modellazione finanziaria avanzata <span class="accent">e/3022</span></span><strong>−43pt</strong></li>
+          <li><span>Analisi rischio creditizio <span class="accent">e/2011</span></span><strong>−23pt</strong></li>
+          <li><span>ML applicato <span class="accent">e/4044</span></span><strong>−11pt</strong></li>
+          <li><span>Architettura cloud Azure <span class="accent">e/4408</span></span><strong>−11pt</strong></li>
+        </ul>
+      </div>
+      <div class="panel reveal" style="--i: 1;">
+        <h3>Recent activity</h3>
+        <ul>
+          <li><span>Stefania B. ha aperto skill review</span><strong>2 min</strong></li>
+          <li><span>Andrea M. self-assessment 14 skill</span><strong>14 min</strong></li>
+          <li><span>System sync ESCO 312 skill</span><strong>1h 12m</strong></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="reveal">Feature grid · <em>3-col cards</em></h2>
+    <div class="meta reveal">grid reveal stagger 60ms · one-shot</div>
+    <div class="feat-grid stagger">
+      <div class="feat reveal" style="--i: 0;"><div class="icon">P</div><h4>Process Governance</h4><p>Catene operative orchestrate cross-tenant. ESCO-mapped, audit-logged.</p></div>
+      <div class="feat reveal" style="--i: 1;"><div class="icon">S</div><h4>Org Design</h4><p>Structure schema data-driven. Hierarchy 8 livelli, 33 functional areas.</p></div>
+      <div class="feat reveal" style="--i: 2;"><div class="icon">R</div><h4>Role Matching</h4><p>Job profile ESCO ISCO-08. 3.108 ruoli mappati.</p></div>
+      <div class="feat reveal" style="--i: 3;"><div class="icon">C</div><h4>Skill Graph</h4><p>14.011 skill ESCO bilingue IT/EN, 42.087 relazioni.</p></div>
+      <div class="feat reveal" style="--i: 4;"><div class="icon">P</div><h4>Performance KPI</h4><p>Calibration cycle Q1, review-driven, AB testable.</p></div>
+      <div class="feat reveal" style="--i: 5;"><div class="icon">E</div><h4>Enterprise Security</h4><p>RLS 605 policies, RBP 326 joins, audit log live.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="reveal">Spec finale</h2>
+    <div class="meta reveal">implementation guidelines</div>
+    <div class="spec-final reveal">
+      <h3>Scroll reveal pattern · L24</h3>
+      <div class="row"><span class="name">Initial state</span><span class="val">opacity: 0; transform: translateY(8px);</span></div>
+      <div class="row"><span class="name">Final state</span><span class="val">opacity: 1; transform: translateY(0);</span></div>
+      <div class="row"><span class="name">Duration</span><span class="val">300ms</span></div>
+      <div class="row"><span class="name">Easing</span><span class="val">cubic-bezier(0.16, 1, 0.3, 1)</span></div>
+      <div class="row"><span class="name">Stagger</span><span class="val">60ms × child index</span></div>
+      <div class="row"><span class="name">Trigger</span><span class="val">IntersectionObserver threshold: 0.15</span></div>
+      <div class="row"><span class="name">Lifecycle</span><span class="val">one-shot · NO re-animate</span></div>
+      <div class="row"><span class="name">Translate distance</span><span class="val">8px (subtle)</span></div>
+      <div class="row"><span class="name">Reduced motion</span><span class="val">snap to final state</span></div>
+    </div>
+  </section>
+
+  <div class="footer-mini">
+    <span>Heuresys · Phase 8 · prototype 05 · L24</span>
+    <span>SPEC · motion-final.md · 300ms ease-out · stagger 60ms · one-shot</span>
+  </div>
+</div>
+
+<script>
+  const t = localStorage.getItem('heuresys-theme');
+  if (t) document.documentElement.setAttribute('data-theme', t);
+  function toggleTheme() {
+    const c = document.documentElement.getAttribute('data-theme') || 'dark';
+    const n = c === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', n);
+    localStorage.setItem('heuresys-theme', n);
+  }
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting && !e.target.dataset.revealed) {
+        e.target.dataset.revealed = '1';
+        e.target.classList.add('in');
+      }
+    });
+  }, { threshold: 0.15 });
+
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  function replayAll() {
+    document.querySelectorAll('.reveal').forEach(el => {
+      el.classList.remove('in');
+      delete el.dataset.revealed;
+      io.observe(el);
+    });
+    // re-trigger by scrolling to top
+    setTimeout(() => {
+      document.querySelectorAll('.reveal').forEach(el => {
+        const rect = el.getBoundingClientRect();
+        if (rect.top < window.innerHeight && rect.bottom > 0) {
+          el.classList.add('in');
+          el.dataset.revealed = '1';
+        }
+      });
+    }, 50);
+  }
+</script>
+</body>
+</html>

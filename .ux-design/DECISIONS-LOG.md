@@ -456,6 +456,77 @@ Persistenza garantita: tutti i file in git, sincronizzati cross-machine. Skill l
 
 ---
 
+## L23 — 2026-05-05 — Architect-style customizations cross-dashboard (logo legacy · bordered avatars · sticky header+footer · scroll indipendenti)
+
+**Decisione**: applicate 6 personalizzazioni cross-surface a tutti i 5 dashboard (HR Director Overview · Capability Graph · Skills Heatmap · Employee Journey · Org & Systems):
+
+1. **Logo legacy nav-bar**: wordmark "Heuresys" capital H + body in `var(--brand-blue)` blue + y in `var(--accent)` purple (replicates landing page www.heuresys.com)
+2. **Tenant avatar bordered** (`.t-avatar.bordered`): cornice 2px primario blue + iniziali secondario purple + bg `var(--bg)` theme-aware
+3. **User avatar bordered-inverse**: colori invertiti — cornice purple + iniziali blue
+4. **Sidebar-top row**: toggle button a sinistra del tenant card sulla stessa linea (flex row); collapsed = stack vertical
+5. **Header fisso + body flex column**: `body { overflow: hidden; height: 100vh; flex column }` · `.nav-bar { flex-shrink: 0 }` · `.app { flex: 1; overflow: hidden }` · `.sidebar` e `.workspace` con `overflow-y: auto` indipendenti · scrollbar custom 8px
+6. **Footer fisso** (`.app-footer`): copyright + 5 social icons SVG (LinkedIn · X · GitHub · YouTube · Instagram) + 6 ctx-items dynamic context-aware. Gradient line accent purple opacity 0.3 in cima.
+
+**Footer ctx-items per dashboard**:
+
+| Dashboard            | ctx-items dynamic                                                                |
+| -------------------- | -------------------------------------------------------------------------------- |
+| HR Director Overview | Cycle Q1 · Reviews 86% · Mapped 89% · Tenant RTL Bank · Build · Session          |
+| Capability Graph     | ESCO v1.2.0 · Nodes 14.011 · Edges 42.087 · Sync 1h 12m · Build · Session        |
+| Skills Heatmap       | Cycle Q1 · Critical 12 P0 · Avg 72,3% · Cells 96 · Build · Session               |
+| Employee Journey     | Reviews 4 cycles · Skills 14/18 · Readiness 68% · Tenure 2y 4m · Build · Session |
+| Org & Systems        | Uptime 99,97% · ESCO sync 1h · Alerts 0 · Tenants 4 · Build · Session            |
+
+**Contesto**: dopo chiusura Phase 9 con L22, Enzo richiede in sequenza personalizzazioni "solo per il modello architect" (org-systems), poi estende a tutti 5 dashboard. Modifiche introdotte progressivamente: logo legacy → tenant bordered → user inverse → sidebar-top → sticky+scroll → footer.
+
+**Conseguenza**: tutti 5 dashboard production-ready hanno layout v3 architect-style. Class CSS rinominata `.tenant-card` → `.tenant-mini` per evitare collisione con `.tenant-card` del main panel di org-systems (Tenant fleet overview).
+
+**Implementazione**: 6 modifiche applicate via Edit chirurgico file-by-file (CSS architect-override block + HTML transformations). Verifica HTTP 200 su tutti i 5 + index hub. Commit `7a80fab`.
+
+---
+
+## L24 — 2026-05-05 — Phase 8 Motion language complete (5 prototipi + motion-final.md SoT)
+
+**Decisione**: chiusura Phase 8 con 5 prototipi standalone HTML che dimostrano il vocabolario motion canonico Heuresys + spec markdown SoT + index navigation hub.
+
+**Direttiva**: Trustworthy 60% / Courage 40%. Motion funzionale, non decorativa. Anti-pattern bandita: blinking, bouncy/elastic, infinite spinning, durations &gt; 600ms su UI elements.
+
+**5 prototipi**:
+
+| #   | Pattern                   | Spec tecnica                                                                                      |
+| --- | ------------------------- | ------------------------------------------------------------------------------------------------- |
+| 01  | Wordmark glow breathing   | drop-shadow blur 30px ⇄ 60px · opacity 0.20 ⇄ 0.45 · 4s loop ease-in-out · landing hero only      |
+| 02  | Gradient transitions      | theme switch dark↔light · 200ms ease-out · color tokens only (NO layout transition)               |
+| 03  | KG topology hover         | node scale 1→1.18 + drop-shadow + edges focus/blur + tooltip · 150ms ease-out · :hover trigger    |
+| 04  | Sparkline draw + count-up | stroke-dashoffset L→R 200ms · area fade-in 100ms delay · number count-up 200ms ease-out           |
+| 05  | Scroll-triggered reveals  | opacity 0→1 + translateY 8px→0 · 300ms ease-out · stagger 60ms × child · one-shot (NO re-animate) |
+
+**Token CSS canonical**:
+
+```css
+--ease-out: cubic-bezier(0.16, 1, 0.3, 1) /* entry, reveal */
+  --ease-in-out: cubic-bezier(0.45, 0, 0.55, 1) /* loops soft (breathing) */
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0) /* exit, dismiss */ --dur-instant: 100ms
+  /* toggle, switch */ --dur-fast: 150ms /* hover, focus */ --dur-standard: 300ms
+  /* reveal, slide */ --dur-slow: 600ms /* hero entrance */ --dur-chart: 200ms
+  /* chart render, sparkline */ --dur-loop-glow: 4s /* wordmark breathing */;
+```
+
+**Accessibility**: tutti i prototipi rispettano `@media (prefers-reduced-motion: reduce)` → animazioni disabilitate, snap-to-final-state.
+
+**Conseguenza · Phase tracking**:
+
+- Phase 5 / 6 / 7 fissate come ✅ Done (erano già chiuse in L21 ma BRAND-STATE riportava 🟡 — discrepanza documentale risolta)
+- Phase 8 ✅ Done (L24)
+- Phase 9 ✅ Done (5/5 dashboard + L22 + L23)
+- Phases pending residue: 10 (altre surface) · 11 (theme JSON) · 12 (brand book v0) · 13 (promotion checklist)
+
+**Implementation guideline post-Phase 8**: quando si integrerà motion in `services/app/` Next.js production, replicare token CSS variables, no GSAP/Lottie, preferire CSS animations + Framer Motion solo per orchestrazione (modal, AnimatePresence).
+
+**Asset prodotti** in `04-motion-language/`: 1 SoT markdown + 1 index hub + 5 prototype HTML standalone.
+
+---
+
 ## Decisioni scartate (per riferimento)
 
 | Direzione                                                         | Motivo scarto                                                  | Reference                            |

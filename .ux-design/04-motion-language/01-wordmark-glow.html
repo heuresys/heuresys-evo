@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>01 · Wordmark glow breathing — Heuresys Motion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0a0d18; --surface-1: #14182a; --surface-2: #1c2138; --ink: #f4f5f7;
+    --ink-muted: #8b8e99; --rule: #232838; --brand-blue: #3b82f6; --accent: #a855f7;
+    --ease-in-out: cubic-bezier(0.45, 0, 0.55, 1);
+  }
+  [data-theme="light"] {
+    --bg: #f4f5f7; --surface-1: #ffffff; --surface-2: #ebecf0; --ink: #0a0d18;
+    --ink-muted: #6a6d75; --rule: #d8dae0; --brand-blue: #2452c8; --accent: #7e3fc8;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--ink); font-family: 'Inter', sans-serif; min-height: 100vh; transition: background 200ms ease-out, color 200ms ease-out; }
+  .nav-bar { padding: 12px 24px; border-bottom: 1px solid var(--rule); display: flex; justify-content: space-between; align-items: center; }
+  .header-back { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink); text-decoration: none; }
+  .label { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink); font-weight: 600; }
+  .label-pill { background: var(--accent); color: white; padding: 2px 10px; border-radius: 3px; }
+  .toggle { background: transparent; border: 1px solid var(--ink); color: var(--ink); padding: 6px 12px; font-family: 'JetBrains Mono', monospace; font-size: 11px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; border-radius: 4px; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 64px 32px; }
+  .head { text-align: center; padding-bottom: 48px; border-bottom: 1px solid var(--rule); margin-bottom: 64px; }
+  .breadcrumb { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 12px; }
+  h1 { font-family: 'Inter'; font-weight: 700; font-size: 32px; letter-spacing: -0.8px; }
+  h1 em { color: var(--accent); font-style: normal; }
+  .lead { font-size: 14px; color: var(--ink-muted); max-width: 580px; margin: 12px auto 0; }
+  /* Hero stage with breathing wordmark */
+  .stage { background: var(--surface-1); border: 1px solid var(--rule); border-radius: 12px; padding: 96px 48px; text-align: center; margin-bottom: 32px; }
+  .wordmark-hero {
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 700;
+    font-size: 88px;
+    letter-spacing: -2px;
+    color: var(--brand-blue);
+    line-height: 1;
+    display: inline-block;
+    animation: glow-breathe 4s var(--ease-in-out) infinite;
+  }
+  .wordmark-hero .y { color: var(--accent); font-weight: 500; }
+  @keyframes glow-breathe {
+    0%, 100% {
+      filter: drop-shadow(0 0 30px rgba(168, 85, 247, 0.20));
+    }
+    50% {
+      filter: drop-shadow(0 0 60px rgba(168, 85, 247, 0.45));
+    }
+  }
+  [data-theme="light"] .wordmark-hero {
+    animation: glow-breathe-light 4s var(--ease-in-out) infinite;
+  }
+  @keyframes glow-breathe-light {
+    0%, 100% {
+      filter: drop-shadow(0 0 24px rgba(126, 63, 200, 0.18));
+    }
+    50% {
+      filter: drop-shadow(0 0 48px rgba(126, 63, 200, 0.32));
+    }
+  }
+  .tagline { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--ink-muted); letter-spacing: 2px; text-transform: uppercase; margin-top: 32px; }
+
+  /* Spec card */
+  .spec { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }
+  .spec-card { background: var(--surface-1); border: 1px solid var(--rule); border-radius: 8px; padding: 20px 24px; }
+  .spec-card h3 { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
+  .spec-card .row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--rule); font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+  .spec-card .row:last-child { border-bottom: 0; }
+  .spec-card .row .lbl { color: var(--ink-muted); }
+  .spec-card .row .val { color: var(--ink); font-weight: 600; }
+  .code { background: var(--surface-2); border: 1px solid var(--rule); border-radius: 6px; padding: 16px 20px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--ink); white-space: pre; overflow-x: auto; line-height: 1.7; }
+  .code .key { color: var(--accent); }
+  .code .val { color: var(--brand-blue); }
+  .footer-mini { padding-top: 24px; border-top: 1px solid var(--rule); font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-muted); letter-spacing: 1px; text-transform: uppercase; display: flex; justify-content: space-between; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .wordmark-hero { animation: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav-bar">
+  <a class="header-back" href="index.html">← Motion prototypes</a>
+  <span class="label">PHASE 8 · MOTION · <span class="label-pill">01 WORDMARK GLOW</span></span>
+  <button class="toggle" onclick="toggleTheme()">◐ Light/Dark</button>
+</nav>
+
+<div class="container">
+  <div class="head">
+    <div class="breadcrumb">04-motion-language · prototype 01</div>
+    <h1>Wordmark glow <em>breathing</em></h1>
+    <p class="lead">Hero wordmark con soft purple glow che pulsa lentamente in 4s loop. Presente solo su landing/hero surface — mai su nav-bar dashboard chrome.</p>
+  </div>
+
+  <div class="stage">
+    <div class="wordmark-hero">Heures<span class="y">y</span>s</div>
+    <div class="tagline">Organizational Intelligence &amp; Workforce Orchestration</div>
+  </div>
+
+  <div class="spec">
+    <div class="spec-card">
+      <h3>Specifiche</h3>
+      <div class="row"><span class="lbl">Loop duration</span><span class="val">4s</span></div>
+      <div class="row"><span class="lbl">Easing</span><span class="val">ease-in-out</span></div>
+      <div class="row"><span class="lbl">Iteration</span><span class="val">infinite</span></div>
+      <div class="row"><span class="lbl">Drop-shadow blur</span><span class="val">30px ⇄ 60px</span></div>
+      <div class="row"><span class="lbl">Drop-shadow opacity</span><span class="val">0.20 ⇄ 0.45</span></div>
+      <div class="row"><span class="lbl">Color glow</span><span class="val">rgba(168,85,247,...)</span></div>
+    </div>
+    <div class="spec-card">
+      <h3>Use case · Don't</h3>
+      <div class="row"><span class="lbl">Landing hero</span><span class="val">✅</span></div>
+      <div class="row"><span class="lbl">Marketing surface</span><span class="val">✅</span></div>
+      <div class="row"><span class="lbl">Empty state hero</span><span class="val">✅</span></div>
+      <div class="row"><span class="lbl">Dashboard nav-bar</span><span class="val">❌ static glow</span></div>
+      <div class="row"><span class="lbl">Footer/sidebar</span><span class="val">❌</span></div>
+      <div class="row"><span class="lbl">Reduced motion</span><span class="val">✅ disabled</span></div>
+    </div>
+  </div>
+
+  <div class="code"><span class="key">@keyframes</span> glow-breathe {
+  0%, 100% { filter: drop-shadow(0 0 30px rgba(168, 85, 247, 0.20)); }
+  50%      { filter: drop-shadow(0 0 60px rgba(168, 85, 247, 0.45)); }
+}
+
+<span class="key">.wordmark-hero</span> {
+  animation: glow-breathe <span class="val">4s</span> cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  <span class="key">.wordmark-hero</span> { animation: none !important; }
+}</div>
+
+  <div class="footer-mini">
+    <span>Heuresys · Phase 8 · prototype 01 · L24</span>
+    <span>SPEC · motion-final.md · ease-in-out 4s loop</span>
+  </div>
+</div>
+
+<script>
+  const t = localStorage.getItem('heuresys-theme');
+  if (t) document.documentElement.setAttribute('data-theme', t);
+  function toggleTheme() {
+    const c = document.documentElement.getAttribute('data-theme') || 'dark';
+    const n = c === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', n);
+    localStorage.setItem('heuresys-theme', n);
+  }
+</script>
+</body>
+</html>
