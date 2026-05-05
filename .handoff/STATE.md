@@ -1,57 +1,56 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-05 (sessione brand identity close)
+> Updated: 2026-05-05 (post Phase 5+6+7 done · Phase 9 starter · D1 chiusa L21)
 
 ## ⚠️ DIRETTIVA OPERATIVA ATTIVA
 
-**SEMPLICITÀ + ROBUSTEZZA**. Officina, non università. Vedi [`docs/_meta/operating-baseline.md`](../docs/_meta/operating-baseline.md). Se Claude over-engineered: "stai over-engineering" → stop, semplificare, continuare.
+**SEMPLICITÀ + ROBUSTEZZA**. Officina, non università. Vedi [`docs/_meta/operating-baseline.md`](../docs/_meta/operating-baseline.md).
 
 ## Last session brief
 
-Avviato workstream brand identity in `.ux-design/` (segregato). Phase 1-3 + 5 + 7 completed. 8 direzioni estetiche esplorate (α/β/γ/δ Set 1 + ε/ζ/η/θ Set 2 award-inspired light+dark). **Sistema di continuità cross-session istituito**: 3 SoT files in `.ux-design/` + slash command `/brand` + skill `brand-resume` + auto-memory entry. Decisione D1 (scelta direzione) pending.
+**D1 CHIUSA · `mu-architect-legacy.html` fissato come modello base** (Set 5 Systems POV palette legacy `www.heuresys.com`). 32 mockup esplorati (Set 1+2+3+4+5). Phase 5 (`heuresys.DESIGN.md` 9 sezioni canoniche + `palette-final.md` v2) · Phase 6 (`typography-final.md` Exo 2 + Inter + JetBrains Mono) · Phase 7 (5 SVG logo aggiornati L16+L18) tutti completati. Phase 9 starter: `06-mockups/dashboards/hr-director-overview.html` (Maria CHRO RTL Bank). 6 commit pushati: 79d8561 → fa0c72d.
 
 ## ⚡ Active workstream — Brand identity
 
-In nuova sessione: **digita `/brand`** o di' "lavoriamo sul brand". Claude segue protocollo automatico.
+In nuova sessione: **digita `/brand`** o di' "lavoriamo sul brand".
 
-| File | Scopo |
-| --- | --- |
-| [`../.ux-design/SESSION-RESUME.md`](../.ux-design/SESSION-RESUME.md) | Protocollo 8-step ripresa |
-| [`../.ux-design/BRAND-STATE.md`](../.ux-design/BRAND-STATE.md) | SoT stato, decisioni, asset, setup |
-| [`../.ux-design/DECISIONS-LOG.md`](../.ux-design/DECISIONS-LOG.md) | Cronologia L1-L13 append-only |
-| [`../.claude/commands/brand.md`](../.claude/commands/brand.md) | Slash command `/brand` |
-| [`../.claude/skills/brand-resume/SKILL.md`](../.claude/skills/brand-resume/SKILL.md) | Skill `brand-resume` |
+| File                                                                                | Scopo                                                |
+| ----------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| [`../.ux-design/BRAND-STATE.md`](../.ux-design/BRAND-STATE.md)                      | SoT — D1 chiusa, Phase tracking aggiornato            |
+| [`../.ux-design/02-aesthetic/heuresys.DESIGN.md`](../.ux-design/02-aesthetic/heuresys.DESIGN.md) | Canonical 9 sezioni drop-in per AI agents      |
+| [`../.ux-design/02-aesthetic/logo-standard.md`](../.ux-design/02-aesthetic/logo-standard.md) | L16 + L18 spec                                  |
+| [`../.ux-design/DECISIONS-LOG.md`](../.ux-design/DECISIONS-LOG.md)                  | L1-L21 cronologia append-only                         |
 
 ## Top priorities
 
-1. **Brand D1 — scelta aesthetic direction** (~30min): scegliere tra 8 (α/β/γ/δ + ε/ζ/η/θ light+dark). Bloccante per Phase 5/6/7/8/9/10/11/12. Naviga `http://127.0.0.1:8765/02-aesthetic/direction-explorations/index.html` (server local da avviare via `/brand`).
-2. **Phase 6+ Tier 1 area port** (~6-10h): prima area completa dal legacy (raccomandata `employees/`). Ref: `docs/10-strategy/migration-strategy-pet-driven.md`
-3. **Prisma 5.22 → 6.x intermediate** (~1-2h, low risk): bump per chiudere deprecation warning.
+1. **Phase 9 — 4 dashboard mockup rimanenti** (~6-8h): Capability Graph (Davide IT) · Skills Heatmap · Employee Journey · Org & Systems. Template base `mu-architect-legacy.html` + DESIGN.md compliant. HR Director starter già fatto in `06-mockups/dashboards/hr-director-overview.html`.
+2. **Phase 8 — Motion language** (~4-6h): `motion-final.md` + 5-8 prototipi animati (glow · gradient transitions · KG hover · sparkline · scroll-triggered).
+3. **Phase 10/11/12** (~10h totali): altre surface · theme variants JSON · brand book v0.
 
 ## Open questions
 
-- **Brand D1**: aesthetic direction finale tra 8 esposte. Vedi `BRAND-STATE.md` § Decisioni pending.
-- **PR #28**: prisma 5→7 grouped major, manual review pending
-- **PR #33**: commitlint config-conventional 19→20, manual review pending (effort XS)
-- **next-auth v5 stable timing**: Q3-Q4 2026 atteso. No beta in prod
+- **PR #28** prisma 5→7 grouped major: manual review pending
+- **PR #33** commitlint 19→20: manual review pending (effort XS)
 - **License decision repo public**: pending
+- **Phase 11 promotion to packages/ui**: tokens da `legacy-palette.css` + `palette-final.md` da promuovere a production tokens.css (post Phase 9)
 
 ## Stack snapshot
 
-API Gateway Express 5 (8200) · Frontend Next.js 16 + React 19 + Tailwind 4 (3200) · Workers BullMQ + Redis (6380) · ORM Prisma 5.22, 566 modelli · DB PostgreSQL 16 (5432) · Auth NextAuth v4 · Test Vitest 4 (250 verdi) · CI gitleaks always + lint/typecheck/test/build/audit/semgrep on PR + cron.
+API Gateway Express 5 (8200) · Frontend Next.js 16 + React 19 + Tailwind 4 (3200) · Workers BullMQ + Redis (6380) · ORM Prisma 5.22, 566 modelli · DB PostgreSQL 16 (5432) · Auth NextAuth v4 · Test Vitest 4 (250 verdi) · HTTP server UX preview live `0.0.0.0:8765` (LAN: `192.168.1.8`) · 32 mockup direction-explorations + 1 dashboard Phase 9.
 
 ## Verification
 
 ```bash
 git status -sb              # working tree clean
-git log --oneline -5        # recent commits readable
-gh pr list --state open     # 2 PR pending (#28, #33)
-ls .ux-design/02-aesthetic/direction-explorations/  # 8 mockup HTML + index
+git log --oneline -8        # recent: fa0c72d Phase 9 starter, f8e9024 Phase 5+6+7
+ls .ux-design/06-mockups/dashboards/      # 1 dashboard (HR Director)
+ls .ux-design/02-aesthetic/heuresys.DESIGN.md  # canonical drop-in
+curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8765/06-mockups/dashboards/hr-director-overview.html  # 200
 ```
 
 ## Riferimenti
 
 - **Operating baseline**: [`../docs/_meta/operating-baseline.md`](../docs/_meta/operating-baseline.md)
-- **CLAUDE.md root**: [`../CLAUDE.md`](../CLAUDE.md) (include § Brand workstream)
-- **Doc architecture**: [`../docs/_meta/doc-architecture.md`](../docs/_meta/doc-architecture.md)
-- **ADR**: [`../docs/50-reference/decisions/`](../docs/50-reference/decisions/)
+- **CLAUDE.md root**: [`../CLAUDE.md`](../CLAUDE.md) § Brand workstream
+- **Modello base D1**: `.ux-design/02-aesthetic/direction-explorations/mu-architect-legacy.html`
+- **Logo SVG canonical**: `.ux-design/03-visual-identity/logo/final/heuresys-wordmark.svg` (L16+L18)
