@@ -9,23 +9,27 @@
 <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <style>
   :root {
-    --bg: #0a0d18; --surface-1: #14182a; --surface-2: #1c2138; --ink: #f4f5f7;
-    --ink-soft: #c8cad2; --ink-muted: #8b8e99; --rule: #232838;
-    --brand-blue: #3b82f6; --accent: #a855f7;
+    --bg: #0a0d18; --surface-1: #14182a; --surface-2: #1c2138; --surface-3: #252b48;
+    --ink: #f4f5f7; --ink-soft: #c8cad2; --ink-muted: #8b8e99; --rule: #232838; --rule-strong: #3a4055;
+    --brand-blue: #3b82f6; --accent: #a855f7; --accent-soft: #2a1a44;
     --cap-process: #3b82f6; --cap-structure: #6c5ce7; --cap-role: #a855f7;
     --cap-competence: #5fb87a; --cap-performance: #f59e0b;
+    --success: #5fb87a; --warning: #f59e0b; --danger: #ff6b6b;
     --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --hover-scale: 1.18; --hover-blur: 12; --edge-fade: 0.15;
   }
   [data-theme="light"] {
-    --bg: #f4f5f7; --surface-1: #ffffff; --surface-2: #ebecf0; --ink: #0a0d18;
-    --ink-soft: #2a2d38; --ink-muted: #6a6d75; --rule: #d8dae0;
-    --brand-blue: #2452c8; --accent: #7e3fc8;
+    --bg: #f4f5f7; --surface-1: #ffffff; --surface-2: #ebecf0; --surface-3: #e0e2e8;
+    --ink: #0a0d18; --ink-soft: #2a2d38; --ink-muted: #6a6d75; --rule: #d8dae0; --rule-strong: #b6b9c2;
+    --brand-blue: #2452c8; --accent: #7e3fc8; --accent-soft: #ede0fa;
     --cap-process: #2452c8; --cap-structure: #5a45c0; --cap-role: #7e3fc8;
     --cap-competence: #2da147; --cap-performance: #b8860b;
+    --success: #2da147; --warning: #b8860b; --danger: #c54545;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { background: var(--bg); color: var(--ink); font-family: 'Inter', sans-serif; min-height: 100vh; transition: background 200ms ease-out, color 200ms ease-out; }
-  .nav-bar { padding: 12px 24px; border-bottom: 1px solid var(--rule); display: flex; justify-content: space-between; align-items: center; }
+  body { background: var(--bg); color: var(--ink); font-family: 'Inter', sans-serif; min-height: 100vh; transition: background 200ms var(--ease-out), color 200ms var(--ease-out); }
+  .nav-bar { padding: 12px 24px; border-bottom: 1px solid var(--rule); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--bg); z-index: 50; }
+  .nav-bar::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 2px; background: var(--accent); opacity: 0.3; }
   .header-back { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink); text-decoration: none; }
   .wordmark-sm { font-family: 'Exo 2'; font-weight: 700; font-size: 18px; color: var(--brand-blue); letter-spacing: -0.4px; }
   .wordmark-sm .y { color: var(--accent); font-weight: 500; }
@@ -33,50 +37,103 @@
   .label-pill { background: var(--accent); color: white; padding: 2px 10px; border-radius: 3px; }
   .toggle { background: transparent; border: 1px solid var(--ink); color: var(--ink); padding: 6px 12px; font-family: 'JetBrains Mono', monospace; font-size: 11px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; border-radius: 4px; }
   .container { max-width: 1100px; margin: 0 auto; padding: 48px 32px; }
-  .head { padding-bottom: 32px; border-bottom: 1px solid var(--rule); margin-bottom: 32px; }
-  .breadcrumb { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 12px; }
-  h1 { font-family: 'Inter'; font-weight: 700; font-size: 32px; letter-spacing: -0.8px; }
-  h1 em { color: var(--accent); font-style: normal; }
-  .lead { font-size: 14px; color: var(--ink-muted); max-width: 720px; margin-top: 12px; }
+  section { margin-bottom: 56px; }
+  .section-head { padding-bottom: 14px; border-bottom: 1px solid var(--rule); margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-end; }
+  .section-head .title { display: flex; align-items: baseline; gap: 12px; }
+  .section-head .num { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent); letter-spacing: 1.5px; }
+  .section-head h2 { font-family: 'Inter'; font-weight: 700; font-size: 22px; letter-spacing: -0.5px; }
+  .section-head h2 em { color: var(--accent); font-style: normal; }
+  .section-head .meta { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-muted); letter-spacing: 1px; text-transform: uppercase; }
+  .head-page { padding-bottom: 32px; border-bottom: 1px solid var(--rule); margin-bottom: 56px; }
+  .head-page .breadcrumb { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 12px; }
+  .head-page h1 { font-family: 'Inter'; font-weight: 700; font-size: 36px; letter-spacing: -1px; }
+  .head-page h1 em { color: var(--accent); font-style: normal; }
+  .head-page .lead { font-size: 14px; color: var(--ink-muted); margin-top: 12px; max-width: 720px; }
 
-  /* KG canvas */
-  .kg-canvas { background: var(--surface-1); border: 1px solid var(--rule); border-radius: 12px; padding: 24px; margin-bottom: 32px; position: relative; }
-  .kg-canvas .legend { position: absolute; top: 24px; right: 24px; background: var(--bg); border: 1px solid var(--rule); border-radius: 6px; padding: 10px 12px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-soft); }
-  .kg-canvas .legend-row { display: flex; align-items: center; gap: 6px; padding: 3px 0; }
-  .kg-canvas .legend-row .dot { width: 8px; height: 8px; border-radius: 50%; }
-
-  .kg-svg { width: 100%; height: 460px; cursor: grab; }
-  .kg-svg .edge { stroke-width: 1; stroke: url(#edgeGrad); opacity: 0.6; transition: opacity 150ms var(--ease-out); }
-  .kg-svg .node { cursor: pointer; transition: transform 150ms var(--ease-out), filter 150ms var(--ease-out); transform-box: fill-box; transform-origin: center; }
-  .kg-svg .node circle { transition: stroke-width 150ms var(--ease-out); }
-  .kg-svg .node text { fill: var(--ink-soft); font-family: 'JetBrains Mono', monospace; font-size: 10px; pointer-events: none; transition: fill 150ms var(--ease-out); }
-
-  /* Hover states triggered via :has() (modern) or JS data-attribute */
-  .kg-svg.hovering .edge { opacity: 0.15; }
+  .stage { background: var(--surface-1); border: 1px solid var(--rule); border-radius: 12px; padding: 24px; position: relative; }
+  .kg-svg { width: 100%; height: 420px; cursor: grab; }
+  .kg-svg .edge { stroke: url(#edgeGrad); stroke-width: 1; opacity: 0.6; transition: opacity 150ms var(--ease-out); }
+  .kg-svg .node { cursor: pointer; transition: transform 150ms var(--ease-out), filter 150ms var(--ease-out), opacity 150ms var(--ease-out); transform-box: fill-box; transform-origin: center; }
+  .kg-svg .node text { fill: var(--ink-soft); font-family: 'JetBrains Mono', monospace; font-size: 10px; pointer-events: none; }
+  .kg-svg.hovering .edge { opacity: var(--edge-fade); }
   .kg-svg.hovering .edge.related { opacity: 1; }
   .kg-svg.hovering .node { opacity: 0.4; }
-  .kg-svg.hovering .node.active { opacity: 1; transform: scale(1.18); filter: drop-shadow(0 0 12px currentColor); }
+  .kg-svg.hovering .node.active { opacity: 1; transform: scale(var(--hover-scale)); filter: drop-shadow(0 0 calc(var(--hover-blur) * 1px) currentColor); }
   .kg-svg.hovering .node.related { opacity: 1; }
-  .kg-svg.hovering .node.active text { fill: var(--ink); }
-
   .tooltip { position: absolute; background: var(--surface-2); border: 1px solid var(--accent); border-radius: 6px; padding: 10px 14px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink); pointer-events: none; opacity: 0; transition: opacity 150ms var(--ease-out); white-space: nowrap; z-index: 10; }
   .tooltip.show { opacity: 1; }
   .tooltip .tt-name { font-family: 'Inter'; font-weight: 600; font-size: 13px; margin-bottom: 4px; color: var(--accent); }
   .tooltip .tt-meta { color: var(--ink-muted); }
 
-  .spec { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 32px; }
-  .spec-card { background: var(--surface-1); border: 1px solid var(--rule); border-radius: 8px; padding: 20px 24px; }
-  .spec-card h3 { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
-  .spec-card .row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--rule); font-family: 'JetBrains Mono', monospace; font-size: 12px; }
-  .spec-card .row:last-child { border-bottom: 0; }
-  .spec-card .row .lbl { color: var(--ink-muted); }
-  .spec-card .row .val { color: var(--ink); font-weight: 600; }
+  .controls { background: var(--surface-1); border: 1px solid var(--rule); border-radius: 8px; padding: 24px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+  .ctrl { display: flex; flex-direction: column; gap: 8px; }
+  .ctrl label { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-muted); display: flex; justify-content: space-between; }
+  .ctrl label .v { color: var(--accent); font-weight: 700; }
+  .ctrl input[type="range"] { width: 100%; height: 4px; -webkit-appearance: none; background: var(--surface-3); border-radius: 2px; outline: none; }
+  .ctrl input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; background: var(--accent); border-radius: 50%; cursor: pointer; border: 2px solid var(--bg); }
 
-  .footer-mini { padding-top: 24px; border-top: 1px solid var(--rule); font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-muted); letter-spacing: 1px; text-transform: uppercase; display: flex; justify-content: space-between; }
+  .usecase-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .uc-card { background: var(--surface-1); border: 1px solid var(--rule); border-radius: 8px; padding: 16px 18px; }
+  .uc-card.ok { border-color: var(--success); } .uc-card.no { border-color: var(--danger); opacity: 0.7; } .uc-card.maybe { border-color: var(--warning); }
+  .uc-card .uc-status { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 700; margin-bottom: 8px; }
+  .uc-card.ok .uc-status { color: var(--success); } .uc-card.no .uc-status { color: var(--danger); } .uc-card.maybe .uc-status { color: var(--warning); }
+  .uc-card .uc-name { font-family: 'Inter'; font-weight: 600; font-size: 14px; margin-bottom: 6px; }
+  .uc-card .uc-note { font-size: 11px; color: var(--ink-muted); line-height: 1.5; }
 
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after { transition-duration: 0.01ms !important; }
-  }
+  .alt-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .alt-card { background: var(--surface-1); border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; }
+  .alt-card.recommended { border-color: var(--accent); border-width: 2px; }
+  .alt-card .alt-stage { background: var(--surface-2); padding: 28px 16px; min-height: 130px; display: flex; align-items: center; justify-content: center; }
+  .alt-card .alt-meta { padding: 14px 16px; }
+  .alt-card .alt-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; padding: 3px 8px; border-radius: 3px; display: inline-block; margin-bottom: 8px; }
+  .alt-label.recommended { background: var(--accent); color: white; }
+  .alt-label.alt-static { background: var(--surface-3); color: var(--ink-soft); }
+  .alt-label.too-fast { background: rgba(245,158,11,0.15); color: var(--warning); }
+  .alt-label.too-slow { background: rgba(245,158,11,0.15); color: var(--warning); }
+  .alt-card .alt-name { font-family: 'Inter'; font-weight: 600; font-size: 13px; margin-bottom: 4px; }
+  .alt-card .alt-spec { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-muted); margin-bottom: 8px; letter-spacing: 0.5px; }
+  .alt-card .alt-why { font-size: 11px; color: var(--ink-soft); line-height: 1.5; }
+
+  /* Mini KG demos */
+  .mini-svg { width: 100%; height: 100px; }
+  .mini-svg .e { stroke: var(--accent); stroke-width: 1; opacity: 0.5; }
+  .mini-svg .n { transition: transform 150ms var(--ease-out), filter 150ms var(--ease-out); transform-box: fill-box; transform-origin: center; cursor: pointer; }
+  .alt-card.alt-none .n:hover { transform: none; filter: none; }
+  .alt-card.alt-subtle .n:hover { transform: scale(1.05); }
+  .alt-card.alt-canonical .n:hover { transform: scale(1.18); filter: drop-shadow(0 0 12px var(--accent)); }
+  .alt-card.alt-extreme .n:hover { transform: scale(1.4); filter: drop-shadow(0 0 24px var(--accent)); }
+
+  .anti-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .anti-card { background: var(--surface-1); border: 2px solid var(--danger); border-radius: 8px; overflow: hidden; }
+  .anti-card .anti-stage { background: var(--surface-2); padding: 28px 16px; min-height: 130px; display: flex; align-items: center; justify-content: center; position: relative; }
+  .anti-card .anti-meta { padding: 14px 16px; }
+  .anti-card .anti-tag { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--danger); margin-bottom: 6px; }
+  .anti-card h4 { font-family: 'Inter'; font-weight: 600; font-size: 13px; margin-bottom: 4px; }
+  .anti-card .anti-why { font-size: 11px; color: var(--ink-soft); line-height: 1.5; }
+  .orbit-bad { width: 24px; height: 24px; background: var(--accent); border-radius: 50%; position: relative; }
+  .orbit-bad::before, .orbit-bad::after { content: ''; position: absolute; width: 6px; height: 6px; background: var(--accent); border-radius: 50%; top: 50%; left: 50%; transform-origin: -20px 0; animation: orbit 2s linear infinite; }
+  .orbit-bad::after { animation-delay: -1s; }
+  @keyframes orbit { 0% { transform: rotate(0deg) translate(20px, 0); } 100% { transform: rotate(360deg) translate(20px, 0); } }
+  .particle-bad { width: 24px; height: 24px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 0 4px var(--accent); animation: particle 1.5s ease-out infinite; }
+  @keyframes particle { 0% { box-shadow: 0 0 0 4px rgba(168,85,247,0.6); } 100% { box-shadow: 0 0 0 32px rgba(168,85,247,0); } }
+  .magnetic-bad { width: 24px; height: 24px; background: var(--accent); border-radius: 50%; animation: magnetic 0.6s ease-in-out infinite alternate; }
+  @keyframes magnetic { 0% { transform: translate(-8px, 0); } 100% { transform: translate(8px, 0); } }
+
+  .tabs { display: flex; gap: 0; border-bottom: 1px solid var(--rule); }
+  .tab { padding: 10px 18px; background: transparent; color: var(--ink-muted); border: none; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; border-bottom: 2px solid transparent; }
+  .tab.active { color: var(--accent); border-color: var(--accent); }
+  .tab:hover { color: var(--ink); }
+  .copy-bar { display: flex; justify-content: flex-end; padding: 8px 12px; background: var(--surface-2); border: 1px solid var(--rule); border-bottom: none; }
+  .copy-btn { background: transparent; color: var(--ink-muted); border: 1px solid var(--rule); padding: 4px 10px; font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; border-radius: 3px; }
+  .code-block { display: none; background: var(--surface-2); border: 1px solid var(--rule); border-top: none; border-radius: 0 0 8px 8px; padding: 20px 24px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--ink); white-space: pre; overflow-x: auto; line-height: 1.7; }
+  .code-block.active { display: block; }
+  .code-block .key { color: var(--accent); }
+  .code-block .val { color: var(--brand-blue); }
+  .code-block .comment { color: var(--ink-muted); }
+
+  .footer-mini { padding: 24px 0; border-top: 1px solid var(--rule); font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-muted); letter-spacing: 1px; text-transform: uppercase; display: flex; justify-content: space-between; }
+
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; } }
 </style>
 </head>
 <body>
@@ -88,85 +145,261 @@
 </nav>
 
 <div class="container">
-  <div class="head">
-    <div class="breadcrumb">04-motion-language · prototype 03</div>
-    <h1>KG topology <em>node hover</em></h1>
-    <p class="lead">Hover su un nodo del Knowledge Graph: scale 1→1.18, edges connesse highlight, edges non connesse fade-out, tooltip fade-in. 150ms ease-out.</p>
+  <div class="head-page">
+    <div class="breadcrumb">04-motion-language · prototype 03 · enriched</div>
+    <h1>Knowledge Graph <em>node hover</em></h1>
+    <p class="lead">Hover su nodo: scale + glow drop-shadow + edges connesse highlight + non-connesse fade-out + tooltip. 150ms ease-out. Sezioni: <strong>Live demo</strong> + <strong>Live controls</strong> (scale/blur/fade) + <strong>Use case</strong> + <strong>Alternatives</strong> (4 scale: none/subtle/canonical/extreme) + <strong>Anti-pattern</strong> + <strong>Integration code</strong>.</p>
   </div>
 
-  <div class="kg-canvas">
-    <div class="legend">
-      <div class="legend-row"><span class="dot" style="background: var(--cap-process);"></span>Process</div>
-      <div class="legend-row"><span class="dot" style="background: var(--cap-structure);"></span>Structure</div>
-      <div class="legend-row"><span class="dot" style="background: var(--cap-role);"></span>Role</div>
-      <div class="legend-row"><span class="dot" style="background: var(--cap-competence);"></span>Competency</div>
-      <div class="legend-row"><span class="dot" style="background: var(--cap-performance);"></span>Performance</div>
+  <!-- 1. HERO -->
+  <section>
+    <div class="section-head">
+      <div class="title"><span class="num">03.A</span><h2>Live <em>demo</em></h2></div>
+      <span class="meta">hover sui nodi · scale + drop-shadow + edges focus/blur</span>
     </div>
-    <div class="tooltip" id="tt"><div class="tt-name" id="ttName">—</div><div class="tt-meta" id="ttMeta">—</div></div>
-    <svg class="kg-svg" id="kg" viewBox="0 0 800 460" preserveAspectRatio="xMidYMid meet">
-      <defs>
-        <linearGradient id="edgeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stop-color="var(--brand-blue)"/>
-          <stop offset="100%" stop-color="var(--accent)"/>
-        </linearGradient>
-      </defs>
-      <g id="edges">
-        <line class="edge" data-from="n1" data-to="n2" x1="400" y1="230" x2="200" y2="100"/>
-        <line class="edge" data-from="n1" data-to="n3" x1="400" y1="230" x2="200" y2="360"/>
-        <line class="edge" data-from="n1" data-to="n4" x1="400" y1="230" x2="600" y2="100"/>
-        <line class="edge" data-from="n1" data-to="n5" x1="400" y1="230" x2="600" y2="360"/>
-        <line class="edge" data-from="n2" data-to="n6" x1="200" y1="100" x2="80" y2="60"/>
-        <line class="edge" data-from="n2" data-to="n7" x1="200" y1="100" x2="80" y2="160"/>
-        <line class="edge" data-from="n3" data-to="n8" x1="200" y1="360" x2="80" y2="320"/>
-        <line class="edge" data-from="n3" data-to="n9" x1="200" y1="360" x2="80" y2="400"/>
-        <line class="edge" data-from="n4" data-to="n10" x1="600" y1="100" x2="720" y2="60"/>
-        <line class="edge" data-from="n4" data-to="n11" x1="600" y1="100" x2="720" y2="160"/>
-        <line class="edge" data-from="n5" data-to="n12" x1="600" y1="360" x2="720" y2="320"/>
-        <line class="edge" data-from="n5" data-to="n13" x1="600" y1="360" x2="720" y2="400"/>
-        <line class="edge" data-from="n2" data-to="n3" x1="200" y1="100" x2="200" y2="360"/>
-        <line class="edge" data-from="n4" data-to="n5" x1="600" y1="100" x2="600" y2="360"/>
-      </g>
-      <g id="nodes">
-        <g class="node" data-id="n1" data-name="banking-core" data-meta="Process · root entity · 142 children" style="color: var(--cap-process);"><circle cx="400" cy="230" r="20" fill="var(--cap-process)" stroke="white" stroke-width="2"/><text x="400" y="265" text-anchor="middle">banking-core</text></g>
-        <g class="node" data-id="n2" data-name="risk-modelling" data-meta="Structure · department · 42 employees" style="color: var(--cap-structure);"><circle cx="200" cy="100" r="14" fill="var(--cap-structure)" stroke="white" stroke-width="1.5"/><text x="200" y="80" text-anchor="middle">risk-modelling</text></g>
-        <g class="node" data-id="n3" data-name="basel-iii" data-meta="Competency · ESCO e/5520 · 76 mapped" style="color: var(--cap-competence);"><circle cx="200" cy="360" r="14" fill="var(--cap-competence)" stroke="white" stroke-width="1.5"/><text x="200" y="385" text-anchor="middle">basel-iii</text></g>
-        <g class="node" data-id="n4" data-name="quant-analyst" data-meta="Role · ISCO 2412 · 18 employees" style="color: var(--cap-role);"><circle cx="600" cy="100" r="14" fill="var(--cap-role)" stroke="white" stroke-width="1.5"/><text x="600" y="80" text-anchor="middle">quant-analyst</text></g>
-        <g class="node" data-id="n5" data-name="credit-rating" data-meta="Performance · KPI metric · 187 obs" style="color: var(--cap-performance);"><circle cx="600" cy="360" r="14" fill="var(--cap-performance)" stroke="white" stroke-width="1.5"/><text x="600" y="385" text-anchor="middle">credit-rating</text></g>
-        <g class="node" data-id="n6" data-name="financial-modelling" data-meta="Competency e/3022" style="color: var(--cap-competence);"><circle cx="80" cy="60" r="6" fill="var(--cap-competence)"/></g>
-        <g class="node" data-id="n7" data-name="ml-applied" data-meta="Competency e/4044" style="color: var(--cap-competence);"><circle cx="80" cy="160" r="6" fill="var(--cap-competence)"/></g>
-        <g class="node" data-id="n8" data-name="stress-testing" data-meta="Process e/3340" style="color: var(--cap-process);"><circle cx="80" cy="320" r="6" fill="var(--cap-process)"/></g>
-        <g class="node" data-id="n9" data-name="compliance-audit" data-meta="Process e/5521" style="color: var(--cap-process);"><circle cx="80" cy="400" r="6" fill="var(--cap-process)"/></g>
-        <g class="node" data-id="n10" data-name="quant-junior" data-meta="Role e/2011-J" style="color: var(--cap-role);"><circle cx="720" cy="60" r="6" fill="var(--cap-role)"/></g>
-        <g class="node" data-id="n11" data-name="quant-senior" data-meta="Role e/2011-S" style="color: var(--cap-role);"><circle cx="720" cy="160" r="6" fill="var(--cap-role)"/></g>
-        <g class="node" data-id="n12" data-name="rar-capital" data-meta="Performance KPI" style="color: var(--cap-performance);"><circle cx="720" cy="320" r="6" fill="var(--cap-performance)"/></g>
-        <g class="node" data-id="n13" data-name="default-rate" data-meta="Performance KPI" style="color: var(--cap-performance);"><circle cx="720" cy="400" r="6" fill="var(--cap-performance)"/></g>
-      </g>
-    </svg>
-  </div>
+    <div class="stage">
+      <div class="tooltip" id="tt"><div class="tt-name" id="ttName">—</div><div class="tt-meta" id="ttMeta">—</div></div>
+      <svg class="kg-svg" id="kg" viewBox="0 0 800 420" preserveAspectRatio="xMidYMid meet">
+        <defs><linearGradient id="edgeGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="var(--brand-blue)"/><stop offset="100%" stop-color="var(--accent)"/></linearGradient></defs>
+        <g id="edges">
+          <line class="edge" data-from="n1" data-to="n2" x1="400" y1="210" x2="200" y2="80"/>
+          <line class="edge" data-from="n1" data-to="n3" x1="400" y1="210" x2="200" y2="340"/>
+          <line class="edge" data-from="n1" data-to="n4" x1="400" y1="210" x2="600" y2="80"/>
+          <line class="edge" data-from="n1" data-to="n5" x1="400" y1="210" x2="600" y2="340"/>
+          <line class="edge" data-from="n2" data-to="n6" x1="200" y1="80" x2="80" y2="40"/>
+          <line class="edge" data-from="n2" data-to="n7" x1="200" y1="80" x2="80" y2="140"/>
+          <line class="edge" data-from="n3" data-to="n8" x1="200" y1="340" x2="80" y2="300"/>
+          <line class="edge" data-from="n4" data-to="n10" x1="600" y1="80" x2="720" y2="40"/>
+          <line class="edge" data-from="n5" data-to="n12" x1="600" y1="340" x2="720" y2="300"/>
+          <line class="edge" data-from="n2" data-to="n3" x1="200" y1="80" x2="200" y2="340"/>
+          <line class="edge" data-from="n4" data-to="n5" x1="600" y1="80" x2="600" y2="340"/>
+        </g>
+        <g id="nodes">
+          <g class="node" data-id="n1" data-name="banking-core" data-meta="Process · root entity · 142 children" style="color: var(--cap-process);"><circle cx="400" cy="210" r="18" fill="var(--cap-process)" stroke="white" stroke-width="2"/><text x="400" y="245" text-anchor="middle">banking-core</text></g>
+          <g class="node" data-id="n2" data-name="risk-modelling" data-meta="Structure · department · 42 employees" style="color: var(--cap-structure);"><circle cx="200" cy="80" r="13" fill="var(--cap-structure)" stroke="white" stroke-width="1.5"/><text x="200" y="60" text-anchor="middle">risk-modelling</text></g>
+          <g class="node" data-id="n3" data-name="basel-iii" data-meta="Competency · ESCO e/5520 · 76 mapped" style="color: var(--cap-competence);"><circle cx="200" cy="340" r="13" fill="var(--cap-competence)" stroke="white" stroke-width="1.5"/><text x="200" y="365" text-anchor="middle">basel-iii</text></g>
+          <g class="node" data-id="n4" data-name="quant-analyst" data-meta="Role · ISCO 2412 · 18 employees" style="color: var(--cap-role);"><circle cx="600" cy="80" r="13" fill="var(--cap-role)" stroke="white" stroke-width="1.5"/><text x="600" y="60" text-anchor="middle">quant-analyst</text></g>
+          <g class="node" data-id="n5" data-name="credit-rating" data-meta="Performance · KPI metric" style="color: var(--cap-performance);"><circle cx="600" cy="340" r="13" fill="var(--cap-performance)" stroke="white" stroke-width="1.5"/><text x="600" y="365" text-anchor="middle">credit-rating</text></g>
+          <g class="node" data-id="n6" data-name="financial-modelling" data-meta="Competency e/3022" style="color: var(--cap-competence);"><circle cx="80" cy="40" r="6" fill="var(--cap-competence)"/></g>
+          <g class="node" data-id="n7" data-name="ml-applied" data-meta="Competency e/4044" style="color: var(--cap-competence);"><circle cx="80" cy="140" r="6" fill="var(--cap-competence)"/></g>
+          <g class="node" data-id="n8" data-name="stress-testing" data-meta="Process e/3340" style="color: var(--cap-process);"><circle cx="80" cy="300" r="6" fill="var(--cap-process)"/></g>
+          <g class="node" data-id="n10" data-name="quant-junior" data-meta="Role e/2011-J" style="color: var(--cap-role);"><circle cx="720" cy="40" r="6" fill="var(--cap-role)"/></g>
+          <g class="node" data-id="n12" data-name="rar-capital" data-meta="Performance KPI" style="color: var(--cap-performance);"><circle cx="720" cy="300" r="6" fill="var(--cap-performance)"/></g>
+        </g>
+      </svg>
+    </div>
+  </section>
 
-  <div class="spec">
-    <div class="spec-card">
-      <h3>Hover transitions</h3>
-      <div class="row"><span class="lbl">Active node scale</span><span class="val">1 → 1.18</span></div>
-      <div class="row"><span class="lbl">Drop-shadow (active)</span><span class="val">0 0 12px currentColor</span></div>
-      <div class="row"><span class="lbl">Edge connesse opacity</span><span class="val">0.6 → 1.0</span></div>
-      <div class="row"><span class="lbl">Edge non-connesse</span><span class="val">0.6 → 0.15</span></div>
-      <div class="row"><span class="lbl">Node non-connessi</span><span class="val">opacity → 0.4</span></div>
-      <div class="row"><span class="lbl">Tooltip fade</span><span class="val">opacity 0 → 1</span></div>
+  <!-- 2. LIVE CONTROLS -->
+  <section>
+    <div class="section-head">
+      <div class="title"><span class="num">03.B</span><h2>Live <em>controls</em></h2></div>
+      <span class="meta">tweaka i parametri · hover su nodo per vedere cambio</span>
     </div>
-    <div class="spec-card">
-      <h3>Timings</h3>
-      <div class="row"><span class="lbl">Duration</span><span class="val">150ms</span></div>
-      <div class="row"><span class="lbl">Easing</span><span class="val">ease-out</span></div>
-      <div class="row"><span class="lbl">Tooltip duration</span><span class="val">150ms</span></div>
-      <div class="row"><span class="lbl">Anti-pattern</span><span class="val">no infinite ring</span></div>
-      <div class="row"><span class="lbl">Anti-pattern</span><span class="val">no orbit animation</span></div>
-      <div class="row"><span class="lbl">Reduced motion</span><span class="val">disabled</span></div>
+    <div class="controls">
+      <div class="ctrl">
+        <label>Scale factor active node <span class="v" id="vScale">1.18</span></label>
+        <input type="range" id="cScale" min="1.0" max="1.5" step="0.02" value="1.18" oninput="updCtrl()" />
+      </div>
+      <div class="ctrl">
+        <label>Drop-shadow blur <span class="v" id="vBlur">12px</span></label>
+        <input type="range" id="cBlur" min="0" max="32" step="2" value="12" oninput="updCtrl()" />
+      </div>
+      <div class="ctrl">
+        <label>Edges non-connesse opacity <span class="v" id="vFade">0.15</span></label>
+        <input type="range" id="cFade" min="0" max="0.6" step="0.05" value="0.15" oninput="updCtrl()" />
+      </div>
+      <div class="ctrl">
+        <label>Transition duration <span class="v" id="vDur">150ms</span></label>
+        <input type="range" id="cDur" min="50" max="500" step="50" value="150" oninput="updCtrl()" />
+      </div>
     </div>
-  </div>
+  </section>
+
+  <!-- 3. USE CASE MAP -->
+  <section>
+    <div class="section-head">
+      <div class="title"><span class="num">03.C</span><h2>Use <em>case map</em></h2></div>
+      <span class="meta">graph viz ✅ · liste piatte ❌ · pattern dipende dalla densità relazioni</span>
+    </div>
+    <div class="usecase-grid">
+      <div class="uc-card ok"><div class="uc-status">✅ OK</div><div class="uc-name">KG topology viz</div><div class="uc-note">Pattern canonical. Node hover rivela vicinato semantico (1-hop).</div></div>
+      <div class="uc-card ok"><div class="uc-status">✅ OK</div><div class="uc-name">Network/cluster diagram</div><div class="uc-note">Es. tenant fleet, integrazioni, flussi dati. Edges focus aiuta drill.</div></div>
+      <div class="uc-card ok"><div class="uc-status">✅ OK</div><div class="uc-name">Org chart interactive</div><div class="uc-note">Hover su persona evidenzia manager + reports diretti. Stesso pattern.</div></div>
+      <div class="uc-card maybe"><div class="uc-status">🟡 CARE</div><div class="uc-name">Treeview gerarchica</div><div class="uc-note">OK se nodi multi-relazione. Per parent-child semplice basta highlight bg.</div></div>
+      <div class="uc-card no"><div class="uc-status">❌ NO</div><div class="uc-name">Liste piatte (table rows)</div><div class="uc-note">Use simple bg-color hover. Scale + blur sproporzionato per row 32-48px.</div></div>
+      <div class="uc-card no"><div class="uc-status">❌ NO</div><div class="uc-name">Card grid statici</div><div class="uc-note">Use card-lift pattern (translateY -2px + border-color). No scale-up.</div></div>
+      <div class="uc-card no"><div class="uc-status">❌ NO</div><div class="uc-name">Bar chart / heatmap cells</div><div class="uc-note">Use border 2px + tooltip. Scale rompe griglia, distrugge comparabilità.</div></div>
+      <div class="uc-card maybe"><div class="uc-status">🟡 CARE</div><div class="uc-name">Sparkline points</div><div class="uc-note">OK scale 1.4 sul punto attivo + tooltip. Il pattern qui è data-point hover, non graph.</div></div>
+    </div>
+  </section>
+
+  <!-- 4. ALTERNATIVES -->
+  <section>
+    <div class="section-head">
+      <div class="title"><span class="num">03.D</span><h2>Alternatives <em>compare</em></h2></div>
+      <span class="meta">hover sui nodi delle 4 mini-grafici · vedi differenza scale</span>
+    </div>
+    <div class="alt-grid">
+      <div class="alt-card alt-none">
+        <div class="alt-stage"><svg class="mini-svg" viewBox="0 0 200 100"><line class="e" x1="100" y1="50" x2="40" y2="20"/><line class="e" x1="100" y1="50" x2="40" y2="80"/><line class="e" x1="100" y1="50" x2="160" y2="20"/><line class="e" x1="100" y1="50" x2="160" y2="80"/><circle class="n" cx="100" cy="50" r="10" fill="var(--accent)"/><circle class="n" cx="40" cy="20" r="6" fill="var(--brand-blue)"/><circle class="n" cx="40" cy="80" r="6" fill="var(--brand-blue)"/><circle class="n" cx="160" cy="20" r="6" fill="var(--brand-blue)"/><circle class="n" cx="160" cy="80" r="6" fill="var(--brand-blue)"/></svg></div>
+        <div class="alt-meta">
+          <span class="alt-label alt-static">No motion</span>
+          <div class="alt-name">No hover effect</div>
+          <div class="alt-spec">scale: 1 · no transform</div>
+          <div class="alt-why">Nessun feedback hover. User non capisce se nodo è cliccabile.</div>
+        </div>
+      </div>
+      <div class="alt-card alt-subtle">
+        <div class="alt-stage"><svg class="mini-svg" viewBox="0 0 200 100"><line class="e" x1="100" y1="50" x2="40" y2="20"/><line class="e" x1="100" y1="50" x2="40" y2="80"/><line class="e" x1="100" y1="50" x2="160" y2="20"/><line class="e" x1="100" y1="50" x2="160" y2="80"/><circle class="n" cx="100" cy="50" r="10" fill="var(--accent)"/><circle class="n" cx="40" cy="20" r="6" fill="var(--brand-blue)"/><circle class="n" cx="40" cy="80" r="6" fill="var(--brand-blue)"/><circle class="n" cx="160" cy="20" r="6" fill="var(--brand-blue)"/><circle class="n" cx="160" cy="80" r="6" fill="var(--brand-blue)"/></svg></div>
+        <div class="alt-meta">
+          <span class="alt-label too-slow">Subtle</span>
+          <div class="alt-name">Scale 1.05 only</div>
+          <div class="alt-spec">scale: 1.05 · no glow</div>
+          <div class="alt-why">Troppo timido. Utente lo vede solo se sta già guardando il nodo. Non guida l'attenzione.</div>
+        </div>
+      </div>
+      <div class="alt-card alt-canonical recommended">
+        <div class="alt-stage"><svg class="mini-svg" viewBox="0 0 200 100"><line class="e" x1="100" y1="50" x2="40" y2="20"/><line class="e" x1="100" y1="50" x2="40" y2="80"/><line class="e" x1="100" y1="50" x2="160" y2="20"/><line class="e" x1="100" y1="50" x2="160" y2="80"/><circle class="n" cx="100" cy="50" r="10" fill="var(--accent)"/><circle class="n" cx="40" cy="20" r="6" fill="var(--brand-blue)"/><circle class="n" cx="40" cy="80" r="6" fill="var(--brand-blue)"/><circle class="n" cx="160" cy="20" r="6" fill="var(--brand-blue)"/><circle class="n" cx="160" cy="80" r="6" fill="var(--brand-blue)"/></svg></div>
+        <div class="alt-meta">
+          <span class="alt-label recommended">★ Recommended</span>
+          <div class="alt-name">Scale 1.18 + drop-shadow</div>
+          <div class="alt-spec">scale: 1.18 · blur: 12px · 150ms</div>
+          <div class="alt-why">Visible al periphery vision. Glow rinforza senza esagerare. Sweet spot.</div>
+        </div>
+      </div>
+      <div class="alt-card alt-extreme">
+        <div class="alt-stage"><svg class="mini-svg" viewBox="0 0 200 100"><line class="e" x1="100" y1="50" x2="40" y2="20"/><line class="e" x1="100" y1="50" x2="40" y2="80"/><line class="e" x1="100" y1="50" x2="160" y2="20"/><line class="e" x1="100" y1="50" x2="160" y2="80"/><circle class="n" cx="100" cy="50" r="10" fill="var(--accent)"/><circle class="n" cx="40" cy="20" r="6" fill="var(--brand-blue)"/><circle class="n" cx="40" cy="80" r="6" fill="var(--brand-blue)"/><circle class="n" cx="160" cy="20" r="6" fill="var(--brand-blue)"/><circle class="n" cx="160" cy="80" r="6" fill="var(--brand-blue)"/></svg></div>
+        <div class="alt-meta">
+          <span class="alt-label too-fast">Too much</span>
+          <div class="alt-name">Scale 1.4 + huge glow</div>
+          <div class="alt-spec">scale: 1.4 · blur: 24px</div>
+          <div class="alt-why">Layout shift visibile, copre nodi vicini. Pattern videogame, non analytics.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. ANTI-PATTERN -->
+  <section>
+    <div class="section-head">
+      <div class="title"><span class="num">03.E</span><h2>Anti-pattern <em>banned</em></h2></div>
+      <span class="meta">cosa NON fare nei graph viz · attention thieves</span>
+    </div>
+    <div class="anti-grid">
+      <div class="anti-card">
+        <div class="anti-stage"><div class="orbit-bad"></div></div>
+        <div class="anti-meta">
+          <div class="anti-tag">❌ Orbit infinito</div>
+          <h4>Particle ring around node</h4>
+          <div class="anti-why"><strong>Anti-slop reject</strong> (DESIGN.md Section 7). Distrazione continua, off-brand sci-fi. Use static halo.</div>
+        </div>
+      </div>
+      <div class="anti-card">
+        <div class="anti-stage"><div class="particle-bad"></div></div>
+        <div class="anti-meta">
+          <div class="anti-tag">❌ Pulse waves</div>
+          <h4>Expanding shockwave loop</h4>
+          <div class="anti-why">Sovraccarica significato. Es. "live" o "incoming data". Use semantic dot static.</div>
+        </div>
+      </div>
+      <div class="anti-card">
+        <div class="anti-stage"><div class="magnetic-bad"></div></div>
+        <div class="anti-meta">
+          <div class="anti-tag">❌ Magnetic jitter</div>
+          <h4>Auto-translate ping-pong</h4>
+          <div class="anti-why">Layout fisico instabile. User non riesce a click. Fa sembrare il nodo "bug rendering".</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. INTEGRATION -->
+  <section>
+    <div class="section-head">
+      <div class="title"><span class="num">03.F</span><h2>Integration <em>code</em></h2></div>
+      <span class="meta">CSS + SVG · React + adjacency map · D3 force layout</span>
+    </div>
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab(this, 'css')">CSS + SVG</button>
+      <button class="tab" onclick="switchTab(this, 'react')">React + adjacency</button>
+      <button class="tab" onclick="switchTab(this, 'd3')">D3 force layout</button>
+    </div>
+    <div class="copy-bar"><button class="copy-btn" onclick="copyActiveCode()">📋 Copy</button></div>
+    <div class="code-block active" id="code-css"><span class="comment">/* CSS — pure hover via :hover (no JS for adjacency) */</span>
+.kg-svg .node {
+  cursor: pointer;
+  transition: transform <span class="val">150ms</span> cubic-bezier(0.16, 1, 0.3, 1),
+              filter <span class="val">150ms</span> cubic-bezier(0.16, 1, 0.3, 1);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.kg-svg .node:hover {
+  transform: scale(<span class="val">1.18</span>);
+  filter: drop-shadow(0 0 <span class="val">12px</span> currentColor);
+}
+.kg-svg .edge { transition: opacity 150ms ease-out; opacity: 0.6; }
+
+<span class="comment">/* For full adjacency dim/highlight, use JS (see React tab) */</span></div>
+
+    <div class="code-block" id="code-react"><span class="comment">// components/KGCanvas.tsx — full adjacency hover</span>
+<span class="key">'use client';</span>
+<span class="key">import</span> { useState, useMemo } <span class="key">from</span> <span class="val">'react'</span>;
+
+<span class="key">type</span> Node = { id: string; cx: number; cy: number; r: number; color: string };
+<span class="key">type</span> Edge = { from: string; to: string };
+
+<span class="key">export function</span> KGCanvas({ nodes, edges }: Props) {
+  <span class="key">const</span> [hoveredId, setHoveredId] = useState&lt;string | null&gt;(null);
+  <span class="key">const</span> adjacency = useMemo(() =&gt; {
+    <span class="key">const</span> map = new Map&lt;string, Set&lt;string&gt;&gt;();
+    edges.forEach(e =&gt; {
+      map.set(e.from, (map.get(e.from) ?? new Set()).add(e.to));
+      map.set(e.to, (map.get(e.to) ?? new Set()).add(e.from));
+    });
+    <span class="key">return</span> map;
+  }, [edges]);
+
+  <span class="key">const</span> related = hoveredId ? adjacency.get(hoveredId) ?? new Set() : new Set();
+
+  <span class="key">return</span> (
+    &lt;svg className=<span class="val">"kg-svg"</span> data-hovering={!!hoveredId}&gt;
+      {edges.map(e =&gt; (
+        &lt;line className={`edge ${e.from === hoveredId || e.to === hoveredId ? <span class="val">'related'</span> : <span class="val">''</span>}`} ... /&gt;
+      ))}
+      {nodes.map(n =&gt; (
+        &lt;circle className={`node ${n.id === hoveredId ? <span class="val">'active'</span> : related.has(n.id) ? <span class="val">'related'</span> : <span class="val">''</span>}`}
+          onMouseEnter={() =&gt; setHoveredId(n.id)}
+          onMouseLeave={() =&gt; setHoveredId(null)}
+          ... /&gt;
+      ))}
+    &lt;/svg&gt;
+  );
+}</div>
+
+    <div class="code-block" id="code-d3"><span class="comment">// hooks/useForceLayout.ts — D3 force-directed positioning</span>
+<span class="key">import</span> * as d3 <span class="key">from</span> <span class="val">'d3-force'</span>;
+<span class="key">import</span> { useEffect, useState } <span class="key">from</span> <span class="val">'react'</span>;
+
+<span class="key">export function</span> useForceLayout(nodes, edges) {
+  <span class="key">const</span> [pos, setPos] = useState(nodes);
+  useEffect(() =&gt; {
+    <span class="key">const</span> sim = d3.forceSimulation(nodes)
+      .force(<span class="val">'link'</span>, d3.forceLink(edges).id((d: any) =&gt; d.id).distance(120))
+      .force(<span class="val">'charge'</span>, d3.forceManyBody().strength(-300))
+      .force(<span class="val">'center'</span>, d3.forceCenter(400, 210))
+      .on(<span class="val">'tick'</span>, () =&gt; setPos([...nodes]));
+    <span class="key">return</span> () =&gt; sim.stop();
+  }, [nodes, edges]);
+  <span class="key">return</span> pos;
+}
+
+<span class="comment">// Combined with KGCanvas hover, you get force layout + interactive adjacency.</span>
+<span class="comment">// Hover transitions are CSS-driven (150ms ease-out). D3 only positions.</span></div>
+  </section>
 
   <div class="footer-mini">
-    <span>Heuresys · Phase 8 · prototype 03 · L24</span>
+    <span>Heuresys · Phase 8 · prototype 03 · L24+</span>
     <span>SPEC · motion-final.md · 150ms ease-out · :hover trigger</span>
   </div>
 </div>
@@ -181,7 +414,6 @@
     localStorage.setItem('heuresys-theme', n);
   }
 
-  // Build adjacency map
   const edges = document.querySelectorAll('#edges .edge');
   const nodes = document.querySelectorAll('#nodes .node');
   const adj = {};
@@ -190,14 +422,13 @@
     adj[f] = adj[f] || []; adj[f].push(t);
     adj[t] = adj[t] || []; adj[t].push(f);
   });
-
   const kg = document.getElementById('kg');
   const tt = document.getElementById('tt');
   const ttName = document.getElementById('ttName');
   const ttMeta = document.getElementById('ttMeta');
 
   nodes.forEach(node => {
-    node.addEventListener('mouseenter', (ev) => {
+    node.addEventListener('mouseenter', () => {
       const id = node.dataset.id;
       const related = new Set(adj[id] || []);
       kg.classList.add('hovering');
@@ -205,10 +436,7 @@
         n.classList.toggle('active', n.dataset.id === id);
         n.classList.toggle('related', related.has(n.dataset.id));
       });
-      edges.forEach(e => {
-        const isConnected = (e.dataset.from === id || e.dataset.to === id);
-        e.classList.toggle('related', isConnected);
-      });
+      edges.forEach(e => e.classList.toggle('related', e.dataset.from === id || e.dataset.to === id));
       ttName.textContent = node.dataset.name;
       ttMeta.textContent = node.dataset.meta;
       tt.classList.add('show');
@@ -220,11 +448,44 @@
     });
     node.addEventListener('mouseleave', () => {
       kg.classList.remove('hovering');
-      nodes.forEach(n => { n.classList.remove('active', 'related'); n.classList.remove('related'); });
+      nodes.forEach(n => { n.classList.remove('active', 'related'); });
       edges.forEach(e => e.classList.remove('related'));
       tt.classList.remove('show');
     });
   });
+
+  function updCtrl() {
+    const scale = parseFloat(document.getElementById('cScale').value);
+    const blur = parseInt(document.getElementById('cBlur').value);
+    const fade = parseFloat(document.getElementById('cFade').value);
+    const dur = parseInt(document.getElementById('cDur').value);
+    document.getElementById('vScale').textContent = scale.toFixed(2);
+    document.getElementById('vBlur').textContent = blur + 'px';
+    document.getElementById('vFade').textContent = fade.toFixed(2);
+    document.getElementById('vDur').textContent = dur + 'ms';
+    document.documentElement.style.setProperty('--hover-scale', scale);
+    document.documentElement.style.setProperty('--hover-blur', blur);
+    document.documentElement.style.setProperty('--edge-fade', fade);
+    // Override transition duration
+    let dyn = document.getElementById('dyn-tx');
+    if (!dyn) { dyn = document.createElement('style'); dyn.id = 'dyn-tx'; document.head.appendChild(dyn); }
+    dyn.textContent = `.kg-svg .node, .kg-svg .edge { transition-duration: ${dur}ms !important; }`;
+  }
+
+  function switchTab(btn, key) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.code-block').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('code-' + key).classList.add('active');
+  }
+  function copyActiveCode() {
+    const active = document.querySelector('.code-block.active');
+    navigator.clipboard.writeText(active.innerText);
+    const btn = event.target;
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copied';
+    setTimeout(() => btn.textContent = orig, 1500);
+  }
 </script>
 </body>
 </html>

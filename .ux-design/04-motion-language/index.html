@@ -25,7 +25,8 @@
   .breadcrumb { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 12px; }
   h1 { font-family: 'Inter'; font-weight: 700; font-size: 36px; letter-spacing: -1px; line-height: 1.15; }
   h1 em { color: var(--accent); font-style: normal; }
-  .wordmark-hero { font-family: 'Exo 2'; font-weight: 700; font-size: 24px; color: var(--brand-blue); letter-spacing: -0.6px; line-height: 1; filter: drop-shadow(0 0 16px rgba(168,85,247,0.25)); }
+  .wordmark-hero { font-family: 'Exo 2'; font-weight: 700; font-size: 24px; color: var(--brand-blue); letter-spacing: -0.6px; line-height: 1; filter: drop-shadow(0 0 16px rgba(168,85,247,0.25)); animation: glow-breathe 4s cubic-bezier(0.45,0,0.55,1) infinite; }
+  @keyframes glow-breathe { 0%,100% { filter: drop-shadow(0 0 16px rgba(168,85,247,0.20)); } 50% { filter: drop-shadow(0 0 32px rgba(168,85,247,0.40)); } }
   .wordmark-hero .y { color: var(--accent); font-weight: 500; }
   .toggle { background: transparent; border: 1px solid var(--ink); color: var(--ink); padding: 6px 12px; font-family: 'JetBrains Mono', monospace; font-size: 11px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; border-radius: 4px; margin-top: 12px; }
   .toggle:hover { background: var(--ink); color: var(--bg); }
@@ -38,6 +39,29 @@
   .back-link { color: var(--ink); text-decoration: none; padding-bottom: 1px; border-bottom: 1px solid var(--ink-muted); font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.5px; }
   .back-link:hover { border-color: var(--accent); color: var(--accent); }
 
+  /* Tutorial intro — how to use prototypes */
+  .tutorial { background: var(--surface-1); border: 1px solid var(--accent); border-radius: 12px; padding: 28px 32px; margin-bottom: 40px; }
+  .tutorial h2 { font-family: 'Inter'; font-weight: 700; font-size: 22px; letter-spacing: -0.5px; margin-bottom: 8px; }
+  .tutorial h2 em { color: var(--accent); font-style: normal; }
+  .tutorial .intro { font-size: 14px; color: var(--ink-soft); margin-bottom: 24px; line-height: 1.6; }
+  .sections-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .sec-item { background: var(--surface-2); border: 1px solid var(--rule); border-radius: 8px; padding: 14px 18px; }
+  .sec-item .sec-num { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent); letter-spacing: 1.5px; font-weight: 700; margin-bottom: 6px; }
+  .sec-item .sec-name { font-family: 'Inter'; font-weight: 600; font-size: 14px; margin-bottom: 4px; color: var(--ink); }
+  .sec-item .sec-desc { font-size: 12px; color: var(--ink-muted); line-height: 1.55; }
+
+  /* Spec summary */
+  .spec-summary { background: var(--surface-1); border: 1px solid var(--rule); border-radius: 12px; padding: 24px 32px; margin-bottom: 40px; }
+  .spec-summary h2 { font-family: 'Inter'; font-weight: 700; font-size: 20px; letter-spacing: -0.5px; margin-bottom: 12px; }
+  .spec-summary h2 em { color: var(--accent); font-style: normal; }
+  .spec-summary p { font-size: 13px; color: var(--ink-soft); margin-bottom: 16px; }
+  .spec-summary .tokens { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .spec-summary .tk { background: var(--surface-2); border: 1px solid var(--rule); border-radius: 6px; padding: 10px 12px; }
+  .spec-summary .tk .name { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--ink-muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
+  .spec-summary .tk .val { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--ink); font-weight: 600; }
+
+  /* Cards grid */
+  .grid-head { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-muted); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 16px; }
   .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 32px; }
   .card { background: var(--surface-1); border: 1px solid var(--rule); border-radius: 10px; padding: 24px; text-decoration: none; color: var(--ink); display: block; transition: border-color 150ms cubic-bezier(0.16,1,0.3,1), transform 150ms cubic-bezier(0.16,1,0.3,1); }
   .card:hover { border-color: var(--accent); transform: translateY(-2px); }
@@ -47,17 +71,14 @@
   .card .meta { display: flex; gap: 12px; padding-top: 12px; border-top: 1px solid var(--rule); flex-wrap: wrap; }
   .card .meta-item { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-muted); letter-spacing: 0.5px; }
   .card .meta-item strong { color: var(--ink); font-weight: 600; }
-
-  .spec-summary { background: var(--surface-1); border: 1px solid var(--accent); border-radius: 12px; padding: 24px 32px; margin-bottom: 32px; }
-  .spec-summary h2 { font-family: 'Inter'; font-weight: 700; font-size: 20px; letter-spacing: -0.5px; margin-bottom: 12px; }
-  .spec-summary h2 em { color: var(--accent); font-style: normal; }
-  .spec-summary p { font-size: 13px; color: var(--ink-soft); margin-bottom: 16px; }
-  .spec-summary .tokens { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-  .spec-summary .tk { background: var(--surface-2); border: 1px solid var(--rule); border-radius: 6px; padding: 10px 12px; }
-  .spec-summary .tk .name { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--ink-muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
-  .spec-summary .tk .val { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--ink); font-weight: 600; }
+  .card .features { display: flex; gap: 6px; margin-top: 12px; flex-wrap: wrap; }
+  .card .feat-pill { font-family: 'JetBrains Mono', monospace; font-size: 9px; padding: 2px 7px; border-radius: 2px; background: var(--accent-soft); color: var(--accent); letter-spacing: 0.5px; }
 
   .footer { padding-top: 24px; border-top: 1px solid var(--rule); display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-muted); letter-spacing: 1px; text-transform: uppercase; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .wordmark-hero { animation: none !important; }
+  }
 </style>
 </head>
 <body>
@@ -65,7 +86,7 @@
 <div class="container">
   <div class="head">
     <div>
-      <div class="breadcrumb">04-motion-language · phase 8</div>
+      <div class="breadcrumb">04-motion-language · phase 8 · enriched playgrounds</div>
       <h1>Motion <em>language</em></h1>
     </div>
     <div style="text-align: right;">
@@ -75,12 +96,51 @@
   </div>
 
   <div class="meta-row">
-    <span class="pill pill-phase">PHASE 8 · L24</span>
-    <span class="pill pill-status">5 / 5 prototype</span>
+    <span class="pill pill-phase">PHASE 8 · L24+ enriched</span>
+    <span class="pill pill-status">5 / 5 prototype · 6 sezioni each</span>
     <a class="pill pill-spec" style="text-decoration: none;" href="motion-final.md">📄 motion-final.md SoT</a>
     <a class="back-link" href="../06-mockups/dashboards/index.html">← Phase 9 dashboards</a>
   </div>
 
+  <!-- TUTORIAL INTRO -->
+  <div class="tutorial">
+    <h2>Come <em>usare</em> questi prototipi</h2>
+    <p class="intro">Ogni prototipo è un <strong>playground completo</strong> con 6 sezioni standardizzate. Apri uno qualsiasi e segui in ordine: vedi l'effetto live, modificalo con i controlli, capisci dove va applicato, confronta con alternative scartate, vedi cosa è vietato e copia-incolla il codice. <strong>Il tuo obiettivo</strong>: dare un parere informato su cosa tenere/cambiare.</p>
+    <div class="sections-list">
+      <div class="sec-item">
+        <div class="sec-num">A · LIVE DEMO</div>
+        <div class="sec-name">L'effetto in azione</div>
+        <div class="sec-desc">Hero stage con animation visibile. Bottone "Replay" per ri-triggerare. Vedi subito cosa fa.</div>
+      </div>
+      <div class="sec-item">
+        <div class="sec-num">B · LIVE CONTROLS</div>
+        <div class="sec-name">Slider + dropdown reattivi</div>
+        <div class="sec-desc">Modifica duration, easing, scale, distance, stagger. CSS variables aggiornano in real-time. Trova il tuo sweet spot.</div>
+      </div>
+      <div class="sec-item">
+        <div class="sec-num">C · USE CASE MAP</div>
+        <div class="sec-name">8 contesti · ✅ vs ❌ vs 🟡</div>
+        <div class="sec-desc">Dove va applicato (✅), dove evitare (❌), dove dipende dal contesto (🟡). Risponde a "OK ma per cosa lo uso?".</div>
+      </div>
+      <div class="sec-item">
+        <div class="sec-num">D · ALTERNATIVES COMPARE</div>
+        <div class="sec-name">4 varianti side-by-side</div>
+        <div class="sec-desc">Static / canonical / too-fast / too-slow (o equivalente). Vedi perché abbiamo scelto questa, non un'altra.</div>
+      </div>
+      <div class="sec-item">
+        <div class="sec-num">E · ANTI-PATTERN</div>
+        <div class="sec-name">3 pattern vietati live</div>
+        <div class="sec-desc">Cosa NON fare mai, dimostrato visivamente. Strobe, slot machine, hue-cycle, infinite redraw. Capire il giusto via il sbagliato.</div>
+      </div>
+      <div class="sec-item">
+        <div class="sec-num">F · INTEGRATION CODE</div>
+        <div class="sec-name">CSS · React · Tailwind tabs</div>
+        <div class="sec-desc">Codice copy-paste production-ready. Include `useReducedMotion`, IntersectionObserver hook, Tailwind config completo.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SPEC SUMMARY -->
   <div class="spec-summary">
     <h2>Direttiva · <em>movimento funzionale</em>, non decorativo</h2>
     <p>Trustworthy 60% / Courage 40%. Motion serve a confermare azione utente, indirizzare attenzione, mostrare stato sistema, riempire attesa. Mai blinking, bouncy, elastic, infinite spinning. Mai &gt; 600ms per UI element.</p>
@@ -96,68 +156,79 @@
     </div>
   </div>
 
+  <div class="grid-head">5 prototypes · ognuno con 6 sezioni interattive (A→F)</div>
+
   <div class="grid">
 
     <a class="card" href="01-wordmark-glow.html">
       <div class="num">01 · HERO LOOP</div>
       <h2>Wordmark glow breathing</h2>
-      <p class="desc">Hero wordmark con soft purple glow che pulsa lentamente in 4s loop ease-in-out. Drop-shadow blur 30px ⇄ 60px · opacity 0.20 ⇄ 0.45.</p>
+      <p class="desc">Hero wordmark con soft purple glow che pulsa lentamente in 4s loop ease-in-out. Vincolo: solo landing/login/empty state, mai dashboard nav-bar.</p>
+      <div class="features">
+        <span class="feat-pill">Live: 4s loop</span><span class="feat-pill">Sliders: dur+blur+opacity</span><span class="feat-pill">Alt: 4 varianti</span><span class="feat-pill">Banned: strobe, rainbow, bounce</span>
+      </div>
       <div class="meta">
         <span class="meta-item">DURATION · <strong>4s</strong></span>
         <span class="meta-item">EASING · <strong>ease-in-out</strong></span>
-        <span class="meta-item">USE · <strong>landing hero only</strong></span>
       </div>
     </a>
 
     <a class="card" href="02-gradient-transitions.html">
       <div class="num">02 · THEME SWITCH</div>
       <h2>Gradient color transitions</h2>
-      <p class="desc">Theme dark↔light smooth: tutti color tokens transitano simultaneamente in 200ms ease-out. background, color, border-color, box-shadow. Layout invariato.</p>
+      <p class="desc">Theme dark↔light: tutti color tokens transitano simultaneamente in 200ms ease-out. Mai layout/dimensioni. Auto-cycle demo per vedere effetto.</p>
+      <div class="features">
+        <span class="feat-pill">Live: auto-cycle 2.5s</span><span class="feat-pill">Sliders: dur+easing</span><span class="feat-pill">Alt: 4 panel reattivi</span><span class="feat-pill">Banned: layout shift, rainbow, flicker</span>
+      </div>
       <div class="meta">
         <span class="meta-item">DURATION · <strong>200ms</strong></span>
-        <span class="meta-item">EASING · <strong>ease-out</strong></span>
-        <span class="meta-item">USE · <strong>theme switch</strong></span>
+        <span class="meta-item">SCOPE · <strong>color tokens only</strong></span>
       </div>
     </a>
 
     <a class="card" href="03-kg-topology-hover.html">
       <div class="num">03 · INTERACTIVE</div>
       <h2>KG topology node hover</h2>
-      <p class="desc">Hover su nodo: scale 1→1.18 + drop-shadow glow + edges connesse highlight + edges non-connesse fade-out + tooltip fade-in. 150ms ease-out.</p>
+      <p class="desc">Hover su nodo: scale 1→1.18 + drop-shadow + edges connesse highlight + non-connesse fade-out + tooltip. 150ms ease-out.</p>
+      <div class="features">
+        <span class="feat-pill">Live: 13-node graph</span><span class="feat-pill">Sliders: scale+blur+fade</span><span class="feat-pill">Alt: 4 scale (none→extreme)</span><span class="feat-pill">Banned: orbit, particle, magnetic</span>
+      </div>
       <div class="meta">
         <span class="meta-item">DURATION · <strong>150ms</strong></span>
         <span class="meta-item">TRIGGER · <strong>:hover</strong></span>
-        <span class="meta-item">USE · <strong>graph viz</strong></span>
       </div>
     </a>
 
     <a class="card" href="04-sparkline-animate.html">
       <div class="num">04 · DATA REVEAL</div>
       <h2>KPI sparkline draw + count-up</h2>
-      <p class="desc">Sparkline disegnata L→R via stroke-dasharray 200ms · area sotto fade-in 100ms delay · numero count-up da 0 al valore finale 200ms ease-out.</p>
+      <p class="desc">Sparkline disegnata L→R 200ms · area sotto fade-in 100ms delay · numero count-up rAF 200ms ease-out cubic.</p>
+      <div class="features">
+        <span class="feat-pill">Live: 3 KPI cards</span><span class="feat-pill">Sliders: draw+count+delay</span><span class="feat-pill">Alt: 4 durations</span><span class="feat-pill">Banned: slot machine, bouncy, infinite</span>
+      </div>
       <div class="meta">
         <span class="meta-item">DURATION · <strong>200ms</strong></span>
         <span class="meta-item">TRIGGER · <strong>IntersectionObserver</strong></span>
-        <span class="meta-item">USE · <strong>KPI cards</strong></span>
       </div>
     </a>
 
     <a class="card" href="05-scroll-reveals.html" style="grid-column: 1 / -1;">
       <div class="num">05 · SCROLL CHOREOGRAPHY</div>
       <h2>Scroll-triggered reveals stagger</h2>
-      <p class="desc">Sezioni dashboard appaiono opacity 0→1 + translateY 8px→0 in 300ms ease-out · stagger 60ms × child index · one-shot (NO re-animate al re-scroll).</p>
+      <p class="desc">Sezioni dashboard: opacity 0→1 + translateY 8px→0 in 300ms ease-out · stagger 60ms × child index · one-shot (NO re-animate al re-scroll).</p>
+      <div class="features">
+        <span class="feat-pill">Live: scroll-in-container</span><span class="feat-pill">Sliders: dur+stagger+y</span><span class="feat-pill">Alt: 4 stagger configs</span><span class="feat-pill">Banned: re-animate, flicker, big translate</span>
+      </div>
       <div class="meta">
         <span class="meta-item">DURATION · <strong>300ms + stagger 60ms</strong></span>
-        <span class="meta-item">TRIGGER · <strong>IntersectionObserver 0.15</strong></span>
         <span class="meta-item">LIFECYCLE · <strong>one-shot</strong></span>
-        <span class="meta-item">USE · <strong>dashboard sections, marketing scroll</strong></span>
       </div>
     </a>
 
   </div>
 
   <div class="footer">
-    <span>Heuresys · Phase 8 motion language · L24 · 5 / 5 prototypes</span>
+    <span>Heuresys · Phase 8 motion language · L24+ enriched · 5 / 5 playground</span>
     <span>SPEC · motion-final.md · trustworthy 60% / courage 40%</span>
   </div>
 </div>
