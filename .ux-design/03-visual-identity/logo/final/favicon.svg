@@ -1,13 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Heuresys favicon">
   <defs>
     <style>
-      .favicon-bg { fill: #0a0a14; }
+      .favicon-bg { fill: #0a0d18; }  /* L21 legacy bg dark navy */
       .favicon-y {
         font-family: 'Exo 2', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-        font-weight: 700;
+        font-weight: 500;  /* L16 standard */
         font-size: 26px;
-        letter-spacing: -1.5px;
-        fill: #a855f7;
+        letter-spacing: 0;
+        fill: #a855f7;  /* legacy purple accent */
       }
     </style>
   </defs>

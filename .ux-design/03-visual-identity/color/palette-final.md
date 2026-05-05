@@ -1,6 +1,10 @@
-# Palette Final — Heuresys
+# Palette Final — Heuresys (v2 — D1 confermato)
 
-> **Decisione**: Variant C (Cinematic dark-first), confermata da capture sito legacy (`02-aesthetic/heuresys-com-current-style.md`) e da raccomandazione β+γ approvata da Enzo. Light mode disponibile come switch in pari dignità per tutte le surface.
+> **Status**: ✅ **v2 confermata** (2026-05-05 — DECISIONS-LOG L21). Palette base = legacy `www.heuresys.com` (Variant C cinematic dark) + standard L16/L18 logo + binding al modello base `mu-architect-legacy.html`.
+>
+> **Source di riferimento**: token system in `02-aesthetic/direction-explorations/legacy-palette.css` (CSS overlay Set 5) — questo file (`palette-final.md`) è la documentazione canonica.
+>
+> **Drop-in spec per AI agents**: vedi `02-aesthetic/heuresys.DESIGN.md` (9 sezioni canoniche, pattern getdesign.md compatible).
 
 ## Brand inviolabili (dal logo)
 

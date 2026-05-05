@@ -6,10 +6,13 @@
         font-weight: 700;
         font-size: 26.6667px;
         line-height: 0;
-        letter-spacing: -1.17px;
+        letter-spacing: -0.5px;  /* L16 letter-spacing naturale */
       }
       .heuresys-wordmark-primary { fill: hsl(221, 83%, 53%); }
-      .heuresys-wordmark-accent  { fill: #a855f7; }
+      .heuresys-wordmark-accent  {
+        fill: #a855f7;
+        font-weight: 500;  /* L16 gap moderato (700 → 500). L18: no italic per Exo 2 sans */
+      }
     </style>
   </defs>
   <text x="90" y="24" text-anchor="middle" class="heuresys-wordmark">

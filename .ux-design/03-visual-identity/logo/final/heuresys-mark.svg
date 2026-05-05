@@ -3,9 +3,9 @@
     <style>
       .heuresys-mark-y {
         font-family: 'Exo 2', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-        font-weight: 700;
+        font-weight: 500;  /* L16 standalone mark — y come signature glyph */
         font-size: 32px;
-        letter-spacing: -1.5px;
+        letter-spacing: 0;  /* L16 letter-spacing naturale */
         fill: #a855f7;
       }
     </style>

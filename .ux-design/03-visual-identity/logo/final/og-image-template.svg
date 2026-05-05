@@ -3,19 +3,22 @@
     <radialGradient id="og-glow" cx="50%" cy="40%" r="50%">
       <stop offset="0%" stop-color="#a855f7" stop-opacity="0.25" />
       <stop offset="60%" stop-color="#3b82f6" stop-opacity="0.10" />
-      <stop offset="100%" stop-color="#0a0a14" stop-opacity="0" />
+      <stop offset="100%" stop-color="#0a0d18" stop-opacity="0" />
     </radialGradient>
     <style>
-      .og-bg { fill: #0a0a14; }
+      .og-bg { fill: #0a0d18; }  /* L21 legacy bg dark navy */
       .og-glow { fill: url(#og-glow); }
       .og-wordmark {
         font-family: 'Exo 2', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
         font-weight: 700;
         font-size: 160px;
-        letter-spacing: -7px;
+        letter-spacing: -3px;  /* L16 letter-spacing tightened ma non extreme */
       }
       .og-wordmark-primary { fill: #3b82f6; }
-      .og-wordmark-accent { fill: #a855f7; }
+      .og-wordmark-accent {
+        fill: #a855f7;
+        font-weight: 500;  /* L16 gap moderato (700 → 500). L18: no italic per Exo 2 sans */
+      }
       .og-tagline {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
         font-weight: 500;
