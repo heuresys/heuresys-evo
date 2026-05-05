@@ -223,7 +223,8 @@
   body[data-sidebar="collapsed"] .sidebar-link span:not(.glyph) { display: none; }
   body[data-sidebar="collapsed"] .sidebar-link .num { display: none; }
   body[data-sidebar="collapsed"] .sidebar-section h4 { display: none; }
-  body[data-sidebar="collapsed"] .sidebar-link { padding: 8px; justify-content: center; }
+  body[data-sidebar="collapsed"] .sidebar-link { padding: 8px; justify-content: center; font-size: 0; gap: 0; border-left: none !important; }
+  body[data-sidebar="collapsed"] .sidebar-link.active { padding-left: 8px; }
   body[data-sidebar="collapsed"] .user-card .info { display: none; }
   body[data-sidebar="collapsed"] .user-card { padding: 8px; justify-content: center; }
   .sidebar-section h4 { cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; transition: color 0.15s; }
