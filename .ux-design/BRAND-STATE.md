@@ -2,7 +2,7 @@
 
 > **Single Source of Truth** per stato corrente del workstream brand identity. Aggiorna questo file ogni volta che cambia phase, viene presa una decisione, o si producono asset significativi. Per la cronologia completa cronologica, vedi `DECISIONS-LOG.md`.
 >
-> **Last update**: 2026-05-05 (post Set 3 data-dense variants ι κ λ μ + family-picker output — L15)
+> **Last update**: 2026-05-05 (post Set 1 dual-theme rewrite + Set 4 μ persona variants + L17)
 
 ## Current phase
 
@@ -84,6 +84,11 @@
 - `direction-explorations/lambda-gamma-eta-remix.critique.md` — 3-designer-debate critique
 - `direction-explorations/mu-data-dense-temperata.html` — Set 3 light+dark · PostHog × Linear · 60T/40C exact · dashboard-first
 - `direction-explorations/mu-data-dense-temperata.critique.md` — 3-designer-debate critique
+- `direction-explorations/mu-architect.html` — Set 4 light+dark · Systems POV · token surfaces + RBAC matrix
+- `direction-explorations/mu-art-director.html` — Set 4 light+dark · Pentagram POV · 5 capability glyphs + KG hero
+- `direction-explorations/mu-pragmatic.html` — Set 4 light+dark · Conversion POV · CTA + activity feed + trial banner
+- `direction-explorations/mu-synthesis.html` — Set 4 light+dark · Best compromise · 40/30/30 mix
+- `02-aesthetic/logo-standard.md` — L16 spec canonico cross-direction
 
 ### `03-visual-identity/`
 

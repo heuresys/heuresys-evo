@@ -6,8 +6,9 @@
 <title>β — Brutalist Paper-First — Heuresys</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,600;1,700;1,800&family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700;1,800&family=Inter:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
 <style>
+  /* LIGHT (default — paper cream brutalist) */
   :root {
     --bg: #f5f1e8;
     --surface: #faf6ee;
@@ -15,10 +16,23 @@
     --ink: #1a1a1a;
     --ink-soft: #4a4540;
     --ink-muted: #807a72;
-    --accent: #ff5722;          /* salmon-orange brutalist */
-    --highlight: #fff200;       /* highlighter yellow */
+    --accent: #c4361b;            /* deeper salmon-red, L16 primary */
+    --highlight: #fff200;
     --rule: #d4cdb9;
   }
+  /* DARK — warm graphite paper inversion */
+  [data-theme="dark"] {
+    --bg: #1a1610;
+    --surface: #221b15;
+    --paper-line: #2c241a;
+    --ink: #f5f1e8;
+    --ink-soft: #c0b8a8;
+    --ink-muted: #807a72;
+    --accent: #ff7a55;            /* lifted accent on dark */
+    --highlight: #ffd000;
+    --rule: #3a3025;
+  }
+
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     background: var(--bg);
@@ -27,9 +41,10 @@
     -webkit-font-smoothing: antialiased;
     line-height: 1.55;
     background-image:
-      linear-gradient(to right, rgba(212,205,185,0.18) 0px, transparent 1px),
-      linear-gradient(to bottom, rgba(212,205,185,0.18) 0px, transparent 1px);
+      linear-gradient(to right, color-mix(in srgb, var(--rule) 25%, transparent) 0px, transparent 1px),
+      linear-gradient(to bottom, color-mix(in srgb, var(--rule) 25%, transparent) 0px, transparent 1px);
     background-size: 32px 32px;
+    transition: background-color 0.15s linear, color 0.15s linear;
   }
   .nav-bar {
     background: var(--bg);
@@ -41,7 +56,25 @@
   .header-back:hover { background: var(--highlight); }
   .label { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink); font-weight: 600; }
   .label-accent { background: var(--accent); color: var(--bg); padding: 2px 8px; }
+  .theme-toggle {
+    background: transparent; border: 2px solid var(--ink); color: var(--ink);
+    padding: 5px 12px; font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+    cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
+  }
+  .theme-toggle:hover { background: var(--ink); color: var(--bg); }
+
   .page { max-width: 1280px; margin: 0 auto; padding: 64px 48px 96px; }
+
+  /* Wordmark canonical L16 */
+  .wordmark {
+    font-family: 'Fraunces', serif;
+    font-weight: 800;
+    font-size: 88px;
+    letter-spacing: -3px;
+    line-height: 0.95;
+    color: var(--ink);
+  }
+  .wordmark .y { color: var(--accent); font-weight: 600; font-style: italic; }
 
   /* HERO */
   .hero { display: grid; grid-template-columns: 1.4fr 1fr; gap: 64px; align-items: start; padding-top: 32px; border-bottom: 2px solid var(--ink); padding-bottom: 64px; }
@@ -55,24 +88,17 @@
   }
   .hero-meta .num { background: var(--ink); color: var(--bg); padding: 1px 6px; margin-right: 6px; }
 
-  /* LOGO concept β: serif robust + greek glyph υ */
-  .logo-svg { display: block; }
-  .logo-large { width: 580px; height: 110px; }
-
   .hero h1 {
     font-family: 'Fraunces', serif;
     font-weight: 800;
-    font-size: 88px;
+    font-size: 72px;
     line-height: 0.95;
-    letter-spacing: -3px;
+    letter-spacing: -2.5px;
     margin-top: 24px;
     margin-bottom: 32px;
+    color: var(--ink);
   }
-  .hero h1 em {
-    font-style: italic;
-    font-weight: 500;
-    color: var(--ink-soft);
-  }
+  .hero h1 em { font-style: italic; font-weight: 500; color: var(--ink-soft); }
   .hero .lead {
     font-family: 'Fraunces', serif;
     font-weight: 400;
@@ -83,7 +109,7 @@
     margin-bottom: 24px;
   }
   .hero .lead em { font-style: italic; }
-  .hero .lead .highlight { background: var(--highlight); padding: 0 4px; }
+  .hero .lead .highlight { background: var(--highlight); color: #1a1a1a; padding: 0 4px; }
   .hero .signature {
     font-family: 'IBM Plex Mono', monospace;
     font-size: 12px;
@@ -95,108 +121,50 @@
     letter-spacing: 1.5px;
   }
 
-  /* DROP CAP block */
-  .drop-cap-block {
-    border-left: 4px solid var(--accent);
-    padding-left: 24px;
-  }
-  .drop-cap-block::first-letter,
+  .drop-cap-block { border-left: 4px solid var(--accent); padding-left: 24px; }
   .drop-cap-block .dc-first { float: left; font-family: 'Fraunces', serif; font-weight: 800; font-size: 96px; line-height: 0.85; margin-right: 12px; margin-top: 8px; color: var(--accent); }
 
-  /* Sticky note quote */
   .sticky-quote {
     background: var(--highlight);
+    color: #1a1a1a;
     padding: 24px 28px;
     transform: rotate(-1.2deg);
     box-shadow: 4px 6px 0 var(--ink);
     margin-top: 8px;
   }
-  .sticky-quote p {
-    font-family: 'Fraunces', serif;
-    font-style: italic;
-    font-size: 18px;
-    line-height: 1.45;
-    color: var(--ink);
+  .sticky-quote p { font-family: 'Fraunces', serif; font-style: italic; font-size: 18px; line-height: 1.45; }
+  .sticky-quote cite { display: block; font-style: normal; font-family: 'IBM Plex Mono', monospace; font-size: 10px; margin-top: 12px; text-transform: uppercase; letter-spacing: 1.5px; color: #4a4540; }
+
+  .footnote {
+    margin-top: 32px; padding: 20px; border: 2px solid var(--ink); background: var(--surface);
   }
-  .sticky-quote cite {
-    display: block;
-    font-style: normal;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 10px;
-    margin-top: 12px;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    color: var(--ink-soft);
-  }
+  .footnote-meta { font-family: 'IBM Plex Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; color: var(--ink-soft); }
+  .footnote p { font-family: 'Fraunces', serif; font-size: 16px; line-height: 1.5; color: var(--ink); }
 
   /* Stats */
   .stats { margin-top: 80px; }
-  .stats h2 {
-    font-family: 'Fraunces', serif;
-    font-weight: 700;
-    font-size: 32px;
-    letter-spacing: -1px;
-    margin-bottom: 32px;
-    border-bottom: 2px solid var(--ink);
-    padding-bottom: 12px;
-  }
+  .stats h2 { font-family: 'Fraunces', serif; font-weight: 700; font-size: 32px; letter-spacing: -1px; margin-bottom: 32px; border-bottom: 2px solid var(--ink); padding-bottom: 12px; }
   .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border: 2px solid var(--ink); }
-  .stat {
-    padding: 32px 28px;
-    border-right: 2px solid var(--ink);
-    background: var(--surface);
-  }
+  .stat { padding: 32px 28px; border-right: 2px solid var(--ink); background: var(--surface); }
   .stat:last-child { border-right: 0; }
-  .stat .num {
-    font-family: 'Fraunces', serif;
-    font-weight: 800;
-    font-size: 64px;
-    line-height: 0.95;
-    letter-spacing: -2px;
-  }
+  .stat .num { font-family: 'Fraunces', serif; font-weight: 800; font-size: 64px; line-height: 0.95; letter-spacing: -2px; color: var(--ink); font-variant-numeric: tabular-nums; }
   .stat .num .plus { color: var(--accent); }
-  .stat .lab {
-    margin-top: 16px;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    color: var(--ink-soft);
-  }
-  .stat .source {
-    margin-top: 6px;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 10px;
-    color: var(--ink-muted);
-  }
+  .stat .lab { margin-top: 16px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--ink-soft); }
+  .stat .source { margin-top: 6px; font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--ink-muted); }
 
   /* Editorial section */
   .editorial { margin-top: 96px; }
   .editorial .label-row { display: flex; gap: 12px; align-items: center; margin-bottom: 16px; }
-  .editorial h2 {
-    font-family: 'Fraunces', serif;
-    font-weight: 800;
-    font-size: 56px;
-    line-height: 1.0;
-    letter-spacing: -2px;
-    margin-bottom: 24px;
-    max-width: 800px;
-  }
+  .editorial h2 { font-family: 'Fraunces', serif; font-weight: 800; font-size: 56px; line-height: 1.0; letter-spacing: -2px; margin-bottom: 24px; max-width: 800px; color: var(--ink); }
   .editorial h2 em { font-style: italic; font-weight: 500; color: var(--accent); }
-  .editorial .lead {
-    font-family: 'Fraunces', serif;
-    font-size: 19px;
-    line-height: 1.65;
-    color: var(--ink-soft);
-    max-width: 720px;
-  }
+  .editorial .lead { font-family: 'Fraunces', serif; font-size: 19px; line-height: 1.65; color: var(--ink-soft); max-width: 720px; }
   .perspectives { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin-top: 40px; border-top: 2px solid var(--ink); border-left: 2px solid var(--ink); }
   .pers { padding: 28px; border-right: 2px solid var(--ink); border-bottom: 2px solid var(--ink); background: var(--surface); }
   .pers .badge { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; padding: 2px 6px; }
   .pers.a .badge { background: var(--accent); color: var(--bg); }
   .pers.b .badge { background: var(--ink); color: var(--bg); }
-  .pers.c .badge { background: var(--highlight); color: var(--ink); }
-  .pers h3 { font-family: 'Fraunces', serif; font-weight: 700; font-size: 28px; letter-spacing: -1px; margin: 14px 0 4px; }
+  .pers.c .badge { background: var(--highlight); color: #1a1a1a; }
+  .pers h3 { font-family: 'Fraunces', serif; font-weight: 700; font-size: 28px; letter-spacing: -1px; margin: 14px 0 4px; color: var(--ink); }
   .pers .role-name { font-family: 'Fraunces', serif; font-style: italic; font-size: 14px; color: var(--ink-soft); margin-bottom: 16px; }
   .pers ul { list-style: none; padding: 0; }
   .pers li { font-size: 14px; color: var(--ink); padding: 6px 0 6px 18px; position: relative; line-height: 1.5; border-top: 1px dashed var(--rule); }
@@ -214,9 +182,9 @@
 <body>
 
 <nav class="nav-bar">
-  <a href="index.html" class="header-back">← 4 Direzioni</a>
+  <a href="index.html" class="header-back">← 12 Direzioni</a>
   <span class="label">β · <span class="label-accent">Brutalist Paper-First</span></span>
-  <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--ink-soft);">CREAM · Fraunces · Inter · IBM Plex Mono</span>
+  <button class="theme-toggle" onclick="toggleTheme()">◐ Light/Dark</button>
 </nav>
 
 <div class="page">
@@ -227,22 +195,7 @@
         <span class="num">VOL 01</span> ISSUE 2026 · ORGANIZATIONAL INTELLIGENCE
       </div>
 
-      <!-- Logo concept β: wordmark serif Fraunces with greek upsilon glyph for y -->
-      <svg class="logo-svg logo-large" viewBox="0 0 580 110" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <style>
-            .beta-word { font-family: 'Fraunces', serif; font-weight: 800; font-size: 96px; letter-spacing: -3px; fill: #1a1a1a; }
-            .beta-greek { font-family: 'Fraunces', serif; font-weight: 800; font-size: 96px; fill: #1a1a1a; font-style: italic; }
-            .beta-acc { fill: #ff5722; font-size: 22px; font-family: 'IBM Plex Mono', monospace; font-weight: 600; }
-          </style>
-        </defs>
-        <text x="0" y="80" class="beta-word">Heures</text>
-        <text x="305" y="80" class="beta-greek">υ</text>
-        <text x="335" y="80" class="beta-word">s</text>
-        <text x="380" y="40" class="beta-acc">εὕρεσις</text>
-        <line x1="380" y1="50" x2="500" y2="50" stroke="#ff5722" stroke-width="1.5" />
-        <text x="380" y="70" font-family="IBM Plex Mono" font-size="11" font-weight="500" fill="#807a72">scoperta · greco</text>
-      </svg>
+      <div class="wordmark">heures<span class="y">y</span>s</div>
 
       <h1>Il Layer<br />Mancante <em>tra</em><br />ERP, HR e BI.</h1>
 
@@ -261,38 +214,22 @@
         <cite>— Slogan board-level · 2026-04</cite>
       </div>
 
-      <div style="margin-top: 32px; padding: 20px; border: 2px solid var(--ink); background: var(--surface);">
-        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; color: var(--ink-soft);">Footnote 1 · Ulrich (RBL) </div>
-        <p style="font-family: 'Fraunces', serif; font-size: 16px; line-height: 1.5;">
-          <em>"Organization capability has 4× more impact than talent on business results."</em>
-        </p>
+      <div class="footnote">
+        <div class="footnote-meta">Footnote 1 · Ulrich (RBL)</div>
+        <p><em>"Organization capability has 4× more impact than talent on business results."</em></p>
       </div>
     </div>
   </div>
 
-  <!-- Stats -->
   <div class="stats">
     <h2>Lo strumento, in cifre.</h2>
     <div class="stats-grid">
-      <div class="stat">
-        <div class="num">531<span class="plus">+</span></div>
-        <div class="lab">Tabelle Database</div>
-        <div class="source">— schema corrente · evo</div>
-      </div>
-      <div class="stat">
-        <div class="num">17<span class="plus">K</span></div>
-        <div class="lab">Entità Knowledge Graph</div>
-        <div class="source">— ESCO bilingue IT/EN</div>
-      </div>
-      <div class="stat">
-        <div class="num">126<span class="plus">K</span></div>
-        <div class="lab">Relazioni semantiche</div>
-        <div class="source">— Crosswalk ESCO ↔ NACE</div>
-      </div>
+      <div class="stat"><div class="num">531<span class="plus">+</span></div><div class="lab">Tabelle Database</div><div class="source">— schema corrente · evo</div></div>
+      <div class="stat"><div class="num">17<span class="plus">K</span></div><div class="lab">Entità Knowledge Graph</div><div class="source">— ESCO bilingue IT/EN</div></div>
+      <div class="stat"><div class="num">126<span class="plus">K</span></div><div class="lab">Relazioni semantiche</div><div class="source">— Crosswalk ESCO ↔ NACE</div></div>
     </div>
   </div>
 
-  <!-- Editorial -->
   <div class="editorial">
     <div class="label-row">
       <span class="label-accent" style="padding: 2px 8px;">Tre prospettive</span>
@@ -335,31 +272,30 @@
     </div>
   </div>
 
-  <!-- Footer -->
   <div class="footer">
     <div class="footer-cols">
       <div class="col">
-        <svg width="180" height="34" viewBox="0 0 580 110" xmlns="http://www.w3.org/2000/svg">
-          <defs><style>.fbw { font-family: 'Fraunces', serif; font-weight: 800; font-size: 96px; letter-spacing: -3px; fill: #1a1a1a; } .fbg { font-family: 'Fraunces', serif; font-weight: 800; font-size: 96px; fill: #1a1a1a; font-style: italic; }</style></defs>
-          <text x="0" y="80" class="fbw">Heures</text>
-          <text x="305" y="80" class="fbg">υ</text>
-          <text x="335" y="80" class="fbw">s</text>
-        </svg>
+        <div class="wordmark" style="font-size: 36px;">heures<span class="y">y</span>s</div>
         <p style="margin-top: 12px;">Organizational Intelligence &amp; Workforce Orchestration. Il position paper accademico che è diventato strumento.</p>
       </div>
-      <div class="col">
-        <strong>Architettura</strong>
-        <p>Funzionalità · Tre prospettive · Knowledge Graph · 5 dimensioni</p>
-      </div>
-      <div class="col">
-        <strong>Contatti</strong>
-        <p>info@heuresys.com<br />Milano · Italia<br />ISSN 0000-0000</p>
-      </div>
+      <div class="col"><strong>Architettura</strong><p>Funzionalità · Tre prospettive · Knowledge Graph · 5 dimensioni</p></div>
+      <div class="col"><strong>Contatti</strong><p>info@heuresys.com<br />Milano · Italia<br />ISSN 0000-0000</p></div>
     </div>
-    <div class="footer-meta">© 2026 Heuresys · Tutti i diritti riservati · β direction · brutalist paper-first</div>
+    <div class="footer-meta">© 2026 Heuresys · β direction · brutalist paper-first · L16 logo standard · light+dark dual-theme</div>
   </div>
 
 </div>
+
+<script>
+  const t = localStorage.getItem('heuresys-theme');
+  if (t) document.documentElement.setAttribute('data-theme', t);
+  function toggleTheme() {
+    const cur = document.documentElement.getAttribute('data-theme') || 'light';
+    const next = cur === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('heuresys-theme', next);
+  }
+</script>
 
 </body>
 </html>

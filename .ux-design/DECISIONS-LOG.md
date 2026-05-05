@@ -175,6 +175,32 @@ Persistenza garantita: tutti i file in git, sincronizzati cross-machine. Skill l
 
 ---
 
+## L17 — 2026-05-05 — Set 1 dual-theme rewrite + Set 4 μ persona variants
+
+**Decisione**: (a) riscrivere i 4 mockup Set 1 (α/β/γ/δ) da single-theme a dual-theme (light+dark toggle in pari dignità, allineamento L8) + applicazione logo y-accent standard L16; (b) creare un Set 4 di **4 varianti del modello μ Data-Dense Temperata** che esprimano visivamente i 3 punti di vista del prompt `3-designer-debate.md`: μ-architect (Systems POV — tokens, scale, governance), μ-art-director (Pentagram POV — craft, ontology signature, editorial), μ-pragmatic (Conversion POV — CTA, KPI, trial), μ-synthesis (best compromise 40/30/30 dei 3).
+
+**Contesto**: Enzo: "per coerenza devi riscriver i modelli che hanno solo un tema negli equivalenti che hanno doppio tema light/dark... aggiungi (crea) 4 varianti del modello Data-Dense Temperata che rappresentino bene il punto di vista (e quindi le differenze) tra art director, architect e pragmatic e la quarta sia il miglior compromesso tra i tre pareri".
+
+**Conseguenza**:
+
+- 4 mockup Set 1 riscritti da Write completo: ognuno ora ha `:root` (light/dark) + theme-toggle button + JS persistence + logo wordmark con y-accent class (L16 compliant)
+  - α Editorial Cinematic: dark default + cream-warm light counterpart
+  - β Brutalist Paper: cream light default + warm-graphite dark counterpart
+  - γ Industrial Blueprint: paper light default + deep-blueprint dark counterpart
+  - δ Quantitative FT: salmon light default + deep-maroon dark counterpart
+- 4 mockup Set 4 nuovi:
+  - `mu-architect.html` — token-labeled surfaces, RBAC governance schema, accent-soft derivation chain. Accent locked Linear `#5e69d1`. Mono dominant.
+  - `mu-art-director.html` — 5 distinct capability glyphs (Process/Structure/Performance/Role/Competency) Pentagram-style + KG hero al centro. Accent plum `#7a3a9c`. Source Serif 4 italic moments. Editorial column-count.
+  - `mu-pragmatic.html` — Free-trial banner + visible CTAs + big KPI showcase con sparkline + activity feed con social proof (RTL Bank, SmartFood, EcoNova). Accent green `#22c55e`.
+  - `mu-synthesis.html` — Best compromise: 40% Architect (token-labeled surface-note) + 30% Art Director (5 glyphs sidebar + italic hero em + KG contained) + 30% Pragmatic (KPI ring + activity feed + understated CTA). Accent originale μ `#7a7fad`.
+- Index aggiornato a "16 Direzioni Estetiche" + sezione Set 4 (badge plum `#b370e0`)
+- BRAND-STATE.md asset inventory esteso a 16 mockup + logo-standard.md
+- Tutti i 16 mockup ora: light+dark toggle + logo L16 compliant + anti-slop guardrails (Set 3+4)
+
+**Set 4 design intent**: dare a Enzo 4 esecuzioni della stessa famiglia visivamente differenziate, così che la scelta D1 finale possa includere non solo "quale famiglia/direction" ma anche "quale POV/proporzione di compromesso". μ-synthesis è la default razionale; i 3 single-POV servono come "ceiling" e "floor" per ogni dimensione (token clarity vs ontology signature vs conversion).
+
+---
+
 ## L16 — 2026-05-05 — Logo y-accent standard cross-direction definito
 
 **Decisione**: standardizzare il rendering del wordmark "heuresys" come spec **indipendente dalla tipografia** ma omogenea nel concetto. La lettera "y" è sempre in `var(--accent)` color (theme-aware), con weight contrasto **moderato** rispetto al body (es. body 700 → y 500), style italic preferito, e letter-spacing naturale del font (NO override custom). Distanza `s-y-s` simmetrica e identica al kerning naturale.
