@@ -175,6 +175,27 @@ Persistenza garantita: tutti i file in git, sincronizzati cross-machine. Skill l
 
 ---
 
+## L16 — 2026-05-05 — Logo y-accent standard cross-direction definito
+
+**Decisione**: standardizzare il rendering del wordmark "heuresys" come spec **indipendente dalla tipografia** ma omogenea nel concetto. La lettera "y" è sempre in `var(--accent)` color (theme-aware), con weight contrasto **moderato** rispetto al body (es. body 700 → y 500), style italic preferito, e letter-spacing naturale del font (NO override custom). Distanza `s-y-s` simmetrica e identica al kerning naturale.
+
+**Contesto**: Enzo: "il logo non è ben formattato e/o non rispetta il principio dell'y evidenziata dalle altre lettere. dobbiamo definire lo standard indipendente dalla tipografia ma omogeneizzato nel concetto: possiamo immaginare che la y sia sempre nell'accent color del modello (o qualcosa del genere)". Spec affinata in feedback: weight gap moderato (no 200 estremo), letter-spacing naturale (no gap di fluidità), distanza s-y-s simmetrica.
+
+**Conseguenza**:
+
+- Creato `02-aesthetic/logo-standard.md` come SoT canonico (regole + CSS pattern + HTML/SVG pattern + anti-pattern + checklist conformità)
+- Applicazione retroattiva su tutti i mockup esistenti (12 direzioni Set 1 + 2 + 3) come parte di Round 1-3
+- η Swiss Computational ha y weight 200 vs body 800 — gap estremo, da ridurre a y weight 500-600 per compliance L16
+- Set 3 ι Industrial Blueprint Tempered: wordmark Inter senza y-accent — da fix
+- Set 3 μ Data-Dense Temperata: wordmark Inter senza y-accent — da fix
+- Set 3 κ Quantitative FT Tempered: già conforme (Source Serif y italic accent)
+- Set 3 λ γ × η Remix: già conforme (η-style y italic accent)
+- Set 1 α/β/γ/δ: tutti single-theme + non-conforming logo — da rewrite in dual-theme + apply standard (Round 2)
+
+**Compatibilità tipografica verificata**: Inter, Source Serif 4, Space Grotesk, Bricolage Grotesque variable, Geist, Source Sans 3.
+
+---
+
 ## L15 — 2026-05-05 — Set 3 data-dense variants ι κ λ μ + family-picker output applicato + 3-designer-debate critique
 
 **Decisione**: applicare il prompt `99-samples/rohitg00-prompts/family-picker.md` per chiudere D1 in modo strutturato. Risposte raccolte da Enzo: (Q1) mix scan-heavy prevalente con read-heavy secondario; (Q2) prosumer; (Q3) trustworthy 60% / courage 40%. Output family-picker: famiglia raccomandata **Data-Dense Pro** (ClickHouse/PostHog), secondaria Editorial Minimalism (Linear/Vercel), AVOID Cinematic Dark. Generazione di **4 nuove direzioni HTML mockup** (ι/κ/λ/μ) come Set 3 con light+dark toggle. Per ogni direzione, applicato `99-samples/rohitg00-prompts/3-designer-debate.md` come `<direction>.critique.md` (Architect/Art Director/Pragmatic in 3 round + synthesis + 3 action items concreti).

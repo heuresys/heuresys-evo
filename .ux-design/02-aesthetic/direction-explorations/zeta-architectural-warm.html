@@ -21,6 +21,7 @@
     --clay: #d8a878;           /* secondary warm */
     --moss: #5a6442;            /* tertiary deep green */
     --sand: #e8d8b8;
+    --accent: var(--terracotta); /* L16 logo standard: alias semantic per compliance */
   }
   /* DARK — warm graphite */
   [data-theme="dark"] {
@@ -35,6 +36,7 @@
     --clay: #d8a878;
     --moss: #a8b878;
     --sand: #4a3a2a;
+    --accent: var(--terracotta);
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -97,7 +99,9 @@
   }
   .wordmark-architectural .word .y {
     font-style: italic;
-    color: var(--terracotta);
+    color: var(--accent); /* L16 logo standard: var(--accent) aliased to --terracotta */
+    /* Note: DM Serif Display è single-weight 400 — eccezione documentata in logo-standard.md
+       (italic + accent color come signal sufficiente). */
   }
   .wordmark-architectural .icon-row {
     display: flex; gap: 6px; align-items: center;
@@ -552,7 +556,7 @@
   <div class="footer">
     <div class="footer-cols">
       <div class="col">
-        <span style="font-family: 'DM Serif Display'; font-size: 32px; letter-spacing: -1px;">Heures<span style="font-style: italic; color: var(--terracotta);">y</span>s</span>
+        <span style="font-family: 'DM Serif Display'; font-size: 32px; letter-spacing: -1px;">Heures<span style="font-style: italic; color: var(--accent);">y</span>s</span>
         <p style="margin-top: 8px;">Bottega artigianale tecnologica. Custom iconography ricorrente. Warm palette anti-tech-cliché.</p>
       </div>
       <div class="col">

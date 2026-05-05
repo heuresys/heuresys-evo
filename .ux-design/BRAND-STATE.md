@@ -38,6 +38,7 @@
 | Scope vincolante: nessun import da `.ux-design/` in production code                                                             | 2026-05-04 | `README.md`                             |
 | Light+dark dual mode in pari dignità per Set 2 direzioni                                                                        | 2026-05-05 | DECISIONS-LOG L8                        |
 | `99-samples/` library integrata + adozione pattern DESIGN.md a 9 sezioni canoniche                                              | 2026-05-05 | DECISIONS-LOG L14                       |
+| Logo y-accent standard cross-direction (y in `var(--accent)`, weight gap moderato, italic, letter-spacing naturale)             | 2026-05-05 | `02-aesthetic/logo-standard.md` · L16   |
 
 ## Decisioni pending (blocking)
 

@@ -94,12 +94,15 @@
     z-index: 2;
   }
   .wordmark-gen .word .y {
+    /* L16 logo standard direction-specific exception: θ "Algorithmic Generative" usa gradient text
+       (gen-1 → gen-3 derivati dal grafo) come signature concept della direzione.
+       Eccezione documentata in logo-standard.md sezione "Eccezioni direzione-specifiche". */
     background: linear-gradient(180deg, var(--gen-1) 0%, var(--gen-3) 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
     font-style: italic;
-    font-variation-settings: 'opsz' 96, 'wght' 800;
+    font-variation-settings: 'opsz' 96, 'wght' 600; /* L16 logo standard: gap moderato 700 body → 600 y */
   }
   .wordmark-gen svg.network-overlay {
     position: absolute;
@@ -525,7 +528,7 @@
   <div class="footer">
     <div class="footer-cols">
       <div class="col">
-        <span style="font-family: 'Bricolage Grotesque'; font-variation-settings: 'opsz' 32, 'wght' 700; font-size: 32px; letter-spacing: -1px;">Heures<span style="background: linear-gradient(180deg, var(--gen-1), var(--gen-3)); -webkit-background-clip: text; background-clip: text; color: transparent; font-style: italic;">y</span>s</span>
+        <span style="font-family: 'Bricolage Grotesque'; font-variation-settings: 'opsz' 32, 'wght' 700; font-size: 32px; letter-spacing: -1px;">Heures<span style="background: linear-gradient(180deg, var(--gen-1), var(--gen-3)); -webkit-background-clip: text; background-clip: text; color: transparent; font-style: italic; font-variation-settings: 'opsz' 32, 'wght' 600;">y</span>s</span>
         <p style="margin-top: 8px;">Il brand emerge dall'algoritmo. Variable typography, derived colorways, generative layout.</p>
       </div>
       <div class="col">
