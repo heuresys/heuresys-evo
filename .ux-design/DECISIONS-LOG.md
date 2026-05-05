@@ -527,6 +527,49 @@ Persistenza garantita: tutti i file in git, sincronizzati cross-machine. Skill l
 
 ---
 
+## L25 — 2026-05-05 — Logo wordmark — REGOLE PERMANENTI (supersedes weight gap di L16)
+
+**Decisione**: 4 regole permanenti per il logo Heuresys che superano i compromessi precedenti L16 (weight gap 700→500) e L18 (no italic per sans-serif):
+
+1. **`h` sempre minuscola** → wordmark = `heuresys` (mai `Heuresys` capital)
+2. **Tutte le 8 lettere identiche** per font, peso, size, style — nessun gap di weight, nessuna scale-down, nessun italic
+3. **Solo `y` color diverso** (`var(--accent)`) — il **colore** è l'UNICO differenziatore
+4. **Embed ovunque**: in header, footer, modal, social meta si usa sempre il logo embedded `<span class="wordmark">heures<span class="y">y</span>s</span>` — mai plain text "heuresys" o "heuresys.com"
+
+**Contesto**: Enzo: "il logo deve essere quello della landing page di heuresys.com ma con cambiamenti da rendere permanenti: la h iniziale deve essere sempre minuscola e la y di diverso colore deve avere la stessa grandezza e spessore delle altre lettere del logo e non deve essere italic. Quindi ogni lettera è uguale alle altre. In tutte le ricorrenze di heuresys in header e in footer va utilizzato il logo e non il testo semplice".
+
+**Conseguenza · file aggiornati**:
+
+- 5 dashboard HTML in `06-mockups/dashboards/` (header `wordmark-sm` + footer copyright `wordmark-foot` embedded in `heuresys.com` link)
+- 1 dashboard index hub
+- 5 motion prototypes HTML in `04-motion-language/`
+- 1 motion index hub
+- 1 icon-libraries-showcase
+- 5 SVG canonical in `03-visual-identity/logo/final/`: `heuresys-wordmark.svg` · `monochrome-dark.svg` · `monochrome-light.svg` · `heuresys-mark.svg` · `favicon.svg` · `og-image-template.svg`
+- `02-aesthetic/logo-standard.md` (spec doc — sezione "L25 PERMANENT" in cima + regole canoniche aggiornate)
+- `02-aesthetic/heuresys.DESIGN.md` Section 3 Typography (logo rule riscritta)
+
+**Cambiamenti tecnici**:
+
+| Prima (L16+L18)                                            | Dopo (L25)                                                                              |
+| ---------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `Heures<span class="y">y</span>s` (capital H)              | `heures<span class="y">y</span>s` (lowercase)                                           |
+| `.y { color: var(--accent); font-weight: 500; }` (gap 200) | `.y { color: var(--accent); }` (no override)                                            |
+| Spec L16: weight body 700 → y 500 contrasto moderato       | Spec L25: weight identico, color is signal                                              |
+| Footer: `<a>heuresys.com</a>` plain text                   | Footer: `<a><span class="wordmark-foot">heures<span class="y">y</span>s</span>.com</a>` |
+
+**Storia evolutiva**:
+
+- L6 (2026-05-04): logo legacy dichiarato definitivo → superseduta L11
+- L11 (2026-05-05): reset esplorazione libera → superseduta logo selection
+- L16 (2026-05-05): y-accent standard con weight gap 700→500
+- L18 (2026-05-05): no italic per sans-serif (descender problema)
+- **L25 (2026-05-05)**: regole permanenti — color-only differentiator, lowercase h, embed ovunque
+
+**Direction-explorations Set 1-5** (16+16 mockup in `02-aesthetic/direction-explorations/`) NON aggiornati: archiviati come "alternatives explored". Reference storico, non production. Se in futuro si vuole revisione retroattiva, è opt-in.
+
+---
+
 ## Decisioni scartate (per riferimento)
 
 | Direzione                                                         | Motivo scarto                                                  | Reference                            |

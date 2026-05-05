@@ -29,7 +29,7 @@
   .nav-bar::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 2px; background: var(--accent); opacity: 0.3; }
   .header-back { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink); text-decoration: none; }
   .wordmark-sm { font-family: 'Exo 2'; font-weight: 700; font-size: 18px; color: var(--brand-blue); letter-spacing: -0.4px; }
-  .wordmark-sm .y { color: var(--accent); font-weight: 500; }
+  .wordmark-sm .y { color: var(--accent); }
   .label { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink); font-weight: 600; }
   .label-pill { background: var(--accent); color: white; padding: 2px 10px; border-radius: 3px; }
   .toggle { background: transparent; border: 1px solid var(--ink); color: var(--ink); padding: 6px 12px; font-family: 'JetBrains Mono', monospace; font-size: 11px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; border-radius: 4px; }
@@ -59,7 +59,7 @@
     color: var(--brand-blue); line-height: 1; display: inline-block;
     animation: glow-breathe var(--dur) var(--ease-in-out) infinite;
   }
-  .wordmark-hero .y { color: var(--accent); font-weight: 500; }
+  .wordmark-hero .y { color: var(--accent); }
   @keyframes glow-breathe {
     0%, 100% { filter: drop-shadow(0 0 var(--blur-min) rgba(168, 85, 247, var(--opacity-min))); }
     50%      { filter: drop-shadow(0 0 var(--blur-max) rgba(168, 85, 247, var(--opacity-max))); }
@@ -93,7 +93,7 @@
   .alt-card.recommended { border-color: var(--accent); border-width: 2px; }
   .alt-card .alt-stage { background: var(--surface-2); padding: 32px 16px; text-align: center; min-height: 120px; display: flex; align-items: center; justify-content: center; }
   .alt-card .alt-mini { font-family: 'Exo 2'; font-weight: 700; font-size: 28px; color: var(--brand-blue); letter-spacing: -0.6px; }
-  .alt-card .alt-mini .y { color: var(--accent); font-weight: 500; }
+  .alt-card .alt-mini .y { color: var(--accent); }
   .alt-card .alt-meta { padding: 14px 16px; }
   .alt-card .alt-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; padding: 3px 8px; border-radius: 3px; display: inline-block; margin-bottom: 8px; }
   .alt-label.recommended { background: var(--accent); color: white; }
@@ -127,7 +127,7 @@
   .anti-card { background: var(--surface-1); border: 2px solid var(--danger); border-radius: 8px; overflow: hidden; }
   .anti-card .anti-stage { background: var(--surface-2); padding: 32px 16px; text-align: center; min-height: 120px; display: flex; align-items: center; justify-content: center; }
   .anti-card .anti-mini { font-family: 'Exo 2'; font-weight: 700; font-size: 28px; color: var(--brand-blue); letter-spacing: -0.6px; }
-  .anti-card .anti-mini .y { color: var(--accent); font-weight: 500; }
+  .anti-card .anti-mini .y { color: var(--accent); }
   .anti-card .anti-meta { padding: 14px 16px; }
   .anti-card .anti-tag { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--danger); margin-bottom: 6px; }
   .anti-card h4 { font-family: 'Inter'; font-weight: 600; font-size: 13px; margin-bottom: 4px; }
@@ -164,7 +164,7 @@
 
 <nav class="nav-bar">
   <a class="header-back" href="index.html">← Motion prototypes</a>
-  <span class="label"><span class="wordmark-sm">Heures<span class="y">y</span>s</span> · MOTION · <span class="label-pill">01 WORDMARK GLOW</span></span>
+  <span class="label"><span class="wordmark-sm">heures<span class="y">y</span>s</span> · MOTION · <span class="label-pill">01 WORDMARK GLOW</span></span>
   <button class="toggle" onclick="toggleTheme()">◐ Light/Dark</button>
 </nav>
 
@@ -185,7 +185,7 @@
       <div class="stage-controls">
         <button class="replay-btn" onclick="replayHero()">↻ Replay</button>
       </div>
-      <div class="wordmark-hero" id="heroWordmark">Heures<span class="y">y</span>s</div>
+      <div class="wordmark-hero" id="heroWordmark">heures<span class="y">y</span>s</div>
       <div class="tagline">Organizational Intelligence &amp; Workforce Orchestration</div>
     </div>
   </section>
@@ -247,7 +247,7 @@
     </div>
     <div class="alt-grid">
       <div class="alt-card">
-        <div class="alt-stage"><div class="alt-mini glow-static">Heures<span class="y">y</span>s</div></div>
+        <div class="alt-stage"><div class="alt-mini glow-static">heures<span class="y">y</span>s</div></div>
         <div class="alt-meta">
           <span class="alt-label alt-static">Static</span>
           <div class="alt-name">Glow statico</div>
@@ -256,7 +256,7 @@
         </div>
       </div>
       <div class="alt-card recommended">
-        <div class="alt-stage"><div class="alt-mini glow-recommended">Heures<span class="y">y</span>s</div></div>
+        <div class="alt-stage"><div class="alt-mini glow-recommended">heures<span class="y">y</span>s</div></div>
         <div class="alt-meta">
           <span class="alt-label recommended">★ Recommended</span>
           <div class="alt-name">Subtle pulse</div>
@@ -265,7 +265,7 @@
         </div>
       </div>
       <div class="alt-card">
-        <div class="alt-stage"><div class="alt-mini glow-fast">Heures<span class="y">y</span>s</div></div>
+        <div class="alt-stage"><div class="alt-mini glow-fast">heures<span class="y">y</span>s</div></div>
         <div class="alt-meta">
           <span class="alt-label too-fast">Too fast</span>
           <div class="alt-name">Fast pulse 1.5s</div>
@@ -274,7 +274,7 @@
         </div>
       </div>
       <div class="alt-card">
-        <div class="alt-stage"><div class="alt-mini glow-linear">Heures<span class="y">y</span>s</div></div>
+        <div class="alt-stage"><div class="alt-mini glow-linear">heures<span class="y">y</span>s</div></div>
         <div class="alt-meta">
           <span class="alt-label too-slow">Mechanical</span>
           <div class="alt-name">Linear breathing</div>
@@ -293,7 +293,7 @@
     </div>
     <div class="anti-grid">
       <div class="anti-card">
-        <div class="anti-stage"><div class="anti-mini banned-strobe">Heures<span class="y">y</span>s</div></div>
+        <div class="anti-stage"><div class="anti-mini banned-strobe">heures<span class="y">y</span>s</div></div>
         <div class="anti-meta">
           <div class="anti-tag">❌ Strobe blinking</div>
           <h4>Toggle 200ms hard cut</h4>
@@ -301,7 +301,7 @@
         </div>
       </div>
       <div class="anti-card">
-        <div class="anti-stage"><div class="anti-mini banned-rainbow">Heures<span class="y">y</span>s</div></div>
+        <div class="anti-stage"><div class="anti-mini banned-rainbow">heures<span class="y">y</span>s</div></div>
         <div class="anti-meta">
           <div class="anti-tag">❌ Rainbow hue cycle</div>
           <h4>Color cycling glow</h4>
@@ -309,7 +309,7 @@
         </div>
       </div>
       <div class="anti-card">
-        <div class="anti-stage"><div class="anti-mini banned-bounce">Heures<span class="y">y</span>s</div></div>
+        <div class="anti-stage"><div class="anti-mini banned-bounce">heures<span class="y">y</span>s</div></div>
         <div class="anti-meta">
           <div class="anti-tag">❌ Bouncy scale</div>
           <h4>Spring bounce 1s loop</h4>
@@ -367,7 +367,7 @@
 <span class="comment">/* WordmarkHero.module.css */</span>
 .wordmark { animation: glow-breathe 4s cubic-bezier(0.45,0,0.55,1) infinite; }
 .wordmark[data-reduced="true"] { animation: none; }
-.y { color: var(--accent); font-weight: 500; }</div>
+.y { color: var(--accent); }</div>
 
     <div class="code-block" id="code-tailwind"><span class="comment">// tailwind.config.ts</span>
 <span class="key">module.exports</span> = {

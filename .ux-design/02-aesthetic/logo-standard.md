@@ -1,24 +1,38 @@
 # Heuresys logo — y-accent standard
 
-> **Stabilito**: 2026-05-05 (DECISIONS-LOG L16)
+> **L25 (2026-05-05) — REGOLE PERMANENTI** che superano L16 e L18:
+>
+> 1. **h** sempre minuscola → wordmark = `heuresys` (mai `Heuresys`)
+> 2. **Tutte le lettere** stesso font, stesso peso, stessa grandezza — **nessun gap di weight**
+> 3. **NO italic** (su qualunque tipografia, sans o serif)
+> 4. **Solo y** in `var(--accent)` color — il colore è l'**unico** differenziatore
+> 5. Letter-spacing naturale del font (no override custom)
+> 6. **In ogni occorrenza** (header, footer, modal, social meta) si usa il LOGO embedded, non plain text
+>
+> Le regole L16 (weight gap moderato 700→500) e L18 (no italic per sans) sono **supersedute** dalla L25 nel punto specifico del weight gap. Le sezioni successive di questo file riflettono la spec L25.
+
+> **Stabilito**: 2026-05-05 (DECISIONS-LOG L16 → aggiornato L18 → finalizzato L25)
 > **Scopo**: standard di rendering del logo "heuresys" cross-direzione, indipendente dalla tipografia di ogni direction. Garantisce riconoscibilità visiva omogenea anche al variare di palette/typography/mood.
 
-## Principio fondante
+## Principio fondante (L25)
 
-Il **wordmark "heuresys"** ha la lettera **"y"** sempre rendered come signal differenziato — accent color + style — e con letter-spacing naturale del font (no override custom). La differenziazione è **moderata, non teatrale**: contrasto sottile che preserva l'integrità tipografica e la trustworthy-leaning identity B2B enterprise.
+Il **wordmark "heuresys"** è composto da 8 lettere identiche per font, peso, grandezza e stile, con la sola **"y"** colorata diversamente (`var(--accent)`). La h è sempre minuscola. Nessun italic, nessun gap di weight. Il **colore** è l'unico differenziatore — minimalismo radicale per signal cromatico puro.
 
-## Regole canoniche
+## Regole canoniche (L25)
 
-| Regola         | Spec                                                                                                             | Razionale                                                                                                                                                                                                                                     |
-| -------------- | ---------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Color y**    | `var(--accent)` sempre, theme-aware (auto-switch light/dark)                                                     | Il signal cromatico è il differenziatore primario; deve rispettare il theme attivo                                                                                                                                                            |
-| **Weight y**   | Contrasto **moderato** rispetto al body. Body 700 → y 500-600; body 800 → y 600-700. NO weight 200               | Differenziazione sottile, non teatrale. Allineato a 60/40 trustworthy/courage (no overdrive courage)                                                                                                                                          |
-| **Style y**    | **Sans-serif**: NO italic (descender slanted invade glyph adiacente). **Serif**: italic preferito.               | Browser visual review 2026-05-05 ha rivelato che Inter/Geist/Bricolage italic 'y' ha descender che si sovrappone visualmente alla 's' adiacente. Differenziazione sans = color + weight gap. Serif italic ha glyph distinctive senza overlap. |
-| **Position y** | Letter-spacing **naturale** del font. NO `letter-spacing` custom. Distanza `s-y-s` simmetrica = kerning naturale | Il logo deve fluire come una parola unica; gap manuali rompono la lettura e creano "y come asset isolato"                                                                                                                                     |
-| **Tipografia** | Indipendente — funziona con Inter, Source Serif, Space Grotesk, Bricolage variable, ecc.                         | Il logo è un'identità trasversale; ogni direction porta la propria tipografia + applica la y-rule                                                                                                                                             |
-| **Monogram**   | Stessa logica: il punto centrale / nodo / glyph isolato che rappresenta la y nel mark è in `--accent`            | Coerenza wordmark ↔ mark assicura riconoscibilità a thumbnail size                                                                                                                                                                            |
+| Regola            | Spec L25                                                            | Razionale                                                                                                              |
+| ----------------- | ------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| **Case**          | `heuresys` lowercase sempre (`h` minuscola)                         | Brand voice "tool, not corporation". Lowercase = approachable, modern, ontological tool                                |
+| **Color y**       | `var(--accent)` sempre, theme-aware (auto-switch light/dark)        | Il signal cromatico è l'**unico** differenziatore. Massima leggibilità, massimo signal                                 |
+| **Weight y**      | **Identico** al body (700 = 700, 800 = 800)                         | Nessun gap. La y deve avere la stessa "presenza" delle altre lettere — solo colore diverso                             |
+| **Size y**        | **Identica** alle altre lettere (no scale)                          | Coerenza tipografica. Una lettera diversa di size rompe il kerning e crea "asset isolato"                              |
+| **Style y**       | **NO italic** (su qualunque font, sans o serif)                     | Italic crea descender obliquo (sans) o tone editorial (serif) — entrambi off-brand. Tone B2B = uniforme                |
+| **Position y**    | Letter-spacing **naturale** del font. NO `letter-spacing` custom    | Il logo deve fluire come una parola unica. Gap manuali rompono la lettura                                              |
+| **Tipografia**    | Inter / Geist / Space Grotesk / Bricolage / Source Sans / Exo 2 OK  | Il logo è agnostic. Funziona perché lo "stress" è solo il colore                                                       |
+| **Monogram (y)**  | Solo glyph "y" in `--accent`, stesso weight del wordmark            | Mark = "y" isolata. Stessa size relativa, stesso weight                                                                |
+| **Embed ovunque** | Header + footer + modal + social meta = sempre logo, mai plain text | Riconoscibilità brand cross-surface. Mai `<a>heuresys.com</a>` plain — sempre `<a>` wraps `<span class="wordmark">...` |
 
-## CSS pattern canonico
+## CSS pattern canonico (L25)
 
 ```css
 :root {
@@ -28,47 +42,38 @@ Il **wordmark "heuresys"** ha la lettera **"y"** sempre rendered come signal dif
   --accent: <direction-specific-accent-dark>;
 }
 
+/* Wordmark — tutte le lettere identiche per font/peso/size/style */
 .wordmark {
-  font-family: var(--display-face);
-  font-weight: 700; /* o 800 a seconda della direction */
-  color: var(--ink);
+  font-family: var(--display-face); /* Exo 2 default, agnostic */
+  font-weight: 700;
+  color: var(--ink); /* o var(--brand-blue) per dashboard architect */
   letter-spacing: normal; /* NO override */
 }
 
-/* Sans-serif (Inter, Geist, Space Grotesk, Bricolage) */
-.wordmark.sans .y {
+/* Y — UNICO differenziatore: il color */
+.wordmark .y {
   color: var(--accent);
-  font-weight: 500; /* contrasto moderato (gap 200 da body) */
-  /* NO italic — descender italic invade glyph adiacente */
-}
-
-/* Serif (Fraunces, Newsreader, Source Serif, DM Serif) */
-.wordmark.serif .y {
-  color: var(--accent);
-  font-weight: 500;
-  font-style: italic; /* preferito — serif italic glyph distinctive */
+  /* NESSUN font-weight override (eredita 700) */
+  /* NESSUN font-style italic */
+  /* NESSUN font-size override */
 }
 ```
 
-## HTML pattern canonico
+## HTML pattern canonico (L25)
 
 ```html
 <span class="wordmark">heures<span class="y">y</span>s</span>
 ```
 
-## SVG pattern (per logo file SVG)
+**Nota L25**: la `h` è sempre minuscola. Niente capitalizzazione (mai `Heuresys`).
+
+## SVG pattern (per logo file SVG · L25)
 
 ```svg
-<text x="0" y="0" font-family="<face>" font-weight="700" fill="currentColor">heures</text>
-<text x="..." y="0" font-family="<face>" font-weight="500" font-style="italic" fill="var(--accent)">y</text>
-<text x="..." y="0" font-family="<face>" font-weight="700" fill="currentColor">s</text>
+<text font-family="<face>" font-weight="700" fill="currentColor">heures<tspan fill="var(--accent)">y</tspan>s</text>
 ```
 
-**Attenzione**: nei file SVG usa `<tspan>` invece di tre `<text>` separati per preservare il kerning naturale. Pattern raccomandato:
-
-```svg
-<text font-family="<face>" font-weight="700" fill="currentColor">heures<tspan font-weight="500" font-style="italic" fill="var(--accent)">y</tspan>s</text>
-```
+Nota L25: il `<tspan>` per la y NON ha `font-weight` o `font-style` override. Eredita dal `<text>` parent. Solo `fill` cambia.
 
 ## Anti-pattern (cosa NON fare)
 
@@ -118,11 +123,13 @@ Alcune direction hanno constraint tipografici o concept signature che giustifica
 
 ## Storia delle decisioni
 
-| Data       | Cambiamento                                                             | Reference         |
-| ---------- | ----------------------------------------------------------------------- | ----------------- |
-| 2026-05-04 | Logo legacy www.heuresys.com Exo 2 + "y" purple — dichiarato definitivo | DECISIONS-LOG L6  |
-| 2026-05-05 | L6 sciolta — esplorazione libera logo                                   | DECISIONS-LOG L11 |
-| 2026-05-05 | Logo y-accent standard definito (questo documento)                      | DECISIONS-LOG L16 |
+| Data       | Cambiamento                                                                                                                              | Reference         |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ----------------- |
+| 2026-05-04 | Logo legacy www.heuresys.com Exo 2 + "y" purple — dichiarato definitivo                                                                  | DECISIONS-LOG L6  |
+| 2026-05-05 | L6 sciolta — esplorazione libera logo                                                                                                    | DECISIONS-LOG L11 |
+| 2026-05-05 | Logo y-accent standard definito                                                                                                          | DECISIONS-LOG L16 |
+| 2026-05-05 | NO italic per sans-serif (descender invade adjacent s)                                                                                   | DECISIONS-LOG L18 |
+| 2026-05-05 | **L25 PERMANENT**: h lowercase · tutte lettere identiche peso/size/style · solo color diverso · embed ovunque (no plain text "heuresys") | DECISIONS-LOG L25 |
 
 ## Vedi anche
 

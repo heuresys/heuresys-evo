@@ -153,22 +153,33 @@
 - Heading 28-48 → `letter-spacing: -0.5px to -1px` (tight per Inter density)
 - Wordmark Exo 2 → `letter-spacing: -0.5px` (preserva kerning naturale, NO custom)
 
-**Logo rule (L16 + L18)**:
+**Logo rule (L25 PERMANENT — supersedes L16 partial weight gap)**:
 
 ```css
 .wordmark {
   font-family: 'Exo 2', sans-serif;
   font-weight: 700;
-  color: var(--ink);
+  color: var(--ink); /* o var(--brand-blue) per dashboard architect */
+  letter-spacing: normal;
 }
 .wordmark .y {
   color: var(--accent);
-  font-weight: 500; /* L16 gap moderato (700→500) */
-  /* L18 NO italic per sans-serif (Exo 2) */
+  /* L25: NO font-weight override (eredita 700) */
+  /* L25: NO font-style italic */
+  /* L25: NO font-size override */
+  /* Il colore è l'UNICO differenziatore */
 }
 ```
 
 HTML pattern: `<span class="wordmark">heures<span class="y">y</span>s</span>`
+
+**Vincoli L25** (permanent):
+
+1. `h` SEMPRE minuscola — mai `Heuresys`
+2. Tutte le 8 lettere stesso font / peso / size / style
+3. Solo `y` color diverso (`var(--accent)`)
+4. Letter-spacing naturale (no override)
+5. **Embed ovunque**: header, footer, modal, social meta usano sempre `<span class="wordmark">...` — mai plain text `heuresys.com`
 
 ---
 
