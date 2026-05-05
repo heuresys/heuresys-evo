@@ -88,6 +88,7 @@
 - `direction-explorations/mu-art-director.html` — Set 4 light+dark · Pentagram POV · 5 capability glyphs + KG hero
 - `direction-explorations/mu-pragmatic.html` — Set 4 light+dark · Conversion POV · CTA + activity feed + trial banner
 - `direction-explorations/mu-synthesis.html` — Set 4 light+dark · Best compromise · 40/30/30 mix
+- `direction-explorations/mu-architect-legacy.html` — esperimento L19 · μ-architect con palette legacy www.heuresys.com (Exo 2 + dark navy + brand blue + purple accent + gradient blue→purple). NON in index.
 - `02-aesthetic/logo-standard.md` — L16 spec canonico cross-direction
 
 ### `03-visual-identity/`

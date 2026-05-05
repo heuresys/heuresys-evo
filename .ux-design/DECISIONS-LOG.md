@@ -175,6 +175,43 @@ Persistenza garantita: tutti i file in git, sincronizzati cross-machine. Skill l
 
 ---
 
+## L19 — 2026-05-05 — μ-architect variant con palette legacy www.heuresys.com applicata
+
+**Decisione**: creare un mockup `mu-architect-legacy.html` che applica la palette del sito legacy `www.heuresys.com` al modello μ-architect. Esperimento per visualizzare come la struttura tokens/governance/RBAC del Systems Architect POV si presenta sotto i colori brand legacy invece dell'accent Linear `#5e69d1` originale.
+
+**Contesto**: Enzo: "Proviamo a prendere l'ultima elaborazione quella dell'Architect sui database e fare una versione a cui applicare applichiamo I colori della landing page originale che ti avevo mandato".
+
+**Palette legacy applicata** (da `02-aesthetic/heuresys-com-current-style.md` § Identità visiva osservata):
+
+- `--bg`: `#0a0d18` (dark navy near black) / light: `#f4f5f7`
+- `--surface-1/2/3`: `#14182a` / `#1c2138` / `#252b48` (dark)
+- `--brand-blue`: `#3b82f6` (legacy brand primary — link, focus, CTA gradient start)
+- `--accent`: `#a855f7` (legacy brand accent — logo y, glow effect, gradient end)
+- `--gradient`: `linear-gradient(135deg, #3b82f6 0%, #a855f7 100%)` — CTA buttons "Inizia Ora"
+- `--glow`: `0 0 60px rgba(168, 85, 247, 0.35)` — purple soft shadow sotto wordmark
+
+**Tipografia**: wordmark in **Exo 2 700** (font legacy del logo, non Inter). y in `var(--accent)` purple `#a855f7`, weight 500, **NO italic** (L18 — Exo 2 sans-serif).
+
+**Elementi legacy signature**:
+
+- Glow effect purple drop-shadow sotto `.wordmark.glow`
+- Brand colors panel con 3 swatches grandi (blu / viola / gradient)
+- Sidebar active link con `border-left: 2px solid var(--brand-blue)` (visual signal)
+- "PRODUCTION" badge env con gradient blue→purple
+- "Design _token explorer_" headline con "token explorer" rendered in gradient text
+- RBAC role names in gradient text (instead di solo accent)
+
+**Conseguenza**:
+
+- File `02-aesthetic/direction-explorations/mu-architect-legacy.html` creato (~360 righe)
+- Spec L16+L18 logo standard rispettati: y in single accent purple, weight gap moderato (700 → 500), no italic per Exo 2 sans
+- Legacy gradient blue→purple usato per **decorative emphasis** (CTA badges, headline moments, role names) — pattern già presente sul sito legacy
+- **NON aggiunto a index.html** — preview standalone in attesa di feedback Enzo. Se approvato, può diventare 17ma direzione o sostituire variante μ-architect default
+
+**Open question**: se la legacy palette piace, va estesa retroattivamente a tutti i 16 mockup esistenti come "palette legacy variant set" (Set 5)? O resta esperimento isolato?
+
+---
+
 ## L18 — 2026-05-05 — Logo y italic vietato per font sans-serif (browser visual review fix)
 
 **Decisione**: aggiornare lo standard L16 con eccezione tipografica: **font sans-serif** (Inter, Geist, Space Grotesk, Bricolage variable) **NON usano italic** sulla y del wordmark. Differenziatore = solo `color: var(--accent)` + `font-weight` gap moderato. **Font serif** (Fraunces, Source Serif, Newsreader, DM Serif) mantengono italic (preferito) — il glyph italic serif è distinctive e non causa overlap.
