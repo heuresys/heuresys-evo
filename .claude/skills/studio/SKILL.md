@@ -1,5 +1,6 @@
 ---
 name: studio
+version: 1.1.0
 description: Use when user wants to clone a Next.js production page into the brand identity sandbox, manipulate it safely, or promote a manipulated staging back to production with restorable backup. Triggers on phrases like "iteriamo sulla dashboard", "clona la pagina /<route>", "lavoriamo sulla pagina di login", "promote staging", "rollback design", "studio aperto su /<route>", or any request to modify a production route via the .ux-design/ workstream. NOT for token CSS changes (use /brand-studio URL page) or for asset brand changes (logo/palette/font — use /brand:* commands).
 ---
 
@@ -42,18 +43,19 @@ Trigger implicito:
 
 ## Cosa fa la skill
 
-Espone 8 sotto-comandi via namespace slash command `/studio:*`:
+Espone 9 sotto-comandi via namespace slash command `/studio:*`:
 
-| Comando                               | Cosa fa                                                                                          | Side-effect su FS                                | Side-effect su git    |
-| ------------------------------------- | ------------------------------------------------------------------------------------------------ | ------------------------------------------------ | --------------------- |
-| `/studio`                             | Entry interattivo: lista staging attivi + ultimi backup + menu next action                       | nessuno                                          | nessuno               |
-| `/studio:clone <route>`               | Iterazione su pagina implementata: copia route produzione → staging                              | crea staging dir + copia file                    | nessuno               |
-| `/studio:bootstrap <mockup> <route>`  | Prima promozione greenfield: scaffold + mockup HTML come reference + README workflow translation | crea staging dir + copia scaffold + copia mockup | nessuno               |
-| `/studio:diff <route> [<TS>]`         | `git diff --no-index --stat` staging vs produzione + per-file diff                               | nessuno                                          | nessuno               |
-| `/studio:promote <route> <TS>`        | Dry-run + 5 gate + backup pre-promote in `.ux-design/.backups/` + overwrite produzione + commit  | crea backup + overwrite produzione               | crea commit (NO push) |
-| `/studio:restore <route> <backup-TS>` | Preview MANIFEST + conferma + restore da backup → produzione + commit di revert                  | overwrite produzione                             | crea commit (NO push) |
-| `/studio:backup-list [<route>]`       | Tabella backup disponibili filtrata per route opzionale                                          | nessuno                                          | nessuno               |
-| `/studio:status`                      | Tabella consolidata: route → staging count · ultimo backup · drift produzione                    | nessuno                                          | nessuno               |
+| Comando                               | Cosa fa                                                                                                          | Side-effect su FS                                | Side-effect su git    |
+| ------------------------------------- | ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ | --------------------- |
+| `/studio`                             | Entry interattivo: lista staging attivi + ultimi backup + menu next action                                       | nessuno                                          | nessuno               |
+| `/studio:clone <route>`               | Iterazione su pagina implementata: copia route produzione → staging                                              | crea staging dir + copia file                    | nessuno               |
+| `/studio:bootstrap <mockup> <route>`  | Prima promozione greenfield: scaffold + mockup HTML come reference + README workflow translation                 | crea staging dir + copia scaffold + copia mockup | nessuno               |
+| `/studio:diff <route> [<TS>]`         | `git diff --no-index --stat` staging vs produzione + per-file diff                                               | nessuno                                          | nessuno               |
+| `/studio:promote <route> <TS>`        | Dry-run + 5 gate + backup pre-promote in `.ux-design/.backups/` + overwrite produzione + commit                  | crea backup + overwrite produzione               | crea commit (NO push) |
+| `/studio:restore <route> <backup-TS>` | Preview MANIFEST + conferma + restore da backup → produzione + commit di revert                                  | overwrite produzione                             | crea commit (NO push) |
+| `/studio:backup-list [<route>]`       | Tabella backup disponibili filtrata per route opzionale                                                          | nessuno                                          | nessuno               |
+| `/studio:status`                      | Tabella consolidata: route → staging count · ultimo backup · drift produzione                                    | nessuno                                          | nessuno               |
+| `/studio:doctor`                      | Self-check (file integrity + sintassi + coerenza tabelle + version) · `--apply` auto-fix · `--learn` analisi log | (con `--apply`) chmod safe                       | nessuno               |
 
 **Quando usare `/studio:clone` vs `/studio:bootstrap`**:
 
@@ -93,6 +95,20 @@ Mappa completa skill orchestrate per fase: vedi [`references/orchestration-map.m
 Convenzione naming + path mapping + 8 edge case (route con slash, collision timestamp, drift detect, route group, ecc.): vedi [`references/route-mapping.md`](references/route-mapping.md).
 
 Errori bloccanti vs warning per ogni sub-command: vedi [`references/error-catalog.md`](references/error-catalog.md).
+
+## Self-evolution
+
+La skill ha 3 meccanismi per evolvere senza riscritture manuali:
+
+| Meccanismo          | Cosa fa                                                                                                                                               | Trigger                                                                    |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| **Self-learning**   | Logga ogni invocazione (timestamp, script, args, exit code) in `.logs/usage.jsonl` (gitignored). Pattern emersi → guida bump version + nuove lezioni. | Automatico via `_log_invocation` in `_helpers.sh` su ogni `EXIT` di script |
+| **Self-correcting** | 8 categorie di check su integrità della skill (file, sintassi, coerenza tabelle, version, JSON).                                                      | `/studio:doctor` (manuale)                                                 |
+| **Self-updating**   | Auto-fix safe (chmod) + flag `--apply` per future regenerazioni di tabelle/versioni                                                                   | `/studio:doctor --apply` (manuale)                                         |
+
+Append-only journal di pattern emersi: [`references/lessons-learned.md`](references/lessons-learned.md).
+Documento meccanismi: [`references/self-evolution.md`](references/self-evolution.md).
+Versioning skill-level: [`CHANGELOG.md`](CHANGELOG.md).
 
 ## Cosa NON fare
 

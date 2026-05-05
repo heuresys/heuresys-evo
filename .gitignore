@@ -90,3 +90,6 @@ playwright/.cache/
 *.pem
 *.key
 !*.pub.pem
+
+# studio skill — usage logs (append-only, local only)
+.claude/skills/studio/.logs/
