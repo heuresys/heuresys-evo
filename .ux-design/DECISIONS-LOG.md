@@ -175,6 +175,36 @@ Persistenza garantita: tutti i file in git, sincronizzati cross-machine. Skill l
 
 ---
 
+## L20 — 2026-05-05 — Set 5 estensione palette legacy a tutti 16 mockup via CSS overlay
+
+**Decisione**: estendere la palette legacy `www.heuresys.com` a TUTTI i 16 mockup direction-explorations come **Set 5** (legacy palette variant set). Implementazione via CSS overlay esterno `legacy-palette.css` + `!important` overrides invece di rewrite manuale di 16 file.
+
+**Contesto**: Enzo: "(b) ma devi usare il logo iniziale tratto dalla landing heuresys.com, stessa tipografia ... e stessi colori". Voleva uniformity completa: stesso logo (Exo 2 + y purple), stessa tipografia wordmark, stesso color system legacy applicato a TUTTI i 16 mockup.
+
+**Implementazione tecnica**:
+
+- File `02-aesthetic/direction-explorations/legacy-palette.css` (~145 righe) — override CSS variables + Exo 2 wordmark + glow effect
+- 16 mockup `<name>-legacy.html` creati via bash: `cp <name>.html <name>-legacy.html` + `sed` insert tag `<link rel="stylesheet" href="legacy-palette.css" />` dopo `</style>` + Exo 2 font import dopo `</title>`
+- Selectors override coprono tutti i pattern di applicazione data-theme: `:root, [data-theme="dark"], body, body[data-theme], body[data-theme="dark"]` — necessario perché alcuni mockup (η/ζ/θ/ε) settano data-theme su `<body>`, altri (α/β/γ/δ/ι/κ/λ/μ-\*) su `<html>`. Senza la copertura completa, body inline `[data-theme="dark"]` overrides :root su descendant elements.
+- Direction-specific tokens mappati: `--terracotta` → purple (ζ), `--gen-1/2/3` → gradient (θ), `--magenta-ft` → purple (δ), `--engineering-yellow` → purple (γ), `--blueprint` → blue (γ/ι), `--cap-*` → spectrum legacy (α). Total ~30 variabili overrided.
+
+**File rinominato**:
+
+- `mu-architect-legacy.html` (L19 custom detailed) → `mu-architect-legacy-detailed.html` (preserved as bonus preview)
+- Nuovo `mu-architect-legacy.html` ora segue il pattern Set 5 uniforme (CSS overlay invece di rewrite custom)
+
+**Conseguenza**:
+
+- Index.html aggiornato con sezione "Set 5 · Legacy palette overlay" (badge gradient blue→purple, grid 4-col compatto)
+- Title doc: "16 Direzioni + Set 5 Legacy Palette" (32 mockup total accessibili)
+- Wordmark in tutti 16 mockup ora rendered in **Exo 2 700** (legacy logo font) con y in `#a855f7` purple (L18 compliant — sans-serif no italic)
+- Glow effect `drop-shadow(0 0 30px rgba(168,85,247,0.25))` applicato a tutti i wordmark Set 5
+- nav-bar bottom border gradient blue→purple visibile in tutti i mockup Set 5 come signature unificante
+
+**Browser visual review confermata** (η/ζ/α/ι/μ-pragmatic): tutti gli elementi accent originali (Swiss red, terracotta, engineering yellow, magenta-ft, gen gradient, etc.) ora convertiti correttamente a purple/blue/gradient legacy. Nessun residuo color-leak da CSS variables originali.
+
+---
+
 ## L19 — 2026-05-05 — μ-architect variant con palette legacy www.heuresys.com applicata
 
 **Decisione**: creare un mockup `mu-architect-legacy.html` che applica la palette del sito legacy `www.heuresys.com` al modello μ-architect. Esperimento per visualizzare come la struttura tokens/governance/RBAC del Systems Architect POV si presenta sotto i colori brand legacy invece dell'accent Linear `#5e69d1` originale.

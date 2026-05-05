@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Heuresys — 16 Direzioni Estetiche</title>
+<title>Heuresys — 16 Direzioni + Set 5 Legacy Palette</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -23,6 +23,25 @@
   .section-label.set2 { color: #fbbf24; margin-top: 56px; }
   .section-label.set3 { color: #7a7fad; margin-top: 56px; }
   .section-label.set4 { color: #b370e0; margin-top: 56px; }
+  .section-label.set5 { background: linear-gradient(135deg, #3b82f6 0%, #a855f7 100%); -webkit-background-clip: text; background-clip: text; color: transparent; margin-top: 56px; }
+  .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; }
+  .card.legacy { border-color: #5e69d1; padding: 16px; }
+  .card.legacy:hover { border-color: #a855f7; }
+  .card.legacy .tag { background: linear-gradient(135deg, #3b82f6 0%, #a855f7 100%); -webkit-background-clip: text; background-clip: text; color: transparent; font-weight: 700; }
+  .card.legacy .title { font-size: 15px; }
+  .card.legacy .subtitle { font-size: 11px; }
+  .badge-legacy {
+    display: inline-block;
+    background: linear-gradient(135deg, #3b82f6 0%, #a855f7 100%);
+    color: #ffffff;
+    padding: 1px 5px;
+    border-radius: 2px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 1px;
+    margin-left: 4px;
+    font-weight: 700;
+  }
   .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   .card {
     background: #16161e;
@@ -311,6 +330,32 @@
       <div class="meta">→ Linear restraint · PostHog utility · Stripe typography</div>
     </a>
   </div>
+
+  <!-- SET 5: Legacy palette overlay -->
+  <div class="section-label set5">Set 5 · Legacy palette overlay <span style="color:#a855f7; font-size:9px;">[16 mockup × www.heuresys.com colors · Exo 2 wordmark · purple y · gradient blue→purple]</span></div>
+
+  <p style="font-size: 13px; color: #cbd5e1; margin-bottom: 16px; line-height: 1.6;">Stessi 16 mockup, palette uniformata al sito legacy <strong style="background: linear-gradient(135deg, #3b82f6, #a855f7); -webkit-background-clip: text; background-clip: text; color: transparent;">www.heuresys.com</strong>. Logo Exo 2 + y purple <code>#a855f7</code> + bg dark navy <code>#0a0d18</code> + gradient blue→purple. Implementato via CSS overlay <code>legacy-palette.css</code> + <code>!important</code> overrides.</p>
+
+  <div class="grid-4">
+    <a class="card legacy" href="alpha-editorial-cinematic-legacy.html"><div class="tag">α <span class="badge-legacy">LEGACY</span></div><div class="title">α Editorial Cinematic</div><div class="subtitle">cinematic dark + capability colorways → blue/purple gradient</div></a>
+    <a class="card legacy" href="beta-brutalist-paper-legacy.html"><div class="tag">β <span class="badge-legacy">LEGACY</span></div><div class="title">β Brutalist Paper</div><div class="subtitle">cream brutalist → dark navy legacy + serif italic preserved</div></a>
+    <a class="card legacy" href="gamma-industrial-blueprint-legacy.html"><div class="tag">γ <span class="badge-legacy">LEGACY</span></div><div class="title">γ Industrial Blueprint</div><div class="subtitle">engineering yellow → purple · blueprint navy → legacy blue</div></a>
+    <a class="card legacy" href="delta-quantitative-ft-legacy.html"><div class="tag">δ <span class="badge-legacy">LEGACY</span></div><div class="title">δ Quantitative FT</div><div class="subtitle">FT salmon → dark navy · magenta-ft → purple</div></a>
+    <a class="card legacy" href="epsilon-sculptural-variable-legacy.html"><div class="tag">ε <span class="badge-legacy">LEGACY</span></div><div class="title">ε Sculptural Variable</div><div class="subtitle">indigo → purple · cream warm → dark navy</div></a>
+    <a class="card legacy" href="zeta-architectural-warm-legacy.html"><div class="tag">ζ <span class="badge-legacy">LEGACY</span></div><div class="title">ζ Architectural Warm</div><div class="subtitle">terracotta → purple · 5 glyphs in legacy purple</div></a>
+    <a class="card legacy" href="eta-swiss-computational-legacy.html"><div class="tag">η <span class="badge-legacy">LEGACY</span></div><div class="title">η Swiss Computational</div><div class="subtitle">Swiss red → purple · monogram compass-rule purple</div></a>
+    <a class="card legacy" href="theta-algorithmic-generative-legacy.html"><div class="tag">θ <span class="badge-legacy">LEGACY</span></div><div class="title">θ Algorithmic Generative</div><div class="subtitle">gen gradient → blue→purple legacy gradient</div></a>
+    <a class="card legacy" href="iota-industrial-blueprint-tempered-legacy.html"><div class="tag">ι <span class="badge-legacy">LEGACY</span></div><div class="title">ι Industrial Blueprint Tempered</div><div class="subtitle">amber → purple · ClickHouse mood + legacy navy</div></a>
+    <a class="card legacy" href="kappa-quantitative-ft-tempered-legacy.html"><div class="tag">κ <span class="badge-legacy">LEGACY</span></div><div class="title">κ Quantitative FT Tempered</div><div class="subtitle">muted rose → purple · Source Serif italic preserved</div></a>
+    <a class="card legacy" href="lambda-gamma-eta-remix-legacy.html"><div class="tag">λ <span class="badge-legacy">LEGACY</span></div><div class="title">λ γ × η Remix</div><div class="subtitle">Swiss red → purple · navy + paper → legacy navy</div></a>
+    <a class="card legacy" href="mu-data-dense-temperata-legacy.html"><div class="tag">μ <span class="badge-legacy">LEGACY</span></div><div class="title">μ Data-Dense Temperata</div><div class="subtitle">brand-secure → legacy purple · sidebar dashboard</div></a>
+    <a class="card legacy" href="mu-architect-legacy.html"><div class="tag">μ-architect <span class="badge-legacy">LEGACY</span></div><div class="title">μ-architect Systems</div><div class="subtitle">Linear blue → legacy purple · token explorer + RBAC</div></a>
+    <a class="card legacy" href="mu-art-director-legacy.html"><div class="tag">μ-art-director <span class="badge-legacy">LEGACY</span></div><div class="title">μ-art-director Pentagram</div><div class="subtitle">plum → legacy purple · 5 capability glyphs + KG hero</div></a>
+    <a class="card legacy" href="mu-pragmatic-legacy.html"><div class="tag">μ-pragmatic <span class="badge-legacy">LEGACY</span></div><div class="title">μ-pragmatic Conversion</div><div class="subtitle">action green → purple · CTA gradient blue→purple</div></a>
+    <a class="card legacy" href="mu-synthesis-legacy.html"><div class="tag">μ-synthesis <span class="badge-legacy">LEGACY</span></div><div class="title">μ-synthesis Best Compromise</div><div class="subtitle">balanced violet → legacy purple · sidebar glyphs preserved</div></a>
+  </div>
+
+  <p style="font-size: 12px; color: #6b7280; margin-top: 8px;">Bonus: <a href="mu-architect-legacy-detailed.html" style="color: #a855f7;">mu-architect-legacy-detailed.html</a> — preview L19 custom (più ricca, brand-colors panel + gradient role names).</p>
 
   <div class="info-card">
     <span class="tag">Note di lettura</span>

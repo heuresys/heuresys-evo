@@ -1,0 +1,206 @@
+/*
+  legacy-palette.css — Set 5 overlay
+  Source: 02-aesthetic/heuresys-com-current-style.md (capture www.heuresys.com 2026-05-04)
+  L19/L20: applica palette legacy a TUTTI i mockup direction-explorations
+  Wordmark Exo 2 700 + y in --accent purple #a855f7 + glow effect
+
+  Loaded AFTER each mockup's inline <style> to override CSS variables and wordmark fonts.
+  Use !important sparingly but necessarily — must override direction-specific tokens
+  (--terracotta in zeta, --gen-* in theta, --magenta-ft in delta, --blueprint in gamma).
+*/
+
+/* ============================================================================
+   CSS variables override — DARK (default)
+   Selectors coverage: :root (html element) + body + [data-theme="dark"]
+   Reason: alcuni mockup setting data-theme su <body> (es. eta/zeta), altri su <html>.
+   Per vincere il cascade, override su tutti i selectors potenziali.
+   ============================================================================ */
+:root,
+[data-theme='dark'],
+body,
+body[data-theme],
+body[data-theme='dark'] {
+  /* Foundation */
+  --bg: #0a0d18 !important;
+  --paper: #14182a !important;
+  --surface: #14182a !important;
+  --surface-1: #14182a !important;
+  --surface-2: #1c2138 !important;
+  --surface-3: #252b48 !important;
+  --ink: #f4f5f7 !important;
+  --ink-soft: #c8cad2 !important;
+  --ink-muted: #8b8e99 !important;
+  --ink-tertiary: #5e6168 !important;
+  --rule: #232838 !important;
+  --rule-strong: #3a4055 !important;
+  --border: #232838 !important;
+  --border-strong: #3a4055 !important;
+
+  /* Brand legacy */
+  --brand-blue: #3b82f6 !important;
+  --brand-blue-deep: #2452c8 !important;
+  --accent: #a855f7 !important;
+  --accent-deep: #7e3fc8 !important;
+  --accent-hover: #b878f8 !important;
+  --accent-soft: #2a1a44 !important;
+  --primary: #3b82f6 !important;
+
+  /* Legacy gradient + glow */
+  --gradient: linear-gradient(135deg, #3b82f6 0%, #a855f7 100%) !important;
+  --glow: 0 0 60px rgba(168, 85, 247, 0.35) !important;
+
+  /* Override direction-specific tokens (mappa al legacy palette) */
+  --terracotta: #a855f7 !important; /* zeta */
+  --terracotta-deep: #7e3fc8 !important;
+  --clay: #3b82f6 !important;
+  --moss: #5fb87a !important;
+  --sand: #1c2138 !important;
+  --gen-1: #3b82f6 !important; /* theta gradient */
+  --gen-2: #6c5ce7 !important;
+  --gen-3: #a855f7 !important;
+  --magenta-ft: #a855f7 !important; /* delta */
+  --orange-ft: #3b82f6 !important;
+  --blueprint: #3b82f6 !important; /* gamma */
+  --blueprint-deep: #2452c8 !important;
+  --engineering-yellow: #a855f7 !important;
+  --safety-orange: #3b82f6 !important;
+  --grid-line: #1c2138 !important;
+  --highlight: #a855f7 !important; /* beta highlighter */
+
+  /* Capability colors (alpha cinematic) → derive from legacy gradient */
+  --cap-process: #3b82f6 !important;
+  --cap-structure: #6c5ce7 !important;
+  --cap-role: #a855f7 !important;
+  --cap-competence: #5fb87a !important;
+  --cap-performance: #f59e0b !important;
+
+  /* Semantic */
+  --semantic-success: #5fb87a !important;
+  --semantic-warning: #f59e0b !important;
+  --semantic-info: #3b82f6 !important;
+  --token-label: #5fffa3 !important;
+}
+
+/* ============================================================================
+   CSS variables override — LIGHT
+   Coverage: html + body + data-theme variations
+   ============================================================================ */
+[data-theme='light'],
+body[data-theme='light'],
+html[data-theme='light'] {
+  --bg: #f4f5f7 !important;
+  --paper: #ffffff !important;
+  --surface: #ffffff !important;
+  --surface-1: #ffffff !important;
+  --surface-2: #ebecf0 !important;
+  --surface-3: #e0e2e8 !important;
+  --ink: #0a0d18 !important;
+  --ink-soft: #2a2d38 !important;
+  --ink-muted: #6a6d75 !important;
+  --ink-tertiary: #9ea0a8 !important;
+  --rule: #d8dae0 !important;
+  --rule-strong: #b6b9c2 !important;
+  --border: #d8dae0 !important;
+  --border-strong: #b6b9c2 !important;
+
+  --brand-blue: #2452c8 !important;
+  --brand-blue-deep: #1e3fa0 !important;
+  --accent: #7e3fc8 !important;
+  --accent-deep: #5e2898 !important;
+  --accent-hover: #9354d8 !important;
+  --accent-soft: #ede0fa !important;
+  --primary: #2452c8 !important;
+
+  --gradient: linear-gradient(135deg, #2452c8 0%, #7e3fc8 100%) !important;
+  --glow: 0 0 40px rgba(126, 63, 200, 0.18) !important;
+
+  --terracotta: #7e3fc8 !important;
+  --terracotta-deep: #5e2898 !important;
+  --clay: #2452c8 !important;
+  --moss: #2da147 !important;
+  --sand: #ebecf0 !important;
+  --gen-1: #2452c8 !important;
+  --gen-2: #5a45c0 !important;
+  --gen-3: #7e3fc8 !important;
+  --magenta-ft: #7e3fc8 !important;
+  --orange-ft: #2452c8 !important;
+  --blueprint: #2452c8 !important;
+  --blueprint-deep: #1e3fa0 !important;
+  --engineering-yellow: #7e3fc8 !important;
+  --safety-orange: #2452c8 !important;
+  --grid-line: #ebecf0 !important;
+  --highlight: #7e3fc8 !important;
+
+  --cap-process: #2452c8 !important;
+  --cap-structure: #5a45c0 !important;
+  --cap-role: #7e3fc8 !important;
+  --cap-competence: #2da147 !important;
+  --cap-performance: #b8860b !important;
+
+  --semantic-success: #2da147 !important;
+  --semantic-warning: #b8860b !important;
+  --semantic-info: #2452c8 !important;
+  --token-label: #1a8e3e !important;
+}
+
+/* ============================================================================
+   Wordmark — Exo 2 legacy + y in accent purple + glow effect
+   ============================================================================ */
+
+.wordmark,
+.wordmark-swiss,
+.wordmark-architectural .word,
+.wordmark-sculpt,
+.wordmark-remix,
+.wordmark-gen .word,
+.masthead-title {
+  font-family: 'Exo 2', sans-serif !important;
+  letter-spacing: -0.5px !important;
+  filter: drop-shadow(0 0 30px rgba(168, 85, 247, 0.25)) !important;
+}
+
+/* y in accent purple — overrides ALL previous styles (italic, gradient, weight gaps) */
+.wordmark .y,
+.wordmark-swiss .y,
+.wordmark-architectural .word .y,
+.wordmark-sculpt .y,
+.wordmark-remix .y,
+.wordmark-gen .word .y,
+.masthead-title .em {
+  color: #a855f7 !important;
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  background-clip: unset !important;
+  -webkit-text-fill-color: #a855f7 !important;
+  font-style: normal !important;
+  font-weight: 500 !important;
+  font-variation-settings: normal !important;
+}
+
+[data-theme='light'] .wordmark .y,
+[data-theme='light'] .wordmark-swiss .y,
+[data-theme='light'] .wordmark-architectural .word .y,
+[data-theme='light'] .wordmark-sculpt .y,
+[data-theme='light'] .wordmark-remix .y,
+[data-theme='light'] .wordmark-gen .word .y,
+[data-theme='light'] .masthead-title .em {
+  color: #7e3fc8 !important;
+  -webkit-text-fill-color: #7e3fc8 !important;
+}
+
+/* ============================================================================
+   Set 5 badge nav-bar
+   ============================================================================ */
+.nav-bar::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(135deg, #3b82f6 0%, #a855f7 100%);
+  opacity: 0.6;
+}
+.nav-bar {
+  position: relative;
+}
