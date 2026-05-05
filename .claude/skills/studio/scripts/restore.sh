@@ -116,8 +116,10 @@ fi
 
 # ─── Drift check vs MANIFEST.files (warning only) ──────────────────────────
 DRIFT_COUNT=0
-while IFS=$'\t' read -r FPATH FHASH; do
+while IFS=$'\t' read -r FPATH FHASH || [ -n "$FPATH" ]; do
   [ -z "$FPATH" ] && continue
+  FPATH="${FPATH%$'\r'}"
+  FHASH="${FHASH%$'\r'}"
   FULL="$PROD_PATH/$FPATH"
   if [ -f "$FULL" ]; then
     ACTUAL=$(sha256_of "$FULL")
@@ -126,10 +128,10 @@ while IFS=$'\t' read -r FPATH FHASH; do
     DRIFT_COUNT=$((DRIFT_COUNT + 1))
   fi
 done < <(python3 -c "
-import json
+import sys, json
 m = json.load(open('$MANIFEST'))
 for f in m.get('files', []):
-    print(f['path'] + chr(9) + f['sha256'])
+    sys.stdout.write(f['path'] + chr(9) + f['sha256'] + chr(10))
 " 2>/dev/null || true)
 
 # ─── DRY-RUN ───────────────────────────────────────────────────────────────

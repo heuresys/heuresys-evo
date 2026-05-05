@@ -84,8 +84,11 @@ fi
 HASHES="$STAGING_PATH/.source-hashes.json"
 DRIFT_FILES=()
 if [ -f "$HASHES" ]; then
-  while IFS=$'\t' read -r FPATH FHASH; do
+  while IFS=$'\t' read -r FPATH FHASH || [ -n "$FPATH" ]; do
     [ -z "$FPATH" ] && continue
+    # Strip CR/LF trailing (Windows Git Bash safety)
+    FPATH="${FPATH%$'\r'}"
+    FHASH="${FHASH%$'\r'}"
     FULL="$PROD_PATH/$FPATH"
     if [ -f "$FULL" ]; then
       ACTUAL=$(sha256_of "$FULL")
@@ -99,7 +102,7 @@ if [ -f "$HASHES" ]; then
 import json,sys
 h = json.load(open('$HASHES'))
 for k,v in h.get('files',{}).items():
-    print(k + chr(9) + v)
+    sys.stdout.write(k + chr(9) + v + chr(10))
 " 2>/dev/null || true)
 fi
 
