@@ -5,7 +5,7 @@ const config: StorybookConfig = {
   addons: ['@storybook/addon-a11y', '@storybook/addon-themes', 'msw-storybook-addon'],
   framework: { name: '@storybook/react-vite', options: {} },
   typescript: { reactDocgen: 'react-docgen-typescript' },
-  staticDirs: ['../public'],
+  staticDirs: ['../public', { from: '../../../.ux-design', to: '/ux-design' }],
 };
 
 export default config;
