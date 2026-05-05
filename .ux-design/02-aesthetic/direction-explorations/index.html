@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Heuresys — 8 Direzioni Estetiche</title>
+<title>Heuresys — 12 Direzioni Estetiche</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -21,6 +21,7 @@
   .lead { color: #9ca3af; font-size: 15px; margin-bottom: 40px; line-height: 1.6; }
   .section-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #a855f7; font-weight: 600; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid #2a2a3a; }
   .section-label.set2 { color: #fbbf24; margin-top: 56px; }
+  .section-label.set3 { color: #7a7fad; margin-top: 56px; }
   .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   .card {
     background: #16161e;
@@ -35,6 +36,21 @@
   .card:hover { border-color: #4a4a6a; transform: translateY(-2px); }
   .card.new { border-color: #fbbf24; }
   .card.new:hover { border-color: #f59e0b; }
+  .card.dd { border-color: #7a7fad; }
+  .card.dd:hover { border-color: #5e69d1; }
+  .card.dd .tag { color: #7a7fad; }
+  .badge-dd {
+    display: inline-block;
+    background: #7a7fad;
+    color: #ffffff;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    margin-left: 8px;
+    font-weight: 700;
+  }
   .tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: #a855f7; font-weight: 600; }
   .card.new .tag { color: #fbbf24; }
   .title { font-size: 20px; font-weight: 700; margin: 8px 0 6px; letter-spacing: -0.4px; }
@@ -66,10 +82,10 @@
 </head>
 <body>
 <div class="page">
-  <h1>Heuresys — 8 Direzioni Estetiche</h1>
+  <h1>Heuresys — 12 Direzioni Estetiche</h1>
   <p class="lead">
-    Esplorazione completa: 4 direzioni iniziali + 4 nuove ispirate da award winners 2025/2026 (Centersquare Brand Impact 2025, OFF+BRAND × Lando Norris Awwwards SOTY 2025, FWA insight dual-mode).<br>
-    <strong style="color:#fbbf24">Le 4 nuove (set 2)</strong> hanno light/dark theme toggle in pari dignità.
+    Esplorazione completa: 4 direzioni iniziali (Set 1) + 4 nuove award-inspired (Set 2) + 4 data-dense variants post-family-picker (Set 3).<br>
+    <strong style="color:#fbbf24">Set 2</strong> ha light/dark toggle. <strong style="color:#7a7fad">Set 3</strong> nasce dal family-picker output (Data-Dense Pro famiglia raccomandata, mix scan-heavy + prosumer + 60T/40C). Ogni Set 3 mockup ha un <strong style="color:#7a7fad">.critique.md</strong> con 3-designer-debate applicato.
   </p>
 
   <!-- SET 1: Direzioni iniziali -->
@@ -174,12 +190,66 @@
     </a>
   </div>
 
+  <!-- SET 3: Data-Dense Variants -->
+  <div class="section-label set3">Set 3 · Data-Dense Variants <span style="color:#7a7fad; font-size:9px;">[post family-picker · light+dark + critique.md]</span></div>
+
+  <div class="grid">
+    <a class="card dd" href="iota-industrial-blueprint-tempered.html">
+      <div class="tag">ι · Direction Iota <span class="badge-dd">DATA-DENSE</span></div>
+      <div class="title">Industrial Blueprint Tempered</div>
+      <div class="subtitle">γ rivisto sotto disciplina ClickHouse mood × Linear restraint. Single amber accent (no engineering yellow + safety orange duo). Tabular numerals always-on.</div>
+      <span class="kw">tempered amber</span>
+      <span class="kw">Inter only</span>
+      <span class="kw">JetBrains Mono</span>
+      <span class="kw">55T / 45C</span>
+      <span class="kw">light+dark</span>
+      <div class="meta">→ ClickHouse × Linear · <a href="iota-industrial-blueprint-tempered.critique.md" style="color:#7a7fad;">critique.md</a></div>
+    </a>
+
+    <a class="card dd" href="kappa-quantitative-ft-tempered.html">
+      <div class="tag">κ · Direction Kappa <span class="badge-dd">DATA-DENSE</span></div>
+      <div class="title">Quantitative FT Tempered</div>
+      <div class="subtitle">δ rivisto verso PostHog product-marketing × FT typographic discipline. Source Serif headline + Inter body + JetBrains Mono numerals. Muted rose, NOT salmon urgency.</div>
+      <span class="kw">cream + navy + rose</span>
+      <span class="kw">Source Serif 4</span>
+      <span class="kw">Inter body</span>
+      <span class="kw">65T / 35C</span>
+      <span class="kw">light+dark</span>
+      <div class="meta">→ PostHog × Financial Times · <a href="kappa-quantitative-ft-tempered.critique.md" style="color:#7a7fad;">critique.md</a></div>
+    </a>
+
+    <a class="card dd" href="lambda-gamma-eta-remix.html">
+      <div class="tag">λ · Direction Lambda <span class="badge-dd">DATA-DENSE</span></div>
+      <div class="title">γ × η Remix · Industrial × Swiss</div>
+      <div class="subtitle">Token arbitration via <code>remix-two-brands.md</code>: typo η, neutrals γ, accent η Swiss red. Parent DNA γ=45%, η=55%. γ blueprint plate × η Swiss table.</div>
+      <span class="kw">navy + paper</span>
+      <span class="kw">Inter only</span>
+      <span class="kw">Swiss red</span>
+      <span class="kw">60T / 40C</span>
+      <span class="kw">light+dark</span>
+      <div class="meta">→ γ × η token arbitration · <a href="lambda-gamma-eta-remix.critique.md" style="color:#7a7fad;">critique.md</a></div>
+    </a>
+
+    <a class="card dd" href="mu-data-dense-temperata.html">
+      <div class="tag">μ · Direction Mu <span class="badge-dd">DATA-DENSE</span></div>
+      <div class="title">Data-Dense Temperata (clean slate)</div>
+      <div class="subtitle">Family-picker exact match. PostHog mood × Linear restraint × Heuresys ontologico ESCO. Dashboard-first surface (sidebar 220 + KPI ring + table + KG canvas). Anti-slop guardrails attivi.</div>
+      <span class="kw">deep dark / paper light</span>
+      <span class="kw">Inter only</span>
+      <span class="kw">brand-secure purple</span>
+      <span class="kw">60T / 40C exact</span>
+      <span class="kw">dashboard-first</span>
+      <div class="meta">→ PostHog × Linear · ship-ready · <a href="mu-data-dense-temperata.critique.md" style="color:#7a7fad;">critique.md</a></div>
+    </a>
+  </div>
+
   <div class="info-card">
     <span class="tag">Note di lettura</span>
     <p>
       <strong>Set 1</strong> (α/β/γ/δ): direzioni più "categoriali" già esplorate, ognuna con singola modalità (dark per α, light per β/γ/δ).<br><br>
-      <strong>Set 2</strong> (ε/ζ/η/θ): nuove, ispirate da award winners 2025/2026, ognuna con <strong>theme toggle light/dark in pari dignità</strong>. Trend chiave assorbiti: variable typography sculpturale (CSS Awards), warm palette anti-tech (Centersquare), Swiss pure rigor (Pentagram tradition), generative network (OFF+BRAND × Lando Norris).<br><br>
-      <strong>Cosa fare ora</strong>: naviga le 8 direzioni. Per le NEW, prova il theme toggle in alto a destra (◐ Light/Dark). Quando hai trovato la combinazione che ti tira di più, dimmela. Possiamo anche ibridare elementi tra le 8 (es. "logo θ + tipografia ε + palette ζ") se nessuna ti convince intera.
+      <strong>Set 2</strong> (ε/ζ/η/θ): award-inspired 2025/2026, ognuna con <strong>theme toggle light/dark in pari dignità</strong>. Trend chiave assorbiti: variable typography sculpturale (CSS Awards), warm palette anti-tech (Centersquare), Swiss pure rigor (Pentagram tradition), generative network (OFF+BRAND × Lando Norris).<br><br>
+      <strong style="color:#7a7fad">Set 3</strong> (ι/κ/λ/μ): nascono dall'output del prompt <code>family-picker.md</code> (Q1 mix scan-heavy prevalente · Q2 prosumer · Q3 trustworthy 60% / courage 40%). Family raccomandata <strong>Data-Dense Pro</strong> con secondaria Editorial Minimalism. Ogni mockup ha un <strong>.critique.md</strong> con il prompt <code>3-designer-debate.md</code> applicato — Architect/Art Director/Pragmatic in 3 round + synthesis + 3 action items concreti.<br><br>
+      <strong>Cosa fare ora</strong>: naviga le 12 direzioni. Per Set 2 e Set 3, prova il theme toggle (◐ Light/Dark). Per Set 3, leggi anche i 4 critique.md per capire i punti deboli prima di scegliere D1. Quando hai una preferenza, dimmela: possiamo chiudere D1 e procedere con Phase 5 palette finale + Phase 6 typography pairing + Phase 7 logo derivati nuovo concept.
     </p>
   </div>
 </div>

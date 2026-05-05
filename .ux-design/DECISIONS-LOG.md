@@ -175,6 +175,40 @@ Persistenza garantita: tutti i file in git, sincronizzati cross-machine. Skill l
 
 ---
 
+## L15 — 2026-05-05 — Set 3 data-dense variants ι κ λ μ + family-picker output applicato + 3-designer-debate critique
+
+**Decisione**: applicare il prompt `99-samples/rohitg00-prompts/family-picker.md` per chiudere D1 in modo strutturato. Risposte raccolte da Enzo: (Q1) mix scan-heavy prevalente con read-heavy secondario; (Q2) prosumer; (Q3) trustworthy 60% / courage 40%. Output family-picker: famiglia raccomandata **Data-Dense Pro** (ClickHouse/PostHog), secondaria Editorial Minimalism (Linear/Vercel), AVOID Cinematic Dark. Generazione di **4 nuove direzioni HTML mockup** (ι/κ/λ/μ) come Set 3 con light+dark toggle. Per ogni direzione, applicato `99-samples/rohitg00-prompts/3-designer-debate.md` come `<direction>.critique.md` (Architect/Art Director/Pragmatic in 3 round + synthesis + 3 action items concreti).
+
+**Contesto**: Enzo: "(d) tutto sopra in sequenza" → "(III) Pieno 4 mockup + applicazione `brand-3-designer-debate.md` in append a ciascuno". Risposte family-picker raccolte interactively (Q1 → Q2 → Q3) con context hint da BRAND-STATE personas e dashboard architecture.
+
+**Conseguenza**:
+
+- 4 mockup HTML standalone in `02-aesthetic/direction-explorations/` (light+dark toggle, pattern Set 2)
+  - `iota-industrial-blueprint-tempered.html` — γ rivisto sotto ClickHouse mood × Linear restraint, single amber accent. 55T/45C.
+  - `kappa-quantitative-ft-tempered.html` — δ rivisto verso PostHog product-marketing × FT typographic discipline. Source Serif headline + muted rose accent. 65T/35C.
+  - `lambda-gamma-eta-remix.html` — γ × η token arbitration via `remix-two-brands.md` rules. Parent DNA γ=45%, η=55%. 60T/40C.
+  - `mu-data-dense-temperata.html` — Clean slate. PostHog mood × Linear restraint × Heuresys ontologico ESCO. Dashboard-first surface (sidebar 220 + KPI ring + table + KG canvas). Anti-slop guardrails attivi. 60T/40C exact.
+- 4 file `.critique.md` corrispondenti con 3-designer-debate completo (~150 righe ognuno, 12 action items totali)
+- Index aggiornato a "12 Direzioni Estetiche" con sezione Set 3 (badge purple `#7a7fad`)
+- BRAND-STATE.md D1 row aggiornato + asset inventory esteso
+
+**Insight chiave dai 4 critique** (per decisione D1):
+
+- **ι** = floor (safe ma non differenziante, "ClickHouse per HR")
+- **κ** = ceiling editorial-distinctive (signature alta, rischio dashboard claustrofobia in sustained reading)
+- **λ** = playable middle ground framework-driven (token clarity, ma incremental + lineage academic)
+- **μ** = floor + ceiling pragmatico, ship-ready, family-picker exact match (60/40), può evolvere ontology signature graduale
+
+**Action items consolidati cross-direzione** (da Phase 7-9):
+
+- Graph-glyph system definition (5 capability glyphs distinti) — toccato da ι, λ, μ critique
+- Logo monogram replacement (mark astratto graph-based) — Art Director minority report ricorrente
+- KG topology promossa a hero in landing/marketing surface — μ critique
+- Compact-mode toggle dashboard (Inter-only fallback per κ se scelta D1)
+- Live demo test 5 enterprise prospect — Pragmatic action
+
+---
+
 ## L14 — 2026-05-05 — Integrazione brand reference library `.ux-design/99-samples/`
 
 **Decisione**: creazione della knowledge base interna `99-samples/` con 27 file curati da fonti esterne (VoltAgent/awesome-design-md, rohitg00/awesome-claude-design, getdesign.md, Department of Product). Adozione del pattern canonico **DESIGN.md a 9 sezioni** (Visual Theme / Color / Typography / Components / Layout / Depth / Do-Don't / Responsive / Agent Prompt Guide) come format target per il futuro `heuresys.DESIGN.md`.
