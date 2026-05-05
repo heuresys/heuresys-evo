@@ -175,6 +175,24 @@ Persistenza garantita: tutti i file in git, sincronizzati cross-machine. Skill l
 
 ---
 
+## L18 — 2026-05-05 — Logo y italic vietato per font sans-serif (browser visual review fix)
+
+**Decisione**: aggiornare lo standard L16 con eccezione tipografica: **font sans-serif** (Inter, Geist, Space Grotesk, Bricolage variable) **NON usano italic** sulla y del wordmark. Differenziatore = solo `color: var(--accent)` + `font-weight` gap moderato. **Font serif** (Fraunces, Source Serif, Newsreader, DM Serif) mantengono italic (preferito) — il glyph italic serif è distinctive e non causa overlap.
+
+**Contesto**: Enzo ha mostrato screenshot del logo "Heuresys" in η Swiss dark mode — anche dopo il fix letter-spacing (L16 patch precedente), la y italic Inter aveva descender slanted che invadeva visivamente lo spazio della "s" adiacente, creando l'effetto "incollato/sovrapposto". Enzo: "praticamente tutti così, hai sistemato solo beta-brutalist-paper.html ma gli altri modelli sono ancora sbagliati". β resta OK perché Fraunces italic ha glyph distinctive.
+
+**Conseguenza**:
+
+- `02-aesthetic/logo-standard.md` aggiornato: spec "Style y" ora distingue sans-serif (no italic) da serif (italic preferito). CSS pattern canonico split in `.wordmark.sans .y` e `.wordmark.serif .y`.
+- 11 mockup sans-serif fixed (rimosso `font-style: italic` da `.y` rule):
+  - α Geist, γ Space Grotesk, η Inter, ε Bricolage, θ Bricolage gradient, ι Inter SVG tspan, λ Inter SVG tspan + wordmark-remix, μ Inter SVG tspan, μ-architect Inter, μ-pragmatic Inter, μ-synthesis Inter
+- 5 mockup serif preservati con italic: β Fraunces, δ Newsreader, κ Source Serif, ζ DM Serif Display, μ-art-director Source Serif moments
+- Browser visual review (Claude in Chrome, screenshot zoom + theme toggle) ha verificato che i fix risolvono l'overlap visivo — y dritta in sans = signal accent + weight contrast, leggibile e distintiva senza descender problem
+
+**Pattern technical insight**: Inter italic 'y' ha descender che curva verso destra (consequence of italic angle ~10°). Quando seguita da 's' non-italic con letter-spacing -1.5px o più, il descender invade visualmente il glyph 's'. Il browser rendering tecnicamente è corretto (kerning nativo) ma il VISUALMENTE risultato è che 'y' e 's' sembrano sovrapposte. Fraunces italic invece ha y con tail che si curva verso BASSO (non a destra), quindi non invade s.
+
+---
+
 ## L17 — 2026-05-05 — Set 1 dual-theme rewrite + Set 4 μ persona variants
 
 **Decisione**: (a) riscrivere i 4 mockup Set 1 (α/β/γ/δ) da single-theme a dual-theme (light+dark toggle in pari dignità, allineamento L8) + applicazione logo y-accent standard L16; (b) creare un Set 4 di **4 varianti del modello μ Data-Dense Temperata** che esprimano visivamente i 3 punti di vista del prompt `3-designer-debate.md`: μ-architect (Systems POV — tokens, scale, governance), μ-art-director (Pentagram POV — craft, ontology signature, editorial), μ-pragmatic (Conversion POV — CTA, KPI, trial), μ-synthesis (best compromise 40/30/30 dei 3).

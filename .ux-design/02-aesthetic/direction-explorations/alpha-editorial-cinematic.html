@@ -86,7 +86,7 @@
     color: var(--ink);
     line-height: 1;
   }
-  .wordmark .y { color: var(--accent); font-weight: 500; font-style: italic; }
+  .wordmark .y { color: var(--accent); font-weight: 500; /* L18: no italic per sans-serif (descender invade s) */ }
 
   .hero { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 56px; align-items: center; padding-top: 48px; }
   .hero .tagline { font-family: 'Source Serif 4', serif; font-style: italic; font-size: 14px; color: var(--accent); margin: 24px 0 12px; }

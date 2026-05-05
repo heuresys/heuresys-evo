@@ -94,15 +94,13 @@
     z-index: 2;
   }
   .wordmark-gen .word .y {
-    /* L16 logo standard direction-specific exception: θ "Algorithmic Generative" usa gradient text
-       (gen-1 → gen-3 derivati dal grafo) come signature concept della direzione.
-       Eccezione documentata in logo-standard.md sezione "Eccezioni direzione-specifiche". */
+    /* L16 direction-specific exception: gradient text concept signature.
+       L18 no italic per Bricolage sans (descender problem). */
     background: linear-gradient(180deg, var(--gen-1) 0%, var(--gen-3) 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    font-style: italic;
-    font-variation-settings: 'opsz' 96, 'wght' 600; /* L16 logo standard: gap moderato 700 body → 600 y */
+    font-variation-settings: 'opsz' 96, 'wght' 600;
   }
   .wordmark-gen svg.network-overlay {
     position: absolute;

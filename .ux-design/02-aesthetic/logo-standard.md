@@ -9,14 +9,14 @@ Il **wordmark "heuresys"** ha la lettera **"y"** sempre rendered come signal dif
 
 ## Regole canoniche
 
-| Regola         | Spec                                                                                                             | Razionale                                                                                                        |
-| -------------- | ---------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| **Color y**    | `var(--accent)` sempre, theme-aware (auto-switch light/dark)                                                     | Il signal cromatico è il differenziatore primario; deve rispettare il theme attivo                               |
-| **Weight y**   | Contrasto **moderato** rispetto al body. Body 700 → y 500-600; body 800 → y 600-700. NO weight 200               | Differenziazione sottile, non teatrale. Allineato a 60/40 trustworthy/courage (no overdrive courage)             |
-| **Style y**    | Italic **preferito** (preserva glyph identity sotto contrasto di weight)                                         | Italic + weight contrast lavorano in sinergia: senza italic, la y a weight ridotto rischia di sembrare un errore |
-| **Position y** | Letter-spacing **naturale** del font. NO `letter-spacing` custom. Distanza `s-y-s` simmetrica = kerning naturale | Il logo deve fluire come una parola unica; gap manuali rompono la lettura e creano "y come asset isolato"        |
-| **Tipografia** | Indipendente — funziona con Inter, Source Serif, Space Grotesk, Bricolage variable, ecc.                         | Il logo è un'identità trasversale; ogni direction porta la propria tipografia + applica la y-rule                |
-| **Monogram**   | Stessa logica: il punto centrale / nodo / glyph isolato che rappresenta la y nel mark è in `--accent`            | Coerenza wordmark ↔ mark assicura riconoscibilità a thumbnail size                                               |
+| Regola         | Spec                                                                                                             | Razionale                                                                                                                                                                                                                                     |
+| -------------- | ---------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Color y**    | `var(--accent)` sempre, theme-aware (auto-switch light/dark)                                                     | Il signal cromatico è il differenziatore primario; deve rispettare il theme attivo                                                                                                                                                            |
+| **Weight y**   | Contrasto **moderato** rispetto al body. Body 700 → y 500-600; body 800 → y 600-700. NO weight 200               | Differenziazione sottile, non teatrale. Allineato a 60/40 trustworthy/courage (no overdrive courage)                                                                                                                                          |
+| **Style y**    | **Sans-serif**: NO italic (descender slanted invade glyph adiacente). **Serif**: italic preferito.               | Browser visual review 2026-05-05 ha rivelato che Inter/Geist/Bricolage italic 'y' ha descender che si sovrappone visualmente alla 's' adiacente. Differenziazione sans = color + weight gap. Serif italic ha glyph distinctive senza overlap. |
+| **Position y** | Letter-spacing **naturale** del font. NO `letter-spacing` custom. Distanza `s-y-s` simmetrica = kerning naturale | Il logo deve fluire come una parola unica; gap manuali rompono la lettura e creano "y come asset isolato"                                                                                                                                     |
+| **Tipografia** | Indipendente — funziona con Inter, Source Serif, Space Grotesk, Bricolage variable, ecc.                         | Il logo è un'identità trasversale; ogni direction porta la propria tipografia + applica la y-rule                                                                                                                                             |
+| **Monogram**   | Stessa logica: il punto centrale / nodo / glyph isolato che rappresenta la y nel mark è in `--accent`            | Coerenza wordmark ↔ mark assicura riconoscibilità a thumbnail size                                                                                                                                                                            |
 
 ## CSS pattern canonico
 
@@ -35,11 +35,18 @@ Il **wordmark "heuresys"** ha la lettera **"y"** sempre rendered come signal dif
   letter-spacing: normal; /* NO override */
 }
 
-.wordmark .y {
+/* Sans-serif (Inter, Geist, Space Grotesk, Bricolage) */
+.wordmark.sans .y {
   color: var(--accent);
   font-weight: 500; /* contrasto moderato (gap 200 da body) */
-  font-style: italic; /* preferito */
-  /* NIENTE letter-spacing, NIENTE margin/padding manuali */
+  /* NO italic — descender italic invade glyph adiacente */
+}
+
+/* Serif (Fraunces, Newsreader, Source Serif, DM Serif) */
+.wordmark.serif .y {
+  color: var(--accent);
+  font-weight: 500;
+  font-style: italic; /* preferito — serif italic glyph distinctive */
 }
 ```
 
