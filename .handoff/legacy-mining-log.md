@@ -515,6 +515,59 @@
 
 **Effort reale**: ~30 minuti.
 
+## Pack 2 · /ontology · SKIPPED (2026-05-06 15:18 GMT+2)
+
+**Source**: `D:\enzospenuso\Documents\GitHub\heuresys.com.evo\services\api-gateway\src\routes\ontology.ts` (2260 LOC) + service classes (`ontology-embedding.ts` 1119 LOC + `ontology-relations.ts` 322 LOC + `cross-entity-embedding.ts`).
+
+**Decision**: SKIPPED (Pack 2.8 boss finale).
+
+**Razionale**:
+
+- 36 endpoint thin wrapper su 2+ service classes (2000+ LOC totali)
+- Heavy domain: vector embeddings (pgvector · 1536-dim · text-embedding-3-small) · KSABA dimensions · cross-entity semantic search · ontology relations inference · auto-categorization
+- Richiede OpenAI API key wired in api-gateway (deferred BLOCK 11+ vedi `/esco/occupations/search` route docstring)
+- Use case real: AI-assisted skill discovery + semantic matching — feature avanzata oltre MVP
+- Effort dedicato Pack 2.8 isolated session
+
+**Stage**: `Rejected` (registry CSV row 64-66).
+
+**Riapertura**: BLOCK 11+ quando OpenAI integration in api-gateway viene attivata.
+
+## Pack 2 · CHIUSO (2026-05-06)
+
+**Outcome**: 4/8 endpoint pack ported · 4/8 SKIPPED Rejected (heavy service deps).
+
+| Pack | Endpoint | Outcome | LOC legacy | Test | Commit |
+|---|---|---|---|---|---|
+| 2.1 | /nace | ✅ ported | 182 | 13 | b635703 |
+| 2.2 | /skills | ✅ ported | 433 | 24 | f1a0b67 |
+| 2.3 | /skill-analytics | ❌ Rejected | 289+607 service | — | (registry only) |
+| 2.4 | /skill-assessments | ✅ ported | 529 | 24 | 383b5b5 |
+| 2.5 | /onet | ❌ Rejected | 623+805 service | — | (registry only) |
+| 2.6 | /skill-taxonomy | ❌ Rejected | 798+1502 service | — | (registry only) |
+| 2.7 | /esco extend | ✅ partial (7/14 handler) | 877 | 14 | cc81e82 |
+| 2.8 | /ontology | ❌ Rejected | 2260+2000 service | — | (registry only) |
+
+**Totali**:
+
+- 28/86 handler ported (33%) · 58/86 skipped (67%)
+- 75 test nuovi (13+24+24+14) · suite api-gateway: 280/280 verde (era 205 baseline post Pack 1)
+- 4 nuovi router montati (`/nace`, `/skills`, `/skill-assessments`, `/esco` extended)
+- Allowlist Prisma: 16 → 25 model (+9: industry_classifications · company_sizes · esco_skills · employee_skill_assessments · esco_isco_groups · esco_occupations · esco_skill_groups · esco_occupation_skills · esco_skill_relations)
+- Typecheck workspace: 5/5 clean
+- 4 commit Pack 2 + 1 closure: `b635703` · `f1a0b67` · `383b5b5` · `cc81e82`
+
+**Razionale skip pattern**:
+
+I 4 pack rifiutati condividono lo stesso DNA: **thin route wrapper su heavy domain service class** (607-2000+ LOC ciascuno) con dipendenze esterne (CTE recursive · O*NET CSV files · seed dati realistici · OpenAI API key) che richiedono session dedicata + investment focalizzato. Stesso pattern Pack 1c WorkforcePlanningService skip — coerenza decisionale cross-pack.
+
+**Riapertura roadmap** (deferred priorities):
+
+1. Pack 2.3 `/skill-analytics` — quando Phase 13.B-D dashboard analytics frontend serve dati reali
+2. Pack 2.6 `/skill-taxonomy` — quando admin taxonomy UI richiede classification CRUD
+3. Pack 2.5 `/onet` — solo se serve seed pipeline standalone (vs static dump)
+4. Pack 2.8 `/ontology` — BLOCK 11+ con OpenAI integration
+
 ## Cascade dependencies (skip che forzano altri skip)
 
 > Append-only. Format: `endpoint A skip → endpoint B impacted (motivo)`.

@@ -1,6 +1,6 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-06 (Phase 13.0 Pack 1 CHIUSO + legacy import registry shipped)
+> Updated: 2026-05-06 (Phase 13.0 Pack 2 CHIUSO · 4/8 ported + 4/8 Rejected)
 
 ## ⚠️ DIRETTIVA OPERATIVA ATTIVA
 
@@ -8,13 +8,18 @@
 
 ## Last session brief
 
-Phase 13.0 Pack 1 (HR core) **CHIUSO COMPLESSIVO**: 6 endpoint legacy ported a evo (roles · tenants · users · employees-extend · org-units · workforce-planning) · ~112 test nuovi · suite api-gateway 205/205 verde · 4 helper cross-cutting · Prisma allowlist 9→16 model. Ship: 9 commit Phase 13 (`5ba982f → ab21c23`). Creato **legacy import registry** strutturato (`.handoff/legacy-import-registry.csv` + `.md`) con stage workflow `Test Stage → PreOp Stage → Promoted/Rejected` e vincolo "estirpazione clean" — regola cross-progetto salvata in memoria globale.
+Phase 13.0 Pack 2 (ESCO + Skill taxonomy) **CHIUSO**: 4/8 endpoint ported a evo (`/nace` · `/skills` · `/skill-assessments` · `/esco` extend 7/14 handler) · 4/8 SKIPPED Rejected per pattern "thin route + heavy service" (`/skill-analytics` · `/onet` · `/skill-taxonomy` · `/ontology`). 75 test nuovi · suite api-gateway 280/280 verde (era 205 baseline post Pack 1). Allowlist Prisma 16 → 25 model (+9). Ship: 4 commit Pack 2 (`b635703` · `f1a0b67` · `383b5b5` · `cc81e82`). Razionale skip coerente: ogni pack rifiutato è thin wrapper su 600-2000+ LOC service class con dipendenze esterne (CTE recursive, O*NET data files, seed realistici, OpenAI key) che richiedono session dedicata.
 
 ## Top priorities (next session)
 
-1. **Pack 2 ESCO + Skill taxonomy** (~3-5 FTE-day): 8 endpoint legacy `/nace · /skill-analytics · /skills · /skill-assessments · /onet · /skill-taxonomy · /esco extend · /ontology` (~6000 LOC totali). Ordine consigliato: quick win `/nace` (182 LOC) → progressivo verso `/ontology` (2260 LOC). Probabile expand allowlist Prisma (esco_skills, esco_occupations, ecc.). Plan ref: `~/.claude/plans/credo-che-se-tu-jazzy-key.md` § Phase 13.0 Pack 2.
-2. **Pack 1 promotion** (~ad-hoc): smoke test live + acceptance Enzo per portare entry da `Test Stage` → `PreOp Stage` → `Promoted`. Vedi [`legacy-import-registry.md`](legacy-import-registry.md) § Promotion checklist.
-3. **Pack 1c deferred** (~3 FTE-day): handler skip da Pack 1 (analytics-stats · manager-chain · workforce simulation · applyFieldPolicy · cachedForTenant · auditedTransaction P4 greenfield · seed RBP areas SECURITY+PLATFORM). Stage attuale: tutti `Rejected` nel registry — riapri se servono.
+1. **Pack 2 promotion** (~ad-hoc): smoke test live + acceptance Enzo per portare 4 entry Pack 2 (`/nace` · `/skills` · `/skill-assessments` · `/esco` extend) da `Test Stage` → `PreOp Stage` → `Promoted`. Vedi [`legacy-import-registry.md`](legacy-import-registry.md) § Promotion checklist.
+2. **Pack 1 promotion** (~ad-hoc): smoke test 6 entry Pack 1 (`/roles` · `/tenants` · `/users` · `/employees` extend · `/org-units` · `/workforce-planning`).
+3. **Pack 2 reopened-deferred** (~10+ FTE-day combined): se prio business cambia, riapri Rejected:
+   - `/skill-analytics` quando dashboard analytics FE serve dati reali
+   - `/skill-taxonomy` quando admin taxonomy UI richiede classification CRUD
+   - `/onet` solo se serve seed pipeline standalone (vs static dump)
+   - `/ontology` BLOCK 11+ con OpenAI integration in api-gateway
+4. **Pack 1c deferred** (~3 FTE-day): handler skip da Pack 1 (analytics-stats · manager-chain · workforce simulation · applyFieldPolicy · cachedForTenant · auditedTransaction P4 greenfield · seed RBP areas SECURITY+PLATFORM).
 
 ## Open questions
 
@@ -24,7 +29,7 @@ Phase 13.0 Pack 1 (HR core) **CHIUSO COMPLESSIVO**: 6 endpoint legacy ported a e
 
 | Servizio | Porta LAN | Status |
 |---|---|---|
-| API Gateway | `192.168.1.8:8200` | running (con 6 nuovi endpoint Pack 1) |
+| API Gateway | `192.168.1.8:8200` | running (Pack 1: 6 endpoint · Pack 2: 4 endpoint nuovi · /esco esteso 7 handler) |
 | Next.js | `192.168.1.8:3200` | running |
 | Storybook | `192.168.1.8:6006` | running |
 | Enrichment workers | n/a | running (Redis VM auth fix) |
@@ -36,10 +41,10 @@ Phase 13.0 Pack 1 (HR core) **CHIUSO COMPLESSIVO**: 6 endpoint legacy ported a e
 
 ```bash
 git status -sb                             # clean? in sync?
-git log --oneline -12                      # ultimi commit Phase 13.0 Pack 1
-npm run typecheck --workspaces             # gate verde
-npm test --workspace=services/api-gateway  # 205/205 verde
-cat .handoff/legacy-import-registry.csv | head -3  # registry SoT
+git log --oneline -15                      # ultimi commit Phase 13.0 Pack 2
+npm run typecheck --workspaces             # gate verde (5/5 workspace)
+npm test --workspace=services/api-gateway  # 280/280 verde post Pack 2
+cat .handoff/legacy-import-registry.csv | wc -l  # registry SoT (66 rows)
 scripts/dev-local/tunnel-vm.ps1 -Status    # tunnel up?
 ```
 
