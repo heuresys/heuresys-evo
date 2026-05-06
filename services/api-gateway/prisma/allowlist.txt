@@ -53,3 +53,7 @@ certifications
 employee_attendance
 employee_time_off_requests
 tenant_onboarding_profiles
+workspace_templates
+workspace_widgets
+platform_features
+platform_pages
