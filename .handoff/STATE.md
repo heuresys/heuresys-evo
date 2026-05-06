@@ -1,6 +1,6 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-06 (handoff S · Phase 13.0 CHIUSA · 8/8 pack closed · 30+9 handler ported · Pack 2.3+2.6 reopen partial · Phase 13.A backend prerequisite RISOLTI)
+> Updated: 2026-05-06 (Phase 13.A done · 8 atomic dashboard component shipped · TIER 17 barrel · 21 nuovi test · DECISIONS-LOG L29)
 
 ## ⚠️ DIRETTIVA OPERATIVA ATTIVA
 
@@ -8,17 +8,30 @@
 
 ## Last session brief
 
-Phase 13.0 (Legacy backend mining) **CHIUSA DEFINITIVAMENTE** + **Pack 2.3+2.6 REOPEN partial** per Phase 13.A prerequisite. Outcome cumulativo: 8/8 pack closed · 30/46 endpoint baseline ported (era 28) + 9 nuovi handler reopen (skill-analytics 4 + skill-taxonomy 5) · 16 nuovi Rejected → Test Stage · 446 test verdi (era 430) · allowlist Prisma 9 → 52 model (+43). Inline SQL pattern (no SkillAnalyticsService/SkillClassificationService classes legacy importate). Razionale reopen: dashboard Tier 1 `skills-heatmap` (richiede `/skill-analytics`) + `capability-graph` (richiede `/skill-taxonomy`) sono prerequisite per Phase 13.A atomic dashboard components.
+**Phase 13.A — Atomic dashboard components CHIUSA** in modalità autonomous execution. Outcome: 8 atomic component pubblicati in `packages/ui/src/components/dashboard/` + 8 Storybook story file + 1 test file unico (21 test) + barrel `dashboard/index.ts` + TIER 17 nel main `packages/ui/src/index.ts`. Component family estratta dai 5 mockup Phase 9 (`hr-director-overview`, `capability-graph`, `skills-heatmap`, `employee-journey`, `org-systems`):
+
+| Component                | Source mockup              | Pattern                                            |
+| ------------------------ | -------------------------- | -------------------------------------------------- |
+| `IntegrationHealthPill`  | org-systems                | Badge + dot pulse · 4 tone                         |
+| `KpiRing`                | hr-director-overview hero  | Wrap RadialGauge + threshold tone + trend          |
+| `SuccessionCard`         | hr-director-overview panel | Avatar + role pair + LinearGauge readiness + risk  |
+| `CareerArc`              | employee-journey 5-stage   | Horizontal arc · 3 status + `aria-current`         |
+| `KgMiniGraph`            | capability-graph           | Wrapper compatto su NetworkGraph (cytoscape)       |
+| `SkillHeatmap`           | skills-heatmap 8×12        | Semantic table · 5-bucket scale · onCellClick      |
+| `CapabilityRadar`        | employee-journey radar     | Pure SVG · n-axis · multi-series                   |
+| `RbacMatrix`             | org-systems RBAC 8×9       | Tabella sticky · 5 livelli (none→owner) cycle      |
+
+Phase 13.0 (8/8 pack mining + Pack 2.3+2.6 reopen) era già chiusa. Cumulativo Phase 13: 13.0 done · 13.A done · 13.B/C/D/E pending. Decisioni tecniche autonome documentate in DECISIONS-LOG L29.
 
 ## Top priorities (next session)
 
-1. **Phase 13.A — Atomic dashboard components** (~5-7 FTE-day): UI layer build con Cantiere B + brand identity nuova. Backend prerequisite RISOLTI per dashboard Tier 1 `skills-heatmap` e `capability-graph` (Pack 2.3+2.6 reopen partial). Plan ref `~/.claude/plans/credo-che-se-tu-jazzy-key.md` § Phase 13.A. Cantiere B in `packages/ui` ~180 component pronti.
-2. **`/ontology` reopen residuo** (BLOCK 11+): solo quando OpenAI integration in api-gateway è wired. Necessario per AI advisor + dashboard semantic search. Stage attuale: `Rejected` confermato.
+1. **Phase 13.B — Schema extension + seed** (~4-5 FTE-day): aggiungere `dashboard_elements` + `dashboard_presets` model in `services/app/prisma/schema.prisma` + migration `phase13_dashboard_engine` + seed 5 esistenti + 4 PROCESS placeholder + RLS policy. Plan ref § Phase 13.B.
+2. **Phase 13.C — Engine renderer** (~8-10 FTE-day): `services/app/src/lib/dashboard-engine/` (loader + resolver RBP + registry + grid + data-fetcher) · route generica `(dashboard)/[code]/page.tsx`. Riuso atomic component TIER 17 + `app-shell` esistente. Backend già pronto (Phase 13.0).
 3. **Pack 1-8 promotion** (~ad-hoc): smoke test live + acceptance Enzo per portare 30 entry da `Test Stage` → `PreOp Stage` → `Promoted`. Vedi [`legacy-import-registry.md`](legacy-import-registry.md) § Promotion checklist.
 
 ## Open questions
 
-- Nessuna blocking. Phase 13.0 chiusa definitivamente. Phase 13.A è next architectural step.
+- Nessuna blocking. Phase 13.A chiusa. Phase 13.B (schema + seed) è next step lineare; Phase 13.C parallelizzabile dopo 13.B.
 
 ## Environment dev (a fine sessione)
 

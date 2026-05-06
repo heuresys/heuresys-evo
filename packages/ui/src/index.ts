@@ -280,3 +280,39 @@ export { AnimatedNumber, Typewriter, GradientText, Marquee } from './components/
 
 // === B-EXT TIER 16 — XR / 3D ===
 export { ThreeScene } from './components/xr';
+
+// === B-EXT TIER 17 — Atomic dashboard components (Phase 13.A) ===
+export {
+  IntegrationHealthPill,
+  KpiRing,
+  SuccessionCard,
+  CareerArc,
+  KgMiniGraph,
+  SkillHeatmap,
+  CapabilityRadar,
+  RbacMatrix,
+  type IntegrationHealthPillProps,
+  type IntegrationHealthTone,
+  type KpiRingProps,
+  type KpiRingTone,
+  type KpiRingThresholds,
+  type SuccessionCardProps,
+  type SuccessionRisk,
+  type SuccessionReadiness,
+  type CareerArcProps,
+  type CareerStage,
+  type CareerStageStatus,
+  type KgMiniGraphProps,
+  type KgMiniGraphLegendItem,
+  type SkillHeatmapProps,
+  type SkillHeatmapAxis,
+  type SkillHeatmapCell,
+  type CapabilityRadarProps,
+  type CapabilityRadarAxis,
+  type CapabilityRadarSeries,
+  type RbacMatrixProps,
+  type RbacRole,
+  type RbacArea,
+  type RbacAssignment,
+  type RbacPermissionLevel,
+} from './components/dashboard';

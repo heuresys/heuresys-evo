@@ -690,6 +690,56 @@ Risposte alle 2 domande operative pre-formalizzazione:
 - Direction-explorations Set 1-5 (32 mockup archive) NON retro-aggiornati: usano i propri pattern wordmark inline. Lasciati come archivio storico
 - Quando in futuro creeremo direction tematizzate (es. cliente custom, stagione, evento), il pattern sarà `.wordmark-relative` con tema CSS che definisce `--logo-body` + override `--accent`
 
+---
+
+## L29 — 2026-05-06 — Phase 13.A — Atomic dashboard components shipped (8 component family)
+
+**Decisione**: Phase 13.A chiusa con 8 atomic dashboard component pubblicati in `packages/ui/src/components/dashboard/` e re-esportati come TIER 17 dal barrel `@heuresys/ui`. Estratti dai 5 mockup Phase 9 (`hr-director-overview`, `capability-graph`, `skills-heatmap`, `employee-journey`, `org-systems`).
+
+**Componenti**:
+
+| Component               | Mockup di origine          | Pattern interno                                                  |
+| ----------------------- | -------------------------- | ---------------------------------------------------------------- |
+| `IntegrationHealthPill` | org-systems                | Badge + dot pulse · 4 tone (ok/warn/down/info)                   |
+| `KpiRing`               | hr-director-overview hero  | Wrap RadialGauge + threshold tone resolution + trend indicator   |
+| `SuccessionCard`        | hr-director-overview panel | Avatar + role pair + LinearGauge readiness + risk Badge          |
+| `CareerArc`             | employee-journey 5-stage   | Horizontal arc · 3 status (past/current/future) · `aria-current` |
+| `KgMiniGraph`           | capability-graph           | Wrapper compatto su NetworkGraph (cytoscape) · legend opzionale  |
+| `SkillHeatmap`          | skills-heatmap 8×12        | Semantic table + 5-bucket scale + interactive `onCellClick`      |
+| `CapabilityRadar`       | employee-journey radar     | Pure SVG · n-axis · multi-series con default colors OKLCH        |
+| `RbacMatrix`            | org-systems RBAC 8×9       | Tabella sticky + 5 livelli (none/read/write/admin/owner) cycle   |
+
+**Contesto**: Phase 13.0 backend mining chiusa (8/8 pack legacy importati + Pack 2.3+2.6 reopen partial). Phase 13.A è il primo layer UI data-driven previsto dal plan `~/.claude/plans/credo-che-se-tu-jazzy-key.md`. Direttiva "Autonomous execution mode" del plan: decisioni tecniche auto-implementate, scegliere il più semplice in caso di ambiguità.
+
+**Decisioni tecniche prese in autonomia**:
+
+- **CapabilityRadar pure SVG (no D3 rendering)**: d3 era disponibile ma il radar è geometricamente semplice (sin/cos su n-axis). Evitare dipendenza runtime extra ed embed shim D3 — direttiva SEMPLICITÀ.
+- **CareerArc horizontal layout invece di estendere `Timeline` verticale**: il pattern di `employee-journey.html` è horizontal arc. Component standalone più semplice di adattare Timeline verticale.
+- **KgMiniGraph wrapper anziché clone**: NetworkGraph esistente già copre il caso d'uso; wrapper aggiunge default height compatto + legend opzionale.
+- **SkillHeatmap usa `<table>` semantico, non solo CSS Grid**: a11y migliore (header sticky con `scope`, `aria-label` su cella) e click handler con keyboard navigation.
+- **RbacMatrix con 5 livelli (`none/read/write/admin/owner`) invece di 4**: pattern legacy ha gradiente continuo, ma 5 buckets discreti sono sufficienti per UI MVP e mappabili a `widget_catalog.requires_min_role` Phase 13.C.
+
+**Conseguenza**:
+
+- `packages/ui` da 84 a 92 stories Storybook (8 nuovi `Dashboard/*` namespace)
+- Test suite packages/ui: 64 → 85 test verdi (+21 test atomic dashboard)
+- Typecheck 5/5 workspace clean
+- TIER 17 nel barrel main `@heuresys/ui` con 8 component + 14 tipo export
+- Phase 13.A acceptance: tutti i 5 mockup ricomponibili a vista usando atomic components (verificato visivamente nelle stories `Triplet`, `Grid`, `IntegrationRow`, `EightByTwelve`)
+- Sblocco Phase 13.B (schema + seed `dashboard_elements` + `dashboard_presets`) e Phase 13.C (engine renderer in `services/app/src/lib/dashboard-engine/`)
+
+**File creati**:
+
+- `packages/ui/src/components/dashboard/{integration-health-pill,kpi-ring,succession-card,career-arc,kg-mini-graph,skill-heatmap,capability-radar,rbac-matrix}.tsx` (8)
+- `packages/ui/src/components/dashboard/*.stories.tsx` (8)
+- `packages/ui/src/components/dashboard/index.ts` (barrel)
+- `packages/ui/src/components/__tests__/dashboard.test.tsx` (21 test)
+
+**Riferimenti**:
+
+- Plan source: `C:\Users\enzospenuso\.claude\plans\credo-che-se-tu-jazzy-key.md` § Phase 13.A
+- BRAND-STATE.md § Current phase aggiornata a 13.A done
+
 ## Decisioni scartate (per riferimento)
 
 | Direzione                                                         | Motivo scarto                                                  | Reference                            |
