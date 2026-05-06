@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Accedi — Heuresys (Split Cinematic)</title>
+<title>Accedi — heuresys (Split Cinematic)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -108,10 +108,11 @@
   }
   @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
+  /* Wordmark mega — L25 + L27 (two-color legacy pattern) */
   .wordmark-mega {
     font-family: 'Exo 2', sans-serif; font-weight: 700;
     font-size: 92px; letter-spacing: -3.5px; line-height: 1;
-    color: #f4f5f7; margin-top: 24px; margin-bottom: 28px;
+    color: var(--brand-blue); margin-top: 24px; margin-bottom: 28px;
     filter: drop-shadow(var(--glow-strong));
   }
   .wordmark-mega .y { color: var(--accent); }
@@ -176,9 +177,18 @@
   .top-back {
     font-family: 'JetBrains Mono', monospace; font-size: 11px;
     color: var(--ink-muted); text-decoration: none;
-    text-transform: uppercase; letter-spacing: 1.5px;
   }
   .top-back:hover { color: var(--ink); }
+
+  /* L25 + L27 wordmark inline utility (two-color legacy) */
+  .wm-inline {
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 700;
+    letter-spacing: normal;
+    text-transform: lowercase;
+    color: var(--brand-blue);
+  }
+  .wm-inline .y { color: var(--accent); }
   .theme-toggle {
     background: transparent; border: 1px solid var(--rule-strong); color: var(--ink);
     padding: 6px 12px; font-family: 'JetBrains Mono', monospace; font-size: 11px;
@@ -343,7 +353,7 @@
   <!-- LEFT: brand showcase -->
   <aside class="brand-side">
     <div class="brand-side-top">
-      <span class="label">Heuresys · Organizational Intelligence</span>
+      <span class="label"><span class="wm-inline">heures<span class="y">y</span>s</span> · Organizational Intelligence</span>
       <h2 class="wordmark-mega">heures<span class="y">y</span>s</h2>
       <p class="manifesto">
         Il <strong>layer ontologico</strong> tra ERP, HR e BI. Knowledge graph ESCO bilingue,
@@ -404,7 +414,7 @@
     <div class="form-wrap">
       <div class="form-eyebrow">Sign in</div>
       <h1 class="form-h1">Accedi al <em>tuo</em> workspace</h1>
-      <p class="form-sub">Continua con la tua identità aziendale per accedere a Heuresys.</p>
+      <p class="form-sub">Continua con la tua identità aziendale per accedere a <span class="wm-inline">heures<span class="y">y</span>s</span>.</p>
 
       <div class="tenant-context" aria-label="Tenant corrente">
         <div class="tenant-avatar" aria-hidden="true">RB</div>
@@ -464,7 +474,7 @@
     </div>
 
     <div class="form-side-footer">
-      <div class="copy">© 2026 <span class="wordmark-foot">heures<span class="y">y</span>s</span>.com — Organizational Intelligence platform</div>
+      <div class="copy">© 2026 heuresys.com — Organizational Intelligence platform</div>
       <div class="links">
         <a href="#">Privacy</a><a href="#">Terms</a><a href="#">Security</a><a href="#">Status</a>
       </div>

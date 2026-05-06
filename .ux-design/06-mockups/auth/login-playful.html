@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Accedi — Heuresys (Magnetic Playful)</title>
+<title>Accedi — heuresys (Magnetic Playful)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -90,10 +90,19 @@
   .top-back {
     font-family: 'JetBrains Mono', monospace; font-size: 11px;
     color: var(--ink-muted); text-decoration: none;
-    text-transform: uppercase; letter-spacing: 1.5px;
     transition: color 0.15s, transform 0.2s;
   }
   .top-back:hover { color: var(--accent); transform: translateX(-3px); }
+
+  /* L25 + L27 wordmark inline utility (two-color legacy) */
+  .wm-inline {
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 700;
+    letter-spacing: normal;
+    text-transform: lowercase;
+    color: var(--brand-blue);
+  }
+  .wm-inline .y { color: var(--accent); }
   .theme-toggle {
     background: var(--surface-1); border: 1px solid var(--rule); color: var(--ink);
     padding: 8px 14px; font-family: 'JetBrains Mono', monospace; font-size: 11px;
@@ -124,13 +133,13 @@
     box-shadow: 0 30px 70px rgba(0, 0, 0, 0.45), 0 4px 12px rgba(168, 85, 247, 0.10);
   }
 
-  /* Wordmark hero — L25 + parallax JS */
+  /* Wordmark hero — L25 + L27 (two-color legacy pattern) + parallax JS */
   .wordmark-hero {
     font-family: 'Exo 2', sans-serif;
     font-weight: 700; font-size: 60px;
     letter-spacing: -2.5px; line-height: 1;
     text-align: center; margin-bottom: 14px;
-    color: var(--ink);
+    color: var(--brand-blue);
     transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
     will-change: transform;
   }
@@ -380,7 +389,7 @@
 </main>
 
 <footer class="auth-footer">
-  <div class="copy">© 2026 <span class="wordmark-foot">heures<span class="y">y</span>s</span>.com — Organizational Intelligence platform</div>
+  <div class="copy">© 2026 heuresys.com — Organizational Intelligence platform</div>
   <div class="links">
     <a href="#">Privacy</a><a href="#">Terms</a><a href="#">Security</a><a href="#">Status</a>
   </div>

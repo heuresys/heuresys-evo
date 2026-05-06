@@ -592,6 +592,51 @@ Persistenza garantita: tutti i file in git, sincronizzati cross-machine. Skill l
 
 **Disambiguazione naming**: `studio` skill (filesystem) ≠ `/brand-studio` URL (route Next.js wizard token CSS). Zero overlap. La pagina `/brand-studio` può essere clonata via `/studio:clone brand-studio` come qualsiasi altra route.
 
+## L27 — 2026-05-06 — "Logo originale" canonical · due colori fissi · eccezione plain text per indirizzi/link/domini
+
+**Decisione**: il logo predefinito Heuresys si chiama d'ora in poi **"logo originale"** (per distinguerlo da eventuali altri logo derivati o sperimentali futuri). La spec L25 (lowercase h, 8 lettere identiche, no italic, color-only differentiator) è cumulata con due chiarimenti operativi:
+
+1. **Due colori fissi** (theme-aware nel hue ma sempre blue + purple):
+   - Body 7 lettere = `var(--brand-blue)` — pattern già consolidato in Phase 9 dashboard come `.wordmark-foot.legacy` (L23)
+   - `y` = `var(--accent)` — purple come da L16/L25
+   - Mai più `color: var(--ink)` per il body wordmark (era il default L25 generico)
+2. **ECCEZIONE plain text** alla regola "embed ovunque" (L25 punto 6): se la ricorrenza "heuresys" fa parte di un **indirizzo, link o dominio**, resta plain text lowercase senza embed. Casi documentati: top-back link `← heuresys.com`, tenant-meta `rtl-bank.heuresys.com`, footer copyright `© 2026 heuresys.com`, FQDN `evo.heuresys.com` / `www.heuresys.com`, email `info@heuresys.com`, programmatic `localStorage` key, `<title>` HTML.
+
+**Contesto**: Enzo ha chiarito la regola completa quando ha rivisto il primo batch di Phase 10 login mockup (commit 88703f8 + 57bab40):
+
+> "devi memorizzare che la scelta predefinita è il logo con i due colori fissi, tipografia unica per tutte le lettere, la h minuscola e sostituzione di tutte le ricorrenze di heuresys (indipendentemente se in parte o in tutto maiuscolo o minuscolo) in header o footer di una pagina (anche modale) devono essere sostituite con il logo a meno che non si tratti di indirizzo, link o dominio"
+
+E successivamente:
+
+> "lo chiameremo 'logo originale' per distinguerlo dagli altri logo che creiamo"
+
+Errori commessi nel primo batch login mockup (poi corretti):
+
+- `.wordmark-hero { color: var(--ink); }` (theme-aware) invece di `var(--brand-blue)` (fisso)
+- Top-back link, tenant-meta, footer copyright = ricorrenze in domini → erroneamente embeddate (corretto: plain text)
+- `login-aurora.html` `.y` con gradient text + shimmer animation 4s (violava "color is unique differentiator" + introduceva movement)
+- Title HTML capital `Heuresys` (corretto: lowercase)
+
+**Conseguenza**:
+
+- 4 login mockup `.ux-design/06-mockups/auth/login*.html` sistemati conformi L27
+- Classe utility `.wm-inline` introdotta (Exo 2 700 + brand-blue body + accent y) per embed inline in contesti tipografici diversi (mono/Inter) — contiene override anche `text-transform: lowercase` per neutralizzare parent uppercase mono labels
+- `02-aesthetic/logo-standard.md` aggiornato con sezione L27 + nome canonical "logo originale" + tabella eccezione plain text
+- Auto-memory `~/.claude/projects/D--evo-heuresys-com/memory/feedback_logo_originale_l27.md` creata + indicizzata in `MEMORY.md`
+- Phase 9 dashboard mockup esistenti (5 surface + index hub) usano `.wordmark-foot` embed nel footer copyright dove "heuresys.com" è dominio → tecnicamente violano L27. Decisione: NON retro-update, lasciare come archivio storico (commit ≥ b0d2127). Future surface seguono L27.
+
+**Storia evolutiva**:
+
+- L6 (2026-05-04) → superseduta L11
+- L11 (2026-05-05) → reset esplorazione
+- L16 (2026-05-05) → y-accent standard con weight gap 700→500
+- L18 (2026-05-05) → no italic per sans-serif
+- L21 (2026-05-05) → D1 chiusa · μ-architect-legacy modello base
+- L22 (2026-05-05) → Phase 9 layout v2 · logo nav-bar header
+- L23 (2026-05-05) → logo legacy customization · pattern `.wordmark-foot.legacy` (body brand-blue + y accent)
+- L25 (2026-05-05) → regole permanenti finalizzate
+- **L27 (2026-05-06)** → "logo originale" + due colori fissi + ECCEZIONE plain text per indirizzi/link/domini
+
 ## Decisioni scartate (per riferimento)
 
 | Direzione                                                         | Motivo scarto                                                  | Reference                            |

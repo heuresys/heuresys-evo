@@ -1,22 +1,33 @@
-# Heuresys logo — y-accent standard
+# Heuresys logo — "logo originale" standard
 
-> **L25 (2026-05-05) — REGOLE PERMANENTI** che superano L16 e L18:
+> **Nome canonical**: dal 2026-05-06 il logo predefinito si chiama **"logo originale"** per distinguerlo da eventuali altri logo derivati o sperimentali futuri.
+>
+> **L27 (2026-05-06) — REGOLE PERMANENTI** che cumulano L25 e specificano due colori fissi + eccezione plain text:
 >
 > 1. **h** sempre minuscola → wordmark = `heuresys` (mai `Heuresys`)
-> 2. **Tutte le lettere** stesso font, stesso peso, stessa grandezza — **nessun gap di weight**
-> 3. **NO italic** (su qualunque tipografia, sans o serif)
-> 4. **Solo y** in `var(--accent)` color — il colore è l'**unico** differenziatore
-> 5. Letter-spacing naturale del font (no override custom)
-> 6. **In ogni occorrenza** (header, footer, modal, social meta) si usa il LOGO embedded, non plain text
+> 2. **Tutte le 8 lettere** stesso font (Exo 2), stesso peso (700), stessa grandezza, stesso style (no italic)
+> 3. **Due colori fissi** (theme-aware ma sempre blue + purple):
+>    - Body lettere = `var(--brand-blue)` (#3b82f6 dark / #2452c8 light)
+>    - `y` = `var(--accent)` (#a855f7 dark / #7e3fc8 light)
+> 4. Letter-spacing naturale del font (no override custom)
+> 5. **In ogni ricorrenza** (header, footer, modal) si usa il logo embedded, non plain text
+> 6. **ECCEZIONE plain text**: se la ricorrenza è **indirizzo, link o dominio** → resta plain lowercase (no embed)
 >
-> Le regole L16 (weight gap moderato 700→500) e L18 (no italic per sans) sono **supersedute** dalla L25 nel punto specifico del weight gap. Le sezioni successive di questo file riflettono la spec L25.
+> Le regole L16 (weight gap moderato 700→500) e L18 (no italic per sans) sono **supersedute** dalla L25/L27. Le sezioni successive riflettono la spec L27 finale.
 
 > **Stabilito**: 2026-05-05 (DECISIONS-LOG L16 → aggiornato L18 → finalizzato L25)
 > **Scopo**: standard di rendering del logo "heuresys" cross-direzione, indipendente dalla tipografia di ogni direction. Garantisce riconoscibilità visiva omogenea anche al variare di palette/typography/mood.
 
-## Principio fondante (L25)
+## Principio fondante (L27 — "logo originale")
 
-Il **wordmark "heuresys"** è composto da 8 lettere identiche per font, peso, grandezza e stile, con la sola **"y"** colorata diversamente (`var(--accent)`). La h è sempre minuscola. Nessun italic, nessun gap di weight. Il **colore** è l'unico differenziatore — minimalismo radicale per signal cromatico puro.
+Il **wordmark "heuresys"** ("logo originale") è composto da 8 lettere identiche per font, peso, grandezza e stile, con **due colori fissi**:
+
+- 7 lettere body in `var(--brand-blue)` (blu)
+- la **y** in `var(--accent)` (purple)
+
+La h è sempre minuscola. Nessun italic, nessun gap di weight, nessuna scale-down. La signature visiva è il pattern blue+purple, non più il body theme-aware (`--ink`).
+
+**Razionale**: pattern già consolidato in Phase 9 dashboard come `.wordmark-foot.legacy` (L23), promosso a default cross-surface dal 2026-05-06.
 
 ## Regole canoniche (L25)
 
@@ -32,40 +43,77 @@ Il **wordmark "heuresys"** è composto da 8 lettere identiche per font, peso, gr
 | **Monogram (y)**  | Solo glyph "y" in `--accent`, stesso weight del wordmark            | Mark = "y" isolata. Stessa size relativa, stesso weight                                                                |
 | **Embed ovunque** | Header + footer + modal + social meta = sempre logo, mai plain text | Riconoscibilità brand cross-surface. Mai `<a>heuresys.com</a>` plain — sempre `<a>` wraps `<span class="wordmark">...` |
 
-## CSS pattern canonico (L25)
+## CSS pattern canonico (L27 — "logo originale")
 
 ```css
 :root {
-  --accent: <direction-specific-accent>; /* light theme */
+  --brand-blue: #2452c8; /* light theme */
+  --accent: #7e3fc8; /* light theme */
 }
 [data-theme='dark'] {
-  --accent: <direction-specific-accent-dark>;
+  --brand-blue: #3b82f6;
+  --accent: #a855f7;
 }
 
-/* Wordmark — tutte le lettere identiche per font/peso/size/style */
-.wordmark {
-  font-family: var(--display-face); /* Exo 2 default, agnostic */
+/* Wordmark "logo originale" — 8 lettere identiche per font/peso/size/style */
+.wordmark-original {
+  font-family: 'Exo 2', sans-serif;
   font-weight: 700;
-  color: var(--ink); /* o var(--brand-blue) per dashboard architect */
+  color: var(--brand-blue); /* COLORE FISSO 1 */
   letter-spacing: normal; /* NO override */
+  text-transform: lowercase; /* h sempre minuscola */
 }
 
-/* Y — UNICO differenziatore: il color */
-.wordmark .y {
-  color: var(--accent);
+/* Y — secondo colore fisso del logo originale */
+.wordmark-original .y {
+  color: var(--accent); /* COLORE FISSO 2 */
   /* NESSUN font-weight override (eredita 700) */
   /* NESSUN font-style italic */
   /* NESSUN font-size override */
 }
+
+/* Utility per embed inline in contesti tipografici diversi (mono/Inter) */
+.wm-inline {
+  font-family: 'Exo 2', sans-serif;
+  font-weight: 700;
+  letter-spacing: normal;
+  text-transform: lowercase;
+  color: var(--brand-blue);
+}
+.wm-inline .y {
+  color: var(--accent);
+}
 ```
 
-## HTML pattern canonico (L25)
+## HTML pattern canonico (L27)
 
 ```html
-<span class="wordmark">heures<span class="y">y</span>s</span>
+<span class="wordmark-original">heures<span class="y">y</span>s</span>
 ```
 
-**Nota L25**: la `h` è sempre minuscola. Niente capitalizzazione (mai `Heuresys`).
+oppure utility per body inline embed:
+
+```html
+<span class="wm-inline">heures<span class="y">y</span>s</span>
+```
+
+**Nota L27**: la `h` è sempre minuscola. Niente capitalizzazione (mai `Heuresys`).
+
+## Eccezione plain text (L27): indirizzi, link, domini
+
+Le ricorrenze "heuresys" che fanno parte di **indirizzi · link · domini** restano **plain text lowercase**, NON embed. Casi tipici:
+
+| Caso                        | Esempio                                       | Resa                                      |
+| --------------------------- | --------------------------------------------- | ----------------------------------------- |
+| Link a dominio              | `← heuresys.com` (top-back link)              | plain                                     |
+| Sotto-dominio               | `rtl-bank.heuresys.com` (tenant-meta)         | plain                                     |
+| Copyright dominio           | `© 2026 heuresys.com — ...` (footer)          | plain                                     |
+| FQDN production             | `evo.heuresys.com` · `www.heuresys.com`       | plain                                     |
+| Email aziendale             | `info@heuresys.com`                           | plain                                     |
+| localStorage / programmatic | `localStorage.setItem('heuresys-theme', ...)` | plain (lowercase)                         |
+| `<title>` HTML              | `<title>Accedi — heuresys</title>`            | plain (lowercase, tag accetta solo plain) |
+
+In tutti gli altri contesti (header label, footer attribution, modal title, paragraph reference, button copy, navigation item) → **embed obbligatorio**.
 
 ## SVG pattern (per logo file SVG · L25)
 
@@ -123,13 +171,14 @@ Alcune direction hanno constraint tipografici o concept signature che giustifica
 
 ## Storia delle decisioni
 
-| Data       | Cambiamento                                                                                                                              | Reference         |
-| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ----------------- |
-| 2026-05-04 | Logo legacy www.heuresys.com Exo 2 + "y" purple — dichiarato definitivo                                                                  | DECISIONS-LOG L6  |
-| 2026-05-05 | L6 sciolta — esplorazione libera logo                                                                                                    | DECISIONS-LOG L11 |
-| 2026-05-05 | Logo y-accent standard definito                                                                                                          | DECISIONS-LOG L16 |
-| 2026-05-05 | NO italic per sans-serif (descender invade adjacent s)                                                                                   | DECISIONS-LOG L18 |
-| 2026-05-05 | **L25 PERMANENT**: h lowercase · tutte lettere identiche peso/size/style · solo color diverso · embed ovunque (no plain text "heuresys") | DECISIONS-LOG L25 |
+| Data       | Cambiamento                                                                                                                                         | Reference         |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------- |
+| 2026-05-04 | Logo legacy www.heuresys.com Exo 2 + "y" purple — dichiarato definitivo                                                                             | DECISIONS-LOG L6  |
+| 2026-05-05 | L6 sciolta — esplorazione libera logo                                                                                                               | DECISIONS-LOG L11 |
+| 2026-05-05 | Logo y-accent standard definito                                                                                                                     | DECISIONS-LOG L16 |
+| 2026-05-05 | NO italic per sans-serif (descender invade adjacent s)                                                                                              | DECISIONS-LOG L18 |
+| 2026-05-05 | **L25 PERMANENT**: h lowercase · tutte lettere identiche peso/size/style · solo color diverso · embed ovunque (no plain text "heuresys")            | DECISIONS-LOG L25 |
+| 2026-05-06 | **L27 — "logo originale"**: nome canonical · due colori fissi (body `--brand-blue` + y `--accent`) · ECCEZIONE plain text per indirizzi/link/domini | DECISIONS-LOG L27 |
 
 ## Vedi anche
 

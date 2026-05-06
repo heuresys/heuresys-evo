@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Accedi — Heuresys (Aurora)</title>
+<title>Accedi — heuresys (Aurora)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -116,9 +116,18 @@
   .top-back {
     font-family: 'JetBrains Mono', monospace; font-size: 11px;
     color: var(--ink-muted); text-decoration: none;
-    text-transform: uppercase; letter-spacing: 1.5px;
   }
   .top-back:hover { color: var(--ink); }
+
+  /* L25 + L27 wordmark inline utility (two-color legacy) */
+  .wm-inline {
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 700;
+    letter-spacing: normal;
+    text-transform: lowercase;
+    color: var(--brand-blue);
+  }
+  .wm-inline .y { color: var(--accent); }
   .theme-toggle {
     background: var(--glass-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
     border: 1px solid var(--glass-border); color: var(--ink);
@@ -162,25 +171,15 @@
     pointer-events: none;
   }
 
-  /* Wordmark hero — L25 + animated gradient text */
+  /* Wordmark hero — L25 + L27 (two-color legacy pattern) */
   .wordmark-hero {
     font-family: 'Exo 2', sans-serif;
     font-weight: 700; font-size: 60px;
     letter-spacing: -2.5px; line-height: 1;
     text-align: center; margin-bottom: 12px;
-    color: var(--ink);
+    color: var(--brand-blue);
   }
-  .wordmark-hero .y {
-    background: linear-gradient(135deg, #3b82f6, #a855f7, #3b82f6);
-    background-size: 200% 100%;
-    -webkit-background-clip: text; background-clip: text;
-    color: transparent;
-    animation: shimmer 4s ease-in-out infinite;
-  }
-  @keyframes shimmer {
-    0%, 100% { background-position: 0% 50%; }
-    50%      { background-position: 100% 50%; }
-  }
+  .wordmark-hero .y { color: var(--accent); }
   .auth-tagline { font-size: 14px; color: var(--ink-muted); text-align: center; margin-bottom: 28px; }
 
   /* Tenant context */
@@ -324,7 +323,7 @@
   .auth-footer .links a:hover { color: var(--accent); }
 
   @media (prefers-reduced-motion: reduce) {
-    .aurora::before, .aurora::after, .dots span, .wordmark-hero .y {
+    .aurora::before, .aurora::after, .dots span {
       animation: none !important;
     }
     body, .field-input, .btn, .top-back, .forgot-link, .auth-footer .links a, .tenant-switch, .theme-toggle, .tenant-context {
@@ -413,7 +412,7 @@
 </main>
 
 <footer class="auth-footer">
-  <div class="copy">© 2026 <span class="wordmark-foot">heures<span class="y">y</span>s</span>.com — Organizational Intelligence platform</div>
+  <div class="copy">© 2026 heuresys.com — Organizational Intelligence platform</div>
   <div class="links">
     <a href="#">Privacy</a><a href="#">Terms</a><a href="#">Security</a><a href="#">Status</a>
   </div>

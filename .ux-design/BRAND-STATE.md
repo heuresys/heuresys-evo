@@ -2,7 +2,7 @@
 
 > **Single Source of Truth** per stato corrente del workstream brand identity. Aggiorna questo file ogni volta che cambia phase, viene presa una decisione, o si producono asset significativi. Per la cronologia completa cronologica, vedi `DECISIONS-LOG.md`.
 >
-> **Last update**: 2026-05-05 (Phase 8 motion enriched · L25 logo PERMANENT · **L26 skill `studio` + namespace `/studio:*` per clone↔promote↔backup di route Next.js**)
+> **Last update**: 2026-05-06 (**L27 "logo originale"** canonical · 2 colori fissi · eccezione plain text per indirizzi/link/domini · Phase 10 surface 1/5 login con 4 variants)
 
 ## Current phase
 
@@ -24,22 +24,23 @@
 
 ## Decisioni stabilite
 
-| Decisione                                                                                                                           | Quando     | Riferimento                             |
-| ----------------------------------------------------------------------------------------------------------------------------------- | ---------- | --------------------------------------- |
-| Scope `.ux-design/` = B (docs + asset + JSON, no React sperimentale)                                                                | 2026-05-04 | DECISIONS-LOG L1                        |
-| Direzione: greenfield, guida progressiva, scelte a vista via Chrome                                                                 | 2026-05-04 | DECISIONS-LOG L2                        |
-| Riferimenti compass: Linear, Vercel, Stripe, Apple keynote, Awwwards                                                                | 2026-05-04 | DECISIONS-LOG L3                        |
-| Focus speciale: dashboard (Phase 9 = FOCUS MASSIMO)                                                                                 | 2026-05-04 | DECISIONS-LOG L4                        |
-| Voce: italiano + autorità/precisione/anti-buzzword                                                                                  | 2026-05-04 | `01-strategy/voice-and-tone.md`         |
-| Personas: 4 illustrative (Maria CHRO / Davide IT / Stefania LM / Andrea EM)                                                         | 2026-05-04 | `01-strategy/personas/`                 |
-| Audience: β Enterprise raccomandato, decisione finale pending                                                                       | 2026-05-04 | `01-strategy/audience-positioning.md`   |
-| Dashboard architecture: 4-elementi data-driven (header/footer/sidebar/content) + theme inheritance + nested senza header/footer     | 2026-05-04 | `01-strategy/dashboard-architecture.md` |
-| `.ux-design/` versionato cross-machine via git (Option A)                                                                           | 2026-05-04 | DECISIONS-LOG L5                        |
-| Scope vincolante: nessun import da `.ux-design/` in production code                                                                 | 2026-05-04 | `README.md`                             |
-| Light+dark dual mode in pari dignità per Set 2 direzioni                                                                            | 2026-05-05 | DECISIONS-LOG L8                        |
-| `99-samples/` library integrata + adozione pattern DESIGN.md a 9 sezioni canoniche                                                  | 2026-05-05 | DECISIONS-LOG L14                       |
-| Logo y-accent standard cross-direction (y in `var(--accent)`, weight gap moderato, italic, letter-spacing naturale)                 | 2026-05-05 | `02-aesthetic/logo-standard.md` · L16   |
-| **Logo wordmark PERMANENT (L25)**: `h` lowercase · tutte lettere identiche peso/size/style · solo `y` color diverso · embed ovunque | 2026-05-05 | `02-aesthetic/logo-standard.md` · L25   |
+| Decisione                                                                                                                                                            | Quando     | Riferimento                             |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- | --------------------------------------- |
+| Scope `.ux-design/` = B (docs + asset + JSON, no React sperimentale)                                                                                                 | 2026-05-04 | DECISIONS-LOG L1                        |
+| Direzione: greenfield, guida progressiva, scelte a vista via Chrome                                                                                                  | 2026-05-04 | DECISIONS-LOG L2                        |
+| Riferimenti compass: Linear, Vercel, Stripe, Apple keynote, Awwwards                                                                                                 | 2026-05-04 | DECISIONS-LOG L3                        |
+| Focus speciale: dashboard (Phase 9 = FOCUS MASSIMO)                                                                                                                  | 2026-05-04 | DECISIONS-LOG L4                        |
+| Voce: italiano + autorità/precisione/anti-buzzword                                                                                                                   | 2026-05-04 | `01-strategy/voice-and-tone.md`         |
+| Personas: 4 illustrative (Maria CHRO / Davide IT / Stefania LM / Andrea EM)                                                                                          | 2026-05-04 | `01-strategy/personas/`                 |
+| Audience: β Enterprise raccomandato, decisione finale pending                                                                                                        | 2026-05-04 | `01-strategy/audience-positioning.md`   |
+| Dashboard architecture: 4-elementi data-driven (header/footer/sidebar/content) + theme inheritance + nested senza header/footer                                      | 2026-05-04 | `01-strategy/dashboard-architecture.md` |
+| `.ux-design/` versionato cross-machine via git (Option A)                                                                                                            | 2026-05-04 | DECISIONS-LOG L5                        |
+| Scope vincolante: nessun import da `.ux-design/` in production code                                                                                                  | 2026-05-04 | `README.md`                             |
+| Light+dark dual mode in pari dignità per Set 2 direzioni                                                                                                             | 2026-05-05 | DECISIONS-LOG L8                        |
+| `99-samples/` library integrata + adozione pattern DESIGN.md a 9 sezioni canoniche                                                                                   | 2026-05-05 | DECISIONS-LOG L14                       |
+| Logo y-accent standard cross-direction (y in `var(--accent)`, weight gap moderato, italic, letter-spacing naturale)                                                  | 2026-05-05 | `02-aesthetic/logo-standard.md` · L16   |
+| **Logo wordmark PERMANENT (L25)**: `h` lowercase · tutte lettere identiche peso/size/style · solo `y` color diverso · embed ovunque                                  | 2026-05-05 | `02-aesthetic/logo-standard.md` · L25   |
+| **"Logo originale" canonical (L27)**: nome canonico · 2 colori fissi (body `var(--brand-blue)` + y `var(--accent)`) · ECCEZIONE plain text per indirizzi/link/domini | 2026-05-06 | `02-aesthetic/logo-standard.md` · L27   |
 
 ## Decisioni pending (blocking)
 

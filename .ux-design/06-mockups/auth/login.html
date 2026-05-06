@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Accedi — Heuresys</title>
+<title>Accedi — heuresys</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -109,10 +109,18 @@
     font-size: 11px;
     color: var(--ink-muted);
     text-decoration: none;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
   }
   .top-back:hover { color: var(--ink); }
+
+  /* L25 + L27 wordmark inline utility — embed in mono/inter contexts (two-color legacy) */
+  .wm-inline {
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 700;
+    letter-spacing: normal;
+    text-transform: lowercase;
+    color: var(--brand-blue);
+  }
+  .wm-inline .y { color: var(--accent); }
   .theme-toggle {
     background: transparent; border: 1px solid var(--rule-strong); color: var(--ink);
     padding: 6px 12px; font-family: 'JetBrains Mono', monospace; font-size: 11px;
@@ -144,14 +152,14 @@
     box-shadow: 0 8px 32px rgba(10, 13, 24, 0.06);
   }
 
-  /* Wordmark hero — L25 PERMANENT */
+  /* Wordmark hero — L25 + L27 (two-color legacy pattern) */
   .wordmark-hero {
     font-family: 'Exo 2', sans-serif;
     font-weight: 700;
     font-size: 56px;
     letter-spacing: -2.5px;
     line-height: 1;
-    color: var(--ink);
+    color: var(--brand-blue);
     text-align: center;
     margin-bottom: 12px;
     filter: drop-shadow(var(--glow-strong));
@@ -450,7 +458,7 @@
 </main>
 
 <footer class="auth-footer">
-  <div class="copy">© 2026 <span class="wordmark-foot">heures<span class="y">y</span>s</span>.com — Organizational Intelligence platform</div>
+  <div class="copy">© 2026 heuresys.com — Organizational Intelligence platform</div>
   <div class="links">
     <a href="#">Privacy</a>
     <a href="#">Terms</a>
