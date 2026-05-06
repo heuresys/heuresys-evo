@@ -38,3 +38,5 @@ esco_skill_relations
 employee_timeline
 critical_roles
 succession_candidates
+feedback_360
+merit_cycles

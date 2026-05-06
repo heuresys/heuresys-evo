@@ -176,8 +176,11 @@ model employees {
   employees                                                                                          employees?                            @relation("employeesToemployees", fields: [manager_id], references: [id], onUpdate: NoAction, map: "fk_employees_manager")
   other_employees                                                                                    employees[]                           @relation("employeesToemployees")
   org_units_employees_org_unit_idToorg_units                                                         org_units?                            @relation("employees_org_unit_idToorg_units", fields: [org_unit_id], references: [id], onUpdate: NoAction, map: "fk_employees_org_unit")
+  feedback_360_feedback_360_reviewer_employee_idToemployees                                          feedback_360[]                        @relation("feedback_360_reviewer_employee_idToemployees")
+  feedback_360_feedback_360_target_employee_idToemployees                                            feedback_360[]                        @relation("feedback_360_target_employee_idToemployees")
   goals_goals_employee_idToemployees                                                                 goals[]                               @relation("goals_employee_idToemployees")
   goals_goals_owner_idToemployees                                                                    goals[]                               @relation("goals_owner_idToemployees")
+  merit_cycles                                                                                       merit_cycles[]
   org_units_org_units_manager_idToemployees                                                          org_units[]                           @relation("org_units_manager_idToemployees")
   performance_reviews_performance_reviews_employee_idToemployees                                     performance_reviews[]                 @relation("performance_reviews_employee_idToemployees")
   performance_reviews_performance_reviews_reviewer_idToemployees                                     performance_reviews[]                 @relation("performance_reviews_reviewer_idToemployees")
@@ -326,8 +329,10 @@ model tenants {
   employee_skills                     employee_skills[]
   employee_timeline                   employee_timeline[]
   employees                           employees[]
+  feedback_360                        feedback_360[]
   goals                               goals[]
   locations                           locations[]
+  merit_cycles                        merit_cycles[]
   org_units                           org_units[]
   performance_reviews                 performance_reviews[]
   workforce_plan_actions              workforce_plan_actions[]
@@ -569,6 +574,7 @@ model performance_reviews {
   goals_auto_populated                                   Boolean?                      @default(false)
   goals_count                                            Int?                          @default(0)
   competencies_count                                     Int?                          @default(0)
+  feedback_360                                           feedback_360[]
   employees_performance_reviews_employee_idToemployees   employees?                    @relation("performance_reviews_employee_idToemployees", fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_performance_reviews_employee")
   employees_performance_reviews_reviewer_idToemployees   employees?                    @relation("performance_reviews_reviewer_idToemployees", fields: [reviewer_id], references: [id], onUpdate: NoAction, map: "fk_performance_reviews_reviewer")
   employees_performance_reviews_calibrated_byToemployees employees?                    @relation("performance_reviews_calibrated_byToemployees", fields: [calibrated_by], references: [id], onUpdate: NoAction)
@@ -1372,6 +1378,45 @@ model succession_candidates {
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model feedback_360 {
+  id                                                                String                       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id                                                         String                       @db.Uuid
+  target_employee_id                                                String?                      @db.Uuid
+  reviewer_employee_id                                              String?                      @db.Uuid
+  review_cycle_id                                                   String?                      @db.Uuid
+  relationship_type                                                 String?                      @db.VarChar(50)
+  overall_rating                                                    Decimal?                     @db.Decimal(3, 2)
+  strengths                                                         String?
+  areas_for_improvement                                             String?
+  is_anonymous                                                      Boolean?                     @default(true)
+  status                                                            String?                      @default("pending") @db.VarChar(50)
+  created_at                                                        DateTime?                    @default(now()) @db.Timestamp(6)
+  completed_at                                                      DateTime?                    @db.Timestamp(6)
+  content_embedding                                                 Unsupported("vector")?
+  embedding_text_hash                                               String?                      @db.VarChar(64)
+  embedding_model                                                   String?                      @db.VarChar(100)
+  embedding_generated_at                                            DateTime?                    @db.Timestamptz(6)
+  questionnaire_id                                                  String?                      @db.Uuid
+  performance_review_id                                             String?                      @db.Uuid
+  request_id                                                        String?                      @db.Uuid
+  question_responses                                                Json?
+  sentiment_score                                                   Decimal?                     @db.Decimal(3, 2)
+  submission_time_seconds                                           Int?
+  performance_reviews                                               performance_reviews?         @relation(fields: [performance_review_id], references: [id], onUpdate: NoAction)
+  tenants                                                           tenants                      @relation(fields: [tenant_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  employees_feedback_360_reviewer_employee_idToemployees            employees?                   @relation("feedback_360_reviewer_employee_idToemployees", fields: [reviewer_employee_id], references: [id], onUpdate: NoAction, map: "fk_feedback_360_reviewer")
+  employees_feedback_360_target_employee_idToemployees              employees?                   @relation("feedback_360_target_employee_idToemployees", fields: [target_employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_feedback_360_target")
+
+  @@index([review_cycle_id], map: "idx_feedback_360_cycle")
+  @@index([content_embedding], map: "idx_feedback_360_embedding")
+  @@index([questionnaire_id], map: "idx_feedback_360_questionnaire_id")
+  @@index([request_id], map: "idx_feedback_360_request_id")
+  @@index([performance_review_id], map: "idx_feedback_360_review")
+  @@index([reviewer_employee_id], map: "idx_feedback_360_reviewer")
+  @@index([status], map: "idx_feedback_360_status")
+  @@index([target_employee_id], map: "idx_feedback_360_target")
+  @@index([tenant_id], map: "idx_feedback_360_tenant")
+}
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -1613,6 +1658,31 @@ model succession_candidates {
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model merit_cycles {
+  id                     String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id              String     @db.Uuid
+  name                   String     @db.VarChar(200)
+  description            String?
+  effective_date         DateTime   @db.Date
+  submission_deadline    DateTime?  @db.Date
+  approval_deadline      DateTime?  @db.Date
+  total_budget           Decimal?   @db.Decimal(15, 2)
+  budget_spent           Decimal?   @default(0) @db.Decimal(15, 2)
+  min_increase_percent   Decimal?   @default(0) @db.Decimal(5, 2)
+  max_increase_percent   Decimal?   @default(20) @db.Decimal(5, 2)
+  guideline_matrix       Json?
+  status                 String?    @default("draft") @db.VarChar(30)
+  created_by             String?    @db.Uuid
+  created_at             DateTime?  @default(now()) @db.Timestamp(6)
+  updated_at             DateTime?  @default(now()) @db.Timestamp(6)
+  created_by_employee_id String?    @db.Uuid
+  employees              employees? @relation(fields: [created_by_employee_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "merit_cycles_created_by_fkey_emp")
+  tenants                tenants    @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([created_by_employee_id], map: "idx_merit_cycles_created_by_employee_id")
+  @@index([status], map: "idx_merit_cycles_status")
+  @@index([tenant_id], map: "idx_merit_cycles_tenant")
+}
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 

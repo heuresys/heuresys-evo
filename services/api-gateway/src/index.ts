@@ -30,6 +30,8 @@ import { skillsRouter } from './routes/skills.js';
 import { skillAssessmentsRouter } from './routes/skill-assessments.js';
 import { talentIntelligenceRouter } from './routes/talent-intelligence.js';
 import { successionRouter } from './routes/succession.js';
+import { reviews360Router } from './routes/reviews-360.js';
+import { meritCyclesRouter } from './routes/merit-cycles.js';
 import { setRBPCache, RBPCacheService } from './services/rbp-cache.js';
 import { prisma } from './db/pool.js';
 import './types.js';
@@ -94,6 +96,8 @@ app.use('/skills', skillsRouter);
 app.use('/skill-assessments', skillAssessmentsRouter);
 app.use('/talent', talentIntelligenceRouter);
 app.use('/succession', successionRouter);
+app.use('/reviews-360', reviews360Router);
+app.use('/merit-cycles', meritCyclesRouter);
 
 // 404 catch-all (must be before errorHandler).
 app.use((_req, res) => {
