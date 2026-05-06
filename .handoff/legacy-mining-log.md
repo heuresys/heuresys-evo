@@ -325,6 +325,43 @@
 
 (vuoto · da popolare durante mining)
 
+## Pack 2 · /nace · ported (2026-05-06 14:58 GMT+2)
+
+**Source**: `D:\enzospenuso\Documents\GitHub\heuresys.com.evo\services\api-gateway\src\routes\nace.ts` (182 LOC).
+
+**Adapted**:
+
+- 5 handler portati: `GET /nace/sections` · `/nace/divisions?section=` · `/nace/groups?division=` · `/nace/size-classes` · `/nace/hierarchy`
+- Pattern target evo: `Router` + `requireAuth` + `resolveTenant` + `withTenant(tenantId, async tx => tx.$queryRawUnsafe(...))` (replica `/esco`)
+- RBP gating: `ESCO_KG.view` con fallback `EMPLOYEES.view` (stesso pattern `/esco`)
+- Zod inline schema `DivisionsQuery` / `GroupsQuery` per filtri opzionali
+- Cross-tenant data (industry classifications condivise · stessa logica ESCO occupations)
+
+**Skip dichiarati**:
+
+- `cached()` helper TTL 3600s — deferred (stesso skip Pack 1c · ROI scarso senza load testing)
+- `validate()` middleware legacy — sostituito con zod inline parse (stile evo)
+- `asyncHandler` wrapper — non necessario in evo (try/catch + next idiom)
+
+**Tabelle backing** (cross-tenant reference):
+
+- `industry_classifications` (level 1 sections · level 2 divisions · level 3 groups · NACE hierarchy unificata)
+- `company_sizes` (MICRO/SMALL/MEDIUM/LARGE brackets)
+
+**Allowlist Prisma esteso**: `industry_classifications` + `company_sizes` (16 → 18 model).
+
+**Test**: 13/13 verde (`nace.test.ts` · 5 describe block · happy path + 401 + 403 + filter args verification + SQL pattern check).
+
+**Suite api-gateway**: 218/218 verde (era 205 post Pack 1).
+
+**Typecheck workspace**: 5/5 clean.
+
+**Removability**: `no-impact` (router isolato + 1 mount line `index.ts` + 2 model allowlist removable senza side-effect).
+
+**Stage**: `Test Stage` (registry CSV row 44 · entry 42-44 con allowlist entries).
+
+**Effort reale**: ~25 minuti (within preventivo plan ~30 min).
+
 ## Cascade dependencies (skip che forzano altri skip)
 
 > Append-only. Format: `endpoint A skip → endpoint B impacted (motivo)`.

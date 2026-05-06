@@ -25,6 +25,7 @@ import { tenantsRouter } from './routes/tenants.js';
 import { usersRouter } from './routes/users.js';
 import { orgUnitsRouter } from './routes/org-units.js';
 import { workforcePlanningRouter } from './routes/workforce-planning.js';
+import { naceRouter } from './routes/nace.js';
 import { setRBPCache, RBPCacheService } from './services/rbp-cache.js';
 import { prisma } from './db/pool.js';
 import './types.js';
@@ -84,6 +85,7 @@ app.use('/tenants', tenantsRouter);
 app.use('/users', usersRouter);
 app.use('/org-units', orgUnitsRouter);
 app.use('/workforce-planning', workforcePlanningRouter);
+app.use('/nace', naceRouter);
 
 // 404 catch-all (must be before errorHandler).
 app.use((_req, res) => {

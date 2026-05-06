@@ -26,3 +26,5 @@ locations
 goals
 performance_reviews
 cost_centers
+industry_classifications
+company_sizes
