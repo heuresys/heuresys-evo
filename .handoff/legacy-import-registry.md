@@ -118,6 +118,10 @@ Se Enzo decide di rejecting un entry:
 6. **Update CSV stage = `Rejected` + note in `adapt_notes`**
 7. **Commit con message** `revert(import): estirpa <name> Stage Rejected · <commit_sha originale>`
 
+## Future considerations (deferred)
+
+- **Migrazione registry CSV → tabelle DBMS** (proposta 2026-05-06): quando il volume supera ~200 entry o emergono relazioni many-to-many complesse (probabile dopo Pack 3-4), introdurre tabelle dedicate via migration Prisma additiva (es. `legacy_imports` + `legacy_import_relations` + `legacy_import_stage_history` per audit trail transizioni). Mantenere CSV come export periodico per cross-machine review offline. Effort stima: ~30 min schema + ~1h seed retroattivo da CSV.
+
 ## Riferimenti
 
 - **Memoria globale regola** (cross-progetto): `~/.claude/projects/D--evo-heuresys-com/memory/feedback_legacy_import_registry.md`
