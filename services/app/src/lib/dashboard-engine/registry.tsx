@@ -10,11 +10,10 @@ import { resolveAdapter } from './adapters';
  * via next/dynamic for code-splitting per route.
  *
  * Phase 14.A V2 contract: every entry receives `{data?: unknown}` prop.
- *   - Live entries (e.g. KpiRing) apply the adapter to `data` and render real
- *     props on the underlying component; fall back to demo fixture when data
- *     is null or adapter returns null.
- *   - Demo entries (Sprint 1 follow-ups) ignore `data` and render hardcoded
- *     fixtures (backward compat — gradual migration).
+ * Each wrapper applies the matching adapter; when `data` is null or the
+ * adapter rejects the shape, the wrapper falls back to a hardcoded demo
+ * fixture so dashboards remain renderable while data sources are progressively
+ * seeded.
  */
 
 type WidgetComponent = ComponentType<{ data?: unknown }>;
@@ -29,118 +28,127 @@ const Loading = () => (
   </div>
 );
 
-function lazyWidget(
-  loader: () => Promise<{ default: WidgetComponent } | { [k: string]: WidgetComponent }>,
-  exportName?: string
+function lazyWidget(loader: () => Promise<{ default: WidgetComponent }>) {
+  return dynamic<{ data?: unknown }>(loader, { loading: Loading, ssr: false });
+}
+
+/**
+ * Build a Live+Demo-fallback wrapper for a widget code.
+ * `widgetCode` selects the adapter from ADAPTER_REGISTRY.
+ * `demoProps` is the static fixture used when data is null/invalid.
+ * `render(props)` is the JSX projection — typically `<m.Component {...props}/>`.
+ */
+function liveWrapper<P extends object>(
+  widgetCode: string,
+  demoProps: P,
+  render: (props: P) => React.ReactNode
 ) {
-  return dynamic<{ data?: unknown }>(
-    async () => {
-      const mod = await loader();
-      const cmp = exportName
-        ? ((mod as Record<string, WidgetComponent>)[exportName] as WidgetComponent)
-        : ((mod as { default: WidgetComponent }).default ??
-          Object.values(mod as Record<string, WidgetComponent>)[0]);
-      return { default: cmp };
-    },
-    { loading: Loading, ssr: false }
-  );
+  return ({ data }: { data?: unknown }) => {
+    const adapter = resolveAdapter(widgetCode);
+    const live = adapter && data != null ? adapter(data) : null;
+    const props = (live ?? demoProps) as P;
+    return <>{render(props)}</>;
+  };
 }
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-// Phase 14.A — KpiRing is the first Live widget. Adapter maps fetched data to
-// component props; falls back to a demo fixture when data is null/invalid.
-const KPI_RING_DEMO_PROPS = {
-  value: 72,
-  label: 'Capability',
-  sublabel: 'company-wide · Q4',
-  unit: '%',
-  thresholds: { goodAt: 80, warnAt: 60 },
-  trend: 4.2,
-};
-
-const KpiRingDemo: WidgetComponent = lazyWidget(() =>
+const KpiRingWidget: WidgetComponent = lazyWidget(() =>
   import('@heuresys/ui').then((m: any) => ({
-    default: ({ data }: { data?: unknown }) => {
-      const adapter = resolveAdapter('KpiRing');
-      const live = adapter && data != null ? adapter(data) : null;
-      const props = live ?? KPI_RING_DEMO_PROPS;
-      return <m.KpiRing {...props} />;
-    },
-  }))
-);
-
-const IntegrationHealthPillDemo: WidgetComponent = lazyWidget(() =>
-  import('@heuresys/ui').then((m: any) => ({
-    default: () => (
-      <div className="flex flex-wrap items-center gap-2">
-        <m.IntegrationHealthPill tone="ok" />
-        <m.IntegrationHealthPill tone="warn" pulse />
-        <m.IntegrationHealthPill tone="info" label="SYNC" />
-      </div>
+    default: liveWrapper(
+      'KpiRing',
+      {
+        value: 72,
+        label: 'Capability',
+        sublabel: 'company-wide · Q4',
+        unit: '%',
+        thresholds: { goodAt: 80, warnAt: 60 },
+        trend: 4.2,
+      },
+      (props) => <m.KpiRing {...props} />
     ),
   }))
 );
 
-const SuccessionCardDemo: WidgetComponent = lazyWidget(() =>
+const IntegrationHealthPillWidget: WidgetComponent = lazyWidget(() =>
   import('@heuresys/ui').then((m: any) => ({
-    default: () => (
-      <m.SuccessionCard
-        candidateName="Stefania Bianchi"
-        currentRole="Head Credit Risk"
-        targetRole="Director Risk & Analytics"
-        readinessPercent={88}
-        readiness="ready-now"
-        risk="low"
-        readyBy="2026 Q3"
-      />
+    default: liveWrapper(
+      'IntegrationHealthPill',
+      { tone: 'ok' as const, pulse: false, label: undefined as string | undefined },
+      (props) => (
+        <div className="flex flex-wrap items-center gap-2">
+          <m.IntegrationHealthPill {...props} />
+        </div>
+      )
     ),
   }))
 );
 
-const CareerArcDemo: WidgetComponent = lazyWidget(() =>
+const SuccessionCardWidget: WidgetComponent = lazyWidget(() =>
   import('@heuresys/ui').then((m: any) => ({
-    default: () => (
-      <m.CareerArc
-        currentIndex={2}
-        stages={[
+    default: liveWrapper(
+      'SuccessionCard',
+      {
+        candidateName: 'Stefania Bianchi',
+        currentRole: 'Head Credit Risk',
+        targetRole: 'Director Risk & Analytics',
+        readinessPercent: 88,
+        readiness: 'ready-now' as const,
+        risk: 'low' as const,
+        readyBy: '2026 Q3',
+      },
+      (props) => <m.SuccessionCard {...props} />
+    ),
+  }))
+);
+
+const CareerArcWidget: WidgetComponent = lazyWidget(() =>
+  import('@heuresys/ui').then((m: any) => ({
+    default: liveWrapper(
+      'CareerArc',
+      {
+        currentIndex: 2,
+        stages: [
           { id: '1', label: 'Junior', year: '2018' },
           { id: '2', label: 'Analyst', year: '2020' },
           { id: '3', label: 'Senior', year: '2023' },
           { id: '4', label: 'Lead', year: '2026 →' },
           { id: '5', label: 'Head', year: '2029+' },
-        ]}
-      />
+        ],
+      },
+      (props) => <m.CareerArc {...props} />
     ),
   }))
 );
 
-const KgMiniGraphDemo: WidgetComponent = lazyWidget(() =>
+const KgMiniGraphWidget: WidgetComponent = lazyWidget(() =>
   import('@heuresys/ui').then((m: any) => ({
-    default: () => (
-      <m.KgMiniGraph
-        nodes={[
+    default: liveWrapper(
+      'KgMiniGraph',
+      {
+        nodes: [
           { id: 'finance', label: 'Finance', group: 'domain' },
           { id: 'risk', label: 'Risk', group: 'domain' },
           { id: 'sql', label: 'SQL', group: 'tech' },
           { id: 'leadership', label: 'Leadership', group: 'soft' },
-        ]}
-        edges={[
+        ],
+        edges: [
           { id: 'e1', source: 'finance', target: 'risk' },
           { id: 'e2', source: 'risk', target: 'sql' },
           { id: 'e3', source: 'finance', target: 'leadership' },
-        ]}
-        legend={[
+        ],
+        legend: [
           { group: 'domain', label: 'Domain', color: '#3b82f6' },
           { group: 'tech', label: 'Tech', color: '#a855f7' },
           { group: 'soft', label: 'Soft', color: '#5fb87a' },
-        ]}
-      />
+        ],
+      },
+      (props) => <m.KgMiniGraph {...props} />
     ),
   }))
 );
 
-const SkillHeatmapDemo: WidgetComponent = lazyWidget(() =>
+const SkillHeatmapWidget: WidgetComponent = lazyWidget(() =>
   import('@heuresys/ui').then((m: any) => {
     const rows = [
       { id: 'fin', label: 'Finance' },
@@ -162,34 +170,38 @@ const SkillHeatmapDemo: WidgetComponent = lazyWidget(() =>
       }))
     );
     return {
-      default: () => (
-        <m.SkillHeatmap rows={rows} cols={cols} cells={cells} caption="Skill coverage" />
+      default: liveWrapper(
+        'SkillHeatmap',
+        { rows, cols, cells, caption: 'Skill coverage' },
+        (props) => <m.SkillHeatmap {...props} />
       ),
     };
   })
 );
 
-const CapabilityRadarDemo: WidgetComponent = lazyWidget(() =>
+const CapabilityRadarWidget: WidgetComponent = lazyWidget(() =>
   import('@heuresys/ui').then((m: any) => ({
-    default: () => (
-      <m.CapabilityRadar
-        axes={[
+    default: liveWrapper(
+      'CapabilityRadar',
+      {
+        axes: [
           { id: 'tech', label: 'Tech' },
           { id: 'fin', label: 'Finance' },
           { id: 'lead', label: 'Lead' },
           { id: 'comm', label: 'Comms' },
           { id: 'risk', label: 'Risk' },
-        ]}
-        series={[
+        ],
+        series: [
           { id: 'cur', label: 'Current', values: [82, 70, 35, 60, 75] },
           { id: 'tgt', label: 'Target', values: [75, 80, 70, 80, 85] },
-        ]}
-      />
+        ],
+      },
+      (props) => <m.CapabilityRadar {...props} />
     ),
   }))
 );
 
-const RbacMatrixDemo: WidgetComponent = lazyWidget(() =>
+const RbacMatrixWidget: WidgetComponent = lazyWidget(() =>
   import('@heuresys/ui').then((m: any) => {
     const roles = [
       { id: 'su', label: 'SUPERUSER', level: -1 },
@@ -202,40 +214,40 @@ const RbacMatrixDemo: WidgetComponent = lazyWidget(() =>
       { id: 'audit', label: 'Audit' },
       { id: 'rbp', label: 'RBP' },
     ];
-    const assignments = roles.flatMap((r) =>
+    type Lvl = 'none' | 'read' | 'write' | 'admin' | 'owner';
+    const assignments: { roleId: string; areaId: string; level: Lvl }[] = roles.flatMap((r) =>
       areas.map((a) => ({
         roleId: r.id,
         areaId: a.id,
-        level:
-          r.id === 'su'
-            ? 'owner'
-            : r.id === 'to'
+        level: (r.id === 'su'
+          ? 'owner'
+          : r.id === 'to'
+            ? 'admin'
+            : r.id === 'hrd' && a.id === 'employees'
               ? 'admin'
-              : r.id === 'hrd' && a.id === 'employees'
-                ? 'admin'
-                : r.id === 'emp' && a.id === 'employees'
-                  ? 'read'
-                  : 'none',
+              : r.id === 'emp' && a.id === 'employees'
+                ? 'read'
+                : 'none') as Lvl,
       }))
-    ) as { roleId: string; areaId: string; level: 'none' | 'read' | 'write' | 'admin' | 'owner' }[];
+    );
     return {
-      default: () => (
-        <m.RbacMatrix roles={roles} areas={areas} assignments={assignments} readonly />
-      ),
+      default: liveWrapper('RbacMatrix', { roles, areas, assignments, readonly: true }, (props) => (
+        <m.RbacMatrix {...props} />
+      )),
     };
   })
 );
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
 export const WIDGET_REGISTRY: Record<string, WidgetComponent> = {
-  KpiRing: KpiRingDemo, // Live (Phase 14.A) — uses adapter, demo fallback
-  IntegrationHealthPill: IntegrationHealthPillDemo, // Demo (TBD: Sprint 1.A.4)
-  SuccessionCard: SuccessionCardDemo, // Demo (TBD: Sprint 1.A.4)
-  CareerArc: CareerArcDemo, // Demo (TBD: Sprint 1.A.4)
-  KgMiniGraph: KgMiniGraphDemo, // Demo (TBD: Sprint 1.A.4)
-  SkillHeatmap: SkillHeatmapDemo, // Demo (TBD: Sprint 1.A.4)
-  CapabilityRadar: CapabilityRadarDemo, // Demo (TBD: Sprint 1.A.4)
-  RbacMatrix: RbacMatrixDemo, // Demo (TBD: Sprint 1.A.4)
+  KpiRing: KpiRingWidget,
+  IntegrationHealthPill: IntegrationHealthPillWidget,
+  SuccessionCard: SuccessionCardWidget,
+  CareerArc: CareerArcWidget,
+  KgMiniGraph: KgMiniGraphWidget,
+  SkillHeatmap: SkillHeatmapWidget,
+  CapabilityRadar: CapabilityRadarWidget,
+  RbacMatrix: RbacMatrixWidget,
 };
 
 export function resolveWidget(widget_code: string): WidgetComponent | null {
