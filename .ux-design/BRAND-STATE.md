@@ -20,7 +20,7 @@
 | 10 — Altre surface                | ⏳ Pending                  |
 | 11 — Theme variants JSON          | ⏳ Pending                  |
 | 12 — Brand book v0                | ⏳ Pending                  |
-| 13 — Promotion checklist          | ⏳ Pending                  |
+| 13 — Promotion checklist          | 🟡 In progress              | `08-promotion/promotion-candidates.md` registro mockup con rank + status (pending Enzo review)                                                                                        |
 
 ## Decisioni stabilite
 
