@@ -45,3 +45,12 @@ export const AuthLoginPlayful: Story = {
     height: H,
   },
 };
+
+export const AuthLoginPlayfulV2: Story = {
+  args: {
+    src: '06-mockups/auth/login-playful-v2.html',
+    title:
+      'Login (Playful v2) — no tenant · 8 small shapes solo brand-blue+accent · 4 asymmetric motion paths (drift-rotate · bounce-tilt · flutter · scale-pulse) · 6-11s duration',
+    height: H,
+  },
+};
