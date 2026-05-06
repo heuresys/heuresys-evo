@@ -631,6 +631,74 @@ I 14 endpoint Rejected condividono lo stesso DNA: thin route wrapper su heavy do
 
 **Pre-requisite riapertura Pack rejected** prima di Phase 13.A (per dashboard Tier 1 skills-heatmap + capability-graph): valuta `/skill-analytics` + `/skill-taxonomy` + `/ontology` riapertura focalizzata.
 
+## Pack 2 reopen partial — Phase 13.A prerequisite (2026-05-06 16:50 GMT+2)
+
+**Trigger**: l'utente ha richiesto risoluzione prerequisite Phase 13.A (atomic dashboard components). Pack 2.3 e Pack 2.6 erano stati Rejected come heavy service class skip — ma il plan menziona esplicitamente le dashboard Tier 1 `skills-heatmap` (servita da `/skill-analytics`) e `capability-graph` (servita da `/skill-taxonomy` + `/ontology`) che dipendono da questi endpoint.
+
+**Decisione**: scope minimo dashboard-driven. Porto subset essenziale evitando di importare le service classes complete (607 LOC + 1502 LOC). Inline SQL via `$queryRawUnsafe` con stesso pattern Pack 1-8.
+
+### Pack 2.3 reopen partial — /skill-analytics
+
+**Source**: `services/api-gateway/src/routes/skill-analytics.ts` (289 LOC) + `services/skill-analytics/skill-analytics.service.ts` (607 LOC).
+
+**Adapted**:
+
+- 4 handler portati (era 0 di 8): `GET /summary` · `GET /shortages` · `GET /dashboard` (composito) · `GET /skill/:id/coverage`
+- Pattern: thin SQL inline NO `SkillAnalyticsService` class — replica delle 2 query critiche `getSummaryStats` (6 sub-query SELECT) + `getCriticalShortages` (CTE `WITH required_skills/available_skills`) come helper functions
+- Helper `fetchSummary` + `fetchShortages` riusabili in `/dashboard` composito (Promise.all)
+- RBP: `EMPLOYEES.view` (HR domain)
+
+**Skip dichiarato** (4 endpoint legacy non portati):
+
+- `GET /heatmap` (CTE department × skill matrix)
+- `GET /trends` (lookback periods quarterly/monthly)
+- `GET /ksaba` (KSABA dimension distribution)
+- `GET /emerging` (AI extraction emerging skills)
+- `GET /org-units` + `GET /org-units/:id` (department-comparison detail)
+
+### Pack 2.6 reopen partial — /skill-taxonomy
+
+**Source**: `services/api-gateway/src/routes/skill-taxonomy.ts` (798 LOC) + 2 service classes (672 + 830 = 1502 LOC).
+
+**Adapted**:
+
+- 5 handler portati read-only (era 0 di 31): `GET /stats` · `GET /classifications` · `GET /skills/:id/classification` · `GET /clusters` · `GET /clusters/:id` (con skills + children)
+- Pattern: thin SQL inline NO `SkillClassificationService` né `SkillRelationshipService` classes
+- JOIN `skill_classifications + esco_skills + skill_clusters` per browse
+
+**Skip dichiarato** (26 endpoint legacy non portati):
+
+- Classification CRUD (upsert/validate/assign-to-cluster)
+- Cluster CRUD (create/update/delete)
+- Relations CRUD (prerequisites/complementary/substitution)
+- Adjacencies CRUD (career paths/co-occurrence)
+- Suggest-cluster (AI clustering)
+
+### Allowlist Prisma estesa
+
+47 → 52 model (+5):
+
+- `employee_skill_profiles` · `tenant_jobs` · `tenant_job_skills` (Pack 2.3 reopen)
+- `skill_classifications` · `skill_clusters` (Pack 2.6 reopen)
+
+### Test + verifica
+
+- 16/16 verde (`pack2-reopen.test.ts` · 7 test /skill-analytics + 9 test /skill-taxonomy)
+- Suite api-gateway: 446/446 verde (era 430 post Pack 8)
+- Typecheck workspace: 5/5 clean
+
+### Stage registry
+
+- /skill-analytics + /skill-taxonomy: degraded da `Rejected` → `Test Stage` (partial)
+- /ontology resta `Rejected` (BLOCK 11+ OpenAI deferred · vedi `/talent-intelligence` POST /ai stesso pattern)
+
+### Roadmap residua post-reopen
+
+Per Phase 13.A complete:
+
+- Pack 2.8 `/ontology` apertura quando OpenAI integration in api-gateway è wired (BLOCK 11+)
+- Tutti gli altri Pack 1-8 Rejected restano deferred fino a UI consumer specifico
+
 ## Cascade dependencies (skip che forzano altri skip)
 
 > Append-only. Format: `endpoint A skip → endpoint B impacted (motivo)`.

@@ -171,6 +171,8 @@ model employees {
   courses                                                                                            courses[]
   employee_attendance                                                                                employee_attendance[]
   employee_skill_assessments                                                                         employee_skill_assessments[]
+  employee_skill_profiles_employee_skill_profiles_employee_idToemployees                             employee_skill_profiles[]             @relation("employee_skill_profiles_employee_idToemployees")
+  employee_skill_profiles_employee_skill_profiles_verified_byToemployees                             employee_skill_profiles[]             @relation("employee_skill_profiles_verified_byToemployees")
   employee_skills_employee_skills_employee_idToemployees                                             employee_skills[]                     @relation("employee_skills_employee_idToemployees")
   employee_skills_employee_skills_verified_by_employee_idToemployees                                 employee_skills[]                     @relation("employee_skills_verified_by_employee_idToemployees")
   employee_time_off_requests_employee_time_off_requests_approver_idToemployees                       employee_time_off_requests[]          @relation("employee_time_off_requests_approver_idToemployees")
@@ -341,6 +343,7 @@ model tenants {
   courses                             courses[]
   critical_roles                      critical_roles[]
   employee_attendance                 employee_attendance[]
+  employee_skill_profiles             employee_skill_profiles[]
   employee_skills                     employee_skills[]
   employee_time_off_requests          employee_time_off_requests[]
   employee_timeline                   employee_timeline[]
@@ -357,6 +360,7 @@ model tenants {
   recruiting_candidates               recruiting_candidates[]
   recruiting_offers                   recruiting_offers[]
   requisitions                        requisitions[]
+  tenant_jobs                         tenant_jobs[]
   tenant_onboarding_profiles          tenant_onboarding_profiles[]
   workforce_plan_actions              workforce_plan_actions[]
   workforce_plan_scenarios            workforce_plan_scenarios[]
@@ -392,6 +396,7 @@ model users {
   totp_secret_encrypted                                             String?
   account                                                           account[]
   session                                                           session[]
+  skill_classifications                                             skill_classifications[]
   employees                                                         employees?                            @relation(fields: [employee_id], references: [id], onUpdate: NoAction, map: "fk_users_employee")
   workforce_plans_workforce_plans_created_byTousers                 workforce_plans[]                     @relation("workforce_plans_created_byTousers")
   workforce_plans_workforce_plans_updated_byTousers                 workforce_plans[]                     @relation("workforce_plans_updated_byTousers")
@@ -785,10 +790,12 @@ model esco_skills {
   description_en                                                                 String?
   description_it                                                                 String?
   alt_labels_it                                                                  String?
+  employee_skill_profiles                                                        employee_skill_profiles[]
   employee_skills                                                                employee_skills[]
   esco_occupation_skills                                                         esco_occupation_skills[]
   esco_skill_relations_esco_skill_relations_source_skill_idToesco_skills         esco_skill_relations[]         @relation("esco_skill_relations_source_skill_idToesco_skills")
   esco_skill_relations_esco_skill_relations_target_skill_idToesco_skills         esco_skill_relations[]         @relation("esco_skill_relations_target_skill_idToesco_skills")
+  skill_classifications                                                          skill_classifications?
 
   @@index([alt_labels], map: "idx_esco_skills_alt_labels", type: Gin)
   @@index([broader_uri], map: "idx_esco_skills_broader")
@@ -816,6 +823,7 @@ model employee_skill_assessments {
   certification_url   String?            @db.VarChar(255)
   created_at          DateTime?          @default(now()) @db.Timestamptz(6)
   updated_at          DateTime?          @default(now()) @db.Timestamptz(6)
+  tenant_job_skills   tenant_job_skills? @relation(fields: [tenant_job_skill_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   employees           employees          @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_esa_employee")
 
   @@index([assessment_date], map: "idx_emp_skills_date")
@@ -1477,6 +1485,118 @@ model tenant_onboarding_profiles {
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model platform_features {
+  id                     Int       @id @default(autoincrement())
+  feature_code           String    @db.VarChar(50)
+  feature_name           String    @db.VarChar(255)
+  category               String    @db.VarChar(100)
+  subcategory            String?   @db.VarChar(100)
+  description            String
+  business_value         String?
+  current_coverage_pct   Int?      @default(0)
+  implementation_status  String?   @default("not_started") @db.VarChar(50)
+  priority               String?   @default("medium") @db.VarChar(20)
+  estimated_effort_days  Int?
+  market_leaders         String[]
+  market_standard_score  Int?      @default(100)
+  requires_tables        String[]
+  requires_views         String[]
+  requires_api_endpoints String[]
+  requires_ui_components String[]
+  created_at             DateTime? @default(now()) @db.Timestamp(6)
+  updated_at             DateTime? @default(now()) @db.Timestamp(6)
+  implemented_at         DateTime? @db.Timestamp(6)
+  notes                  String?
+
+  @@index([category], map: "idx_features_category")
+  @@index([priority], map: "idx_features_priority")
+  @@index([implementation_status], map: "idx_features_status")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model platform_pages {
+  id                   String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  section_key          String                 @db.VarChar(50)
+  section_title        String                 @db.VarChar(100)
+  section_desc         String?
+  section_color        String?                @default("bg-gray-500/10 text-gray-600") @db.VarChar(60)
+  section_icon         String?                @default("Compass") @db.VarChar(30)
+  section_order        Int                    @default(0)
+  path                 String                 @unique @db.VarChar(200)
+  name                 String                 @db.VarChar(100)
+  description          String?
+  tags                 String[]               @default([])
+  status               String                 @default("active") @db.VarChar(20)
+  redirect_to          String?                @db.VarChar(200)
+  page_order           Int                    @default(0)
+  is_visible           Boolean                @default(true)
+  created_at           DateTime               @default(now()) @db.Timestamptz(6)
+  updated_at           DateTime               @default(now()) @db.Timestamptz(6)
+  section_title_it     String?                @db.VarChar(100)
+  section_title_en     String?                @db.VarChar(100)
+  section_desc_it      String?
+  section_desc_en      String?
+  name_it              String?                @db.VarChar(100)
+  name_en              String?                @db.VarChar(100)
+  description_it       String?
+  description_en       String?
+
+  @@index([section_key], map: "idx_platform_pages_section")
+  @@index([status], map: "idx_platform_pages_status")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model workspace_templates {
+  id             Int        @id @default(autoincrement())
+  code           String     @unique @db.VarChar(60)
+  name           String     @db.VarChar(150)
+  description    String?
+  target_role_id Int?
+  tenant_id      String?    @db.Uuid
+  layout_config  Json?      @default("{\"gap\": 16, \"columns\": 12, \"row_height\": 80}")
+  widget_config  Json       @default("[]")
+  icon           String?    @db.VarChar(50)
+  is_active      Boolean?   @default(true)
+  is_system      Boolean?   @default(true)
+  sort_order     Int?       @default(0)
+  created_at     DateTime?  @default(now()) @db.Timestamptz(6)
+  updated_at     DateTime?  @default(now()) @db.Timestamptz(6)
+  name_it        String?    @db.VarChar(150)
+  name_en        String?    @db.VarChar(150)
+  description_it String?
+  description_en String?
+  rbp_roles      rbp_roles? @relation(fields: [target_role_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  tenants        tenants?   @relation(fields: [tenant_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([target_role_id], map: "idx_workspace_templates_role")
+  @@index([tenant_id], map: "idx_workspace_templates_tenant")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model workspace_widgets {
+  id                Int             @id @default(autoincrement())
+  workspace_id      Int
+  widget_catalog_id Int
+  position_x        Int             @default(0)
+  position_y        Int             @default(0)
+  width             Int             @default(4)
+  height            Int             @default(3)
+  config_override   Json?           @default("{}")
+  title_override    String?         @db.VarChar(150)
+  is_visible        Boolean?        @default(true)
+  sort_order        Int?            @default(0)
+  created_at        DateTime?       @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime?       @default(now()) @db.Timestamptz(6)
+
+  @@index([workspace_id], map: "idx_workspace_widgets_workspace")
+  @@index([workspace_id], map: "idx_workspace_widgets_workspace_id")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -1767,6 +1887,50 @@ model tenant_onboarding_profiles {
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model employee_skill_profiles {
+  id                                                       String                     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id                                                String                     @db.Uuid
+  employee_id                                              String                     @db.Uuid
+  skill_id                                                 String                     @db.Uuid
+  knowledge_level                                          Int?                       @default(0) @db.SmallInt
+  skill_level                                              Int?                       @default(0) @db.SmallInt
+  ability_level                                            Int?                       @default(0) @db.SmallInt
+  behavior_level                                           Int?                       @default(0) @db.SmallInt
+  attitude_level                                           Int?                       @default(0) @db.SmallInt
+  composite_score                                          Decimal?                   @default(0.00) @db.Decimal(4, 2)
+  source                                                   skill_source_type          @default(self_declaration)
+  source_description                                       String?
+  acquired_date                                            DateTime?                  @db.Date
+  last_demonstrated                                        DateTime?                  @db.Date
+  evidence_type                                            String?                    @db.VarChar(50)
+  evidence_id                                              String?                    @db.Uuid
+  evidence_url                                             String?
+  evidence_notes                                           String?
+  verification_status                                      skill_verification_status? @default(pending)
+  verified_by                                              String?                    @db.Uuid
+  verified_at                                              DateTime?                  @db.Timestamptz(6)
+  verification_notes                                       String?
+  verification_expires_at                                  DateTime?                  @db.Date
+  confidence_score                                         Decimal?                   @default(0.500) @db.Decimal(4, 3)
+  is_primary                                               Boolean?                   @default(false)
+  is_target                                                Boolean?                   @default(false)
+  target_level                                             Int?                       @db.SmallInt
+  created_at                                               DateTime?                  @default(now()) @db.Timestamptz(6)
+  updated_at                                               DateTime?                  @default(now()) @db.Timestamptz(6)
+  employees_employee_skill_profiles_employee_idToemployees employees                  @relation("employee_skill_profiles_employee_idToemployees", fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  esco_skills                                              esco_skills                @relation(fields: [skill_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  tenants                                                  tenants                    @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  employees_employee_skill_profiles_verified_byToemployees employees?                 @relation("employee_skill_profiles_verified_byToemployees", fields: [verified_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([tenant_id, employee_id, skill_id], map: "unique_employee_skill")
+  @@index([verified_by], map: "idx_employee_skill_profiles_verified")
+  @@index([composite_score(sort: Desc)], map: "idx_esp_composite")
+  @@index([employee_id], map: "idx_esp_employee")
+  @@index([skill_id], map: "idx_esp_skill")
+  @@index([source], map: "idx_esp_source")
+  @@index([tenant_id, employee_id], map: "idx_esp_tenant_employee")
+  @@index([verification_status], map: "idx_esp_verification")
+}
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -2453,69 +2617,6 @@ model tenant_onboarding_profiles {
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model platform_features {
-  id                     Int       @id @default(autoincrement())
-  feature_code           String    @db.VarChar(50)
-  feature_name           String    @db.VarChar(255)
-  category               String    @db.VarChar(100)
-  subcategory            String?   @db.VarChar(100)
-  description            String
-  business_value         String?
-  current_coverage_pct   Int?      @default(0)
-  implementation_status  String?   @default("not_started") @db.VarChar(50)
-  priority               String?   @default("medium") @db.VarChar(20)
-  estimated_effort_days  Int?
-  market_leaders         String[]
-  market_standard_score  Int?      @default(100)
-  requires_tables        String[]
-  requires_views         String[]
-  requires_api_endpoints String[]
-  requires_ui_components String[]
-  created_at             DateTime? @default(now()) @db.Timestamp(6)
-  updated_at             DateTime? @default(now()) @db.Timestamp(6)
-  implemented_at         DateTime? @db.Timestamp(6)
-  notes                  String?
-
-  @@index([category], map: "idx_features_category")
-  @@index([priority], map: "idx_features_priority")
-  @@index([implementation_status], map: "idx_features_status")
-}
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model platform_pages {
-  id                   String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  section_key          String                 @db.VarChar(50)
-  section_title        String                 @db.VarChar(100)
-  section_desc         String?
-  section_color        String?                @default("bg-gray-500/10 text-gray-600") @db.VarChar(60)
-  section_icon         String?                @default("Compass") @db.VarChar(30)
-  section_order        Int                    @default(0)
-  path                 String                 @unique @db.VarChar(200)
-  name                 String                 @db.VarChar(100)
-  description          String?
-  tags                 String[]               @default([])
-  status               String                 @default("active") @db.VarChar(20)
-  redirect_to          String?                @db.VarChar(200)
-  page_order           Int                    @default(0)
-  is_visible           Boolean                @default(true)
-  created_at           DateTime               @default(now()) @db.Timestamptz(6)
-  updated_at           DateTime               @default(now()) @db.Timestamptz(6)
-  section_title_it     String?                @db.VarChar(100)
-  section_title_en     String?                @db.VarChar(100)
-  section_desc_it      String?
-  section_desc_en      String?
-  name_it              String?                @db.VarChar(100)
-  name_en              String?                @db.VarChar(100)
-  description_it       String?
-  description_en       String?
-
-  @@index([section_key], map: "idx_platform_pages_section")
-  @@index([status], map: "idx_platform_pages_status")
-}
-
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -2773,9 +2874,64 @@ model platform_pages {
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model skill_classifications {
+  id                          String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  esco_skill_id               String          @unique(map: "uq_skill_classifications_esco") @db.Uuid
+  primary_category            String          @db.VarChar(20)
+  primary_category_confidence Decimal?        @db.Decimal(3, 2)
+  cognitive_level             Int?
+  cognitive_level_label       String?         @db.VarChar(30)
+  social_dimension            String?         @db.VarChar(30)
+  transferability             String          @default("transferable") @db.VarChar(20)
+  transferability_score       Decimal?        @db.Decimal(3, 2)
+  skill_cluster_id            String?         @db.Uuid
+  classification_source       String?         @default("ai_assisted") @db.VarChar(50)
+  classified_by               String?         @db.Uuid
+  classified_at               DateTime?       @db.Timestamptz(6)
+  needs_review                Boolean?        @default(false)
+  review_notes                String?
+  created_at                  DateTime?       @default(now()) @db.Timestamptz(6)
+  updated_at                  DateTime?       @default(now()) @db.Timestamptz(6)
+  confidence_score            Decimal?        @default(0.0) @db.Decimal(5, 4)
+  users                       users?          @relation(fields: [classified_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  esco_skills                 esco_skills     @relation(fields: [esco_skill_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  skill_clusters              skill_clusters? @relation(fields: [skill_cluster_id], references: [id], onUpdate: NoAction)
+
+  @@index([primary_category], map: "idx_skill_class_category")
+  @@index([skill_cluster_id], map: "idx_skill_class_cluster")
+  @@index([cognitive_level], map: "idx_skill_class_cognitive")
+  @@index([social_dimension], map: "idx_skill_class_social")
+  @@index([classification_source], map: "idx_skill_class_source")
+  @@index([transferability], map: "idx_skill_class_transfer")
+  @@index([classified_by], map: "idx_skill_classifications_classified_by")
+}
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model skill_clusters {
+  id                    String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code                  String                  @unique @db.VarChar(50)
+  name_en               String                  @db.VarChar(200)
+  name_it               String?                 @db.VarChar(200)
+  description           String?
+  parent_cluster_id     String?                 @db.Uuid
+  cluster_level         Int?                    @default(1)
+  career_path_codes     String[]
+  industry_codes        String[]
+  is_active             Boolean?                @default(true)
+  sort_order            Int?                    @default(0)
+  created_at            DateTime?               @default(now()) @db.Timestamptz(6)
+  updated_at            DateTime?               @default(now()) @db.Timestamptz(6)
+  deleted_at            DateTime?               @db.Timestamptz(6)
+  skill_classifications skill_classifications[]
+  skill_clusters        skill_clusters?         @relation("skill_clustersToskill_clusters", fields: [parent_cluster_id], references: [id], onUpdate: NoAction)
+  other_skill_clusters  skill_clusters[]        @relation("skill_clustersToskill_clusters")
+
+  @@index([career_path_codes], map: "idx_skill_clusters_career", type: Gin)
+  @@index([industry_codes], map: "idx_skill_clusters_industry", type: Gin)
+  @@index([cluster_level], map: "idx_skill_clusters_level")
+  @@index([parent_cluster_id], map: "idx_skill_clusters_parent")
+}
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -2915,127 +3071,135 @@ model platform_pages {
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model tenant_job_skills {
+  id                         String                       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_job_id              String                       @db.Uuid
+  source_skill_id            String?                      @db.Uuid
+  skill_name_it              String                       @db.VarChar(255)
+  skill_name_en              String?                      @db.VarChar(255)
+  esco_skill_uri             String?                      @db.VarChar(255)
+  esco_skill_code            String?                      @db.VarChar(50)
+  required_level             Int?
+  is_required                Boolean?                     @default(true)
+  importance                 String?                      @db.VarChar(20)
+  skill_category             String?                      @db.VarChar(50)
+  is_custom                  Boolean?                     @default(false)
+  created_at                 DateTime?                    @default(now()) @db.Timestamptz(6)
+  employee_skill_assessments employee_skill_assessments[]
+  tenant_jobs                tenant_jobs                  @relation(fields: [tenant_job_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model workspace_templates {
-  id             Int        @id @default(autoincrement())
-  code           String     @unique @db.VarChar(60)
-  name           String     @db.VarChar(150)
-  description    String?
-  target_role_id Int?
-  tenant_id      String?    @db.Uuid
-  layout_config  Json?      @default("{\"gap\": 16, \"columns\": 12, \"row_height\": 80}")
-  widget_config  Json       @default("[]")
-  icon           String?    @db.VarChar(50)
-  is_active      Boolean?   @default(true)
-  is_system      Boolean?   @default(true)
-  sort_order     Int?       @default(0)
-  created_at     DateTime?  @default(now()) @db.Timestamptz(6)
-  updated_at     DateTime?  @default(now()) @db.Timestamptz(6)
-  name_it        String?    @db.VarChar(150)
-  name_en        String?    @db.VarChar(150)
-  description_it String?
-  description_en String?
-  rbp_roles      rbp_roles? @relation(fields: [target_role_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  tenants        tenants?   @relation(fields: [tenant_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([target_role_id], map: "idx_workspace_templates_role")
-  @@index([tenant_id], map: "idx_workspace_templates_tenant")
+  @@index([esco_skill_uri], map: "idx_tenant_skills_esco")
+  @@index([tenant_job_id], map: "idx_tenant_skills_job")
+  @@index([source_skill_id], map: "idx_tenant_skills_source")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model workspace_widgets {
-  id                Int             @id @default(autoincrement())
-  workspace_id      Int
-  widget_catalog_id Int
-  position_x        Int             @default(0)
-  position_y        Int             @default(0)
-  width             Int             @default(4)
-  height            Int             @default(3)
-  config_override   Json?           @default("{}")
-  title_override    String?         @db.VarChar(150)
-  is_visible        Boolean?        @default(true)
-  sort_order        Int?            @default(0)
-  created_at        DateTime?       @default(now()) @db.Timestamptz(6)
-  updated_at        DateTime?       @default(now()) @db.Timestamptz(6)
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 
-  @@index([workspace_id], map: "idx_workspace_widgets_workspace")
-  @@index([workspace_id], map: "idx_workspace_widgets_workspace_id")
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model tenant_jobs {
+  id                       String                     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id                String                     @db.Uuid
+  source_template_id       String?                    @db.Uuid
+  tenant_org_unit_id       String?                    @db.Uuid
+  job_code                 String                     @db.VarChar(20)
+  title_it                 String                     @db.VarChar(255)
+  title_en                 String?                    @db.VarChar(255)
+  description              String?
+  summary                  String?
+  org_level                Int?
+  is_management            Boolean?                   @default(false)
+  employment_type          String?                    @default("full_time") @db.VarChar(20)
+  esco_occupation_uri      String?                    @db.VarChar(255)
+  esco_occupation_code     String?                    @db.VarChar(20)
+  salary_band_code         String?                    @db.VarChar(20)
+  salary_min               Decimal?                   @db.Decimal(12, 2)
+  salary_max               Decimal?                   @db.Decimal(12, 2)
+  currency                 String?                    @default("EUR") @db.VarChar(3)
+  budgeted_positions       Int?                       @default(1)
+  filled_positions         Int?                       @default(0)
+  custom_fields            Json?
+  is_active                Boolean?                   @default(true)
+  created_at               DateTime?                  @default(now()) @db.Timestamptz(6)
+  updated_at               DateTime?                  @default(now()) @db.Timestamptz(6)
+  deleted_at               DateTime?                  @db.Timestamptz(6)
+  tenant_job_skills        tenant_job_skills[]
+  tenants                  tenants                    @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([tenant_id, job_code], map: "uq_job_code_per_tenant")
+  @@index([esco_occupation_code], map: "idx_tenant_jobs_esco")
+  @@index([org_level], map: "idx_tenant_jobs_level")
+  @@index([source_template_id], map: "idx_tenant_jobs_source")
+  @@index([tenant_id], map: "idx_tenant_jobs_tenant")
+  @@index([tenant_org_unit_id], map: "idx_tenant_jobs_unit")
 }
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 
 enum career_skill_importance {
   critical

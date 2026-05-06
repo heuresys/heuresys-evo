@@ -1,6 +1,6 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-06 (Phase 13.0 CHIUSA · 8/8 pack closed · 28/46 endpoint ported)
+> Updated: 2026-05-06 (Phase 13.0 CHIUSA · 8/8 pack closed · 28/46 endpoint ported · Pack 2.3+2.6 reopen partial per Phase 13.A prerequisite)
 
 ## ⚠️ DIRETTIVA OPERATIVA ATTIVA
 
@@ -8,16 +8,13 @@
 
 ## Last session brief
 
-Phase 13.0 (Legacy backend mining) **CHIUSA DEFINITIVAMENTE** in single session continuativa: 8/8 pack closed (Pack 1+2 → Pack 3-8) · 28/46 endpoint ported (61%) · 18/46 Rejected con motivazione documentata (39%) · 337 test cumulativi (era 80 baseline) · suite api-gateway 430/430 verde · allowlist Prisma 9 → 47 model (+38). 12 commit Phase 13.0 totali pushati a `origin/main` (`5ba982f → <last>`). Razionale skip pattern coerente cross-pack: thin route wrapper su heavy service class (607-2000+ LOC) o dipendenze esterne (PostgreSQL custom functions, pgvector embeddings, OpenAI API, O*NET data files) richiedono session dedicata. Roadmap riapertura tracciata in registry + mining log.
+Phase 13.0 (Legacy backend mining) **CHIUSA DEFINITIVAMENTE** + **Pack 2.3+2.6 REOPEN partial** per Phase 13.A prerequisite. Outcome cumulativo: 8/8 pack closed · 30/46 endpoint baseline ported (era 28) + 9 nuovi handler reopen (skill-analytics 4 + skill-taxonomy 5) · 16 nuovi Rejected → Test Stage · 446 test verdi (era 430) · allowlist Prisma 9 → 52 model (+43). Inline SQL pattern (no SkillAnalyticsService/SkillClassificationService classes legacy importate). Razionale reopen: dashboard Tier 1 `skills-heatmap` (richiede `/skill-analytics`) + `capability-graph` (richiede `/skill-taxonomy`) sono prerequisite per Phase 13.A atomic dashboard components.
 
 ## Top priorities (next session)
 
-1. **Phase 13.A — Atomic dashboard components** (~5-7 FTE-day): UI layer build con Cantiere B + brand identity nuova. Plan ref `~/.claude/plans/credo-che-se-tu-jazzy-key.md` § Phase 13.A. Cantiere B in `packages/ui` ~180 component pronti.
-2. **Pack riapertura focalizzata** (prerequisite Phase 13.A dashboard Tier 1):
-   - `/skill-analytics` quando `skills-heatmap` dashboard FE serve dati
-   - `/skill-taxonomy` quando `capability-graph` admin UI richiede classification CRUD
-   - `/ontology` BLOCK 11+ con OpenAI integration (necessario per AI advisor)
-3. **Pack 1-8 promotion** (~ad-hoc): smoke test live + acceptance Enzo per portare 28 entry da `Test Stage` → `PreOp Stage` → `Promoted`. Vedi [`legacy-import-registry.md`](legacy-import-registry.md) § Promotion checklist.
+1. **Phase 13.A — Atomic dashboard components** (~5-7 FTE-day): UI layer build con Cantiere B + brand identity nuova. Backend prerequisite RISOLTI per dashboard Tier 1 `skills-heatmap` e `capability-graph` (Pack 2.3+2.6 reopen partial). Plan ref `~/.claude/plans/credo-che-se-tu-jazzy-key.md` § Phase 13.A. Cantiere B in `packages/ui` ~180 component pronti.
+2. **`/ontology` reopen residuo** (BLOCK 11+): solo quando OpenAI integration in api-gateway è wired. Necessario per AI advisor + dashboard semantic search. Stage attuale: `Rejected` confermato.
+3. **Pack 1-8 promotion** (~ad-hoc): smoke test live + acceptance Enzo per portare 30 entry da `Test Stage` → `PreOp Stage` → `Promoted`. Vedi [`legacy-import-registry.md`](legacy-import-registry.md) § Promotion checklist.
 
 ## Open questions
 

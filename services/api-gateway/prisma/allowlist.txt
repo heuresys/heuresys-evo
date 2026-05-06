@@ -57,3 +57,8 @@ workspace_templates
 workspace_widgets
 platform_features
 platform_pages
+employee_skill_profiles
+tenant_jobs
+tenant_job_skills
+skill_classifications
+skill_clusters

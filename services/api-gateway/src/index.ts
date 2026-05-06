@@ -46,6 +46,8 @@ import { timeOffRouter } from './routes/time-off.js';
 import { tenantOnboardingRouter } from './routes/tenant-onboarding.js';
 import { workspaceRouter } from './routes/workspace.js';
 import { platformRouter } from './routes/platform.js';
+import { skillAnalyticsRouter } from './routes/skill-analytics.js';
+import { skillTaxonomyRouter } from './routes/skill-taxonomy.js';
 import { setRBPCache, RBPCacheService } from './services/rbp-cache.js';
 import { prisma } from './db/pool.js';
 import './types.js';
@@ -126,6 +128,8 @@ app.use('/time-off', timeOffRouter);
 app.use('/tenant-onboarding', tenantOnboardingRouter);
 app.use('/workspace', workspaceRouter);
 app.use('/platform', platformRouter);
+app.use('/skill-analytics', skillAnalyticsRouter);
+app.use('/skill-taxonomy', skillTaxonomyRouter);
 
 // 404 catch-all (must be before errorHandler).
 app.use((_req, res) => {
