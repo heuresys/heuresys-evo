@@ -1,6 +1,6 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-06 (Phase 13.A done · 8 atomic dashboard component shipped · TIER 17 barrel · 21 nuovi test · DECISIONS-LOG L29)
+> Updated: 2026-05-06 (Phase 13.B done · `dashboard_presets`+`dashboard_elements` shipped · 9 preset + 30 element seeded · RLS attiva · DECISIONS-LOG L30)
 
 ## ⚠️ DIRETTIVA OPERATIVA ATTIVA
 
@@ -8,7 +8,13 @@
 
 ## Last session brief
 
-**Phase 13.A — Atomic dashboard components CHIUSA** in modalità autonomous execution. Outcome: 8 atomic component pubblicati in `packages/ui/src/components/dashboard/` + 8 Storybook story file + 1 test file unico (21 test) + barrel `dashboard/index.ts` + TIER 17 nel main `packages/ui/src/index.ts`. Component family estratta dai 5 mockup Phase 9 (`hr-director-overview`, `capability-graph`, `skills-heatmap`, `employee-journey`, `org-systems`):
+**Phase 13.A + Phase 13.B chiuse** in modalità autonomous execution.
+
+**13.B outcome**: 2 nuove tabelle additive (`dashboard_presets` + `dashboard_elements`) + migration `db/migrations/0002_phase13_dashboard_engine.sql` (idempotente G14) + seed `db/seeds/phase13_dashboard_presets.sql` (9 preset + 30 element platform default · idempotente G15) + RLS policy `dashboard_elements_tenant_isolation` con FORCE (G16 strutturale + simulato OK · BYPASSRLS pattern evo). Schema.prisma esteso chirurgicamente con 2 model + relation back-references su `tenants` / `widget_catalog` / `rbp_perspectives`. Prisma client v5.22 rigenerato clean. Boundary `dashboard_presets` (Phase 13 templates platform-wide) vs `dashboards`/`dashboard_widgets` (user workspace runtime UUID-based, esistenti) chiarito.
+
+**Distribuzione preset seedati**: 3 TALENT (hr_director_overview, skills_heatmap, employee_journey) · 2 ENTERPRISE (capability_graph, org_systems · published) · 4 PROCESS (process_recruiting_funnel, process_onboarding_flow, process_performance_cycle, process_learning_paths · `is_published=false` pending Phase 13.D mockup HTML).
+
+**13.A recap**: 8 atomic component pubblicati in `packages/ui/src/components/dashboard/` + 8 Storybook story file + 1 test file unico (21 test) + barrel `dashboard/index.ts` + TIER 17 nel main `packages/ui/src/index.ts`. Component family estratta dai 5 mockup Phase 9 (`hr-director-overview`, `capability-graph`, `skills-heatmap`, `employee-journey`, `org-systems`):
 
 | Component                | Source mockup              | Pattern                                            |
 | ------------------------ | -------------------------- | -------------------------------------------------- |
@@ -21,12 +27,12 @@
 | `CapabilityRadar`        | employee-journey radar     | Pure SVG · n-axis · multi-series                   |
 | `RbacMatrix`             | org-systems RBAC 8×9       | Tabella sticky · 5 livelli (none→owner) cycle      |
 
-Phase 13.0 (8/8 pack mining + Pack 2.3+2.6 reopen) era già chiusa. Cumulativo Phase 13: 13.0 done · 13.A done · 13.B/C/D/E pending. Decisioni tecniche autonome documentate in DECISIONS-LOG L29.
+Phase 13.0 (8/8 pack mining + Pack 2.3+2.6 reopen) era già chiusa. Cumulativo Phase 13: 13.0 done · 13.A done · 13.B done · 13.C/D/E pending. Decisioni tecniche autonome documentate in DECISIONS-LOG L29 (13.A) + L30 (13.B).
 
 ## Top priorities (next session)
 
-1. **Phase 13.B — Schema extension + seed** (~4-5 FTE-day): aggiungere `dashboard_elements` + `dashboard_presets` model in `services/app/prisma/schema.prisma` + migration `phase13_dashboard_engine` + seed 5 esistenti + 4 PROCESS placeholder + RLS policy. Plan ref § Phase 13.B.
-2. **Phase 13.C — Engine renderer** (~8-10 FTE-day): `services/app/src/lib/dashboard-engine/` (loader + resolver RBP + registry + grid + data-fetcher) · route generica `(dashboard)/[code]/page.tsx`. Riuso atomic component TIER 17 + `app-shell` esistente. Backend già pronto (Phase 13.0).
+1. **Phase 13.C — Engine renderer** (~8-10 FTE-day): creare `services/app/src/lib/dashboard-engine/` (loader · resolver RBP · registry dynamic-import · grid CSS 12-col · data-fetcher) + route `(dashboard)/[code]/page.tsx` server component. Riuso atomic component TIER 17 + `app-shell` esistente. Backend e schema già pronti (Phase 13.0 + 13.B).
+2. **Phase 13.D — Process mockup + promotion** (~6-8 FTE-day): generare 4 mockup HTML PROCESS (`process-recruiting-funnel`, `process-onboarding-flow`, `process-performance-cycle`, `process-learning-paths`) + flip `is_published=true` su corrispondenti preset. Parallelizzabile con 13.C (no dipendenza).
 3. **Pack 1-8 promotion** (~ad-hoc): smoke test live + acceptance Enzo per portare 30 entry da `Test Stage` → `PreOp Stage` → `Promoted`. Vedi [`legacy-import-registry.md`](legacy-import-registry.md) § Promotion checklist.
 
 ## Open questions

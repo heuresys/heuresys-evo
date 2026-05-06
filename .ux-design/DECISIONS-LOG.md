@@ -740,6 +740,60 @@ Risposte alle 2 domande operative pre-formalizzazione:
 - Plan source: `C:\Users\enzospenuso\.claude\plans\credo-che-se-tu-jazzy-key.md` § Phase 13.A
 - BRAND-STATE.md § Current phase aggiornata a 13.A done
 
+---
+
+## L30 — 2026-05-06 — Phase 13.B — Dashboard engine schema + seed shipped (`dashboard_presets` + `dashboard_elements`)
+
+**Decisione**: Phase 13.B chiusa con 2 nuove tabelle additive (`dashboard_presets` + `dashboard_elements`) materializzate via migration raw SQL `db/migrations/0002_phase13_dashboard_engine.sql` + seed `db/seeds/phase13_dashboard_presets.sql`. Schema Prisma esteso chirurgicamente. RLS attiva su `dashboard_elements`.
+
+**Tabelle create**:
+
+| Tabella              | Scopo                                                                                        | RLS                                                                                             |
+| -------------------- | -------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `dashboard_presets`  | Registry mockup-derived templates (9 Tier 1) · platform-wide                                 | NO (lettura pubblica)                                                                           |
+| `dashboard_elements` | Binding (preset × widget × grid position × visibility) · `tenant_id NULL` = platform default | SI · FORCE · policy `tenant_id IS NULL OR tenant_id = current_setting('app.current_tenant_id')` |
+
+**Distribuzione preset seedati** (9 totali, 30 element binding):
+
+| Perspective | Count | Preset codes                                                                                                  | Published                              |
+| ----------- | ----- | ------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
+| TALENT      | 3     | `hr_director_overview`, `skills_heatmap`, `employee_journey`                                                  | TRUE                                   |
+| ENTERPRISE  | 2     | `capability_graph`, `org_systems`                                                                             | TRUE                                   |
+| PROCESS     | 4     | `process_recruiting_funnel`, `process_onboarding_flow`, `process_performance_cycle`, `process_learning_paths` | FALSE (Phase 13.D pending mockup HTML) |
+
+**Element binding**: ogni preset ha 3-5 widget binding referenziati per `widget_code` agli atomic component TIER 17 (KpiRing, IntegrationHealthPill, SuccessionCard, CareerArc, KgMiniGraph, SkillHeatmap, CapabilityRadar, RbacMatrix). `widget_catalog_id` lasciato NULL — i nostri atomic component non sono in `widget_catalog` (sono UI primitive Phase 13.A, non widget legacy).
+
+**Decisioni autonome documentate**:
+
+- **Schema additivo, non breaking**: `IF NOT EXISTS` ovunque · `ON CONFLICT DO NOTHING/UPDATE` per idempotenza. Migration G14 verificata re-runnable; seed G15 idempotente (9 preset + 30 element pre/post identici).
+- **Boundary chiarito**: `dashboard_presets` (NEW · template Phase 13) ≠ `dashboards` (esistente · user workspace UUID-based · 20 row) ≠ `rbp_dashboards` (esistente · role-default sistema · 11 row). Nessuna collisione di nomi né overlap funzionale.
+- **`dashboard_presets` platform-wide (no `tenant_id`)**: i 9 preset Tier 1 sono templates platform; il filtraggio per tenant avviene runtime via RBP perspective. Pattern coerente con `rbp_dashboards`.
+- **`dashboard_elements.tenant_id` nullable (P10 multi-level)**: NULL = platform default; non-NULL = tenant override. Partial unique indexes garantiscono no duplicate `(preset, position)` per platform e per tenant separatamente. Pattern P10 esplicito da CLAUDE.md.
+- **RLS isolation testata strutturalmente + funzionalmente simulata**: tutti i ruoli login DB evo hanno `BYPASSRLS=true` (pattern intenzionale evo · isolation reale via Prisma client extension applicativo, vedi `docs/20-architecture/rls-with-prisma-pattern.md`). Test funzionale ha richiesto simulation con WHERE clause = policy qual (verified: SMF query non vede RTL row con filtro corretto).
+- **`widget_code` come stable identifier**: ogni element punta sia a `widget_catalog_id` (FK opzionale) sia a `widget_code` VARCHAR (denormalizzato, stabile). Permette di binding sia a widget legacy esistenti (catalog) sia ad atomic component TIER 17 nuovi (solo widget_code).
+- **Migration applicata via `pg` client Node** (psql non installato Windows host) · script inline con DATABASE_URL da `.env`. Pattern riutilizzabile per future migration locali.
+- **Schema Prisma esteso chirurgicamente** invece di full `db pull`: il pull aveva introdotto inconsistency su modello pre-esistente non correlato (`ext_pb0002` `@ignore` mismatch). Edit chirurgico = 4 modifiche puntuali (3 relation back-reference + 2 new model in fondo prima degli enum).
+
+**Conseguenza**:
+
+- DB evo ha ora la materialization layer per la composizione runtime delle 9 dashboard Tier 1
+- Schema model presenti in Prisma client v5.22 rigenerato → typecheck 5/5 workspace clean
+- Phase 13.C (engine renderer) sbloccata: può leggere `dashboard_presets` + `dashboard_elements` via `prisma.dashboard_presets.findUnique({ where: { code }, include: { dashboard_elements: { orderBy: { position: 'asc' } } } })`
+- Phase 13.D promotion ridotta a UPDATE su `is_published=true` per i 4 PROCESS preset (placeholder già seedati)
+
+**File creati/modificati**:
+
+- `db/migrations/0002_phase13_dashboard_engine.sql` (NEW · 130 LOC)
+- `db/seeds/phase13_dashboard_presets.sql` (NEW · 175 LOC)
+- `services/app/prisma/schema.prisma` (MOD · +50 LOC, 2 nuovi model + 4 relation back-ref)
+- `services/app/prisma/generated/client/` (rigenerato)
+
+**Riferimenti**:
+
+- Plan source: `C:\Users\enzospenuso\.claude\plans\credo-che-se-tu-jazzy-key.md` § Phase 13.B
+- RLS pattern doc: `docs/20-architecture/rls-with-prisma-pattern.md`
+- BRAND-STATE.md § Current phase aggiornata a 13.B done
+
 ## Decisioni scartate (per riferimento)
 
 | Direzione                                                         | Motivo scarto                                                  | Reference                            |
