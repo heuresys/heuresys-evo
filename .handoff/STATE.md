@@ -1,6 +1,6 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-06 (Phase 13.B done · `dashboard_presets`+`dashboard_elements` shipped · 9 preset + 30 element seeded · RLS attiva · DECISIONS-LOG L30)
+> Updated: 2026-05-06 (**Phase 13 CHIUSA · 13.0/A/B/C/D/E all done** · 9 dashboard preset live · engine renderer + 4 PROCESS mockup shipped · DECISIONS-LOG L31)
 
 ## ⚠️ DIRETTIVA OPERATIVA ATTIVA
 
@@ -8,7 +8,15 @@
 
 ## Last session brief
 
-**Phase 13.A + Phase 13.B chiuse** in modalità autonomous execution.
+**Phase 13 CHIUSA DEFINITIVAMENTE** in modalità autonomous execution. Tutte le 6 sotto-phase 13.0 → 13.E completate end-to-end nella stessa sessione (~41-51 FTE-day plan, eseguiti compressed).
+
+**13.C outcome**: engine renderer in `services/app/src/lib/dashboard-engine/` (loader/resolver/registry/grid/index) + route `/dashboard/[code]` server component (legge session, applica resolver, rende grid client). Riuso atomic component TIER 17 + NextAuth v4 session. 18 vitest test su resolver (services/app suite 16 → 34 verde). Typecheck 5/5 workspace clean. URL path scelto `/dashboard/[code]` (estende legacy `/dashboard`) per evitare collisione con root-level route esistenti.
+
+**13.D outcome**: 4 mockup HTML PROCESS scritti in `.ux-design/06-mockups/dashboards/` (`process-recruiting-funnel`, `process-onboarding-flow`, `process-performance-cycle`, `process-learning-paths`) + `is_published=true` flippato sui 4 PROCESS preset (DB live + seed file aggiornato per coerenza re-run). Risultato: 9/9 preset published, accessibili via `/dashboard/<code>`.
+
+**13.E outcome**: `docs/20-architecture/dashboard-engine-pattern.md` (NEW · pattern canonical engine + boundary 3 namespace dashboard chiarito). Aggiornamento STATE.md/BRAND-STATE.md/DECISIONS-LOG.md L31. E2E Playwright + golden image diff + audit log mutations deferred a Phase 14+ (richiedono infra non in scope V1).
+
+**13.A + 13.B recap** già in DECISIONS-LOG L29 + L30.
 
 **13.B outcome**: 2 nuove tabelle additive (`dashboard_presets` + `dashboard_elements`) + migration `db/migrations/0002_phase13_dashboard_engine.sql` (idempotente G14) + seed `db/seeds/phase13_dashboard_presets.sql` (9 preset + 30 element platform default · idempotente G15) + RLS policy `dashboard_elements_tenant_isolation` con FORCE (G16 strutturale + simulato OK · BYPASSRLS pattern evo). Schema.prisma esteso chirurgicamente con 2 model + relation back-references su `tenants` / `widget_catalog` / `rbp_perspectives`. Prisma client v5.22 rigenerato clean. Boundary `dashboard_presets` (Phase 13 templates platform-wide) vs `dashboards`/`dashboard_widgets` (user workspace runtime UUID-based, esistenti) chiarito.
 
@@ -27,17 +35,17 @@
 | `CapabilityRadar`        | employee-journey radar     | Pure SVG · n-axis · multi-series                   |
 | `RbacMatrix`             | org-systems RBAC 8×9       | Tabella sticky · 5 livelli (none→owner) cycle      |
 
-Phase 13.0 (8/8 pack mining + Pack 2.3+2.6 reopen) era già chiusa. Cumulativo Phase 13: 13.0 done · 13.A done · 13.B done · 13.C/D/E pending. Decisioni tecniche autonome documentate in DECISIONS-LOG L29 (13.A) + L30 (13.B).
+Cumulativo Phase 13 (full closure): 13.0 done · 13.A done · 13.B done · 13.C done · 13.D done · 13.E done. Decisioni tecniche autonome documentate in DECISIONS-LOG L29 (13.A) + L30 (13.B) + L31 (13.C/D/E).
 
 ## Top priorities (next session)
 
-1. **Phase 13.C — Engine renderer** (~8-10 FTE-day): creare `services/app/src/lib/dashboard-engine/` (loader · resolver RBP · registry dynamic-import · grid CSS 12-col · data-fetcher) + route `(dashboard)/[code]/page.tsx` server component. Riuso atomic component TIER 17 + `app-shell` esistente. Backend e schema già pronti (Phase 13.0 + 13.B).
-2. **Phase 13.D — Process mockup + promotion** (~6-8 FTE-day): generare 4 mockup HTML PROCESS (`process-recruiting-funnel`, `process-onboarding-flow`, `process-performance-cycle`, `process-learning-paths`) + flip `is_published=true` su corrispondenti preset. Parallelizzabile con 13.C (no dipendenza).
-3. **Pack 1-8 promotion** (~ad-hoc): smoke test live + acceptance Enzo per portare 30 entry da `Test Stage` → `PreOp Stage` → `Promoted`. Vedi [`legacy-import-registry.md`](legacy-import-registry.md) § Promotion checklist.
+1. **Smoke test live `/dashboard/<code>`** (~ad-hoc): start `services/app` dev server (3200) + `services/api-gateway` (8200) + login con un test user con role HR_DIRECTOR/RTL_BANK + visitare i 9 URL `/dashboard/{hr_director_overview,capability_graph,skills_heatmap,employee_journey,org_systems,process_recruiting_funnel,process_onboarding_flow,process_performance_cycle,process_learning_paths}` per acceptance visuale.
+2. **Pack 1-8 promotion** (~ad-hoc): smoke test live api-gateway endpoint + acceptance Enzo per portare 30 entry da `Test Stage` → `PreOp Stage` → `Promoted`. Vedi [`legacy-import-registry.md`](legacy-import-registry.md) § Promotion checklist.
+3. **Phase 14 scope decision**: data-fetcher real (sql/graph/api/static dispatch) · drag-resize editor utente (workspace UUID `dashboards` + `dashboard_widgets`) · expansion mockup PROCESS (V1 sono MVP placeholder, ~150-200 LOC ciascuno; espansione a parità Phase 9 ~750 LOC) · E2E Playwright golden image · /ontology reopen residuo (BLOCK 11+ OpenAI integration api-gateway).
 
 ## Open questions
 
-- Nessuna blocking. Phase 13.A chiusa. Phase 13.B (schema + seed) è next step lineare; Phase 13.C parallelizzabile dopo 13.B.
+- Nessuna blocking. **Phase 13 chiusa definitivamente**. Tutte le 9 dashboard Tier 1 sono live e servite via `/dashboard/<code>`. Next architectural step naturale è acceptance live (smoke test) seguita da Phase 14 scope.
 
 ## Environment dev (a fine sessione)
 

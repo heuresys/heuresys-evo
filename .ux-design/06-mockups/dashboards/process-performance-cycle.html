@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Process · Performance Cycle · Heuresys</title>
+<!--
+  Phase 13.D PROCESS mockup #3 of 4 — performance-cycle
+  Persona: Line Manager · Scope: dept
+  Template base: μ-architect-legacy (D1) + layout v2 (L22) + L25/L27 logo standard
+  PROCESS perspective · MVP placeholder (Phase 14 expansion)
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0d18; --paper: #14182a; --surface-1: #14182a; --surface-2: #1c2138;
+  --ink: #f4f5f7; --ink-soft: #c8cad2; --ink-muted: #8b8e99; --rule: #232838;
+  --brand-blue: #3b82f6; --accent: #a855f7; --semantic-success: #5fb87a;
+  --semantic-warning: #f59e0b; --semantic-danger: #ff6b6b;
+  --gradient: linear-gradient(135deg, #3b82f6 0%, #a855f7 100%);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--ink); display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+.sidebar { background: var(--surface-1); border-right: 1px solid var(--rule); padding: 16px; overflow-y: auto; }
+.brand { padding: 8px 0 24px 0; border-bottom: 1px solid var(--rule); margin-bottom: 16px; }
+.wordmark-original { font-family: 'Exo 2', sans-serif; font-weight: 700; font-size: 22px; color: var(--brand-blue); letter-spacing: -0.02em; }
+.wordmark-original .y { color: var(--accent); }
+.brand .label { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--ink-muted); letter-spacing: 1.5px; text-transform: uppercase; margin-top: 2px; }
+.tenant-mini { background: var(--surface-2); border-radius: 6px; padding: 10px 12px; margin: 12px 0; }
+.tenant-mini .name { font-weight: 600; font-size: 13px; }
+.tenant-mini .meta { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-muted); margin-top: 2px; letter-spacing: 0.5px; }
+.sidebar h4 { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-muted); letter-spacing: 1.5px; text-transform: uppercase; margin: 16px 0 8px 0; cursor: pointer; }
+.sidebar-link { padding: 8px 10px; border-radius: 4px; font-size: 13px; color: var(--ink-soft); cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
+.sidebar-link:hover { background: var(--surface-2); color: var(--ink); }
+.sidebar-link.active { background: rgba(168,85,247,0.15); color: var(--accent); font-weight: 600; }
+.sidebar-link .num { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-muted); }
+.workspace { padding: 24px 32px; overflow-x: auto; }
+.ws-header { display: flex; justify-content: space-between; align-items: flex-end; padding-bottom: 16px; border-bottom: 1px solid var(--rule); margin-bottom: 24px; }
+.ws-title { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 22px; }
+.ws-meta { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-muted); letter-spacing: 1px; text-transform: uppercase; text-align: right; }
+.ws-meta strong { color: var(--accent); }
+.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+.kpi-card { background: var(--surface-1); border: 1px solid var(--rule); border-radius: 8px; padding: 16px; }
+.kpi-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--ink-muted); letter-spacing: 1.5px; text-transform: uppercase; }
+.kpi-num { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 32px; color: var(--ink); margin: 6px 0 4px 0; }
+.kpi-sub { font-size: 11px; color: var(--ink-muted); }
+.kpi-sub strong { color: var(--semantic-success); font-weight: 600; }
+.panel { background: var(--surface-1); border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; margin-bottom: 24px; }
+.panel-head { padding: 14px 18px; border-bottom: 1px solid var(--rule); display: flex; justify-content: space-between; align-items: center; }
+.panel-head h2 { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 16px; }
+.panel-head h2 em { color: var(--accent); font-style: normal; font-weight: 600; }
+.panel-head .meta { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-muted); letter-spacing: 1px; text-transform: uppercase; }
+
+/* OKR + 360 + calibration */
+.okr-row { display: grid; grid-template-columns: 200px 1fr 80px; gap: 14px; padding: 12px 18px; border-bottom: 1px solid var(--rule); align-items: center; font-size: 12px; }
+.okr-row:last-child { border-bottom: 0; }
+.okr-row .obj { font-weight: 600; }
+.okr-row .obj .meta { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-muted); margin-top: 2px; letter-spacing: 0.5px; font-weight: 400; }
+.okr-row .bar-bg { height: 14px; background: var(--surface-2); border-radius: 3px; overflow: hidden; }
+.okr-row .bar-fill { height: 100%; background: var(--gradient); }
+.okr-row .pct { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--accent); text-align: right; }
+
+.review-grid { padding: 18px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+.review-card { padding: 14px; background: var(--surface-2); border-radius: 6px; }
+.review-card h4 { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+.review-card .meta { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-muted); letter-spacing: 0.5px; margin-bottom: 10px; }
+.review-stat { display: flex; justify-content: space-between; padding: 4px 0; font-size: 11px; }
+.review-stat .lbl { color: var(--ink-muted); }
+.review-stat .v { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--ink); }
+
+.ws-footer { margin-top: 32px; padding-top: 14px; border-top: 1px solid var(--rule); font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-muted); text-align: center; letter-spacing: 0.5px; }
+.ws-footer strong { color: var(--accent); }
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="brand">
+    <div class="wordmark-original">heures<span class="y">y</span>s</div>
+    <div class="label">PHASE 13.D · PROCESS</div>
+  </div>
+  <div class="tenant-mini">
+    <div class="name">RTL Bank · Risk Modelling</div>
+    <div class="meta">dept · 24 reports</div>
+  </div>
+  <h4>Process</h4>
+  <div class="sidebar-link">Recruiting funnel<span class="num">→</span></div>
+  <div class="sidebar-link">Onboarding flow<span class="num">→</span></div>
+  <div class="sidebar-link active">Performance cycle<span class="num">Q2</span></div>
+  <div class="sidebar-link">Learning paths<span class="num">→</span></div>
+  <h4>My team</h4>
+  <div class="sidebar-link">Direct reports<span class="num">8</span></div>
+  <div class="sidebar-link">1:1 schedule<span class="num">12</span></div>
+</aside>
+<main class="workspace">
+  <header class="ws-header">
+    <div>
+      <div class="ws-title">Performance cycle · Q2 2026</div>
+      <div class="ws-meta" style="text-align: left; margin-top: 4px;">Stefania B. · Line Manager · Risk Modelling · 24 reports</div>
+    </div>
+    <div class="ws-meta">
+      Cycle ends in <strong>14 days</strong><br>
+      18/24 360 complete · 6 calibrations pending
+    </div>
+  </header>
+  <section class="kpi-row">
+    <div class="kpi-card"><div class="kpi-label">OKR PROGRESS</div><div class="kpi-num">68%</div><div class="kpi-sub">team avg · target ≥70% · <strong>on track</strong></div></div>
+    <div class="kpi-card"><div class="kpi-label">360 COMPLETED</div><div class="kpi-num">75%</div><div class="kpi-sub">18/24 · <strong>4 days to deadline</strong></div></div>
+    <div class="kpi-card"><div class="kpi-label">CALIBRATIONS</div><div class="kpi-num">2/8</div><div class="kpi-sub">peer review sessions held</div></div>
+    <div class="kpi-card"><div class="kpi-label">NPS DELTA</div><div class="kpi-num">+12</div><div class="kpi-sub">vs Q1 · <strong>improving</strong></div></div>
+  </section>
+  <div class="panel">
+    <div class="panel-head">
+      <h2>OKR roll-up · <em>top 5 objectives by progress</em></h2>
+      <span class="meta">department-level · auto-aggregate</span>
+    </div>
+    <div class="okr-row"><div class="obj">Reduce model time-to-prod<div class="meta">target -30% by Q3</div></div><div class="bar-bg"><div class="bar-fill" style="width: 82%"></div></div><div class="pct">82%</div></div>
+    <div class="okr-row"><div class="obj">ESCO mapping coverage<div class="meta">100% credit-risk roles</div></div><div class="bar-bg"><div class="bar-fill" style="width: 76%"></div></div><div class="pct">76%</div></div>
+    <div class="okr-row"><div class="obj">Internal mobility<div class="meta">3+ rotations within dept</div></div><div class="bar-bg"><div class="bar-fill" style="width: 67%"></div></div><div class="pct">67%</div></div>
+    <div class="okr-row"><div class="obj">Code review SLA<div class="meta">≤24h median</div></div><div class="bar-bg"><div class="bar-fill" style="width: 58%"></div></div><div class="pct">58%</div></div>
+    <div class="okr-row"><div class="obj">Knowledge graph contributions<div class="meta">≥5 PR / quarter / FTE</div></div><div class="bar-bg"><div class="bar-fill" style="width: 41%"></div></div><div class="pct">41%</div></div>
+  </div>
+  <div class="panel">
+    <div class="panel-head">
+      <h2>360-review <em>+ calibration heatmap</em></h2>
+      <span class="meta">peer feedback aggregated</span>
+    </div>
+    <div class="review-grid">
+      <div class="review-card">
+        <h4>360 review status</h4>
+        <div class="meta">Q2 cycle · 24 reports</div>
+        <div class="review-stat"><span class="lbl">Self-assessment submitted</span><span class="v">22 / 24</span></div>
+        <div class="review-stat"><span class="lbl">Peer reviews avg per FTE</span><span class="v">5.4</span></div>
+        <div class="review-stat"><span class="lbl">Manager review complete</span><span class="v">18 / 24</span></div>
+        <div class="review-stat"><span class="lbl">Feedback quality (auto)</span><span class="v">8.1 / 10</span></div>
+      </div>
+      <div class="review-card">
+        <h4>Calibration heatmap (next 14d)</h4>
+        <div class="meta">cross-team alignment sessions</div>
+        <div class="review-stat"><span class="lbl">Sessions scheduled</span><span class="v">4 / 8</span></div>
+        <div class="review-stat"><span class="lbl">Cross-dept calibration</span><span class="v">2 of 4 areas</span></div>
+        <div class="review-stat"><span class="lbl">Distribution drift flagged</span><span class="v">⚠ 1 area</span></div>
+        <div class="review-stat"><span class="lbl">Compliance audit status</span><span class="v">PASS</span></div>
+      </div>
+    </div>
+  </div>
+  <footer class="ws-footer">
+    Phase 13.D MVP · <strong>performance-cycle</strong> · expand in Phase 14 · synced live with /reviews-360 + /merit-cycles (Pack 4)
+  </footer>
+</main>
+</body>
+</html>

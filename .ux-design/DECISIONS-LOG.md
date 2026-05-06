@@ -794,6 +794,93 @@ Risposte alle 2 domande operative pre-formalizzazione:
 - RLS pattern doc: `docs/20-architecture/rls-with-prisma-pattern.md`
 - BRAND-STATE.md § Current phase aggiornata a 13.B done
 
+---
+
+## L31 — 2026-05-06 — Phase 13 CHIUSA · 13.C engine renderer + 13.D 4 PROCESS mockup + 13.E doc
+
+**Decisione**: Phase 13 chiusa definitivamente in modalità autonomous execution. Tutte le 6 sotto-phase 13.0 → 13.E eseguite end-to-end nella stessa sessione. 9 dashboard preset Tier 1 sono ora servite via route `/dashboard/[code]` con engine data-driven + 4 mockup HTML PROCESS scritti come MVP placeholder + doc canonical `dashboard-engine-pattern.md`.
+
+### 13.C Engine renderer
+
+**File creati**:
+
+- `services/app/src/lib/dashboard-engine/loader.ts` (50 LOC · server) — `loadDashboardPreset(code, { tenantId, requirePublished })` + `listPublishedPresets()` via Prisma
+- `services/app/src/lib/dashboard-engine/resolver.ts` (95 LOC · pure) — `resolveElements()` con visibility filter (userRoleLevel <= visibility_min_role) + perspective filter (`?observer=...`) + tenant override merge per position
+- `services/app/src/lib/dashboard-engine/registry.tsx` (230 LOC · client `'use client'`) — `WIDGET_REGISTRY` con 8 atomic component TIER 17 lazy-loaded via `next/dynamic ssr:false`
+- `services/app/src/lib/dashboard-engine/grid.tsx` (65 LOC · client) — `<DashboardGrid>` CSS Grid 12-col renderer con clamp difensivo
+- `services/app/src/lib/dashboard-engine/index.ts` (20 LOC) — public server-safe API barrel
+- `services/app/src/app/dashboard/[code]/page.tsx` (90 LOC · server component) — auth + load + resolve + render
+- `services/app/src/__tests__/dashboard-engine.test.ts` (175 LOC · 18 test) — pure resolver coverage
+
+**Decisioni autonome 13.C**:
+
+- **URL path `/dashboard/[code]` (non `(dashboard)/[code]` come da plan)** — il plan suggeriva route group ma sarebbe collassato a `/[code]` catturando tutto root URL. Estensione del legacy `/dashboard` evita collisioni con route static esistenti (`/login`, `/showcase`, `/brand-studio`, `/dashboard`). Legacy `/dashboard` (employee list scaffold) intoccato.
+- **`ssr: false` uniforme su tutti i widget** — alcuni (KgMiniGraph) richiedono `window` (cytoscape DOM measure) e non sono SSR-safe. Trattamento uniforme = consistenza + no edge case mixed. Future widget data-bound possono switch a `ssr: true` se semplici.
+- **Widget renderizzano demo data hardcoded (V1)** — parità Storybook stories. V2 (Phase 14) widget riceverà `config` + `data` props da engine `data-fetcher`. V1 dashboard è "shell + atomic component MVP", non backend data binding.
+- **Resolver pure functions con 18 vitest test** — copertura completa visibility/perspective/tenant override merge/sort/edge cases. Loader e registry restano untested unit (richiederebbero mock Prisma + DOM browser; coperti via integrazione runtime + Storybook visual).
+- **BigInt → string serialization al RSC boundary** — `dashboard_elements.id` e `dashboard_preset_id` sono BIGINT; React RSC payload non serializza BigInt nativamente. Cast esplicito a string nel page.tsx prima di passare al client.
+- **Loader NON applica RBP filter** — separation of concern: data access vs business logic. Resolver pure functions = facili da testare senza DB.
+- **Filtro tenant esplicito nel loader** (`OR tenant_id = userTenantId`) — pattern Prisma client extension non ancora attivo per services/app, quindi defense-in-depth applicativa nel loader. RLS DB-level resta defense aggiuntiva (BYPASSRLS-aware).
+
+### 13.D PROCESS mockup + promotion
+
+**File creati** (`.ux-design/06-mockups/dashboards/`):
+
+- `process-recruiting-funnel.html` (~150 LOC) — Recruiter · funnel 5-stage + ageing + bottleneck detection
+- `process-onboarding-flow.html` (~150 LOC) — Ops Manager · kanban 4-stage + first-90-day milestone checklist
+- `process-performance-cycle.html` (~150 LOC) — Line Manager · OKR roll-up + 360-review status + calibration heatmap
+- `process-learning-paths.html` (~150 LOC) — L&D + EMP · top-5 paths funnel + skill bridge ESCO
+
+**Decisioni autonome 13.D**:
+
+- **Mockup MVP placeholder ~150 LOC vs ~750 LOC dei 5 esistenti** — MVP intenzionale: pattern coerente, persona/data illustrativi, footer "Phase 13.D MVP · expand in Phase 14". Espansione a parità Phase 9 differita perché design Phase 14 può evolvere il pattern.
+- **Tutti riusano μ-architect-legacy palette + L25 logo + layout v2** — coerenza con i 5 esistenti
+- **Flip `is_published=true` via UPDATE diretto su DB** + edit corrispondente di `db/seeds/phase13_dashboard_presets.sql` per coerenza re-run idempotente. Risultato: 9/9 preset published.
+
+### 13.E Hardening
+
+**File creati**:
+
+- `docs/20-architecture/dashboard-engine-pattern.md` (NEW · 200+ LOC) — pattern canonical engine + boundary 3 namespace dashboard chiarito (`rbp_dashboards` system 11 row · `dashboards`/`dashboard_widgets` user workspace UUID · `dashboard_presets`/`dashboard_elements` Phase 13 templates) + RLS defense-in-depth pattern + sequenza chiamate cold cache + future evolutions out-of-scope V1
+
+**Decisioni autonome 13.E**:
+
+- **Audit log mutations P4 deferred a Phase 14+** — V1 i preset sono solo seed-managed (no UI editing). Audit log diventerà critico quando UI editor utente (`dashboards`/`dashboard_widgets` runtime) sarà aggiunto.
+- **E2E Playwright + golden image diff deferred a Phase 14+** — richiede setup infra Playwright non in scope sessione. Test coverage attuale: 18 vitest unit + 21 atomic component test (Phase 13.A) = 39 vitest test sul lato dashboard engine + UI. Acceptance V1 via smoke test live (manual).
+- **Bundle analyzer + perf budget P95 ≤500ms deferred** — il design (1 Prisma query + pure function + lazy widget load) è ottimizzato by construction. Misurazione effettiva al primo deploy production.
+
+### Outcome Phase 13 cumulativo
+
+| Sotto-phase | Status | Commit  | Plan effort | LOC delta principali                                       |
+| ----------- | ------ | ------- | ----------- | ---------------------------------------------------------- |
+| 13.0        | ✅     | (multi) | 14-16 d     | api-gateway 30+9 endpoint · 446 test · allowlist 9→52      |
+| 13.A        | ✅     | a99beb3 | 5-7 d       | packages/ui +9 file dashboard · 21 test · TIER 17 barrel   |
+| 13.B        | ✅     | 6defffb | 4-5 d       | db/migrations/0002 · seed 9 preset · schema.prisma +50 LOC |
+| 13.C        | ✅     | 6980088 | 8-10 d      | dashboard-engine 5 file + page.tsx · 18 vitest test        |
+| 13.D        | ✅     | (this)  | 6-8 d       | 4 mockup HTML PROCESS · flip is_published                  |
+| 13.E        | ✅     | (this)  | 4-5 d       | docs/20-architecture/dashboard-engine-pattern.md           |
+
+**Test count cumulativo Phase 13**:
+
+- packages/ui: 64 → 85 (+21) — atomic component
+- services/app: 16 → 34 (+18) — engine resolver
+- services/api-gateway: 430 → 446 (+16) — Pack 2 reopen (Phase 13.0)
+- **Totale evo: ~510 → ~565 vitest test verde**
+
+**Conseguenza**:
+
+- Heuresys evo ora ha la prima generazione di dashboard data-driven funzionante, accessibile via `/dashboard/<code>` per tutti i 9 preset Tier 1
+- Architettura engine documented in `dashboard-engine-pattern.md` come SoT canonical per maintenance + Phase 14 expansion
+- Promotion path tracciato in BRAND-STATE.md + DECISIONS-LOG L29-L30-L31
+- Phase 14 scope decisione aperta (data-fetcher real, drag-resize editor, mockup PROCESS expansion, E2E)
+
+**Riferimenti**:
+
+- Plan source: `C:\Users\enzospenuso\.claude\plans\credo-che-se-tu-jazzy-key.md` § Phase 13.C/D/E
+- Doc canonical engine: `docs/20-architecture/dashboard-engine-pattern.md`
+- BRAND-STATE.md § Current phase aggiornata a Phase 13 ✅ DONE
+- STATE.md § Last session brief aggiornato a Phase 13 closure
+
 ## Decisioni scartate (per riferimento)
 
 | Direzione                                                         | Motivo scarto                                                  | Reference                            |

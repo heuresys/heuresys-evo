@@ -83,7 +83,7 @@ VALUES
    'PROCESS',
    '.ux-design/06-mockups/dashboards/process-recruiting-funnel.html',
    'Recruiter',
-   FALSE, 60),
+   TRUE, 60),
 
   ('process_onboarding_flow',
    'Flusso Onboarding',
@@ -93,7 +93,7 @@ VALUES
    'PROCESS',
    '.ux-design/06-mockups/dashboards/process-onboarding-flow.html',
    'Ops Manager',
-   FALSE, 70),
+   TRUE, 70),
 
   ('process_performance_cycle',
    'Ciclo Performance',
@@ -103,7 +103,7 @@ VALUES
    'PROCESS',
    '.ux-design/06-mockups/dashboards/process-performance-cycle.html',
    'Line Manager',
-   FALSE, 80),
+   TRUE, 80),
 
   ('process_learning_paths',
    'Percorsi Apprendimento',
@@ -113,7 +113,7 @@ VALUES
    'PROCESS',
    '.ux-design/06-mockups/dashboards/process-learning-paths.html',
    'L&D + EMP',
-   FALSE, 90)
+   TRUE, 90)
 
 ON CONFLICT (code) DO UPDATE SET
   name_it            = EXCLUDED.name_it,
