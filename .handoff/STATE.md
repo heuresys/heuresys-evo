@@ -1,6 +1,6 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-06 (Phase 13 bootstrap autonomous · environment up · ready for Pack 1 HR core)
+> Updated: 2026-05-06 (Phase 13.0 Pack 1 CHIUSO · 6 endpoint legacy ported · 205/205 test verde · ready for Pack 2 ESCO)
 
 ## ⚠️ DIRETTIVA OPERATIVA ATTIVA
 
@@ -16,19 +16,25 @@
 
 **Mining log**: [`legacy-mining-log.md`](legacy-mining-log.md) — append-only audit trail per 8 pack legacy.
 
-**Sotto-phase corrente**: 13.0 in progress · Pack 1 split in 1a/1b dopo audit forensic Agent (effort revisited ~50h vs 16h budget · 215% overshoot).
+**Sotto-phase corrente**: 13.0 in progress · Pack 1 (1a + 1b) **COMPLETAMENTE CHIUSO** · Pack 2-8 next.
 
-**Pack 1a (light · 2.5 FTE-day · 1/3 done)**: /roles ✅ · /tenants ⏳ · /users ⏳
+**Pack 1a (light · 3/3 done)**: /roles ✅ · /tenants ✅ · /users ✅
+**Pack 1b (heavy · 3/3 done)**: /employees extend ✅ · /org-units ✅ · /workforce-planning ✅
 
-**Pack 1b (heavy · 3.5 FTE-day · 0/3 done)**: /employees extend ⏳ · /org-units ⏳ · /workforce-planning ⏳
+**Pack 1 deliverable cumulativo**:
+- 6 endpoint legacy ported (raw SQL pool → Prisma + zod + RBP)
+- ~112 test nuovi · suite api-gateway intera **205/205 verde**
+- 4 helper cross-cutting (escapeILIKE, safeParseInt+isUUID+buildMeta, validatePassword+generateSecurePassword, requirePermission lazy)
+- Prisma allowlist expanded 9 → 16 model
+- 6 commit shipped: `e10cb43` /roles · `f54bf7d` /tenants · `3fc2117` /users · `c0099d1` /employees · `5ef872a` /org-units · `53a181a` /workforce
 
 ## Top priorities (next session)
 
-1. **Pack 1a /tenants port** (~6h, MED risk): clone-as-new da legacy `tenants.ts` (725 LOC · 10 handler) · richiede admin pool cross-tenant helper · `escapeILIKE`/`safeParseInt`/`buildMeta` helpers cross-cutting nuovi · test contract + integration (DB evo via tunnel SSH 5432).
-2. **Pack 1a /users port** (~8h, HIGH risk): clone-as-new da legacy `users.ts` (969 LOC · 9 handler) · NextAuth v4 bridge · bcrypt + password policy · welcome email stub · richiede `validatePassword`/`generateSecurePassword` helper.
-3. **Pack 1b /employees extend** (~10h, HIGH risk): da scaffold evo 49 LOC + 1 handler → 18 handler legacy (1301 LOC) · raw SQL → Prisma `$queryRaw` per CTE ricorsive (manager-chain, descendants) · `applyFieldPolicy` da portare.
-4. **Pack 1b /org-units + /workforce** (~14h totale): vedi mining log per dettagli.
-5. **Pack 2-8 Phase 13.0**: ESCO/Career/Performance/Recruiting/Learning/Onboarding/RBP (sequenziali).
+1. **Pack 2 ESCO + Skill taxonomy** (~3-5 FTE-day stima): 8 endpoint legacy `/esco · /skills · /skill-taxonomy · /ontology · /onet · /nace · /skill-analytics · /skill-assessments` (~6000 LOC totali). **Ordine consigliato**: `/nace` (182 LOC quick win) → `/skill-analytics` (289 LOC) → `/skills` (433) → `/skill-assessments` (529) → `/onet` (623) → `/skill-taxonomy` (798) → `/esco` extend (877 LOC, evo ha già `/occupations/search`) → `/ontology` (2260 LOC, biggest, da spezzare). **Allowlist Prisma**: probabile expand con `esco_skills`, `esco_occupations`, `nace_codes`, ecc. — verificare prima del Pack 2.
+2. **Pack 3 Career intelligence** (~2 FTE-day): /career-paths · /career-intelligence · /gap-analysis · /talent-intelligence · /succession.
+3. **Pack 4 Performance** (~2 FTE-day): /performance-reviews extend · /360-reviews · /calibration-sessions · /merit-cycles · /okrs · /goals.
+4. **Pack 5-8** (~5 FTE-day totali): Recruiting · Learning · Onboarding/Time-off · RBP/Audit/Org-systems.
+5. **Pack 1c (deferred from Pack 1)**: /employees analytics-stats + manager-chain + direct-reports + applyFieldPolicy · /org-units /:id/path + /:id/move (recursive CTE) · /workforce simulation/aggregation 8 handler · audit P4 helper greenfield · seed RBP areas SECURITY+PLATFORM.
 6. **Phase 13.A→13.E** (~27-35 FTE-day): atomic UI · schema · engine · PROCESS mockup · hardening. Dopo 13.0.
 
 ## Resume protocol (next session — autonomous)
