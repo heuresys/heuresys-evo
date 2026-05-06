@@ -1,6 +1,6 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-05 (post sessione skill `studio` v1.1.0 · 6 slash command `/brand:*` · 9 commit)
+> Updated: 2026-05-06 (post sessione brand L27/L28 + Phase 10 login + promotion-candidates + plan Phase 13 dashboard data-driven approvato)
 
 ## ⚠️ DIRETTIVA OPERATIVA ATTIVA
 
@@ -8,55 +8,45 @@
 
 ## Last session brief
 
-**Sessione doppia: brand sub-commands + skill studio**. Promossi 6 prompt template `99-samples/rohitg00-prompts/*` a slash command namespaced `/brand:family-picker`, `/brand:designer-debate`, `/brand:anti-slop`, `/brand:audit`, `/brand:extract`, `/brand:remix`. Poi creata skill **`studio` v1.1.0** in 7 fase: 9 sub-command (`/studio`, `:clone`, `:bootstrap`, `:diff`, `:promote`, `:restore`, `:backup-list`, `:status`, `:doctor`) per ciclo clone↔promote↔backup di route Next.js attraverso `.ux-design/10-staging/` + backup restorable in `.ux-design/.backups/<route>/<TS>-pre-promote/` con `MANIFEST.json`. Promote a 5-gate (motivazione · brand audit · anti-slop · verification · user confirm) + 2 fail-safe (repo clean · husky). Self-evolution: `/studio:doctor` (8 categorie check + auto-fix), JSONL log append-only `.logs/usage.jsonl` (gitignored), `references/lessons-learned.md` append-only, `CHANGELOG.md` semver. Bug trovato e fixato: drift detection CR/LF strip su Windows Git Bash. Plan: `~/.claude/plans/voglio-creare-una-skill-magical-castle.md`. Commit pushati: `fdf6a5d → df8dec1` (9 commit).
+**Sessione lunga: brand L27/L28 + Phase 10 login + plan Phase 13 dashboard data-driven approvato**. Definite 2 convenzioni richiamabili logo: **L27 "logo originale"** (body `var(--brand-blue)` fisso + y `var(--accent)` fisso) + **L28 "logo relativo"** (body `var(--logo-body, var(--ink))` derivato da tema CSS attivo). Eccezione plain text per indirizzi/link/domini documentata in `02-aesthetic/logo-standard.md`. Retro-update L27 cross-mockup applicato a 51 file (Phase 9 dashboards + Phase 8 motion + typography + icon libraries + 32 direction explorations via sed bulk). Phase 10 login surface 1/5 generato: 5 candidati (base · aurora · split · playful · playful-v2). Creato registro promozione `.ux-design/08-promotion/promotion-candidates.md` con matrice osservatore × layer × rank. **Plan Phase 13 approvato** con autonomous execution mode (41-51 FTE-day · 6 sotto-phase 13.0→13.E · 25 gates · self-monitoring). Commit pushati: `054aeccb → 335a02d → 3fe586d → 7eceb98` (8 commit · 2k+ insertions).
 
-## ⚡ Active workstream — Brand identity + Studio
+## ⚡ Active workstream — Phase 13 dashboard data-driven (AUTONOMOUS)
 
-In nuova sessione: **digita `/brand`** o "lavoriamo sul brand" · per route work **`/studio`** o "iteriamo sulla pagina X".
+**Plan file**: `C:\Users\enzospenuso\.claude\plans\credo-che-se-tu-jazzy-key.md` (CRITICO: leggere PRIMA di tutto next session).
 
-| File                                                                          | Scopo                                                                              |
-| ----------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| [`../.ux-design/BRAND-STATE.md`](../.ux-design/BRAND-STATE.md)                | SoT brand — Phase 1-9 done, L25 active, **L26 skill studio**                       |
-| [`../.ux-design/DECISIONS-LOG.md`](../.ux-design/DECISIONS-LOG.md)            | L1-L26 cronologia append-only                                                      |
-| [`../.claude/skills/studio/SKILL.md`](../.claude/skills/studio/SKILL.md)      | Skill studio v1.1.0 entry + 9 sub-command + 3-modi attivazione                     |
-| [`../.claude/skills/studio/CHANGELOG.md`](../.claude/skills/studio/CHANGELOG.md) | Versioning skill-level semver (v1.0.0, v1.1.0)                                  |
+In nuova sessione: **leggere plan file + iniziare bootstrap autonomo**. NO interazione utente richiesta. Decisioni pre-computed in plan § Decision matrix. Self-monitoring via 5 file di stato (STATE.md · legacy-mining-log.md · BRAND-STATE.md · promotion-candidates.md · DECISIONS-LOG.md).
 
 ## Top priorities
 
-1. **Test happy-path /studio** (~30 min): test 6 (`/studio:promote --confirmed`) + test 8 (`/studio:restore`) + test 7 (husky fail) su route canary `dashboard`. Smoke test 1-5 e 9-12 PASS, restanti richiedono modifica reale produzione.
-2. **Visual review by Enzo** dei 5 dashboard + 5 motion prototypes con L25 applicato (~30 min). Test su `http://127.0.0.1:8765/`. Possibili fix retroattivi.
-3. **Phase 10 — Altre surface** (~4h): login · onboarding · empty state · 404 · settings. Pattern reusable da Phase 9 dashboard layout v2 + L23 customizations. Usare `/studio:bootstrap` per prima promozione.
-4. **Phase 11 — Theme variants JSON** (~2h): `05-theme-variants/heuresys-theme.json` ThemeBuilderWizard format.
-5. **Phase 12 — Brand book v0** (~4h): consolidamento finale `07-brand-book/brand-book-v0.md`.
+1. **Phase 13 bootstrap autonomo** (~30 min): leggere plan + scaffold `.handoff/legacy-mining-log.md` + update BRAND-STATE Phase 13 status `🟡 In progress · 13.0 starting` + commit bootstrap. Ref: plan § "Execution checklist" → Bootstrap.
+2. **Phase 13.0 Pack 1 HR core** (~2 FTE-day): forensic mining `/employees · /tenants · /users · /roles · /org-units · /workforce` da `D:\enzospenuso\Documents\GitHub\heuresys.com.evo`. Audit + schema parity + adapt + test + commit batch. Ref: plan § Phase 13.0.
+3. **Phase 13.0 Pack 2-8** (~12-14 FTE-day): ESCO/Career/Performance/Recruiting/Learning/Onboarding/RBP. Sequenziale dopo pack 1.
 
 ## Open questions
 
-- **Direction-explorations Set 1-5** (32 mockup archivio): retro-update L25 logo o lasciare? Default lasciare.
-- **`/studio:doctor --apply`** future: regen tabella sub-command da frontmatter `description` di `commands/studio/*.md` (non implementato day-1).
-- **PR #28** prisma 5→7 grouped major: manual review pending
-- **PR #33** commitlint 19→20: manual review pending (XS)
-- **License decision repo public**: pending
-- **Phase 11 promotion to packages/ui**: tokens da `legacy-palette.css` + `palette-final.md` + `motion-final.md` post brand book v0
+- Tunnel SSH a `oracle-vm-default` deve essere up prima di iniziare Phase 13.0 pack 1 (per integration test contro DB evo bare-metal). Verifica con `scripts/dev-local/tunnel-vm.ps1` o equivalente.
+- Pre-flight check: `npm run typecheck --workspaces --if-present` deve essere verde prima di iniziare. Se rosso, fix in commit bootstrap.
 
 ## Stack snapshot
 
-API Gateway Express 5 (8200) · Frontend Next.js 16 + React 19 + Tailwind 4 (3200) · Workers BullMQ + Redis (6380) · ORM Prisma 5.22 · DB PostgreSQL 16 (5432) · Auth NextAuth v4 · Test Vitest 4 (250 verdi) · HTTP preview `0.0.0.0:8765` (LAN: `192.168.1.8`). `.ux-design/`: 5 dashboard prod-ready + 5 motion enriched + 32 mockup archivio + 6 SVG canonical L25. **Skill studio v1.1.0**: 30 file (1 SKILL.md + 9 commands + 8 references + 9 scripts + 2 templates + CHANGELOG). **Brand sub-commands**: 6 wrappers `99-samples/rohitg00-prompts/*` → `/brand:*`.
+API Gateway Express 5 (8200) · Frontend Next.js 16 + React 19 + Tailwind 4 (3200) · Workers BullMQ + Redis (6380) · ORM Prisma 5.22 (566 model · `rbp_dashboards` linea 11132 · `widget_catalog` linea 14362) · DB PostgreSQL 16 bare-metal (5432) · Auth NextAuth v4 · Test Vitest 4 (250 verdi). `.ux-design/`: 51 mockup HTML L27-compliant (5 dashboard + 5 motion + 4 login + 1 + Aurora/Split/Playful/Playful-v2 + 32 direction archive + index/typography/icon). `08-promotion/promotion-candidates.md` registro live. **Plan Phase 13 approvato**: 41-51 FTE-day · 6 sotto-phase · 25 gates · 9 dashboard preset target (5 esistenti TALENT/ENT + 4 PROCESS Tier 1).
 
 ## Verification
 
 ```bash
 git status -sb              # working tree clean
-git log --oneline -12       # recent: df8dec1 doctor row, b99a825 self-evolution, 9af7643 bootstrap
-bash .claude/skills/studio/scripts/doctor.sh   # 50 pass · 0 fail · 1 warn
-ls .claude/skills/studio/                      # SKILL.md + CHANGELOG + 4 dirs
-ls .claude/commands/studio/                    # 9 .md
-ls .claude/commands/brand/                     # 6 .md
+git log --oneline -12       # recent: 7eceb98 promotion-candidates, 3fe586d playful-v2, 335a02d L27 retro-update
+cat C:/Users/enzospenuso/.claude/plans/credo-che-se-tu-jazzy-key.md | head -50  # plan Phase 13 ref
+ls .ux-design/08-promotion/                                 # promotion-candidates.md
+ls .ux-design/06-mockups/auth/                              # 5 login + storybook stories
 ```
 
 ## Riferimenti
 
+- **Plan Phase 13 (CRITICO)**: `C:\Users\enzospenuso\.claude\plans\credo-che-se-tu-jazzy-key.md`
 - **Operating baseline**: [`../docs/_meta/operating-baseline.md`](../docs/_meta/operating-baseline.md)
 - **CLAUDE.md root**: [`../CLAUDE.md`](../CLAUDE.md) § Brand workstream + § Studio workstream
-- **Plan studio**: `~/.claude/plans/voglio-creare-una-skill-magical-castle.md`
-- **Self-evolution doc**: [`../.claude/skills/studio/references/self-evolution.md`](../.claude/skills/studio/references/self-evolution.md)
-- **Lessons learned**: [`../.claude/skills/studio/references/lessons-learned.md`](../.claude/skills/studio/references/lessons-learned.md)
+- **BRAND-STATE**: [`../.ux-design/BRAND-STATE.md`](../.ux-design/BRAND-STATE.md) § Phase 13 In progress
+- **DECISIONS-LOG**: [`../.ux-design/DECISIONS-LOG.md`](../.ux-design/DECISIONS-LOG.md) § L27 + L28
+- **Promotion candidates**: [`../.ux-design/08-promotion/promotion-candidates.md`](../.ux-design/08-promotion/promotion-candidates.md)
+- **Mining log (TBD)**: `../.handoff/legacy-mining-log.md` (da creare in bootstrap Phase 13.0)
