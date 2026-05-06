@@ -198,6 +198,38 @@
 
 **Restano per Pack 1**: 1b heavy → /employees extend · /org-units · /workforce-planning (~3.5 FTE-day stima audit).
 
+## Pack 1b · /employees · extended (2026-05-06 05:48 GMT+2)
+
+**Strategy**: extend file evo esistente (49 LOC + 1 handler) con 7 nuovi handler core. Mantenuto GET / cursor-pagination contract invariato per backward-compat.
+
+**Files modified in evo**:
+- `src/routes/employees.ts` — esteso da 49 a ~330 LOC con handler:
+  - GET / (preservato cursor-based) · GET /meta/employment-statuses · GET /meta/termination-reasons
+  - GET /me · GET /me/skills (self-service via session.user.employeeId)
+  - GET /:id · GET /:id/skills · POST / · PATCH /:id · DELETE /:id (soft+hard)
+
+**Files added in evo**:
+- `src/routes/__tests__/employees-extended.test.ts` — 19 test contract nuovi handler
+
+**Adapt notes**:
+- Cursor pagination GET / preservato (impossible to break esistenti 12 test contract)
+- `withTenant(tenantId, fn)` per tutte le route tenant-scoped (RLS via SET LOCAL)
+- `Prisma.employeesUncheckedUpdateInput`/`UncheckedCreateInput` per FK direct (`manager_id`, `org_unit_id`, `cost_center_id`) invece di relation connect/disconnect (Prisma multi-relation naming verboso `org_units_employees_org_unit_idToorg_units`)
+- `EMPLOYEES` RBP area è già seed nel P0 evo (no skip)
+- Self-service routes `/me*` non richiedono permission, solo auth + employeeId in session
+- DELETE behavior: SUPERUSER+`?hard=true` → permanent delete · default → soft archive (`is_active=false`)
+
+**Skip per Pack 1c (futuro)**:
+- `/analytics-stats`, `/stats`, `/dashboard-stats`: heavy aggregation con CTE su `cost_centers`, `performance_reviews` (fuori allowlist Prisma corrente)
+- `/distribution/department`: aggregation pesante
+- `/:id/manager-chain`, `/:id/direct-reports`: recursive CTE → richiede `$queryRaw` tagged template
+- `/:id/career-history`: model `career_history` non in allowlist
+- `applyFieldPolicy`: PII redaction role-based — non portato (decisione: P3 RBP enforcement evo già copre access; field-level redaction da Pack 1c se richiesto)
+
+**Verifica**:
+- `npm run typecheck --workspaces --if-present` ✅ verde
+- `npm test --workspace=services/api-gateway -- routes/__tests__/employees` ✅ 31/31 passing (12 + 19)
+
 ## Skip register (decisioni di esclusione)
 
 > Append-only. Format: `endpoint · model mancante · motivo skip · workaround/follow-up`.

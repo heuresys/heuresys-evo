@@ -73,8 +73,6 @@ let users: UserRow[] = [];
 function makeUser(o: Partial<UserRow> & { id: string; username: string }): UserRow {
   const now = new Date('2026-01-01T00:00:00Z');
   return {
-    id: o.id,
-    username: o.username,
     password_hash: 'hashed:legacy',
     role: 'EMPLOYEE',
     permissions: [],
