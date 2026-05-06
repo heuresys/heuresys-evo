@@ -30,3 +30,8 @@ industry_classifications
 company_sizes
 esco_skills
 employee_skill_assessments
+esco_isco_groups
+esco_occupations
+esco_skill_groups
+esco_occupation_skills
+esco_skill_relations

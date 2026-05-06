@@ -449,6 +449,72 @@
 
 **Effort reale**: ~25 minuti.
 
+## Pack 2 · /onet · SKIPPED (2026-05-06 15:11 GMT+2)
+
+**Source**: `D:\enzospenuso\Documents\GitHub\heuresys.com.evo\services\api-gateway\src\routes\onet.ts` (623 LOC) + `services/onet-import.ts` (805 LOC).
+
+**Decision**: SKIPPED (Pack 2.5).
+
+**Razionale**:
+
+- 16 endpoint thin wrapper su `ONetImportService` 805 LOC service singleton
+- Heavy import pipeline: createImportJob, runImport per `full | occupations | skills | abilities | knowledge | activities | links` + ESCO mapping
+- Richiede O*NET CSV/JSON external data files (onetcenter.org)
+- Use case solo seed iniziale (NON workflow runtime users)
+
+**Stage**: `Rejected` (registry CSV row 53-54).
+
+## Pack 2 · /skill-taxonomy · SKIPPED (2026-05-06 15:13 GMT+2)
+
+**Source**: `D:\enzospenuso\Documents\GitHub\heuresys.com.evo\services\api-gateway\src\routes\skill-taxonomy.ts` (798 LOC) + 2 service classes (672+830=1502 LOC).
+
+**Decision**: SKIPPED (Pack 2.6).
+
+**Razionale**:
+
+- 31 endpoint thin wrapper su `SkillClassificationService` + `SkillRelationshipService`
+- Domain: classification (Hard/Soft/Hybrid · CognitiveLevel · SocialDimension · Transferability) + cluster (families/subfamilies) + relationships (prerequisites/complementary/substitution) + adjacencies (career paths · co-occurrence)
+- Richiede seed dati realistici + UI consumer (admin taxonomy frontend) per ROI
+
+**Stage**: `Rejected` (registry CSV row 55-57).
+
+## Pack 2 · /esco · extended (2026-05-06 15:17 GMT+2)
+
+**Source**: `D:\enzospenuso\Documents\GitHub\heuresys.com.evo\services\api-gateway\src\routes\esco.ts` (877 LOC · 14 handler).
+
+**Adapted** (file evo esistente esteso, NON sovrascritto):
+
+- 7 handler nuovi portati: `/stats` · `/isco-groups` · `/isco-groups/:code` · `/occupations` (list) · `/occupations/:id` (detail) · `/skills` (list) · `/skill-groups`
+- File evo `esco.ts` aveva già `/occupations/search` (Phase 4 task 4.11) — preservato intatto
+- Helper `checkEscoRead` aggiunto (replica RBP gating ESCO_KG.view fallback EMPLOYEES.view già usato in `/occupations/search`)
+- Pattern target evo: `withTenant` + `$queryRawUnsafe`
+- Order routing rispettato: `/occupations/search` registrato PRIMA di `/occupations/:id` per match precedence Express
+
+**Skip dichiarati** (7 handler legacy non portati):
+
+- `/skills/:id` — ridondante (covered by `/skills/:id` Pack 2.2)
+- `/occupation-skills/:occupationId` — covered by `/occupations/:id`
+- `/skill-relations/:skillId` — extension non critical
+- `/skill-clusters` · `/skill-clusters/:code` · `/skill-classifications/:skillId` — depende `SkillClassificationService` Pack 2.6 skipped
+
+**Tabelle backing** (reference data shared knowledge graph):
+
+- `esco_isco_groups` · `esco_occupations` · `esco_skill_groups` · `esco_occupation_skills` · `esco_skill_relations` (5 model nuovi allowlist)
+
+**Allowlist Prisma esteso**: 20 → 25 model.
+
+**Test**: 14/14 verde (`esco-extension.test.ts` · 7 describe block · happy path + 401/404/400 + filter args + JOIN behavior).
+
+**Suite api-gateway**: 280/280 verde (era 266 post Pack 2.4).
+
+**Typecheck workspace**: 5/5 clean.
+
+**Removability**: `embedded-in-existing-file` (file evo esistente esteso · estirpazione = ripristino state pre-Pack 2.7).
+
+**Stage**: `Test Stage` (registry CSV row 58-63).
+
+**Effort reale**: ~30 minuti.
+
 ## Cascade dependencies (skip che forzano altri skip)
 
 > Append-only. Format: `endpoint A skip → endpoint B impacted (motivo)`.
