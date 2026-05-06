@@ -24,7 +24,7 @@
 
 | Pack | Domain | Endpoint legacy | Status | Commit | Note |
 |---|---|---|---|---|---|
-| 1a | HR core (light) | /roles · /tenants · /users + cross-cutting helpers | 🟡 in progress (2/3 endpoint done · /roles ✓ · /tenants ✓) | TBD | split da Pack 1 (effort revisited 2.5 FTE-day) |
+| 1a | HR core (light) | /roles · /tenants · /users + cross-cutting helpers | ✅ done (3/3 · /roles ✓ · /tenants ✓ · /users ✓) | TBD | split da Pack 1 |
 | 1b | HR core (heavy) | /employees (extend) · /org-units · /workforce + WorkforcePlanningService | ⏳ pending | — | split da Pack 1 (effort revisited 3.5 FTE-day) |
 | 2 | ESCO + Skill taxonomy | /esco · /skill-taxonomy · /ontology · /onet · /nace · /skills · /skill-analytics · /skill-assessments | ⏳ pending | — | capability-graph · skills-heatmap |
 | 3 | Career intelligence | /career-paths · /career-intelligence · /gap-analysis · /talent-intelligence · /succession | ⏳ pending | — | hr-director-overview · employee-journey |
@@ -144,6 +144,59 @@
 - `npm test --workspace=services/api-gateway -- routes/__tests__/tenants` ✅ 26/26 passing
 - `curl http://127.0.0.1:8200/tenants` ✅ HTTP 401 (requireAuth)
 - `curl http://127.0.0.1:8200/tenants/meta/statuses` ✅ HTTP 200 (public, payload corretto)
+
+## Pack 1a · /users · ported (2026-05-06 05:43 GMT+2)
+
+**Strategy**: clone-as-new (raw SQL legacy → Prisma + bcryptjs + @auth/express bridge).
+
+**Files added in evo**:
+- `src/utils/password-policy.ts` — `validatePassword` (12+ char · upper/lower/digit/special) · `generateSecurePassword(length)` (cryptographic shuffle)
+- `src/routes/users.ts` — 9 handler: GET /meta/roles · GET /permissions/available · GET / (list, tenant-scoped) · GET /:id · POST / · PATCH /:id · DELETE /:id (soft+hard) · POST /:id/reset-password · POST /bulk
+- `src/routes/__tests__/users.test.ts` — 24 test contract (auth · RBP · tenant scope · UUID validation · password policy · privilege escalation prevention · self-delete prevention · bulk skip-on-existing)
+
+**Files modified in evo**:
+- `src/middleware/roles.ts` — esteso con `ROLE_DESCRIPTIONS` constant per /meta/roles
+- `src/index.ts` — mount `app.use('/users', usersRouter)`
+- `services/api-gateway/package.json` — added deps `bcryptjs ^3.0.3` + `@types/bcryptjs ^3.0.0`
+
+**Adapt notes**:
+- Legacy raw SQL `dbClient/pool` → Prisma `prisma.users.findMany/findUnique/create/update/delete` con `include: { employees: { include: { tenants } } }` per arricchimento
+- Legacy custom JWT `req.user` → evo `req.session.user` con stesso shape (id, role, tenantId)
+- Legacy `escapeILIKE($search)` raw → evo Prisma `contains` mode insensitive (sufficiente per OR su username/first_name/last_name)
+- Legacy `safeParseInt(req.query.page, {fallback})` → evo zod `z.coerce.number().int().min(1)` (più robusto)
+- Legacy `validatePassword`/`generateSecurePassword` da `utils/password-policy.ts` → evo identico (port verbatim del crypto-secure shuffle)
+- Action enum legacy `'VIEW'/'CREATE'/'EDIT'/'DELETE'` → evo `'view'/'create'/'edit'/'delete'` lowercase
+- Privilege escalation rules ported (cannot create/modify users with higher privileges · only SUPERUSER can create/modify SUPERUSER)
+- Welcome email **stub** preservato (logger only · NO password logging · TODO production: SendGrid/AWS SES)
+- Bulk endpoint preservato con concurrent username uniqueness check via while loop · max 100 employees · per-employee try/catch isolation
+
+**Helper dependencies introdotte in evo (4/8 di lista cross-cutting Pack 1a)**:
+- ✅ `requirePermission` lazy wrapper (commit `e10cb43`)
+- ✅ `escapeILIKE` (commit `f54bf7d`)
+- ✅ `safeParseInt`, `isUUID`, `buildMeta` (commit `f54bf7d`)
+- ✅ `validatePassword`, `generateSecurePassword` (questo commit)
+- ⏳ `validateUUID` middleware — non più necessario, sostituito da `isUUID()` inline
+- ⏳ Admin pool cross-tenant — non più necessario, sostituito da `prisma` direct
+- ⏳ `applyFieldPolicy`, `loadPolicyForRole` (per /employees in Pack 1b)
+- ⏳ `cachedForTenant`, `invalidateCachePattern`, `CACHE_TTL` (per /org-units · ROI da valutare)
+- ⏳ `auditedTransaction()` greenfield P4 (architectural addition Pack 1b)
+
+**Verifica**:
+- `npm run typecheck --workspaces --if-present` ✅ verde
+- `npm test --workspace=services/api-gateway -- routes/__tests__/users` ✅ 24/24 passing
+- `curl http://127.0.0.1:8200/users` ✅ HTTP 401 (requireAuth global)
+
+## Pack 1a · CHIUSO (2026-05-06)
+
+**Totale**: 3 endpoint ported · 4 helper cross-cutting · 57 test (7 + 26 + 24) · ~1.5 FTE-day reali (vs stima audit 2.5 FTE-day · effort sotto stima per riuso pattern + Prisma productivity).
+
+**Cumulativo Pack 1a**:
+- Files added: 11 (3 router + 3 test + 2 utils + 2 middleware helpers + 1 password-policy)
+- Files modified: 2 (`src/index.ts` mount × 3 + `src/middleware/roles.ts` extend)
+- Tests verde: **57/57**
+- Commits Pack 1a: `e10cb43` (/roles) + `f54bf7d` (/tenants) + (this) (/users)
+
+**Restano per Pack 1**: 1b heavy → /employees extend · /org-units · /workforce-planning (~3.5 FTE-day stima audit).
 
 ## Skip register (decisioni di esclusione)
 
