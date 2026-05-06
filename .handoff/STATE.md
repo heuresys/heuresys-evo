@@ -1,6 +1,6 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-06 (post sessione brand L27/L28 + Phase 10 login + promotion-candidates + plan Phase 13 dashboard data-driven approvato)
+> Updated: 2026-05-06 (Phase 13 bootstrap autonomous · environment up · ready for Pack 1 HR core)
 
 ## ⚠️ DIRETTIVA OPERATIVA ATTIVA
 
@@ -8,24 +8,38 @@
 
 ## Last session brief
 
-**Sessione lunga: brand L27/L28 + Phase 10 login + plan Phase 13 dashboard data-driven approvato**. Definite 2 convenzioni richiamabili logo: **L27 "logo originale"** (body `var(--brand-blue)` fisso + y `var(--accent)` fisso) + **L28 "logo relativo"** (body `var(--logo-body, var(--ink))` derivato da tema CSS attivo). Eccezione plain text per indirizzi/link/domini documentata in `02-aesthetic/logo-standard.md`. Retro-update L27 cross-mockup applicato a 51 file (Phase 9 dashboards + Phase 8 motion + typography + icon libraries + 32 direction explorations via sed bulk). Phase 10 login surface 1/5 generato: 5 candidati (base · aurora · split · playful · playful-v2). Creato registro promozione `.ux-design/08-promotion/promotion-candidates.md` con matrice osservatore × layer × rank. **Plan Phase 13 approvato** con autonomous execution mode (41-51 FTE-day · 6 sotto-phase 13.0→13.E · 25 gates · self-monitoring). Commit pushati: `054aeccb → 335a02d → 3fe586d → 7eceb98` (8 commit · 2k+ insertions).
+**Sessione precedente**: brand L27/L28 + Phase 10 login + plan Phase 13 approvato. **Sessione corrente**: bootstrap Phase 13 autonomous mode. Environment dev up: tunnel SSH `5432→5432` Postgres + `6380→6379` Redis VM (fix mismatch script), 4 servizi running (api-gateway 8200, app 3200, storybook 6006, enrichment workers), tutti LAN-visible su `192.168.1.8`. Typecheck workspaces verde. BRAND-STATE Phase 13 → `🟡 In progress · 13.0 starting`. Mining log scaffolded.
 
 ## ⚡ Active workstream — Phase 13 dashboard data-driven (AUTONOMOUS)
 
 **Plan file**: `C:\Users\enzospenuso\.claude\plans\credo-che-se-tu-jazzy-key.md` (CRITICO: leggere PRIMA di tutto next session).
 
-In nuova sessione: **leggere plan file + iniziare bootstrap autonomo**. NO interazione utente richiesta. Decisioni pre-computed in plan § Decision matrix. Self-monitoring via 5 file di stato (STATE.md · legacy-mining-log.md · BRAND-STATE.md · promotion-candidates.md · DECISIONS-LOG.md).
+**Mining log**: [`legacy-mining-log.md`](legacy-mining-log.md) — append-only audit trail per 8 pack legacy.
+
+**Sotto-phase corrente**: 13.0 starting (Pack 1 HR core ⏳ pending).
 
 ## Top priorities
 
-1. **Phase 13 bootstrap autonomo** (~30 min): leggere plan + scaffold `.handoff/legacy-mining-log.md` + update BRAND-STATE Phase 13 status `🟡 In progress · 13.0 starting` + commit bootstrap. Ref: plan § "Execution checklist" → Bootstrap.
-2. **Phase 13.0 Pack 1 HR core** (~2 FTE-day): forensic mining `/employees · /tenants · /users · /roles · /org-units · /workforce` da `D:\enzospenuso\Documents\GitHub\heuresys.com.evo`. Audit + schema parity + adapt + test + commit batch. Ref: plan § Phase 13.0.
-3. **Phase 13.0 Pack 2-8** (~12-14 FTE-day): ESCO/Career/Performance/Recruiting/Learning/Onboarding/RBP. Sequenziale dopo pack 1.
+1. **Phase 13.0 Pack 1 HR core** (~2 FTE-day): forensic mining `/employees · /tenants · /users · /roles · /org-units · /workforce` da `D:\enzospenuso\Documents\GitHub\heuresys.com.evo`. Audit + schema parity + adapt + test + commit batch. Ref: plan § Phase 13.0.
+2. **Phase 13.0 Pack 2-8** (~12-14 FTE-day): ESCO/Career/Performance/Recruiting/Learning/Onboarding/RBP. Sequenziale dopo pack 1.
+3. **Phase 13.A→13.E** (~27-35 FTE-day): atomic UI · schema · engine · PROCESS mockup · hardening. Dopo 13.0.
+
+## Environment dev (verificato 2026-05-06 04:59 GMT+2)
+
+| Servizio | Bind | Porta | LAN | Status |
+|---|---|---|---|---|
+| API Gateway | `::` dual-stack | 8200 | `http://192.168.1.8:8200/health` 200 | ✅ |
+| Next.js app | `0.0.0.0` | 3200 | `http://192.168.1.8:3200` 200 | ✅ |
+| Storybook | `0.0.0.0` | 6006 | `http://192.168.1.8:6006` 200 | ✅ |
+| Enrichment workers | n/a (BullMQ) | — | n/a | ✅ Redis VM connected |
+| Tunnel Postgres | `127.0.0.1` only | 5432 | loopback | ✅ |
+| Tunnel Redis | `127.0.0.1` only | 6380 → VM 6379 | loopback | ✅ |
+
+**Nota fix tunnel**: `scripts/dev-local/tunnel-vm.ps1` aveva forward `6380:localhost:6380` ma VM Redis (Docker `heuresys_evo_redis`) ascolta su 6379. Corretto a `6380:localhost:6379`.
 
 ## Open questions
 
-- Tunnel SSH a `oracle-vm-default` deve essere up prima di iniziare Phase 13.0 pack 1 (per integration test contro DB evo bare-metal). Verifica con `scripts/dev-local/tunnel-vm.ps1` o equivalente.
-- Pre-flight check: `npm run typecheck --workspaces --if-present` deve essere verde prima di iniziare. Se rosso, fix in commit bootstrap.
+- Nessuna blocking. Procedo Pack 1 HR core in autonomia (mode da plan § "Autonomous execution").
 
 ## Stack snapshot
 
