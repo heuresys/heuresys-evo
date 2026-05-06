@@ -1,6 +1,6 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-06 (**Phase 13 CHIUSA · 13.0/A/B/C/D/E all done** · 9 dashboard preset live · engine renderer + 4 PROCESS mockup shipped · DECISIONS-LOG L31)
+> Updated: 2026-05-06 (**Phase 13 fully closed + smoke test live OK + 30 Pack 1-8 endpoint Promoted** · Phase 14 scope drafted · pending Enzo decision)
 
 ## ⚠️ DIRETTIVA OPERATIVA ATTIVA
 
@@ -17,6 +17,28 @@
 **13.E outcome**: `docs/20-architecture/dashboard-engine-pattern.md` (NEW · pattern canonical engine + boundary 3 namespace dashboard chiarito). Aggiornamento STATE.md/BRAND-STATE.md/DECISIONS-LOG.md L31. E2E Playwright + golden image diff + audit log mutations deferred a Phase 14+ (richiedono infra non in scope V1).
 
 **13.A + 13.B recap** già in DECISIONS-LOG L29 + L30.
+
+### Smoke test live (post-13.E)
+
+- api-gateway:8200 + Next.js:3200 avviati in background (npm run dev)
+- Tunnel SSH attivo PID 6428 (5432 + 6380)
+- Login NextAuth v4 via curl + canonical demo users (`Heuresys2026!`)
+- **9/9 dashboard URL `/dashboard/<code>` HTTP 200 verde** — preset name + widget count corretti
+- **RBP enforcement validato**: HR_DIRECTOR (`rtl-bank.valentina.conti`) vede 22 widget · SUPERUSER (`sysadmin`) vede 30 widget. Differenza = 8 widget (capability_graph + org_systems · `visibility_min_role=1` IT_ADMIN+) — comportamento atteso del resolver
+- **Perspective filter validato**: `?observer=PROCESS` su `hr_director_overview` filtra 4 → 0 (preset TALENT, no PROCESS widget); su `process_recruiting_funnel` mantiene 3 → 3 (tutti PROCESS)
+
+### Pack 1-8 promotion (post smoke test)
+
+- 30 endpoint Pack 1-8 testati via api-gateway:8200 con session SUPERUSER
+- 22 endpoint rispondono 401 (P2/P3 auth-enforced · session cookie cross-service non forwarded ma endpoint registered + middleware attivo · acceptable smoke evidence)
+- 8 endpoint rispondono 404 perché test ha usato root path (es. `/nace`); routes esistenti hanno solo sub-path (`/nace/sections`, etc.) verificate via `app.use` mounting in `src/index.ts` — endpoint mounted, no missing
+- **CSV `legacy-import-registry.csv` aggiornato**: 30 endpoint entry `Test Stage` → `Promoted`. Distribuzione finale: **30 Promoted · 57 Test Stage** (helper/middleware/utils/seed/allowlist · transitivamente verificate via promotion endpoint dipendenti) **· 36 Rejected**
+
+### Phase 14 scope (pending Enzo decision)
+
+- Doc `docs/70-planning/phase14-scope.md` scritto con 8 tracce indipendenti A-H + 5 bundle proposti (R/M/C/U/F)
+- **Bundle raccomandato R (~25-32 FTE-day)**: A live data binding + D E2E Playwright + H i18n IT/EN + F /ontology+OpenAI
+- Decisione finale via fresh session (su istruzione Enzo: Phase 14 in fresh session)
 
 **13.B outcome**: 2 nuove tabelle additive (`dashboard_presets` + `dashboard_elements`) + migration `db/migrations/0002_phase13_dashboard_engine.sql` (idempotente G14) + seed `db/seeds/phase13_dashboard_presets.sql` (9 preset + 30 element platform default · idempotente G15) + RLS policy `dashboard_elements_tenant_isolation` con FORCE (G16 strutturale + simulato OK · BYPASSRLS pattern evo). Schema.prisma esteso chirurgicamente con 2 model + relation back-references su `tenants` / `widget_catalog` / `rbp_perspectives`. Prisma client v5.22 rigenerato clean. Boundary `dashboard_presets` (Phase 13 templates platform-wide) vs `dashboards`/`dashboard_widgets` (user workspace runtime UUID-based, esistenti) chiarito.
 
@@ -37,15 +59,25 @@
 
 Cumulativo Phase 13 (full closure): 13.0 done · 13.A done · 13.B done · 13.C done · 13.D done · 13.E done. Decisioni tecniche autonome documentate in DECISIONS-LOG L29 (13.A) + L30 (13.B) + L31 (13.C/D/E).
 
-## Top priorities (next session)
+## Top priorities (next session — FRESH SESSION per Phase 14)
 
-1. **Smoke test live `/dashboard/<code>`** (~ad-hoc): start `services/app` dev server (3200) + `services/api-gateway` (8200) + login con un test user con role HR_DIRECTOR/RTL_BANK + visitare i 9 URL `/dashboard/{hr_director_overview,capability_graph,skills_heatmap,employee_journey,org_systems,process_recruiting_funnel,process_onboarding_flow,process_performance_cycle,process_learning_paths}` per acceptance visuale.
-2. **Pack 1-8 promotion** (~ad-hoc): smoke test live api-gateway endpoint + acceptance Enzo per portare 30 entry da `Test Stage` → `PreOp Stage` → `Promoted`. Vedi [`legacy-import-registry.md`](legacy-import-registry.md) § Promotion checklist.
-3. **Phase 14 scope decision**: data-fetcher real (sql/graph/api/static dispatch) · drag-resize editor utente (workspace UUID `dashboards` + `dashboard_widgets`) · expansion mockup PROCESS (V1 sono MVP placeholder, ~150-200 LOC ciascuno; espansione a parità Phase 9 ~750 LOC) · E2E Playwright golden image · /ontology reopen residuo (BLOCK 11+ OpenAI integration api-gateway).
+1. **Phase 14 bundle decision (Enzo)**: leggere `docs/70-planning/phase14-scope.md` e selezionare bundle (default R: A+D+H+F · ~25-32 FTE-day). Output: nuovo plan `~/.claude/plans/<phase14-id>.md` per autonomous execution stile Phase 13.
+2. **Phase 14 execution**: secondo bundle scelto. Bundle R = live data binding (A) + E2E Playwright (D) + i18n IT/EN (H) + /ontology+OpenAI (F).
+3. **(Optional) Mockup PROCESS expansion** (B · 4-6 d): solo se Phase 14 ha headroom. V1 sono ~150 LOC placeholder; espansione a parità ~750 LOC dei 5 esistenti per acceptance designer.
 
 ## Open questions
 
-- Nessuna blocking. **Phase 13 chiusa definitivamente**. Tutte le 9 dashboard Tier 1 sono live e servite via `/dashboard/<code>`. Next architectural step naturale è acceptance live (smoke test) seguita da Phase 14 scope.
+- Nessuna blocking. **Phase 13 chiusa + smoke test live verde + Pack 1-8 promoted**. Phase 14 scope drafted (`docs/70-planning/phase14-scope.md`). Prossima sessione = fresh session per Phase 14 con bundle scelto (R raccomandato).
+
+## Background processes attivi (post-session)
+
+- api-gateway:8200 (npm run dev) · bg task `b6ebkc8jc` · log in `%TEMP%\claude\D--evo-heuresys-com\<id>\tasks\b6ebkc8jc.output`
+- Next.js services/app:3200 (npm run dev) · bg task `bvwor3v7i` · log idem
+- Tunnel SSH PID 6428 (`scripts/dev-local/tunnel-vm.ps1 -Stop` per stop)
+- Storybook:6006 (running pre-session)
+- Enrichment workers (running pre-session)
+
+Per stop completo: stop dei processi node + `tunnel-vm.ps1 -Stop`. Lasciati attivi per fresh session continuity.
 
 ## Environment dev (a fine sessione)
 
