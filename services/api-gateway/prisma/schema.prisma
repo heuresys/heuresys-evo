@@ -246,6 +246,7 @@ model org_units {
   description_it                             String?
   description_en                             String?
   employees_employees_org_unit_idToorg_units employees[]                    @relation("employees_org_unit_idToorg_units")
+  job_postings                               job_postings[]
   employees_org_units_manager_idToemployees  employees?                     @relation("org_units_manager_idToemployees", fields: [manager_id], references: [id], onUpdate: NoAction, map: "fk_ou_manager")
   tenants                                    tenants                        @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   workforce_plan_actions                     workforce_plan_actions[]
@@ -331,10 +332,14 @@ model tenants {
   employees                           employees[]
   feedback_360                        feedback_360[]
   goals                               goals[]
+  job_postings                        job_postings[]
   locations                           locations[]
   merit_cycles                        merit_cycles[]
   org_units                           org_units[]
   performance_reviews                 performance_reviews[]
+  recruiting_candidates               recruiting_candidates[]
+  recruiting_offers                   recruiting_offers[]
+  requisitions                        requisitions[]
   workforce_plan_actions              workforce_plan_actions[]
   workforce_plan_scenarios            workforce_plan_scenarios[]
   workforce_plans                     workforce_plans[]
@@ -945,6 +950,77 @@ model succession_candidates {
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model feedback_360 {
+  id                                                                String                       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id                                                         String                       @db.Uuid
+  target_employee_id                                                String?                      @db.Uuid
+  reviewer_employee_id                                              String?                      @db.Uuid
+  review_cycle_id                                                   String?                      @db.Uuid
+  relationship_type                                                 String?                      @db.VarChar(50)
+  overall_rating                                                    Decimal?                     @db.Decimal(3, 2)
+  strengths                                                         String?
+  areas_for_improvement                                             String?
+  is_anonymous                                                      Boolean?                     @default(true)
+  status                                                            String?                      @default("pending") @db.VarChar(50)
+  created_at                                                        DateTime?                    @default(now()) @db.Timestamp(6)
+  completed_at                                                      DateTime?                    @db.Timestamp(6)
+  content_embedding                                                 Unsupported("vector")?
+  embedding_text_hash                                               String?                      @db.VarChar(64)
+  embedding_model                                                   String?                      @db.VarChar(100)
+  embedding_generated_at                                            DateTime?                    @db.Timestamptz(6)
+  questionnaire_id                                                  String?                      @db.Uuid
+  performance_review_id                                             String?                      @db.Uuid
+  request_id                                                        String?                      @db.Uuid
+  question_responses                                                Json?
+  sentiment_score                                                   Decimal?                     @db.Decimal(3, 2)
+  submission_time_seconds                                           Int?
+  performance_reviews                                               performance_reviews?         @relation(fields: [performance_review_id], references: [id], onUpdate: NoAction)
+  tenants                                                           tenants                      @relation(fields: [tenant_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  employees_feedback_360_reviewer_employee_idToemployees            employees?                   @relation("feedback_360_reviewer_employee_idToemployees", fields: [reviewer_employee_id], references: [id], onUpdate: NoAction, map: "fk_feedback_360_reviewer")
+  employees_feedback_360_target_employee_idToemployees              employees?                   @relation("feedback_360_target_employee_idToemployees", fields: [target_employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_feedback_360_target")
+
+  @@index([review_cycle_id], map: "idx_feedback_360_cycle")
+  @@index([content_embedding], map: "idx_feedback_360_embedding")
+  @@index([questionnaire_id], map: "idx_feedback_360_questionnaire_id")
+  @@index([request_id], map: "idx_feedback_360_request_id")
+  @@index([performance_review_id], map: "idx_feedback_360_review")
+  @@index([reviewer_employee_id], map: "idx_feedback_360_reviewer")
+  @@index([status], map: "idx_feedback_360_status")
+  @@index([target_employee_id], map: "idx_feedback_360_target")
+  @@index([tenant_id], map: "idx_feedback_360_tenant")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model merit_cycles {
+  id                     String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id              String     @db.Uuid
+  name                   String     @db.VarChar(200)
+  description            String?
+  effective_date         DateTime   @db.Date
+  submission_deadline    DateTime?  @db.Date
+  approval_deadline      DateTime?  @db.Date
+  total_budget           Decimal?   @db.Decimal(15, 2)
+  budget_spent           Decimal?   @default(0) @db.Decimal(15, 2)
+  min_increase_percent   Decimal?   @default(0) @db.Decimal(5, 2)
+  max_increase_percent   Decimal?   @default(20) @db.Decimal(5, 2)
+  guideline_matrix       Json?
+  status                 String?    @default("draft") @db.VarChar(30)
+  created_by             String?    @db.Uuid
+  created_at             DateTime?  @default(now()) @db.Timestamp(6)
+  updated_at             DateTime?  @default(now()) @db.Timestamp(6)
+  created_by_employee_id String?    @db.Uuid
+  employees              employees? @relation(fields: [created_by_employee_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "merit_cycles_created_by_fkey_emp")
+  tenants                tenants    @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([created_by_employee_id], map: "idx_merit_cycles_created_by_employee_id")
+  @@index([status], map: "idx_merit_cycles_status")
+  @@index([tenant_id], map: "idx_merit_cycles_tenant")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -1375,176 +1451,157 @@ model succession_candidates {
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model feedback_360 {
-  id                                                                String                       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  tenant_id                                                         String                       @db.Uuid
-  target_employee_id                                                String?                      @db.Uuid
-  reviewer_employee_id                                              String?                      @db.Uuid
-  review_cycle_id                                                   String?                      @db.Uuid
-  relationship_type                                                 String?                      @db.VarChar(50)
-  overall_rating                                                    Decimal?                     @db.Decimal(3, 2)
-  strengths                                                         String?
-  areas_for_improvement                                             String?
-  is_anonymous                                                      Boolean?                     @default(true)
-  status                                                            String?                      @default("pending") @db.VarChar(50)
-  created_at                                                        DateTime?                    @default(now()) @db.Timestamp(6)
-  completed_at                                                      DateTime?                    @db.Timestamp(6)
-  content_embedding                                                 Unsupported("vector")?
-  embedding_text_hash                                               String?                      @db.VarChar(64)
-  embedding_model                                                   String?                      @db.VarChar(100)
-  embedding_generated_at                                            DateTime?                    @db.Timestamptz(6)
-  questionnaire_id                                                  String?                      @db.Uuid
-  performance_review_id                                             String?                      @db.Uuid
-  request_id                                                        String?                      @db.Uuid
-  question_responses                                                Json?
-  sentiment_score                                                   Decimal?                     @db.Decimal(3, 2)
-  submission_time_seconds                                           Int?
-  performance_reviews                                               performance_reviews?         @relation(fields: [performance_review_id], references: [id], onUpdate: NoAction)
-  tenants                                                           tenants                      @relation(fields: [tenant_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  employees_feedback_360_reviewer_employee_idToemployees            employees?                   @relation("feedback_360_reviewer_employee_idToemployees", fields: [reviewer_employee_id], references: [id], onUpdate: NoAction, map: "fk_feedback_360_reviewer")
-  employees_feedback_360_target_employee_idToemployees              employees?                   @relation("feedback_360_target_employee_idToemployees", fields: [target_employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_feedback_360_target")
 
-  @@index([review_cycle_id], map: "idx_feedback_360_cycle")
-  @@index([content_embedding], map: "idx_feedback_360_embedding")
-  @@index([questionnaire_id], map: "idx_feedback_360_questionnaire_id")
-  @@index([request_id], map: "idx_feedback_360_request_id")
-  @@index([performance_review_id], map: "idx_feedback_360_review")
-  @@index([reviewer_employee_id], map: "idx_feedback_360_reviewer")
-  @@index([status], map: "idx_feedback_360_status")
-  @@index([target_employee_id], map: "idx_feedback_360_target")
-  @@index([tenant_id], map: "idx_feedback_360_tenant")
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+
+
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+
+
+
+
+
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model interviews {
+  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  application_id   String    @db.Uuid
+  interview_type   String?   @default("general") @db.VarChar(50)
+  interview_round  Int?      @default(1)
+  scheduled_at     DateTime? @db.Timestamptz(6)
+  duration_minutes Int?      @default(60)
+  location         String?   @db.VarChar(255)
+  meeting_link     String?   @db.VarChar(500)
+  interviewers     Json?
+  status           String?   @default("scheduled") @db.VarChar(50)
+  overall_rating   Int?
+  recommendation   String?   @db.VarChar(50)
+  feedback_notes   String?
+  strengths        String?
+  concerns         String?
+  scorecard        Json?
+  completed_at     DateTime? @db.Timestamptz(6)
+  created_at       DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime? @default(now()) @db.Timestamptz(6)
+
+  @@index([application_id], map: "idx_interviews_application")
+  @@index([scheduled_at], map: "idx_interviews_scheduled")
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-
-
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-
-
-
-
-
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 
@@ -1570,119 +1627,128 @@ model feedback_360 {
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-/// This model contains an expression index which requires additional setup for migrations. Visit https://pris.ly/d/expression-indexes for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model merit_cycles {
-  id                     String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  tenant_id              String     @db.Uuid
-  name                   String     @db.VarChar(200)
+model job_postings {
+  id                     String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id              String                 @db.Uuid
+  requisition_id         String?                @db.Uuid
+  job_template_id        String?                @db.Uuid
+  title                  String                 @db.VarChar(200)
+  location_id            String?                @db.Uuid
   description            String?
-  effective_date         DateTime   @db.Date
-  submission_deadline    DateTime?  @db.Date
-  approval_deadline      DateTime?  @db.Date
-  total_budget           Decimal?   @db.Decimal(15, 2)
-  budget_spent           Decimal?   @default(0) @db.Decimal(15, 2)
-  min_increase_percent   Decimal?   @default(0) @db.Decimal(5, 2)
-  max_increase_percent   Decimal?   @default(20) @db.Decimal(5, 2)
-  guideline_matrix       Json?
-  status                 String?    @default("draft") @db.VarChar(30)
-  created_by             String?    @db.Uuid
-  created_at             DateTime?  @default(now()) @db.Timestamp(6)
-  updated_at             DateTime?  @default(now()) @db.Timestamp(6)
-  created_by_employee_id String?    @db.Uuid
-  employees              employees? @relation(fields: [created_by_employee_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "merit_cycles_created_by_fkey_emp")
-  tenants                tenants    @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  requirements           String?
+  responsibilities       String?
+  qualifications         String?
+  benefits               String?
+  salary_range_min       Decimal?               @db.Decimal(12, 2)
+  salary_range_max       Decimal?               @db.Decimal(12, 2)
+  salary_currency        String?                @default("EUR") @db.VarChar(3)
+  employment_type        String?                @db.VarChar(50)
+  experience_level       String?                @db.VarChar(50)
+  remote_policy          String?                @db.VarChar(50)
+  status                 String?                @default("draft") @db.VarChar(50)
+  published_at           DateTime?              @db.Timestamptz(6)
+  closes_at              DateTime?              @db.Timestamptz(6)
+  filled_at              DateTime?              @db.Timestamptz(6)
+  views_count            Int?                   @default(0)
+  applications_count     Int?                   @default(0)
+  created_by             String?                @db.Uuid
+  created_at             DateTime?              @default(now()) @db.Timestamptz(6)
+  updated_at             DateTime?              @default(now()) @db.Timestamptz(6)
+  content_embedding      Unsupported("vector")?
+  embedding_text_hash    String?                @db.VarChar(64)
+  embedding_model        String?                @db.VarChar(100)
+  embedding_generated_at DateTime?              @db.Timestamptz(6)
+  org_unit_id            String?                @db.Uuid
+  org_units              org_units?             @relation(fields: [org_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  tenants                tenants                @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
-  @@index([created_by_employee_id], map: "idx_merit_cycles_created_by_employee_id")
-  @@index([status], map: "idx_merit_cycles_status")
-  @@index([tenant_id], map: "idx_merit_cycles_tenant")
+  @@index([content_embedding], map: "idx_job_postings_embedding")
 }
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+/// This model contains an expression index which requires additional setup for migrations. Visit https://pris.ly/d/expression-indexes for more info.
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 
@@ -2171,6 +2237,41 @@ model merit_cycles {
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model recruiting_candidates {
+  id                           String                         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id                    String                         @db.Uuid
+  requisition_id               String?                        @db.Uuid
+  first_name                   String                         @db.VarChar(100)
+  last_name                    String                         @db.VarChar(100)
+  email                        String                         @db.VarChar(255)
+  phone                        String?                        @db.VarChar(50)
+  current_company              String?                        @db.VarChar(255)
+  job_title                    String?                        @db.VarChar(255)
+  experience_years             Int?
+  stage                        String?                        @default("applied") @db.VarChar(50)
+  rating                       Decimal?                       @db.Decimal(3, 2)
+  source                       String?                        @db.VarChar(100)
+  resume_url                   String?
+  linkedin_url                 String?
+  portfolio_url                String?
+  notes                        String?
+  skills                       Json?                          @default("[]")
+  applied_at                   DateTime?                      @default(now()) @db.Timestamp(6)
+  last_activity                DateTime?                      @default(now()) @db.Timestamp(6)
+  created_at                   DateTime?                      @default(now()) @db.Timestamp(6)
+  updated_at                   DateTime?                      @default(now()) @db.Timestamp(6)
+  profile_embedding            Unsupported("vector")?
+  embedding_text_hash          String?                        @db.VarChar(64)
+  embedding_model              String?                        @db.VarChar(100)
+  embedding_generated_at       DateTime?                      @db.Timestamptz(6)
+  tenants                      tenants                        @relation(fields: [tenant_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  recruiting_offers            recruiting_offers[]
+
+  @@index([requisition_id], map: "idx_recruiting_cand_req")
+  @@index([stage], map: "idx_recruiting_cand_stage")
+  @@index([tenant_id], map: "idx_recruiting_cand_tenant")
+  @@index([profile_embedding], map: "idx_recruiting_candidates_embedding")
+}
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 
@@ -2185,6 +2286,37 @@ model merit_cycles {
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model recruiting_offers {
+  id                      String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id               String                   @db.Uuid
+  candidate_id            String?                  @db.Uuid
+  requisition_id          String?                  @db.Uuid
+  status                  String?                  @default("draft") @db.VarChar(50)
+  salary_offered          Decimal?                 @db.Decimal(12, 2)
+  currency                String?                  @default("EUR") @db.VarChar(3)
+  bonus_offered           Decimal?                 @db.Decimal(12, 2)
+  equity_offered          String?                  @db.VarChar(100)
+  start_date              DateTime?                @db.Date
+  expiry_date             DateTime?                @db.Date
+  job_title               String?                  @db.VarChar(255)
+  department              String?                  @db.VarChar(100)
+  location                String?                  @db.VarChar(255)
+  employment_type         String?                  @db.VarChar(50)
+  benefits                Json?                    @default("{}")
+  notes                   String?
+  approved_by             String?                  @db.Uuid
+  approved_at             DateTime?                @db.Timestamp(6)
+  sent_at                 DateTime?                @db.Timestamp(6)
+  responded_at            DateTime?                @db.Timestamp(6)
+  created_at              DateTime?                @default(now()) @db.Timestamp(6)
+  updated_at              DateTime?                @default(now()) @db.Timestamp(6)
+  recruiting_candidates   recruiting_candidates?   @relation(fields: [candidate_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  tenants                 tenants                  @relation(fields: [tenant_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([candidate_id], map: "idx_recruiting_offers_cand")
+  @@index([requisition_id], map: "idx_recruiting_offers_requisition_id")
+  @@index([tenant_id], map: "idx_recruiting_offers_tenant")
+}
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -2204,6 +2336,35 @@ model merit_cycles {
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model requisitions {
+  id                String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id         String         @db.Uuid
+  title             String         @db.VarChar(255)
+  description       String?
+  requirements      String?
+  department        String?        @db.VarChar(100)
+  location          String?        @db.VarChar(255)
+  employment_type   String?        @default("full_time") @db.VarChar(50)
+  remote_policy     String?        @default("hybrid") @db.VarChar(50)
+  salary_min        Decimal?       @db.Decimal(15, 2)
+  salary_max        Decimal?       @db.Decimal(15, 2)
+  salary_currency   String?        @default("EUR") @db.VarChar(3)
+  status            String?        @default("draft") @db.VarChar(50)
+  priority          String?        @default("medium") @db.VarChar(20)
+  hiring_manager_id String?        @db.Uuid
+  recruiter_id      String?        @db.Uuid
+  positions_total   Int?           @default(1)
+  positions_filled  Int?           @default(0)
+  target_start_date DateTime?      @db.Date
+  posted_date       DateTime?      @db.Date
+  closed_date       DateTime?      @db.Date
+  created_at        DateTime?      @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime?      @default(now()) @db.Timestamptz(6)
+  tenants           tenants        @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([status], map: "idx_requisitions_status")
+  @@index([tenant_id], map: "idx_requisitions_tenant")
+}
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 

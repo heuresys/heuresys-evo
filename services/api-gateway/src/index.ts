@@ -32,6 +32,11 @@ import { talentIntelligenceRouter } from './routes/talent-intelligence.js';
 import { successionRouter } from './routes/succession.js';
 import { reviews360Router } from './routes/reviews-360.js';
 import { meritCyclesRouter } from './routes/merit-cycles.js';
+import { candidatesRouter } from './routes/candidates.js';
+import { jobPostingsRouter } from './routes/job-postings.js';
+import { requisitionsRouter } from './routes/requisitions.js';
+import { interviewsRouter } from './routes/interviews.js';
+import { offersRouter } from './routes/offers.js';
 import { setRBPCache, RBPCacheService } from './services/rbp-cache.js';
 import { prisma } from './db/pool.js';
 import './types.js';
@@ -98,6 +103,11 @@ app.use('/talent', talentIntelligenceRouter);
 app.use('/succession', successionRouter);
 app.use('/reviews-360', reviews360Router);
 app.use('/merit-cycles', meritCyclesRouter);
+app.use('/candidates', candidatesRouter);
+app.use('/job-postings', jobPostingsRouter);
+app.use('/requisitions', requisitionsRouter);
+app.use('/interviews', interviewsRouter);
+app.use('/offers', offersRouter);
 
 // 404 catch-all (must be before errorHandler).
 app.use((_req, res) => {

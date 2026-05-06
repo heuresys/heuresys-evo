@@ -40,3 +40,8 @@ critical_roles
 succession_candidates
 feedback_360
 merit_cycles
+recruiting_candidates
+job_postings
+requisitions
+interviews
+recruiting_offers
