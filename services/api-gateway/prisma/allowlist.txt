@@ -45,3 +45,8 @@ job_postings
 requisitions
 interviews
 recruiting_offers
+courses
+learning_paths
+course_enrollments
+learning_path_enrollments
+certifications
