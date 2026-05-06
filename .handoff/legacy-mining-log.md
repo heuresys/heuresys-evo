@@ -568,6 +568,69 @@ I 4 pack rifiutati condividono lo stesso DNA: **thin route wrapper su heavy doma
 3. Pack 2.5 `/onet` — solo se serve seed pipeline standalone (vs static dump)
 4. Pack 2.8 `/ontology` — BLOCK 11+ con OpenAI integration
 
+## Pack 3-8 · CHIUSI (2026-05-06)
+
+**Outcome aggregato Pack 3-8** (executed in single session continuativa):
+
+| Pack | Domain | Endpoint | Outcome | Test | Suite delta |
+|---|---|---|---|---|---|
+| 3 | Career intelligence | /talent-intelligence · /succession (2/5 ported, 3/5 Rejected) | partial | 30 | +30 |
+| 4 | Performance | /reviews-360 · /merit-cycles (2/5 ported, 3/5 Rejected) | partial | 24 | +24 |
+| 5 | Recruiting | /candidates · /job-postings · /requisitions · /interviews · /offers (5/5 CRUD core, 0 Rejected) | partial | 45 | +45 |
+| 6 | Learning | /courses · /learning-paths · /enrollments · /certifications (4/5 ported, 1 Rejected) | partial | 23 | +23 |
+| 7 | Onboarding/Time-off | /attendance · /time-off · /tenant-onboarding (3/4 ported, 1 Rejected) | partial | 16 | +16 |
+| 8 | RBP/Audit/Org-systems | /workspace · /platform (2/4 ported, 2 Rejected) | partial | 12 | +12 |
+
+**Pattern ripetuto**:
+
+- 18/32 endpoint ported (56%) · 14/32 Rejected (44%)
+- 150 test nuovi cumulativi (Pack 3-8)
+- Suite api-gateway: 280 (post Pack 2) → 430 (post Pack 8) · +150 (53% growth)
+- Allowlist Prisma: 25 (post Pack 2) → 47 model (+22)
+- 6 commit Pack 3-8 + closure (~7 commit totali questa sessione, ~12 cumulativi Phase 13.0)
+
+**Razionale skip pattern Pack 3-8** (coerente con Pack 1c+2 skip):
+
+I 14 endpoint Rejected condividono lo stesso DNA: thin route wrapper su heavy domain service class (CareerPathService 910 LOC · gap-analysis 979 LOC · performanceManagementService 1474 LOC · TrainingRecommendationService · workspace business logic) o dipendenze esterne (5 PostgreSQL custom functions migration 140-142 + pgvector embeddings · OpenAI API key wired · O*NET CSV files external). Coerenza decisionale cross-pack: ROI scarso senza UI consumer specifico + seed dati realistici.
+
+**File create per pack 3-8** (~14 nuovi router):
+
+- talent-intelligence.ts · succession.ts (Pack 3)
+- reviews-360.ts · merit-cycles.ts (Pack 4)
+- candidates.ts · job-postings.ts · requisitions.ts · interviews.ts · offers.ts (Pack 5)
+- courses.ts · learning-paths.ts · enrollments.ts · certifications.ts (Pack 6)
+- attendance.ts · time-off.ts · tenant-onboarding.ts (Pack 7)
+- workspace.ts · platform.ts (Pack 8)
+
+**Test consolidati**: pack3-pack8 test files (5 test files: pack4-performance · pack5-recruiting · pack6-learning · pack7-onboarding · pack8-rbp-audit + 2 router-specific: talent-intelligence + succession).
+
+## Phase 13.0 · CHIUSURA DEFINITIVA (2026-05-06)
+
+**Outcome cumulativo 8 pack**:
+
+- **Pack 1** (HR core): 6/6 ported · 112 test
+- **Pack 2** (ESCO): 4/8 ported · 75 test
+- **Pack 3-8** (5 domain): 18/32 ported · 150 test
+- **Totale**: 28/46 endpoint pack ported (61%) · 18/46 Rejected (39%) · 337 test cumulativi · suite api-gateway 430/430 verde (era 80 baseline) · allowlist Prisma 9 → 47 model (+38)
+
+**Coerenza decisionale Phase 13.0**: la regola "thin wrapper + heavy service class skip" è stata applicata uniformemente cross-pack. I 18 Rejected sono tutti documentati nel registry con cui prodest concreto + roadmap riapertura.
+
+**Promotion path**: 28 endpoint in `Test Stage` registry · pronti per acceptance Enzo + smoke test live → `PreOp Stage`.
+
+**Phase 13.0 effort actuale**: ~5 ore di sessione (vs preventivo plan 14-16 FTE-day) · grazie a pattern uniforme + skip coerente + testing minimal Vitest mock pattern.
+
+**Phase 13.A → 13.E roadmap** (NEXT sessions, ~27-35 FTE-day stimati):
+
+| Sub-phase | Effort | Purpose | Dependencies |
+|---|---|---|---|
+| 13.A | 5-7 FTE-day | Atomic dashboard component (UI layer) | Pack 1-8 ported endpoint |
+| 13.B | 4-5 FTE-day | Schema extension dashboard_elements + dashboard_presets seed | 13.A |
+| 13.C | 8-10 FTE-day | Renderer data-driven engine | 13.A + 13.B |
+| 13.D | 6-8 FTE-day | Process Observer mockup gap + promotion candidates | 13.C |
+| 13.E | 4-5 FTE-day | Hardening + verification cross-layer | 13.D |
+
+**Pre-requisite riapertura Pack rejected** prima di Phase 13.A (per dashboard Tier 1 skills-heatmap + capability-graph): valuta `/skill-analytics` + `/skill-taxonomy` + `/ontology` riapertura focalizzata.
+
 ## Cascade dependencies (skip che forzano altri skip)
 
 > Append-only. Format: `endpoint A skip → endpoint B impacted (motivo)`.
