@@ -16,13 +16,27 @@
 
 **Mining log**: [`legacy-mining-log.md`](legacy-mining-log.md) — append-only audit trail per 8 pack legacy.
 
-**Sotto-phase corrente**: 13.0 starting (Pack 1 HR core ⏳ pending).
+**Sotto-phase corrente**: 13.0 in progress · Pack 1 split in 1a/1b dopo audit forensic Agent (effort revisited ~50h vs 16h budget · 215% overshoot).
 
-## Top priorities
+**Pack 1a (light · 2.5 FTE-day · 1/3 done)**: /roles ✅ · /tenants ⏳ · /users ⏳
 
-1. **Phase 13.0 Pack 1 HR core** (~2 FTE-day): forensic mining `/employees · /tenants · /users · /roles · /org-units · /workforce` da `D:\enzospenuso\Documents\GitHub\heuresys.com.evo`. Audit + schema parity + adapt + test + commit batch. Ref: plan § Phase 13.0.
-2. **Phase 13.0 Pack 2-8** (~12-14 FTE-day): ESCO/Career/Performance/Recruiting/Learning/Onboarding/RBP. Sequenziale dopo pack 1.
-3. **Phase 13.A→13.E** (~27-35 FTE-day): atomic UI · schema · engine · PROCESS mockup · hardening. Dopo 13.0.
+**Pack 1b (heavy · 3.5 FTE-day · 0/3 done)**: /employees extend ⏳ · /org-units ⏳ · /workforce-planning ⏳
+
+## Top priorities (next session)
+
+1. **Pack 1a /tenants port** (~6h, MED risk): clone-as-new da legacy `tenants.ts` (725 LOC · 10 handler) · richiede admin pool cross-tenant helper · `escapeILIKE`/`safeParseInt`/`buildMeta` helpers cross-cutting nuovi · test contract + integration (DB evo via tunnel SSH 5432).
+2. **Pack 1a /users port** (~8h, HIGH risk): clone-as-new da legacy `users.ts` (969 LOC · 9 handler) · NextAuth v4 bridge · bcrypt + password policy · welcome email stub · richiede `validatePassword`/`generateSecurePassword` helper.
+3. **Pack 1b /employees extend** (~10h, HIGH risk): da scaffold evo 49 LOC + 1 handler → 18 handler legacy (1301 LOC) · raw SQL → Prisma `$queryRaw` per CTE ricorsive (manager-chain, descendants) · `applyFieldPolicy` da portare.
+4. **Pack 1b /org-units + /workforce** (~14h totale): vedi mining log per dettagli.
+5. **Pack 2-8 Phase 13.0**: ESCO/Career/Performance/Recruiting/Learning/Onboarding/RBP (sequenziali).
+6. **Phase 13.A→13.E** (~27-35 FTE-day): atomic UI · schema · engine · PROCESS mockup · hardening. Dopo 13.0.
+
+## Resume protocol (next session — autonomous)
+
+1. Read `.handoff/STATE.md` (questo file) + `.handoff/legacy-mining-log.md` § Pack 1a · /roles (per pattern adapt) + plan file
+2. `git status -sb` (clean? sync?)
+3. Verify env: `scripts/dev-local/tunnel-vm.ps1 -Status` (tunnel attivo?) + `npm run typecheck --workspaces --if-present` verde
+4. Continue Pack 1a /tenants seguendo decision matrix in plan § Autonomous execution mode
 
 ## Environment dev (verificato 2026-05-06 04:59 GMT+2)
 
