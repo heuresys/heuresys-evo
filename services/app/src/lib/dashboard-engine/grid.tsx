@@ -5,7 +5,7 @@ import { resolveWidget } from './registry';
 import type { DashboardElementShape } from './resolver';
 
 export interface DashboardGridProps {
-  elements: Array<DashboardElementShape & { id: string | number }>;
+  elements: Array<DashboardElementShape & { id: string | number; data?: unknown }>;
   className?: string;
 }
 
@@ -16,9 +16,12 @@ const UnknownWidget: React.FC<{ code: string }> = ({ code }) => (
 );
 
 /**
- * Phase 13.C — Dashboard renderer (CSS Grid 12-col, V1 static).
- * Receives resolved elements from the server component and renders each
- * via the widget registry. No drag-resize, no editor (Phase 14+).
+ * Phase 13.C / 14.A — Dashboard renderer (CSS Grid 12-col, V1 static layout).
+ * Receives resolved elements from the server component and renders each via
+ * the widget registry. Each element optionally carries `data` (prefetched
+ * server-side via data-fetcher). Widget components that consume data are
+ * marked Live in the registry; Demo entries ignore `data` and render
+ * hardcoded fixtures (backward compat — gradual migration per widget code).
  */
 export function DashboardGrid({ elements, className }: DashboardGridProps) {
   if (elements.length === 0) {
@@ -51,7 +54,7 @@ export function DashboardGrid({ elements, className }: DashboardGridProps) {
               gridRow: `${rowStart} / span ${rowSpan}`,
             }}
           >
-            {Widget ? <Widget /> : <UnknownWidget code={el.widget_code} />}
+            {Widget ? <Widget data={el.data} /> : <UnknownWidget code={el.widget_code} />}
           </div>
         );
       })}

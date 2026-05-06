@@ -1,6 +1,6 @@
 import { notFound, redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
-import { loadDashboardPreset, resolveElements } from '@/lib/dashboard-engine';
+import { loadDashboardPreset, prefetchElements, resolveElements } from '@/lib/dashboard-engine';
 import { DashboardGrid } from '@/lib/dashboard-engine/grid';
 
 /**
@@ -15,9 +15,11 @@ import { DashboardGrid } from '@/lib/dashboard-engine/grid';
  * Search params:
  *   ?observer=...     — perspective filter (PROCESS | ENTERPRISE | TALENT)
  *
- * V1 limitations (per plan):
- *   - Static CSS Grid (no drag-resize)
- *   - Widgets render demo data (no live data binding yet — Phase 14)
+ * V1 → Phase 14.A status:
+ *   - Static CSS Grid (no drag-resize) — kept (Sprint 3 · C)
+ *   - Live data binding active (Sprint 1 · A): server pre-fetches data per
+ *     element via prefetchElements; widget registry uses adapter + Demo
+ *     fallback (gradual migration per widget code).
  *   - RBP visibility via element.visibility_min_role (no per-field policies yet)
  */
 
@@ -53,6 +55,12 @@ export default async function DashboardCodePage({ params, searchParams }: PagePr
     perspective: observer ?? null,
   });
 
+  // Phase 14.A — server-side data prefetch per visible element.
+  const prefetched = await prefetchElements(visibleElements, {
+    tenantId: user.tenantId ?? null,
+    role: user.role ?? null,
+  });
+
   const perspectiveLabel = observer ? observer.toUpperCase() : preset.perspective_code;
 
   return (
@@ -78,15 +86,19 @@ export default async function DashboardCodePage({ params, searchParams }: PagePr
       </header>
 
       <DashboardGrid
-        elements={visibleElements.map((el) => ({
-          ...el,
+        elements={visibleElements.map((el) => {
           // BigInt → string for client-component serialization safety (RSC payload)
-          id: typeof el.id === 'bigint' ? el.id.toString() : String(el.id),
-          dashboard_preset_id:
-            typeof el.dashboard_preset_id === 'bigint'
-              ? el.dashboard_preset_id.toString()
-              : String(el.dashboard_preset_id),
-        }))}
+          const id = typeof el.id === 'bigint' ? el.id.toString() : String(el.id);
+          return {
+            ...el,
+            id,
+            dashboard_preset_id:
+              typeof el.dashboard_preset_id === 'bigint'
+                ? el.dashboard_preset_id.toString()
+                : String(el.dashboard_preset_id),
+            data: prefetched[id]?.data ?? null,
+          };
+        })}
       />
     </main>
   );

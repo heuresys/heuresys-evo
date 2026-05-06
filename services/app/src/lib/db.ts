@@ -17,3 +17,33 @@ export const prisma: PrismaClient =
 if (process.env.NODE_ENV !== 'production') {
   globalForPrisma.prisma = prisma;
 }
+
+/**
+ * Run `fn` inside a transaction with `app.current_tenant_id` set to `tenantId`.
+ * Mirror of services/api-gateway `withTenant` — required by RLS policies on
+ * tenant-scoped tables. Pass `null` for platform-wide queries (RLS context
+ * unset, only platform-only tables / non-tenant-scoped reads should run).
+ *
+ * Usage:
+ *   const rows = await withTenant(tenantId, (tx) =>
+ *     tx.employees.findMany({ where: { is_active: true } })
+ *   );
+ */
+export async function withTenant<T>(
+  tenantId: string | null,
+  fn: (
+    tx: Omit<
+      PrismaClient,
+      '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'
+    >
+  ) => Promise<T>
+): Promise<T> {
+  return prisma.$transaction(async (tx) => {
+    if (tenantId) {
+      await tx.$executeRawUnsafe(
+        `SET LOCAL app.current_tenant_id = '${tenantId.replace(/'/g, "''")}'`
+      );
+    }
+    return fn(tx);
+  });
+}

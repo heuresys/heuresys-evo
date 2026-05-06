@@ -2,20 +2,22 @@
 
 import dynamic from 'next/dynamic';
 import type { ComponentType } from 'react';
+import { resolveAdapter } from './adapters';
 
 /**
- * Phase 13.C — Widget registry.
+ * Phase 13.C / 14.A — Widget registry.
  * Maps `widget_code` (from dashboard_elements) to React component lazy-imported
  * via next/dynamic for code-splitting per route.
  *
- * Initial registry: 8 atomic components from packages/ui TIER 17 (Phase 13.A).
- * Add more entries here as new widget types are introduced (Phase 14+).
- *
- * All components receive demo data internally (V1 = static); future versions
- * will receive `config` + `data` props from the engine `data-fetcher`.
+ * Phase 14.A V2 contract: every entry receives `{data?: unknown}` prop.
+ *   - Live entries (e.g. KpiRing) apply the adapter to `data` and render real
+ *     props on the underlying component; fall back to demo fixture when data
+ *     is null or adapter returns null.
+ *   - Demo entries (Sprint 1 follow-ups) ignore `data` and render hardcoded
+ *     fixtures (backward compat — gradual migration).
  */
 
-type WidgetComponent = ComponentType<Record<string, unknown>>;
+type WidgetComponent = ComponentType<{ data?: unknown }>;
 
 const Loading = () => (
   <div
@@ -31,7 +33,7 @@ function lazyWidget(
   loader: () => Promise<{ default: WidgetComponent } | { [k: string]: WidgetComponent }>,
   exportName?: string
 ) {
-  return dynamic<Record<string, unknown>>(
+  return dynamic<{ data?: unknown }>(
     async () => {
       const mod = await loader();
       const cmp = exportName
@@ -45,18 +47,26 @@ function lazyWidget(
 }
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
+// Phase 14.A — KpiRing is the first Live widget. Adapter maps fetched data to
+// component props; falls back to a demo fixture when data is null/invalid.
+const KPI_RING_DEMO_PROPS = {
+  value: 72,
+  label: 'Capability',
+  sublabel: 'company-wide · Q4',
+  unit: '%',
+  thresholds: { goodAt: 80, warnAt: 60 },
+  trend: 4.2,
+};
+
 const KpiRingDemo: WidgetComponent = lazyWidget(() =>
   import('@heuresys/ui').then((m: any) => ({
-    default: () => (
-      <m.KpiRing
-        value={72}
-        label="Capability"
-        sublabel="company-wide · Q4"
-        unit="%"
-        thresholds={{ goodAt: 80, warnAt: 60 }}
-        trend={4.2}
-      />
-    ),
+    default: ({ data }: { data?: unknown }) => {
+      const adapter = resolveAdapter('KpiRing');
+      const live = adapter && data != null ? adapter(data) : null;
+      const props = live ?? KPI_RING_DEMO_PROPS;
+      return <m.KpiRing {...props} />;
+    },
   }))
 );
 
@@ -218,14 +228,14 @@ const RbacMatrixDemo: WidgetComponent = lazyWidget(() =>
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
 export const WIDGET_REGISTRY: Record<string, WidgetComponent> = {
-  KpiRing: KpiRingDemo,
-  IntegrationHealthPill: IntegrationHealthPillDemo,
-  SuccessionCard: SuccessionCardDemo,
-  CareerArc: CareerArcDemo,
-  KgMiniGraph: KgMiniGraphDemo,
-  SkillHeatmap: SkillHeatmapDemo,
-  CapabilityRadar: CapabilityRadarDemo,
-  RbacMatrix: RbacMatrixDemo,
+  KpiRing: KpiRingDemo, // Live (Phase 14.A) — uses adapter, demo fallback
+  IntegrationHealthPill: IntegrationHealthPillDemo, // Demo (TBD: Sprint 1.A.4)
+  SuccessionCard: SuccessionCardDemo, // Demo (TBD: Sprint 1.A.4)
+  CareerArc: CareerArcDemo, // Demo (TBD: Sprint 1.A.4)
+  KgMiniGraph: KgMiniGraphDemo, // Demo (TBD: Sprint 1.A.4)
+  SkillHeatmap: SkillHeatmapDemo, // Demo (TBD: Sprint 1.A.4)
+  CapabilityRadar: CapabilityRadarDemo, // Demo (TBD: Sprint 1.A.4)
+  RbacMatrix: RbacMatrixDemo, // Demo (TBD: Sprint 1.A.4)
 };
 
 export function resolveWidget(widget_code: string): WidgetComponent | null {
