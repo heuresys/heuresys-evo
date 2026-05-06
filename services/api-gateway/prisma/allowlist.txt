@@ -29,3 +29,4 @@ cost_centers
 industry_classifications
 company_sizes
 esco_skills
+employee_skill_assessments

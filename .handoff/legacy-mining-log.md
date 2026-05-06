@@ -398,6 +398,57 @@
 
 **Effort reale**: ~20 minuti (within preventivo plan ~30 min).
 
+## Pack 2 · /skill-analytics · SKIPPED (2026-05-06 15:08 GMT+2)
+
+**Source**: `D:\enzospenuso\Documents\GitHub\heuresys.com.evo\services\api-gateway\src\routes\skill-analytics.ts` (289 LOC) + `services/skill-analytics/skill-analytics.service.ts` (607 LOC).
+
+**Decision**: SKIPPED. Pattern Pack 1c WorkforcePlanningService.
+
+**Razionale**:
+
+- 8 endpoint thin wrapper che delegano tutto a `SkillAnalyticsService` con 8 metodi: getSummaryStats · getSkillCoverageHeatmap · getSkillTrends · getCriticalShortages · getKSABADistribution · getEmergingSkills · getDepartmentComparison · etc.
+- Service contiene CTE recursive + statistical aggregation + cross-table JOIN (employee_skill_profiles · tenant_jobs · tenant_job_skills · org_units) — almeno 3 model nuovi allowlist
+- Effort dedicato ~1.5h + seed dati realistici per validare aggregazioni
+- ROI scarso senza UI consumer (analytics dashboard frontend è greenfield Phase 13.A)
+
+**Stage**: `Rejected` (registry CSV row 49-50).
+
+**Riapertura**: quando Phase 13.B-D dashboard analytics componenti vengono implementati e serve dato reale dalla API.
+
+## Pack 2 · /skill-assessments · ported (2026-05-06 15:10 GMT+2)
+
+**Source**: `D:\enzospenuso\Documents\GitHub\heuresys.com.evo\services\api-gateway\src\routes\skill-assessments.ts` (529 LOC).
+
+**Adapted**:
+
+- 9 handler portati: stats · skills/summary · gaps · employee/:id · list · get-by-id · POST · PATCH · DELETE
+- Pattern target evo: `Router` + `requireAuth` + `resolveTenant` + `withTenant` + `$queryRawUnsafe`
+- RBP gating: `EMPLOYEES.view` (read) · `EMPLOYEES.create | edit | delete` (write) — assessments sono HR-domain
+- Zod schemas inline: `ListQuery`, `CreateBody`, `UpdateBody`
+- Tenant filter via JOIN `employees e ON e.id = esa.employee_id` + `e.tenant_id = $1::uuid` (cast esplicito UUID per Prisma)
+- DELETE returns 204 (era 200 + message in legacy)
+
+**Skip dichiarati**:
+
+- `createSkillAssessmentSchema`, `updateSkillAssessmentSchema` legacy non portati — sostituiti zod inline
+- `req.dbClient` middleware → `withTenant` evo
+
+**Tabella backing**: `employee_skill_assessments` (tenant-scoped via JOIN employees).
+
+**Allowlist Prisma esteso**: `employee_skill_assessments` (19 → 20 model).
+
+**Test**: 24/24 verde (`skill-assessments.test.ts` · 9 describe block · happy path + 401 + 403 + UUID validation + 404 cases).
+
+**Suite api-gateway**: 266/266 verde (era 242 post Pack 2.2).
+
+**Typecheck workspace**: 5/5 clean.
+
+**Removability**: `no-impact` (router isolato + 1 mount line `index.ts` + 1 model allowlist removable).
+
+**Stage**: `Test Stage` (registry CSV row 51-52).
+
+**Effort reale**: ~25 minuti.
+
 ## Cascade dependencies (skip che forzano altri skip)
 
 > Append-only. Format: `endpoint A skip → endpoint B impacted (motivo)`.
