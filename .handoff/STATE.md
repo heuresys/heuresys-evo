@@ -1,6 +1,6 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-06 (Phase 13.0 CHIUSA · 8/8 pack closed · 28/46 endpoint ported · Pack 2.3+2.6 reopen partial per Phase 13.A prerequisite)
+> Updated: 2026-05-06 (handoff S · Phase 13.0 CHIUSA · 8/8 pack closed · 30+9 handler ported · Pack 2.3+2.6 reopen partial · Phase 13.A backend prerequisite RISOLTI)
 
 ## ⚠️ DIRETTIVA OPERATIVA ATTIVA
 
