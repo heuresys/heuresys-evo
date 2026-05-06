@@ -55,6 +55,7 @@ model employee_skills {
   cognitive_level_achieved                                     Int?
   transferability_demonstrated                                 String?      @db.VarChar(20)
   employees_employee_skills_employee_idToemployees             employees    @relation("employee_skills_employee_idToemployees", fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  esco_skills                                                  esco_skills? @relation(fields: [esco_skill_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   tenants                                                      tenants      @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   employees_employee_skills_verified_by_employee_idToemployees employees?   @relation("employee_skills_verified_by_employee_idToemployees", fields: [verified_by_employee_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
@@ -1134,6 +1135,45 @@ model industry_classifications {
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model esco_skills {
+  id                                                                             String                         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  uri                                                                            String                         @unique @db.VarChar(255)
+  preferred_label                                                                String                         @db.VarChar(500)
+  description                                                                    String?
+  skill_type                                                                     String                         @db.VarChar(50)
+  reuse_level                                                                    String?                        @db.VarChar(50)
+  is_digital                                                                     Boolean?                       @default(false)
+  is_green                                                                       Boolean?                       @default(false)
+  created_at                                                                     DateTime?                      @default(now()) @db.Timestamp(6)
+  alt_labels                                                                     Json?                          @default("[]")
+  broader_uri                                                                    String?                        @db.VarChar(500)
+  narrower_uris                                                                  Json?                          @default("[]")
+  related_uris                                                                   Json?                          @default("[]")
+  isco_groups                                                                    Json?                          @default("[]")
+  updated_at                                                                     DateTime?                      @default(now()) @db.Timestamptz(6)
+  primary_category                                                               String?                        @db.VarChar(20)
+  cognitive_level                                                                Int?
+  is_classified                                                                  Boolean?                       @default(false)
+  embedding_en                                                                   Unsupported("vector")?
+  embedding_it                                                                   Unsupported("vector")?
+  embedding_model                                                                String?                        @db.VarChar(100)
+  embedding_generated_at                                                         DateTime?                      @db.Timestamptz(6)
+  skill_group_uri                                                                String?                        @db.VarChar(500)
+  preferred_label_en                                                             String?                        @db.VarChar(500)
+  preferred_label_it                                                             String?                        @db.VarChar(500)
+  is_transversal                                                                 Boolean?                       @default(false)
+  description_en                                                                 String?
+  description_it                                                                 String?
+  alt_labels_it                                                                  String?
+  employee_skills                                                                employee_skills[]
+
+  @@index([alt_labels], map: "idx_esco_skills_alt_labels", type: Gin)
+  @@index([broader_uri], map: "idx_esco_skills_broader")
+  @@index([preferred_label], map: "idx_esco_skills_label")
+  @@index([preferred_label(ops: raw("gin_trgm_ops"))], map: "idx_esco_skills_label_trgm", type: Gin)
+  @@index([reuse_level], map: "idx_esco_skills_reuse")
+  @@index([skill_type], map: "idx_esco_skills_type")
+}
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments

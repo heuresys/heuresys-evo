@@ -362,6 +362,42 @@
 
 **Effort reale**: ~25 minuti (within preventivo plan ~30 min).
 
+## Pack 2 · /skills · ported (2026-05-06 15:04 GMT+2)
+
+**Source**: `D:\enzospenuso\Documents\GitHub\heuresys.com.evo\services\api-gateway\src\routes\skills.ts` (433 LOC).
+
+**Adapted**:
+
+- 10 handler portati: stats · types · digital · green · search · list · get-by-id · POST · PATCH · DELETE
+- Pattern target evo: `Router` + `requireAuth` + `resolveTenant` + `withTenant` + `$queryRawUnsafe` (replica `/esco`, `/nace`)
+- RBP gating dual: read endpoints `ESCO_KG.view` fallback `EMPLOYEES.view` · write endpoints `ESCO_KG.create | edit | delete` (no fallback)
+- Zod schemas inline: `ListQuery`, `SearchQuery`, `CreateSkillBody`, `UpdateSkillBody` (sostituiscono createSkillSchema/updateSkillSchema legacy non portati)
+- Helper riusati Pack 1: `escapeILIKE` (sql-safety) · `safeParseInt`, `isUUID` (pagination)
+- Idiom errors evo: `res.status().json()` direct (no Errors factory)
+- DELETE returns 204 No Content (era 200 + message in legacy)
+
+**Skip dichiarati**:
+
+- `cached()` helper TTL 600s (stats, types) — deferred (stesso pattern Pack 1c)
+- `cacheControl('reference')` middleware HTTP cache headers — deferred
+- Errors factory + asyncHandler — sostituiti con pattern evo idiomatic
+
+**Tabella backing**: `esco_skills` (cross-tenant taxonomy · no tenant_id column).
+
+**Allowlist Prisma esteso**: `esco_skills` (18 → 19 model).
+
+**Test**: 24/24 verde (`skills.test.ts` · 9 describe block · happy path + 401 + 403 read+write + UUID validation + 404 + filter args verification).
+
+**Suite api-gateway**: 242/242 verde (era 218 post Pack 2.1).
+
+**Typecheck workspace**: 5/5 clean.
+
+**Removability**: `no-impact` (router isolato + 1 mount line `index.ts` + 1 model allowlist removable).
+
+**Stage**: `Test Stage` (registry CSV row 47-48).
+
+**Effort reale**: ~20 minuti (within preventivo plan ~30 min).
+
 ## Cascade dependencies (skip che forzano altri skip)
 
 > Append-only. Format: `endpoint A skip → endpoint B impacted (motivo)`.
