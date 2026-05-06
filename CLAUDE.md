@@ -150,17 +150,35 @@ VM: `oracle-vm-default` (IP 80.225.82.207). nginx vhosts in `/etc/nginx/sites-av
 - Workflows attivi: `quality.yml`, `security.yml`, `storybook.yml`
 - Hooks: husky pre-commit (lint-staged + gitleaks-lite), commit-msg (commitlint)
 
-## Stato attuale (2026-05-04, post S11 close)
+## Legacy import workflow (active — Phase 13.0 mining)
+
+> **Regola cross-progetto**: ogni oggetto importato dal repo legacy `D:\enzospenuso\Documents\GitHub\heuresys.com.evo` deve essere catalogato nel registry strutturato. Vedi memoria globale `~/.claude/projects/D--evo-heuresys-com/memory/feedback_legacy_import_registry.md`.
+
+**Registry SoT** (aggiornare ad ogni commit di import):
+
+| File                                                                         | Scopo                                                                                                                                      |
+| ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| [`.handoff/legacy-import-registry.csv`](.handoff/legacy-import-registry.csv) | Cataloghi parseabile (Excel/jq) di ogni oggetto importato — endpoint, helper, middleware, model allowlist, dependency, env-config, skipped |
+| [`.handoff/legacy-import-registry.md`](.handoff/legacy-import-registry.md)   | Schema CSV + workflow stage + protocollo estirpazione                                                                                      |
+| [`.handoff/legacy-mining-log.md`](.handoff/legacy-mining-log.md)             | Audit trail narrativo Pack-by-Pack (companion del CSV)                                                                                     |
+
+**Stage workflow** (solo Enzo promuove): `Test Stage → PreOp Stage → Promoted/Rejected`. Default initial sempre `Test Stage`.
+
+**Vincolo "estirpazione clean"**: ogni entry in `Test Stage`/`PreOp Stage` DEVE essere rimovibile dal repo evo SENZA conseguenze su stack/oggetti pre-import. Categorie removability tracciate nel CSV (`no-impact`, `embedded-in-existing-file`, `depends-on-X`, `not-yet-used`, `depends-on-DB-seed`).
+
+## Stato attuale (2026-05-06, Phase 13.0 Pack 1 closure)
 
 - Pagine Next.js: 5 (`/`, `/login`, `/dashboard`, `/showcase`, `/brand-studio`)
-- Endpoint Express: 8+ (4xx-aware)
-- Test totali: 250 verdi
+- Endpoint Express: 8 baseline + 6 Pack 1 importati (`/roles` · `/tenants` · `/users` · `/employees` extend · `/org-units` · `/workforce-planning`) tutti `Test Stage`
+- Test totali: ~205 api-gateway verde (era ~80 baseline pre-Pack 1) + altri workspace = ~360 globali
+- Helper cross-cutting Pack 1: 4 famiglie (`escapeILIKE`/`safeParseInt`/`isUUID`/`buildMeta`/`validatePassword`/`generateSecurePassword`/`requirePermission` lazy/`ROLES` constant)
+- Prisma allowlist api-gateway: 16 model (era 9 · expansion per workforce + pre-prep)
 - RLS policies: 605 attive · RBP joins: 326
 - packages/ui: ~180 component, Storybook 9 (84 stories), GH Pages
 - npm audit: 0 vulnerabilities
 - Repo visibility: PUBLIC. Branch protection rimossa. CI minimal
 - Schema docs: Diátaxis numbered + meta (`docs/_meta`, `10-strategy`, `20-architecture`, `30-developer`, `40-operations`, `50-reference`, `70-planning`, `90-archive`)
-- Migration legacy → evo: PET-driven (vedi `docs/10-strategy/migration-strategy-pet-driven.md`)
+- Migration legacy → evo: PET-driven (vedi `docs/10-strategy/migration-strategy-pet-driven.md`) + Phase 13.0 forensic mining (8 pack legacy → registry CSV)
 
 ## Documenti strategici
 

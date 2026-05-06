@@ -7,6 +7,8 @@
 > **Plan ref**: `C:\Users\enzospenuso\.claude\plans\credo-che-se-tu-jazzy-key.md` § Phase 13.0
 >
 > **Started**: 2026-05-06 04:59 GMT+2
+>
+> **⚠️ Companion registry strutturato** (REGOLA cross-progetto): [`legacy-import-registry.csv`](legacy-import-registry.csv) + [`legacy-import-registry.md`](legacy-import-registry.md) — SoT cataloghi degli oggetti importati con stage workflow `Test Stage → PreOp Stage → Promoted/Rejected`. Vincolo "estirpazione clean" per ogni entry. Vedi memoria globale `~/.claude/projects/D--evo-heuresys-com/memory/feedback_legacy_import_registry.md` per la regola completa.
 
 ## Setup verificato pre-bootstrap
 
