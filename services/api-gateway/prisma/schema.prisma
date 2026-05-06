@@ -169,6 +169,7 @@ model employees {
   employee_skill_assessments                                                                         employee_skill_assessments[]
   employee_skills_employee_skills_employee_idToemployees                                             employee_skills[]                     @relation("employee_skills_employee_idToemployees")
   employee_skills_employee_skills_verified_by_employee_idToemployees                                 employee_skills[]                     @relation("employee_skills_verified_by_employee_idToemployees")
+  employee_timeline                                                                                  employee_timeline[]
   tenants                                                                                            tenants                               @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   cost_centers                                                                                       cost_centers?                         @relation(fields: [cost_center_id], references: [id], onUpdate: NoAction, map: "fk_employees_cost_center")
   locations                                                                                          locations?                            @relation(fields: [location_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_employees_location")
@@ -321,7 +322,9 @@ model tenants {
   industry_profile_id                 String?                               @db.Uuid
   verified_website                    String?                               @db.VarChar(255)
   cost_centers                        cost_centers[]
+  critical_roles                      critical_roles[]
   employee_skills                     employee_skills[]
+  employee_timeline                   employee_timeline[]
   employees                           employees[]
   goals                               goals[]
   locations                           locations[]
@@ -791,6 +794,148 @@ model employee_skill_assessments {
   @@index([tenant_job_skill_id], map: "idx_emp_skills_job_skill")
 }
 
+model esco_isco_groups {
+  id                 String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  uri                String?  @unique @db.VarChar(500)
+  code               String   @unique @db.VarChar(20)
+  preferred_label_en String?  @db.VarChar(500)
+  preferred_label_it String?  @db.VarChar(500)
+  description_en     String?
+  description_it     String?
+  parent_uri         String?  @db.VarChar(500)
+  level              Int?     @default(1)
+  created_at         DateTime @default(now()) @db.Timestamptz(6)
+}
+
+model esco_occupation_skills {
+  id               String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  occupation_id    String           @db.Uuid
+  skill_id         String           @db.Uuid
+  relation_type    String?          @default("essential") @db.VarChar(50)
+  created_at       DateTime         @default(now()) @db.Timestamptz(6)
+  esco_occupations esco_occupations @relation(fields: [occupation_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  esco_skills      esco_skills      @relation(fields: [skill_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([occupation_id, skill_id])
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model esco_occupations {
+  id                                  String                                @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  uri                                 String                                @unique @db.VarChar(255)
+  preferred_label                     String                                @db.VarChar(500)
+  description                         String?
+  isco_code                           String?                               @db.VarChar(10)
+  nace_codes                          String[]
+  created_at                          DateTime?                             @default(now()) @db.Timestamp(6)
+  embedding_en                        Unsupported("vector")?
+  embedding_it                        Unsupported("vector")?
+  embedding_model                     String?                               @db.VarChar(100)
+  embedding_generated_at              DateTime?                             @db.Timestamptz(6)
+  preferred_label_en                  String?                               @db.VarChar(500)
+  preferred_label_it                  String?                               @db.VarChar(500)
+  code                                String?                               @db.VarChar(20)
+  description_en                      String?
+  description_it                      String?
+  parent_uri                          String?                               @db.VarChar(500)
+  level                               Int?                                  @default(1)
+  alt_labels                          String?
+  alt_labels_it                       String?
+  esco_occupation_skills              esco_occupation_skills[]
+
+  @@index([embedding_en], map: "idx_esco_occupations_embedding_en")
+  @@index([embedding_it], map: "idx_esco_occupations_embedding_it")
+  @@index([isco_code], map: "idx_esco_occupations_isco")
+  @@index([preferred_label], map: "idx_esco_occupations_label")
+}
+
+model esco_skill_groups {
+  id                 String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  uri                String   @unique @db.VarChar(500)
+  preferred_label_en String?  @db.VarChar(500)
+  preferred_label_it String?  @db.VarChar(500)
+  description_en     String?
+  description_it     String?
+  broader_uri        String?  @db.VarChar(500)
+  created_at         DateTime @default(now()) @db.Timestamptz(6)
+}
+
+model esco_skill_relations {
+  id                                                            String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  source_skill_id                                               String      @db.Uuid
+  target_skill_id                                               String      @db.Uuid
+  relation_type                                                 String      @db.VarChar(50)
+  created_at                                                    DateTime    @default(now()) @db.Timestamptz(6)
+  skill_uri                                                     String?     @db.VarChar(500)
+  related_skill_uri                                             String?     @db.VarChar(500)
+  esco_skills_esco_skill_relations_source_skill_idToesco_skills esco_skills @relation("esco_skill_relations_source_skill_idToesco_skills", fields: [source_skill_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  esco_skills_esco_skill_relations_target_skill_idToesco_skills esco_skills @relation("esco_skill_relations_target_skill_idToesco_skills", fields: [target_skill_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([source_skill_id, target_skill_id, relation_type])
+  @@index([related_skill_uri], map: "idx_esco_skill_relations_related_uri")
+  @@index([skill_uri], map: "idx_esco_skill_relations_skill_uri")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model critical_roles {
+  id                    String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id             String    @db.Uuid
+  role_name             String    @db.VarChar(255)
+  department            String?   @db.VarChar(100)
+  current_incumbent_id  String?   @db.Uuid
+  criticality_level     String?   @default("High") @db.VarChar(20)
+  impact_if_vacant      String?
+  time_to_fill_estimate Int?
+  succession_status     String?   @default("at_risk") @db.VarChar(50)
+  created_at            DateTime? @default(now()) @db.Timestamp(6)
+  updated_at            DateTime? @default(now()) @db.Timestamp(6)
+  tenants               tenants   @relation(fields: [tenant_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([tenant_id], map: "idx_critical_roles_tenant")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model employee_timeline {
+  id           String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id    String                 @db.Uuid
+  employee_id  String                 @db.Uuid
+  event_type   String                 @db.VarChar(50)
+  event_date   DateTime               @db.Timestamptz(6)
+  source_table String?                @db.VarChar(50)
+  source_id    String?                @db.Uuid
+  payload      Json?
+  ai_summary   String?
+  embedding    Unsupported("vector")?
+  created_at   DateTime               @default(now()) @db.Timestamptz(6)
+  employees    employees              @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tenants      tenants                @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([employee_id, source_table, source_id, event_type], map: "uq_emp_timeline_source")
+  @@index([embedding], map: "idx_emp_timeline_embedding")
+  @@index([employee_id, event_date(sort: Desc)], map: "idx_emp_timeline_employee")
+  @@index([tenant_id, event_type, event_date(sort: Desc)], map: "idx_emp_timeline_type")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model succession_candidates {
+  id                    String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  critical_role_id      String?   @db.Uuid
+  candidate_employee_id String?   @db.Uuid
+  readiness_level       String?   @default("ready_2_years") @db.VarChar(50)
+  strengths             String?
+  development_needs     String?
+  development_plan      String?
+  rank_order            Int?      @default(1)
+  created_at            DateTime? @default(now()) @db.Timestamp(6)
+  updated_at            DateTime? @default(now()) @db.Timestamp(6)
+
+  @@index([critical_role_id], map: "idx_succession_candidates_role")
+}
+
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -994,9 +1139,6 @@ model employee_skill_assessments {
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -1110,10 +1252,6 @@ model employee_skill_assessments {
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -1195,88 +1333,6 @@ model employee_skill_assessments {
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-
-model esco_isco_groups {
-  id                 String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  uri                String?  @unique @db.VarChar(500)
-  code               String   @unique @db.VarChar(20)
-  preferred_label_en String?  @db.VarChar(500)
-  preferred_label_it String?  @db.VarChar(500)
-  description_en     String?
-  description_it     String?
-  parent_uri         String?  @db.VarChar(500)
-  level              Int?     @default(1)
-  created_at         DateTime @default(now()) @db.Timestamptz(6)
-}
-
-model esco_occupation_skills {
-  id               String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  occupation_id    String           @db.Uuid
-  skill_id         String           @db.Uuid
-  relation_type    String?          @default("essential") @db.VarChar(50)
-  created_at       DateTime         @default(now()) @db.Timestamptz(6)
-  esco_occupations esco_occupations @relation(fields: [occupation_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  esco_skills      esco_skills      @relation(fields: [skill_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@unique([occupation_id, skill_id])
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model esco_occupations {
-  id                                  String                                @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  uri                                 String                                @unique @db.VarChar(255)
-  preferred_label                     String                                @db.VarChar(500)
-  description                         String?
-  isco_code                           String?                               @db.VarChar(10)
-  nace_codes                          String[]
-  created_at                          DateTime?                             @default(now()) @db.Timestamp(6)
-  embedding_en                        Unsupported("vector")?
-  embedding_it                        Unsupported("vector")?
-  embedding_model                     String?                               @db.VarChar(100)
-  embedding_generated_at              DateTime?                             @db.Timestamptz(6)
-  preferred_label_en                  String?                               @db.VarChar(500)
-  preferred_label_it                  String?                               @db.VarChar(500)
-  code                                String?                               @db.VarChar(20)
-  description_en                      String?
-  description_it                      String?
-  parent_uri                          String?                               @db.VarChar(500)
-  level                               Int?                                  @default(1)
-  alt_labels                          String?
-  alt_labels_it                       String?
-  esco_occupation_skills              esco_occupation_skills[]
-
-  @@index([embedding_en], map: "idx_esco_occupations_embedding_en")
-  @@index([embedding_it], map: "idx_esco_occupations_embedding_it")
-  @@index([isco_code], map: "idx_esco_occupations_isco")
-  @@index([preferred_label], map: "idx_esco_occupations_label")
-}
-
-model esco_skill_groups {
-  id                 String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  uri                String   @unique @db.VarChar(500)
-  preferred_label_en String?  @db.VarChar(500)
-  preferred_label_it String?  @db.VarChar(500)
-  description_en     String?
-  description_it     String?
-  broader_uri        String?  @db.VarChar(500)
-  created_at         DateTime @default(now()) @db.Timestamptz(6)
-}
-
-model esco_skill_relations {
-  id                                                            String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  source_skill_id                                               String      @db.Uuid
-  target_skill_id                                               String      @db.Uuid
-  relation_type                                                 String      @db.VarChar(50)
-  created_at                                                    DateTime    @default(now()) @db.Timestamptz(6)
-  skill_uri                                                     String?     @db.VarChar(500)
-  related_skill_uri                                             String?     @db.VarChar(500)
-  esco_skills_esco_skill_relations_source_skill_idToesco_skills esco_skills @relation("esco_skill_relations_source_skill_idToesco_skills", fields: [source_skill_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  esco_skills_esco_skill_relations_target_skill_idToesco_skills esco_skills @relation("esco_skill_relations_target_skill_idToesco_skills", fields: [target_skill_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@unique([source_skill_id, target_skill_id, relation_type])
-  @@index([related_skill_uri], map: "idx_esco_skill_relations_related_uri")
-  @@index([skill_uri], map: "idx_esco_skill_relations_skill_uri")
-}
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -2222,9 +2278,6 @@ model esco_skill_relations {
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments

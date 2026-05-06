@@ -35,3 +35,6 @@ esco_occupations
 esco_skill_groups
 esco_occupation_skills
 esco_skill_relations
+employee_timeline
+critical_roles
+succession_candidates
