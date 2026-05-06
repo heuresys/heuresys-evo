@@ -2,7 +2,7 @@
 
 > **Single Source of Truth** per stato corrente del workstream brand identity. Aggiorna questo file ogni volta che cambia phase, viene presa una decisione, o si producono asset significativi. Per la cronologia completa cronologica, vedi `DECISIONS-LOG.md`.
 >
-> **Last update**: 2026-05-06 (**L27 "logo originale"** canonical · 2 colori fissi · eccezione plain text per indirizzi/link/domini · Phase 10 surface 1/5 login con 4 variants)
+> **Last update**: 2026-05-06 (**L27 "logo originale"** canonical · 2 colori fissi · eccezione plain text per indirizzi/link/domini · **L28 "logo relativo"** convenzione richiamabile per temi CSS alternativi · Phase 10 surface 1/5 login con 4 variants)
 
 ## Current phase
 

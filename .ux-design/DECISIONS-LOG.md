@@ -637,6 +637,59 @@ Errori commessi nel primo batch login mockup (poi corretti):
 - L25 (2026-05-05) → regole permanenti finalizzate
 - **L27 (2026-05-06)** → "logo originale" + due colori fissi + ECCEZIONE plain text per indirizzi/link/domini
 
+## L28 — 2026-05-06 — "Logo relativo" convenzione richiamabile · body+y derivati dal tema CSS attivo
+
+**Decisione**: introdurre seconda convenzione richiamabile **"logo relativo"** che condivide la stessa struttura tipografica del "logo originale" (Exo 2 700 · h lowercase · 8 lettere identiche · no italic · letter-spacing naturale) ma con il **mapping dei due colori derivato dal tema CSS attivo** invece di essere fisso a brand-blue + accent purple.
+
+Spec CSS:
+
+```css
+.wordmark-relative {
+  font-family: 'Exo 2', sans-serif;
+  font-weight: 700;
+  color: var(--logo-body, var(--ink)); /* token tema · fallback --ink */
+  letter-spacing: normal;
+  text-transform: lowercase;
+}
+.wordmark-relative .y {
+  color: var(--accent); /* token tema (può variare per direction) */
+}
+```
+
+**Convenzioni token**:
+
+- Body color: `--logo-body` (token canonico dedicato) — definito dal tema
+- Fallback body: `--ink` (CSS custom property fallback nativo `var(--logo-body, var(--ink))`)
+- Y color: `--accent` (sempre con questo nome, varia per tema)
+
+**Distinzione operativa logo originale vs logo relativo**:
+
+| Convenzione                | Body                                             | Y                                     | Quando si usa                                                                                              |
+| -------------------------- | ------------------------------------------------ | ------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `.wordmark-original` (L27) | `var(--brand-blue)` fisso (legacy heuresys.com)  | `var(--accent)` fisso (purple legacy) | Default cross-surface · tema brand canonical                                                               |
+| `.wordmark-relative` (L28) | `var(--logo-body, var(--ink))` derivato dal tema | `var(--accent)` derivato dal tema     | Surface con tema CSS alternativo (direction estetica diversa, palette cliente custom, variante stagionale) |
+
+**Contesto**: Enzo: "creiamo 'logo relativo' il logo creato secondo il medesimo criterio di logo originale con la variazione dei due colori a body in var(--xxx) + y in var(--accent) dove --xxx e --accent sono derivati dalla configurazione della palette di colori del tema adottato (e non mi riferisco a light e dark ma proprio al tema css o simile) prescelto".
+
+Risposte alle 2 domande operative pre-formalizzazione:
+
+1. Nome canonico body token: **`--logo-body`** (token dedicato, opzione `a`)
+2. Fallback se tema non definisce body token: **`var(--ink)`** (theme-aware neutro, opzione `b`)
+
+**Conseguenza**:
+
+- `02-aesthetic/logo-standard.md` aggiornato con sezione "Due convenzioni richiamabili: originale e relativo" + classe `.wordmark-relative` documentata + esempio applicativo tema "Blueprint γ"
+- Auto-memory `~/.claude/projects/D--evo-heuresys-com/memory/feedback_logo_relativo_l28.md` creata + indicizzata in `MEMORY.md`
+- `BRAND-STATE.md` § Decisioni stabilite riga L28 aggiunta
+- Tabella storia evolutiva in `logo-standard.md` aggiornata
+
+**Note**:
+
+- L27 (logo originale) resta default cross-surface — `.wordmark-relative` si usa solo dove tema CSS alternativo è attivo
+- ECCEZIONE plain text L27 per indirizzi/link/domini si applica anche al logo relativo (regola condivisa)
+- Direction-explorations Set 1-5 (32 mockup archive) NON retro-aggiornati: usano i propri pattern wordmark inline. Lasciati come archivio storico
+- Quando in futuro creeremo direction tematizzate (es. cliente custom, stagione, evento), il pattern sarà `.wordmark-relative` con tema CSS che definisce `--logo-body` + override `--accent`
+
 ## Decisioni scartate (per riferimento)
 
 | Direzione                                                         | Motivo scarto                                                  | Reference                            |
