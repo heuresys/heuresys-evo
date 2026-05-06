@@ -230,6 +230,34 @@
 - `npm run typecheck --workspaces --if-present` ✅ verde
 - `npm test --workspace=services/api-gateway -- routes/__tests__/employees` ✅ 31/31 passing (12 + 19)
 
+## Pack 1b · /org-units · ported (2026-05-06 05:52 GMT+2)
+
+**Strategy**: clone-as-new (Prisma + tree assemblato in JS post-query · skip recursive CTE).
+
+**Files added in evo**:
+- `src/routes/org-units.ts` — 9 handler: GET / · GET /tree · GET /hierarchy (alias) · GET /types · GET /:id · GET /:id/employees · GET /:id/children · POST / · PATCH /:id · DELETE /:id
+- `src/routes/__tests__/org-units.test.ts` — 21 test contract (auth · tenant · list+filter · tree build · types distinct · CRUD · archive-on-employees · delete-with-children block)
+
+**Files modified in evo**:
+- `src/index.ts` — mount `app.use('/org-units', orgUnitsRouter)`
+
+**Adapt notes**:
+- Read public legacy → evo `requireAuth` global default (P2 enforcement)
+- `cachedForTenant` skipped — cache layer non portato (ROI scarso per Tier 1, fetch sempre)
+- Tree builder portato verbatim (Map-based assembly post-query)
+- POST /: org_level computed da parent.org_level + 1
+- PATCH /: org_level recomputed se parent_id cambia (subtree level update **NON** propagato — limitazione documentata, rifare via dedicated `/move` endpoint Pack 1c)
+- DELETE / smart: 400 se children · archive (`is_active=false`) se employees · hard delete altrimenti
+
+**Skip per Pack 1c (futuro)**:
+- `/:id/path` — recursive CTE per parent chain · richiede `$queryRaw` tagged template
+- `/:id/move` — recursive CTE per ricalcolo org_level subtree · richiede `$queryRaw`
+- `cachedForTenant` cache layer · valutare ROI con load testing reale
+
+**Verifica**:
+- `npm run typecheck --workspaces --if-present` ✅ verde
+- `npm test --workspace=services/api-gateway -- routes/__tests__/org-units` ✅ 21/21 passing
+
 ## Skip register (decisioni di esclusione)
 
 > Append-only. Format: `endpoint · model mancante · motivo skip · workaround/follow-up`.
