@@ -41,6 +41,9 @@ import { coursesRouter } from './routes/courses.js';
 import { learningPathsRouter } from './routes/learning-paths.js';
 import { enrollmentsRouter } from './routes/enrollments.js';
 import { certificationsRouter } from './routes/certifications.js';
+import { attendanceRouter } from './routes/attendance.js';
+import { timeOffRouter } from './routes/time-off.js';
+import { tenantOnboardingRouter } from './routes/tenant-onboarding.js';
 import { setRBPCache, RBPCacheService } from './services/rbp-cache.js';
 import { prisma } from './db/pool.js';
 import './types.js';
@@ -116,6 +119,9 @@ app.use('/courses', coursesRouter);
 app.use('/learning-paths', learningPathsRouter);
 app.use('/enrollments', enrollmentsRouter);
 app.use('/certifications', certificationsRouter);
+app.use('/attendance', attendanceRouter);
+app.use('/time-off', timeOffRouter);
+app.use('/tenant-onboarding', tenantOnboardingRouter);
 
 // 404 catch-all (must be before errorHandler).
 app.use((_req, res) => {

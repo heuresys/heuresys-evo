@@ -50,3 +50,6 @@ learning_paths
 course_enrollments
 learning_path_enrollments
 certifications
+employee_attendance
+employee_time_off_requests
+tenant_onboarding_profiles
