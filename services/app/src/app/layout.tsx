@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import '../styles/active-theme.css';
 import { ThemePreviewInjector } from './_components/ThemePreviewInjector';
+import { LocaleProvider } from '@/lib/i18n';
 
 export const metadata: Metadata = {
   title: 'Heuresys — Workforce Orchestration',
@@ -13,7 +14,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className="min-h-screen bg-white text-neutral-900 antialiased">
         <ThemePreviewInjector />
-        {children}
+        <LocaleProvider>{children}</LocaleProvider>
       </body>
     </html>
   );

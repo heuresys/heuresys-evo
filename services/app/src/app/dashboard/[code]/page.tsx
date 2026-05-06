@@ -2,6 +2,7 @@ import { notFound, redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { loadDashboardPreset, prefetchElements, resolveElements } from '@/lib/dashboard-engine';
 import { DashboardGrid } from '@/lib/dashboard-engine/grid';
+import { DEFAULT_LOCALE, isLocale, LocaleSwitcher, pickBilingual, type Locale } from '@/lib/i18n';
 
 /**
  * Phase 13.C — /dashboard/[code] — data-driven dashboard renderer.
@@ -25,12 +26,13 @@ import { DashboardGrid } from '@/lib/dashboard-engine/grid';
 
 interface PageProps {
   params: Promise<{ code: string }>;
-  searchParams: Promise<{ observer?: string }>;
+  searchParams: Promise<{ observer?: string; lang?: string }>;
 }
 
 export default async function DashboardCodePage({ params, searchParams }: PageProps) {
   const { code } = await params;
-  const { observer } = await searchParams;
+  const { observer, lang } = await searchParams;
+  const locale: Locale = isLocale(lang) ? lang : DEFAULT_LOCALE;
 
   const session = await auth();
   if (!session?.user) {
@@ -62,6 +64,8 @@ export default async function DashboardCodePage({ params, searchParams }: PagePr
   });
 
   const perspectiveLabel = observer ? observer.toUpperCase() : preset.perspective_code;
+  const presetName = pickBilingual(preset, 'name', locale);
+  const presetDescription = pickBilingual(preset, 'description', locale);
 
   return (
     <main className="mx-auto w-full max-w-[1280px] p-6">
@@ -71,17 +75,20 @@ export default async function DashboardCodePage({ params, searchParams }: PagePr
             {perspectiveLabel} · preset
             {preset.persona_label ? <> · {preset.persona_label}</> : null}
           </p>
-          <h1 className="mt-1 text-2xl font-semibold">{preset.name_en}</h1>
-          {preset.description_en ? (
-            <p className="mt-1 max-w-2xl text-sm text-muted-fg">{preset.description_en}</p>
+          <h1 className="mt-1 text-2xl font-semibold">{presetName}</h1>
+          {presetDescription ? (
+            <p className="mt-1 max-w-2xl text-sm text-muted-fg">{presetDescription}</p>
           ) : null}
         </div>
-        <div className="text-right font-mono text-[10px] uppercase tracking-wider text-muted-fg">
-          {visibleElements.length} widget{visibleElements.length === 1 ? '' : 's'}
-          {user.role ? <div className="mt-0.5">role · {user.role}</div> : null}
-          {user.tenantId ? (
-            <div className="mt-0.5">tenant · {user.tenantId.slice(0, 8)}…</div>
-          ) : null}
+        <div className="flex flex-col items-end gap-2 text-right font-mono text-[10px] uppercase tracking-wider text-muted-fg">
+          <LocaleSwitcher />
+          <div>
+            {visibleElements.length} widget{visibleElements.length === 1 ? '' : 's'}
+            {user.role ? <div className="mt-0.5">role · {user.role}</div> : null}
+            {user.tenantId ? (
+              <div className="mt-0.5">tenant · {user.tenantId.slice(0, 8)}…</div>
+            ) : null}
+          </div>
         </div>
       </header>
 
