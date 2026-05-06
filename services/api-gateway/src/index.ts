@@ -21,6 +21,7 @@ import { auditLogsRouter } from './routes/audit-logs.js';
 import { escoRouter } from './routes/esco.js';
 import { adminTenantSchemaRouter } from './routes/admin-tenant-schema.js';
 import { rolesRouter } from './routes/roles.js';
+import { tenantsRouter } from './routes/tenants.js';
 import { setRBPCache, RBPCacheService } from './services/rbp-cache.js';
 import { prisma } from './db/pool.js';
 import './types.js';
@@ -76,6 +77,7 @@ app.use('/audit-logs', auditLogsRouter);
 app.use('/esco', escoRouter);
 app.use('/admin/tenant-schema-version', adminTenantSchemaRouter);
 app.use('/roles', rolesRouter);
+app.use('/tenants', tenantsRouter);
 
 // 404 catch-all (must be before errorHandler).
 app.use((_req, res) => {

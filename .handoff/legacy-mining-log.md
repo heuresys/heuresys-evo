@@ -24,7 +24,7 @@
 
 | Pack | Domain | Endpoint legacy | Status | Commit | Note |
 |---|---|---|---|---|---|
-| 1a | HR core (light) | /roles · /tenants · /users + cross-cutting helpers | 🟡 in progress (1/3 endpoint done · /roles ✓) | TBD | split da Pack 1 (effort revisited 2.5 FTE-day) |
+| 1a | HR core (light) | /roles · /tenants · /users + cross-cutting helpers | 🟡 in progress (2/3 endpoint done · /roles ✓ · /tenants ✓) | TBD | split da Pack 1 (effort revisited 2.5 FTE-day) |
 | 1b | HR core (heavy) | /employees (extend) · /org-units · /workforce + WorkforcePlanningService | ⏳ pending | — | split da Pack 1 (effort revisited 3.5 FTE-day) |
 | 2 | ESCO + Skill taxonomy | /esco · /skill-taxonomy · /ontology · /onet · /nace · /skills · /skill-analytics · /skill-assessments | ⏳ pending | — | capability-graph · skills-heatmap |
 | 3 | Career intelligence | /career-paths · /career-intelligence · /gap-analysis · /talent-intelligence · /succession | ⏳ pending | — | hr-director-overview · employee-journey |
@@ -106,11 +106,54 @@
 
 **Side fix non-Pack 1a (env-only, gitignored)**: aggiunto `AUTH_TRUST_HOST=true` in `services/api-gateway/.env` per risolvere `UntrustedHost` da `@auth/express` (problema pre-esistente bloccava qualsiasi `requireAuth`-protected route in dev). Documentato qui per cross-machine consistency.
 
+## Pack 1a · /tenants · ported (2026-05-06 05:38 GMT+2)
+
+**Strategy**: clone-as-new (Prisma evo replace raw SQL legacy · 725 LOC → ~520 LOC · 9/10 handler).
+
+**Files added in evo**:
+- `src/utils/sql-safety.ts` — `escapeILIKE` helper cross-cutting
+- `src/utils/pagination.ts` — `safeParseInt` · `isUUID`/`UUID_REGEX` · `buildMeta` (pagination meta builder)
+- `src/routes/tenants.ts` — 9 handler: GET / · GET /meta/statuses · GET /meta/plans · GET /current · GET /:identifier · POST / · PATCH /:identifier · DELETE /:identifier (soft+permanent) · POST /:identifier/activate
+- `src/routes/__tests__/tenants.test.ts` — 26 test contract (auth gates · permission · list+filter · create+409 dup · PATCH ownership · DELETE soft/permanent/system-protect · activate)
+
+**Files modified in evo**:
+- `src/index.ts` — mount `app.use('/tenants', tenantsRouter)`
+
+**Adapt notes**:
+- Legacy raw SQL `pool` → Prisma `prisma` direct (cross-tenant by design · no `withTenant` perché /tenants è admin cross-tenant per natura)
+- Legacy `req.dbClient` skipped — admin-pool pattern (pool diretto) tradotto a `prisma` client diretto (RLS bypass via no `SET LOCAL app.current_tenant_id`)
+- Action enum legacy `'CREATE'/'EDIT'/'DELETE'` → evo `'create'/'edit'/'delete'` lowercase
+- Area `'PLATFORM'` richiede seed in `rbp_functional_areas` (TODO Pack 1b: aggiungere `'PLATFORM'` + `'SECURITY'` come migration seed)
+- `nace_code` field omesso — assente in evo `tenants` Prisma model (presente in legacy DB). Schema delta documented per future migration `add_nace_code_to_tenants`.
+- `BigInt` per `annual_revenue_eur` — serialize a Number nel JSON output via `serializeTenant()` helper
+- Endpoint **`/:identifier/stats` deferred**: dipende da `prisma.locations`/`goals`/`performance_reviews` che NON sono nell'allowlist Prisma del workspace api-gateway (`prisma/allowlist.txt` esclude tutto fuori dai 9 model core). Espansione allowlist pianificata per Pack 1b quando /workforce richiede gli stessi modelli — singolo `prisma:refresh` può abilitarli tutti insieme.
+
+**Helper dependencies introdotte in evo (3/8 di lista cross-cutting Pack 1a)**:
+- ✅ `requirePermission` lazy wrapper (commit `e10cb43`)
+- ✅ `escapeILIKE` (questo commit)
+- ✅ `safeParseInt`, `isUUID`/`UUID_REGEX`, `buildMeta` (questo commit)
+- ⏳ `validatePassword`, `generateSecurePassword` (per /users)
+- ⏳ `validateUUID` middleware (alternativa a isUUID inline · valutare)
+- ⏳ Admin pool cross-tenant (non più necessario · `prisma` direct copre)
+- ⏳ `applyFieldPolicy`, `loadPolicyForRole` (per /employees in 1b)
+- ⏳ `cachedForTenant`, `invalidateCachePattern`, `CACHE_TTL` (per /org-units in 1b · valutare se ROI ne vale)
+- ⏳ `auditedTransaction()` greenfield P4 (NEW · architectural addition)
+
+**Verifica**:
+- `npm run typecheck --workspaces --if-present` ✅ verde
+- `npm test --workspace=services/api-gateway -- routes/__tests__/tenants` ✅ 26/26 passing
+- `curl http://127.0.0.1:8200/tenants` ✅ HTTP 401 (requireAuth)
+- `curl http://127.0.0.1:8200/tenants/meta/statuses` ✅ HTTP 200 (public, payload corretto)
+
 ## Skip register (decisioni di esclusione)
 
 > Append-only. Format: `endpoint · model mancante · motivo skip · workaround/follow-up`.
 
-(vuoto · da popolare durante mining)
+| Item | Pack | Motivo | Follow-up |
+|---|---|---|---|
+| `/tenants/:id/stats` | 1a | Prisma allowlist api-gateway esclude `locations`, `goals`, `performance_reviews` | Pack 1b expanding allowlist + `prisma:refresh` |
+| `tenants.nace_code` field | 1a | Field omesso da `services/app/prisma/schema.prisma` model `tenants` | Future schema-import migration `add_nace_code_to_tenants` (low priority) |
+| RBP area seed `PLATFORM`, `SECURITY` | 1a | Endpoint funzionano shape-correct in test mock; runtime `requirePermission` rifiuta finchè area non seed | Pack 1b: migration seed `rbp_functional_areas` + `rbp_role_permissions` per le 2 nuove area |
 
 ## Schema migrations applied (gap resolved)
 
