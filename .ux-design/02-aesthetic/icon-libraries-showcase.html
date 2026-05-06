@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Icon Libraries Showcase — 10 librerie moderne minimaliste · Heuresys</title>
+<title>Icon Libraries Showcase — 10 librerie moderne minimaliste · heuresys</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -25,6 +25,9 @@
     --success: #5fb87a;
     --warning: #f59e0b;
   }
+  /* L27 wordmark originale (logo canonico Heuresys) — body fisso brand-blue + y accent */
+  .wordmark-original { font-family: 'Exo 2', sans-serif; font-weight: 700; color: var(--brand-blue); letter-spacing: normal; text-transform: lowercase; }
+  .wordmark-original .y { color: var(--accent); }
   [data-theme="light"] {
     --bg: #f4f5f7;
     --surface-1: #ffffff;
@@ -144,7 +147,7 @@
   <div class="head">
     <div class="breadcrumb">02-aesthetic · research · 10 librerie icone moderne</div>
     <h1>10 librerie <em>icone</em> moderne minimaliste per dashboard wow</h1>
-    <p class="lead">Confronto delle 10 librerie più adottate nel 2024-2026 per UI dashboard B2B enterprise. Tutte open source, tutte mono-line / outline minimalist (eccetto specificate). Selezione ottimizzata per aderenza al brand Heuresys: Inter + JetBrains Mono, single accent purple, no animated dots, anti-slop guardrails.</p>
+    <p class="lead">Confronto delle 10 librerie più adottate nel 2024-2026 per UI dashboard B2B enterprise. Tutte open source, tutte mono-line / outline minimalist (eccetto specificate). Selezione ottimizzata per aderenza al brand heuresys: Inter + JetBrains Mono, single accent purple, no animated dots, anti-slop guardrails.</p>
   </div>
 
   <!-- Comparison table -->
@@ -537,11 +540,11 @@
 
   <!-- Recommendation panel -->
   <div class="reco">
-    <h2>Raccomandazione per <em>Heuresys</em> · 3 candidati shortlisted</h2>
+    <h2>Raccomandazione per <em><span class="wordmark-original">heures<span class="y">y</span>s</span></em> · 3 candidati shortlisted</h2>
     <p>Selezione basata su: aderenza estetica brand (mono-line + single accent), copertura dashboard B2B enterprise, ecosistema React/Next.js, license MIT/Apache, no ads/premium tier, manutenzione attiva.</p>
     <ul>
-      <li><strong>1° Lucide</strong> · default in shadcn/ui (stack frontend Heuresys), 1,500+ icone, MIT, tree-shakeable. Aderenza naturale con Tailwind/Vercel ecosystem. <em>Risk</em>: solo line, no fill states.</li>
-      <li><strong>2° Phosphor</strong> · 6 weights stessa famiglia → ottimo per gerarchia density (sidebar = light, KPI = bold, hover = duotone). 9k variants. Più flessibile per Heuresys data-dense + ontology emphasis. <em>Risk</em>: bundle se importi tutti i weights.</li>
+      <li><strong>1° Lucide</strong> · default in shadcn/ui (stack frontend heuresys), 1,500+ icone, MIT, tree-shakeable. Aderenza naturale con Tailwind/Vercel ecosystem. <em>Risk</em>: solo line, no fill states.</li>
+      <li><strong>2° Phosphor</strong> · 6 weights stessa famiglia → ottimo per gerarchia density (sidebar = light, KPI = bold, hover = duotone). 9k variants. Più flessibile per heuresys data-dense + ontology emphasis. <em>Risk</em>: bundle se importi tutti i weights.</li>
       <li><strong>3° Tabler Icons</strong> · 5,800+ set più ampio, dashboard-first design intent. Coverage enterprise (charts, files, devices, business operations). <em>Risk</em>: meno editorial, più "admin panel" feel.</li>
     </ul>
     <p style="margin-top: 16px; font-size: 13px;"><strong>Decisione finale</strong>: pending Enzo. Suggested combo: <strong>Lucide</strong> per UI core (sidebar nav, table actions, ui controls) + <strong>Phosphor duotone</strong> per dataviz emphasis (5 capability glyphs custom restano illustrati custom-made).</p>
@@ -549,7 +552,7 @@
 
   <div class="footer-meta">
     <span>SOURCE · 2026-05 · npm registry · github stars · gitstars · public usage analytics</span>
-    <span>Heuresys · 02-aesthetic · research · L22 follow-up</span>
+    <span><span class="wordmark-original">heures<span class="y">y</span>s</span> · 02-aesthetic · research · L22 follow-up</span>
   </div>
 </div>
 

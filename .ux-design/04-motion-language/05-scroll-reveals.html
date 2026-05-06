@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>05 · Scroll reveals — Heuresys Motion</title>
+<title>05 · Scroll reveals — heuresys Motion</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -153,6 +153,10 @@
   .code-block .comment { color: var(--ink-muted); }
 
   .footer-mini { padding: 24px 0; border-top: 1px solid var(--rule); font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-muted); letter-spacing: 1px; text-transform: uppercase; display: flex; justify-content: space-between; }
+
+  /* L27 wordmark originale (logo canonico Heuresys) — body fisso brand-blue + y accent */
+  .wordmark-original { font-family: 'Exo 2', sans-serif; font-weight: 700; color: var(--brand-blue); letter-spacing: normal; text-transform: lowercase; }
+  .wordmark-original .y { color: var(--accent); }
 
   @media (prefers-reduced-motion: reduce) {
     .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
@@ -490,7 +494,7 @@ document.querySelectorAll(<span class="val">'.reveal'</span>).forEach(el =&gt; i
   </section>
 
   <div class="footer-mini">
-    <span>Heuresys · Phase 8 · prototype 05 · L24+</span>
+    <span><span class="wordmark-original">heures<span class="y">y</span>s</span> · Phase 8 · prototype 05 · L24+</span>
     <span>SPEC · motion-final.md · 300ms ease-out · stagger 60ms · one-shot</span>
   </div>
 </div>

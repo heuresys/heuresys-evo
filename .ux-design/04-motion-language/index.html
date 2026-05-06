@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Phase 8 · Motion language — Heuresys</title>
+<title>Phase 8 · Motion language — heuresys</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -28,6 +28,9 @@
   .wordmark-hero { font-family: 'Exo 2'; font-weight: 700; font-size: 24px; color: var(--brand-blue); letter-spacing: -0.6px; line-height: 1; filter: drop-shadow(0 0 16px rgba(168,85,247,0.25)); animation: glow-breathe 4s cubic-bezier(0.45,0,0.55,1) infinite; }
   @keyframes glow-breathe { 0%,100% { filter: drop-shadow(0 0 16px rgba(168,85,247,0.20)); } 50% { filter: drop-shadow(0 0 32px rgba(168,85,247,0.40)); } }
   .wordmark-hero .y { color: var(--accent); }
+  /* L27 wordmark originale (logo canonico Heuresys) — body fisso brand-blue + y accent */
+  .wordmark-original { font-family: 'Exo 2', sans-serif; font-weight: 700; color: var(--brand-blue); letter-spacing: normal; text-transform: lowercase; }
+  .wordmark-original .y { color: var(--accent); }
   .toggle { background: transparent; border: 1px solid var(--ink); color: var(--ink); padding: 6px 12px; font-family: 'JetBrains Mono', monospace; font-size: 11px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; border-radius: 4px; margin-top: 12px; }
   .toggle:hover { background: var(--ink); color: var(--bg); }
 
@@ -228,7 +231,7 @@
   </div>
 
   <div class="footer">
-    <span>Heuresys · Phase 8 motion language · L24+ enriched · 5 / 5 playground</span>
+    <span><span class="wordmark-original">heures<span class="y">y</span>s</span> · Phase 8 motion language · L24+ enriched · 5 / 5 playground</span>
     <span>SPEC · motion-final.md · trustworthy 60% / courage 40%</span>
   </div>
 </div>

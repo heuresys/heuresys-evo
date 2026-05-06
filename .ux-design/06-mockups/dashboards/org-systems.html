@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Org &amp; Systems — Heuresys Dashboard Phase 9</title>
+<title>Org &amp; Systems — heuresys Dashboard Phase 9</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -197,6 +197,9 @@
   .nav-bar .nav-left { display: flex; align-items: center; gap: 16px; }
   .wordmark-sm { font-family: 'Exo 2', sans-serif; font-weight: 700; font-size: 18px; letter-spacing: -0.4px; color: var(--ink); line-height: 1; filter: drop-shadow(0 0 12px rgba(168,85,247,0.20)); }
   .wordmark-sm .y { color: var(--accent); }
+  /* L27 wordmark originale (logo canonico Heuresys) — body fisso brand-blue + y accent */
+  .wordmark-original { font-family: 'Exo 2', sans-serif; font-weight: 700; color: var(--brand-blue); letter-spacing: normal; text-transform: lowercase; }
+  .wordmark-original .y { color: var(--accent); }
   /* Architect override (org-systems): logo legacy landing-page colors — blue body + purple y (L23) */
   .wordmark-sm.legacy { color: var(--brand-blue); }
 
@@ -355,7 +358,7 @@
       <div class="tenant-mini">
         <div class="t-avatar bordered">HS</div>
         <div class="t-info">
-          <div class="t-name">Heuresys System</div>
+          <div class="t-name"><span class="wordmark-original">heures<span class="y">y</span>s</span> System</div>
           <div class="t-meta">platform · level −1</div>
         </div>
       </div>
@@ -387,7 +390,7 @@
 
     <div class="sidebar-section">
       <h4 onclick="toggleSection(this)">Tenants <span class="chev">▾</span></h4>
-      <div class="sidebar-link">Heuresys System<span class="num">−1</span></div>
+      <div class="sidebar-link"><span class="wordmark-original">heures<span class="y">y</span>s</span> System<span class="num">−1</span></div>
       <div class="sidebar-link">RTL Bank<span class="num">prod</span></div>
       <div class="sidebar-link">SmartFood<span class="num">prod</span></div>
       <div class="sidebar-link">EcoNova<span class="num">test</span></div>
@@ -458,7 +461,7 @@
     <div class="tenant-grid">
       <div class="tenant-card platform">
         <span class="tag tag-platform">Platform</span>
-        <h3>Heuresys System</h3>
+        <h3><span class="wordmark-original">heures<span class="y">y</span>s</span> System</h3>
         <div class="tid">tenantId · NULL · level −1</div>
         <div class="row"><span class="lbl">Employees</span><span class="val">12</span></div>
         <div class="row"><span class="lbl">Schema</span><span class="val">v42 prod</span></div>
@@ -721,14 +724,14 @@
 
     <div class="ws-footer">
       <span>SOURCE · audit_logs · pino redaction · 4 tenants · 605 RLS policies · 326 RBP joins · ESCO 1.2.0</span>
-      <span>Phase 9 Mockup · Heuresys DESIGN.md · L21 modello base</span>
+      <span>Phase 9 Mockup · <span class="wordmark-original">heures<span class="y">y</span>s</span> DESIGN.md · L21 modello base</span>
     </div>
   </main>
 </div>
 
 <footer class="app-footer">
   <div class="ft-static">
-    <span class="copyright">© 2026 <a href="https://heuresys.com" target="_blank" rel="noopener"><span class="wordmark-foot">heures<span class="y">y</span>s</span>.com</a></span>
+    <span class="copyright">© 2026 <a href="https://heuresys.com" target="_blank" rel="noopener">heuresys.com</a></span>
     <div class="socials">
       <a href="#" class="social-link" aria-label="LinkedIn" title="LinkedIn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="8" y1="11" x2="8" y2="16"/><circle cx="8" cy="8" r="0.6" fill="currentColor"/><path d="M12 16v-3.5a2 2 0 1 1 4 0V16"/><line x1="12" y1="11" x2="12" y2="16"/></svg>

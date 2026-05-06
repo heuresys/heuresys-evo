@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>01 · Wordmark glow breathing — Heuresys Motion</title>
+<title>01 · Wordmark glow breathing — heuresys Motion</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -154,6 +154,10 @@
   .copy-btn:hover { color: var(--accent); border-color: var(--accent); }
 
   .footer-mini { padding: 24px 0; border-top: 1px solid var(--rule); font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-muted); letter-spacing: 1px; text-transform: uppercase; display: flex; justify-content: space-between; }
+
+  /* L27 wordmark originale (logo canonico Heuresys) — body fisso brand-blue + y accent */
+  .wordmark-original { font-family: 'Exo 2', sans-serif; font-weight: 700; color: var(--brand-blue); letter-spacing: normal; text-transform: lowercase; }
+  .wordmark-original .y { color: var(--accent); }
 
   @media (prefers-reduced-motion: reduce) {
     .wordmark-hero, .alt-mini, .anti-mini { animation: none !important; }
@@ -313,7 +317,7 @@
         <div class="anti-meta">
           <div class="anti-tag">❌ Bouncy scale</div>
           <h4>Spring bounce 1s loop</h4>
-          <div class="anti-why"><strong>Tone violation</strong>: enterprise B2B trustworthy. Bouncy = playful consumer brand (Duolingo), not Heuresys.</div>
+          <div class="anti-why"><strong>Tone violation</strong>: enterprise B2B trustworthy. Bouncy = playful consumer brand (Duolingo), not <span class="wordmark-original">heures<span class="y">y</span>s</span>.</div>
         </div>
       </div>
     </div>
@@ -331,7 +335,7 @@
       <button class="tab" onclick="switchTab(this, 'tailwind')">Tailwind config</button>
     </div>
     <div class="copy-bar"><button class="copy-btn" onclick="copyActiveCode()">📋 Copy</button></div>
-    <div class="code-block active" id="code-css"><span class="comment">/* Heuresys wordmark glow breathing — canonical */</span>
+    <div class="code-block active" id="code-css"><span class="comment">/* heuresys wordmark glow breathing — canonical */</span>
 <span class="key">@keyframes</span> glow-breathe {
   0%, 100% { filter: drop-shadow(0 0 <span class="val">30px</span> rgba(168, 85, 247, <span class="val">0.20</span>)); }
   50%      { filter: drop-shadow(0 0 <span class="val">60px</span> rgba(168, 85, 247, <span class="val">0.45</span>)); }
@@ -393,7 +397,7 @@
   </section>
 
   <div class="footer-mini">
-    <span>Heuresys · Phase 8 · prototype 01 · L24+</span>
+    <span><span class="wordmark-original">heures<span class="y">y</span>s</span> · Phase 8 · prototype 01 · L24+</span>
     <span>SPEC · motion-final.md · enriched playground</span>
   </div>
 </div>
