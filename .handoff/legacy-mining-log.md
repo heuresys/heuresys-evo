@@ -258,6 +258,55 @@
 - `npm run typecheck --workspaces --if-present` ✅ verde
 - `npm test --workspace=services/api-gateway -- routes/__tests__/org-units` ✅ 21/21 passing
 
+## Pack 1b · /workforce-planning · ported (2026-05-06 05:58 GMT+2)
+
+**Strategy**: clone-as-new MVP CRUD su 3 nuovi modelli Prisma allowlist-expanded.
+
+**Allowlist Prisma expanded (7 nuovi model)**:
+- `services/api-gateway/prisma/allowlist.txt` — added: `workforce_plans`, `workforce_plan_actions`, `workforce_plan_scenarios`, `locations`, `goals`, `performance_reviews`, `cost_centers`
+- `npm run prisma:refresh` ✅ (db pull + prune + generate · 16 model totali nel client)
+
+**Files added in evo**:
+- `src/routes/workforce-planning.ts` — 9 handler MVP CRUD: GET /plans · POST /plans · GET /plans/:id · PATCH /plans/:id · GET /plans/:id/actions · POST /plans/:id/actions · GET /scenarios (filter by plan_id) · POST /scenarios · GET /scenarios/:id
+- `src/routes/__tests__/workforce-planning.test.ts` — 15 test contract (CRUD plans + scenarios + actions · plan-not-found gate · zod validation)
+
+**Files modified in evo**:
+- `src/index.ts` — mount `app.use('/workforce-planning', workforcePlanningRouter)`
+
+**Adapt notes**:
+- 9/17 handler legacy ported (CRUD MVP)
+- 8/17 handler **DEFERRED Pack 1c**: GET /inventory · GET+POST /gap-risk · GET+POST /hiring-recommendations · GET+POST /training-investments · GET /projections · POST /scenarios/:id/simulate
+- `WorkforcePlanningService` legacy (class esterna ~500 LOC con simulation/aggregation logic) **NON PORTATO** — endpoint heavy logic deferred a Pack 1c con investment dedicato
+- `BigInt`/`Decimal` annual_revenue_eur/estimated_cost: `new Prisma.Decimal()` per write, serialize a Number per read
+- Scenarios + Actions tied to plan via FK `workforce_plan_id` (verified existing)
+- Action types enum: `hire/reskill/transfer/separate/promote` · priority `low/medium/high/critical` · status default `pending`
+
+**Verifica**:
+- `npm run typecheck --workspaces --if-present` ✅ verde
+- `npm test --workspace=services/api-gateway -- routes/__tests__/workforce-planning` ✅ 15/15 passing
+- `npm test --workspace=services/api-gateway` (full suite) ✅ **205/205 passing** (18 test files)
+
+## Pack 1b · CHIUSO (2026-05-06)
+
+**Totale**: 3 endpoint ported · ~50 test nuovi (19 employees-extended + 21 org-units + 15 workforce-planning) · Prisma allowlist expanded da 9 a 16 model.
+
+**Cumulativo Pack 1b**:
+- Files added: 5 (1 employees-extended test + 2 org-units + 2 workforce-planning)
+- Files modified: 2 (`src/index.ts` mount × 3 + `prisma/allowlist.txt`)
+- Tests verde: **55/55** (Pack 1b solo) → tutto api-gateway suite **205/205**
+- Commits Pack 1b: `c0099d1` (/employees) + `5ef872a` (/org-units) + (this) (/workforce-planning)
+
+## Pack 1 (1a + 1b) · CHIUSO COMPLESSIVO
+
+**Endpoint ported**: 6 (roles, tenants, users, employees-extended, org-units, workforce-planning)
+**Test verde**: ~112 nuovi (Pack 1) · totale api-gateway 205/205
+**Helper cross-cutting**: 4 nuovi (escapeILIKE, safeParseInt+isUUID+buildMeta, validatePassword+generateSecurePassword, requirePermission lazy)
+**Prisma allowlist**: expanded da 9 a 16 model
+
+**Skip Pack 1c (per future)**: stats/analytics endpoint heavy (CTE recursive · field-policy PII redaction · WorkforcePlanningService class) · audited-transaction P4 · org-units /:id/path + /:id/move
+
+**Restano per Phase 13.0**: Pack 2-8 (ESCO/Career/Performance/Recruiting/Learning/Onboarding/RBP).
+
 ## Skip register (decisioni di esclusione)
 
 > Append-only. Format: `endpoint · model mancante · motivo skip · workaround/follow-up`.

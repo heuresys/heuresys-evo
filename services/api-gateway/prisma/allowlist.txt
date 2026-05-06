@@ -19,3 +19,10 @@ session
 verification_token
 employee_skills
 rbp_roles
+workforce_plans
+workforce_plan_actions
+workforce_plan_scenarios
+locations
+goals
+performance_reviews
+cost_centers
