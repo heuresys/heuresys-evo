@@ -986,6 +986,100 @@ Risposte alle 2 domande operative pre-formalizzazione:
 
 ---
 
+## L35 — 2026-05-07 — Phase 10 (Altre surface) chiusa formalmente via Phase 14.SH
+
+**Decisione**: Phase 10 marcata ✅ **Done** in `BRAND-STATE.md`. La phase non è stata eseguita come blocco indipendente — è stata assorbita ed eseguita interamente nello sprint **Phase 14.SH** (8 commit, 24-34 FTE-day, 2026-05-07 chiusura) + sessione carry-forward 2026-05-07 21:50.
+
+**Contesto**: Phase 10 originale prevedeva "altre surface" come login, app shell, viste secondarie. Quando è arrivato il momento operativo (post Phase 13 dashboard data-driven completate), il piano Phase 14.SH ha consolidato in unico sprint:
+
+- Brand identity applied — token CSS μ-architect-legacy → `services/app/src/styles/active-theme.css` (FASE 1)
+- Login `login-aurora.html` promosso a `services/app/src/app/login/page.tsx`
+- `<HeuresysWordmark>` React component + `<AppShell>` cablato in `(app)/` route group
+- Sidebar role-based 8 ruoli canonical (SIDEBAR_MAP + getNavForUser)
+- 17+ viste live data e2e (8 viste SH-2 + 9 viste SH-3 carry-forward)
+- 2 mockup overview shipped sessione 2026-05-07 21:50 (`cross-tenant-overview.html` + `tenant-owner-overview.html`) + seed `phase14f_overview_presets.sql` applicato bare-metal SoT + LocaleSwitcher in topbar AppShell + 9 viste SH-3 i18n IT/EN
+
+**Conseguenza**:
+
+- Phase 10 non è più "in-progress", è ✅ Done
+- Asset inventory `BRAND-STATE.md` aggiornato con i 2 nuovi mockup overview (Phase 14.SH carry-forward)
+- 8 ruoli RBP coperti end-to-end con sidebar role-based (SUPERUSER · TENANT_OWNER · IT_ADMIN · HR_DIRECTOR · HR_MANAGER · DEPT_HEAD · LINE_MANAGER · EMPLOYEE)
+- Ulteriori surface (es. /admin/audit, /me, /team) seguiranno il pattern già stabilito (token-driven · AppShell-cablato · server component + Prisma direct)
+
+**Riferimenti**:
+
+- Commit Phase 14.SH chain: `0ce5720` SH-1 · `a7cbad8` SH-2 · `3abf4b1` SH-2 + RBP · `01c4464` SH-3 · `56ea24b` SH-3 closure · `0cd532d` handoff · `0958625` carry-forward
+- ADR-0024: `docs/50-reference/decisions/0024-phase14sh-brand-driven-shell.md`
+- 2 mockup carry-forward: `.ux-design/06-mockups/dashboards/cross-tenant-overview.html` + `tenant-owner-overview.html`
+- Seed: `db/seeds/phase14f_overview_presets.sql`
+
+---
+
+## L36 — 2026-05-07 — Phase 11 — Theme variants JSON shipped (W3C DTCG format)
+
+**Decisione**: Phase 11 ✅ **Done**. Codificati i token Heuresys in formato **W3C Design Tokens Community Group (DTCG)** in `.ux-design/05-theme-variants/`. SoT portabile cross-tool, sincronizzato con `services/app/src/styles/active-theme.css`.
+
+**Contesto**: I token erano vivi in (a) prosa `palette-final.md` / `typography-final.md` / `motion-final.md`, (b) CSS runtime `active-theme.css`. Mancava un'export portabile per tool di design system esterni (Tokens Studio Figma, Style Dictionary v4, Tailwind preset cross-app, React Native).
+
+**Format scelto**: **W3C DTCG** (raccomandato standard moderno, ampio tool support 2025-2026):
+
+- `$type` esplicito (color, dimension, duration, cubicBezier, fontFamily, fontWeight, shadow)
+- Reference resolution `{path.to.token}` cross-file
+- Group nesting semantico (`color.brand.blue`, `typography.fontFamily.sans`, `motion.easing.out`)
+
+**File prodotti** (4):
+
+| File                 | Scope                                                                                       |
+| -------------------- | ------------------------------------------------------------------------------------------- |
+| `tokens-dark.json`   | SoT — color · typography · spacing · radius · shadow · gradient · glass (default theme)     |
+| `tokens-light.json`  | Color/shadow/glass override per `[data-theme="light"]`                                      |
+| `tokens-motion.json` | Easing · duration · 5 pattern canonici · auxiliary · anti-pattern · accessibility           |
+| `README.md`          | Uso lato consumer (Tokens Studio, Style Dictionary, Tailwind, CSS) + mapping con production |
+
+**Conseguenza**:
+
+- Token JSON è ora SoT portabile per cross-tool (Figma plugin, design system pipeline, mobile)
+- `active-theme.css` resta SoT runtime per il bundle Next.js
+- Manutenzione: ogni cambio in `active-theme.css` DEVE essere mirrored in `tokens-*.json` (e viceversa). Documentato in `tokens-*/README.md` § Mapping con production
+- Preparato terreno per (futuro) build pipeline Style Dictionary v4 → CSS/JS/Swift export multi-platform
+
+**Riferimenti**:
+
+- Path: `.ux-design/05-theme-variants/`
+- Spec format: <https://tr.designtokens.org/format/>
+- Source CSS: `services/app/src/styles/active-theme.css` (lines 12-72 dark, 77-103 light)
+- Source prosa: `palette-final.md` · `typography-final.md` · `motion-final.md`
+
+---
+
+## L37 — 2026-05-07 — Phase 12 — Brand book v0 shipped
+
+**Decisione**: Phase 12 ✅ **Done** (v0 first edition). Pubblicato `.ux-design/07-brand-book/BRAND-BOOK-v0.md` — documento testuale comprehensive consolidato di brand identity Heuresys, single entry point unificato.
+
+**Contesto**: Erano disponibili artefatti distribuiti (`palette-final.md`, `typography-final.md`, `motion-final.md`, `logo-standard.md`, `personas/*.md`, `voice-and-tone.md`, ecc.). Mancava un **punto di ingresso unico** che li raccordasse e fornisse vista d'insieme con cross-reference + governance.
+
+**Scope v0** (15 sezioni canoniche):
+
+0 Cover · 1 Mission · 2 Voice & tone · 3 Personas · 4 Audience positioning · 5 Aesthetic direction (μ-architect-legacy) · 6 Color (OKLCH) · 7 Typography (Exo 2 + Inter + JetBrains Mono) · 8 Logo (3 regole permanenti L25/L27/L28) · 9 Motion language · 10 Dashboard architecture · 11 UI components principles · 12 Accessibility (target WCAG 2.2 AAA) · 13 Do's & Don'ts · 14 File map (governance) · 15 Governance + changelog L1→L34
+
+**Versioning**:
+
+- **v0** = first comprehensive textual edition (2026-05-07). Aligned a stato L34 / Phase 14.SH. Riferisce ogni sezione al SoT canonical via cross-reference.
+- **v1** (futura) = edizione visiva con typesetting curato + cover art + asset embed alta risoluzione. Non in scope corrente.
+
+**Conseguenza**:
+
+- Brand book v0 è il **punto di ingresso unificato** per nuovi collaboratori, auditor, partner che vogliono capire il brand Heuresys
+- Cross-reference granulare: ogni sezione punta al file canonical SoT corrispondente (no duplicazione contenuto)
+- Il ciclo di creazione brand identity Heuresys (Phase 1 → Phase 12) è ora **chiuso**. Roadmap successiva = WCAG audit + perf bench + JWT fix + (eventuale) v1 visivo + (eventuale) direction ν/ξ
+
+**Riferimenti**:
+
+- File: `.ux-design/07-brand-book/BRAND-BOOK-v0.md`
+- 15 SoT individuali consolidati: `.ux-design/01-strategy/*` · `02-aesthetic/heuresys.DESIGN.md` · `03-visual-identity/{color,typography,logo}/` · `04-motion-language/motion-final.md` · `05-theme-variants/tokens-*.json` · `06-mockups/dashboards/*.html`
+
+---
+
 ## Format per nuove entry
 
 Quando aggiungi una nuova decisione, segui questo template:
