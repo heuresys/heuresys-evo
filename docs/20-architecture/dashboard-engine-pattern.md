@@ -1,6 +1,6 @@
-# Dashboard engine pattern — Phase 13
+# Dashboard engine pattern — Phase 13 + 14.A
 
-**Status**: Active (2026-05-06 · Phase 13 closed)
+**Status**: Active (2026-05-07 · Phase 13 closed · Phase 14 Sprint 1 A+H shipped)
 **Scope**: data-driven dashboard composition for evo · 9 Tier 1 dashboard preset rendered runtime
 **Audience**: backend dev evo, frontend dev evo, security reviewer
 
@@ -166,38 +166,86 @@ DashboardGrid (client) · for each element:
 
 Latency budget P95 ≤500ms server-side (target plan §13.E). 1 Prisma query + pure function, easily met.
 
-## Future evolutions (out-of-scope V1)
+## Phase 14.A — Live data binding (shipped 2026-05-07)
 
-| #   | Evoluzione                                                                    | Phase target                                 |
-| --- | ----------------------------------------------------------------------------- | -------------------------------------------- |
-| 1   | data-fetcher dispatch (`data_source_type` sql/graph/api/static)               | Phase 14                                     |
-| 2   | drag-resize editor utente (`dashboards` + `dashboard_widgets` UUID workspace) | Phase 14+                                    |
-| 3   | Audit log P4 su mutations preset/element                                      | Quando preset diventano editable da UI (V2+) |
-| 4   | E2E Playwright + golden image diff (per 9 preset × 8 ruoli = 72 combo)        | Quando ci sarà infra Playwright              |
-| 5   | Bundle analyzer + code-split target ≤200KB initial per dashboard              | Phase 14                                     |
-| 6   | i18n switch IT/EN runtime (preset.name_it / name_en già seedati)              | Phase 14                                     |
+Sprint 1 Bundle F · sub-phase A+H shipped end-to-end:
+
+| Layer                | What                                                                                                                                                                              |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `data-fetcher.ts`    | Dispatch `static`/`sql` (api/graph reserved Sprint 2-3) + process-local LRU cache + RLS via `withTenant`                                                                          |
+| `adapters.ts`        | 8 widget-specific adapters mapping raw rows → component props (KpiRing, IntegrationHealthPill, SuccessionCard, CareerArc, KgMiniGraph, SkillHeatmap, CapabilityRadar, RbacMatrix) |
+| `prefetch.ts`        | Parallel `fetchWidgetData` per visible element · returns id→data map for RSC payload                                                                                              |
+| `registry.tsx`       | Refactored to `liveWrapper(widgetCode, demoProps, render)` — Live data with Demo fallback                                                                                         |
+| `route handler`      | `GET /api/dashboard/data/[elementId]` · auth + RBP visibility + tenant ownership gates                                                                                            |
+| `use-widget-data.ts` | SWR-style client hook · zero deps · cache TTL + `mutate()` + `revalidateOnFocus`                                                                                                  |
+| `i18n/`              | Locale provider + `pickBilingual()` pure helper · `?lang=it\|en` query + localStorage                                                                                             |
+| Seed phase14a        | 8 KpiRing SQL count + 4 IntegrationHealthPill static                                                                                                                              |
+| Seed phase14b        | 9 composite static (SuccessionCard, CareerArc×2, KgMiniGraph×2, SkillHeatmap×2, CapabilityRadar, RbacMatrix)                                                                      |
+
+Live smoke verified end-to-end: `/dashboard/hr_director_overview?lang=en` →
+KpiRing pos 1 shows `Active employees · 270` (RLS scope RTL Bank) ·
+SuccessionCard pos 2 shows `Stefania Bianchi` (static) · header switches
+IT/EN with the locale switcher.
+
+Test coverage delta: +85 vitest (16 fetcher + 28 adapters + 6 prefetch +
+10 route + 9 hook + 17 i18n - 1 dedup) → 120/120 verde su services/app.
+
+E2E coverage: 1 dashboard fixture (chromium · HR_DIRECTOR · 3 spec verde).
+Full 8 ruoli × 9 dashboard = 72-fixture matrix deferred to Sprint 1
+follow-up. Perf script `scripts/perf-dashboard.mjs` ready (production-mode
+binding number deferred — dev mode ballpark P95 ~2.6s @ 10c/5s).
+
+## Future evolutions (post-Sprint 1)
+
+| #   | Evoluzione                                                                    | Phase target                           |
+| --- | ----------------------------------------------------------------------------- | -------------------------------------- |
+| 1   | Composite SQL queries (jsonb_agg over talents/skills) replacing `static` seed | Sprint 1 follow-up                     |
+| 2   | Production-mode perf binding (next build && start + autocannon · P95 ≤ 500ms) | Sprint 1 follow-up                     |
+| 3   | Full 72-fixture Playwright matrix (9 dashboard × 8 ruoli) + golden screenshot | Sprint 1 follow-up                     |
+| 4   | drag-resize editor utente (`dashboards` + `dashboard_widgets` UUID workspace) | Sprint 3 · C                           |
+| 5   | Audit log P4 su mutations preset/element                                      | Sprint 2 · E (pre-req of Sprint 3 · C) |
+| 6   | `/ontology` reopen + OpenAI advisor widget                                    | Sprint 2 · F                           |
+| 7   | Tier 2 portfolio (ESCO/SAP/KG explorer)                                       | Sprint 3 · G                           |
+| 8   | Bundle analyzer + code-split target ≤200KB initial per dashboard              | Performance pass                       |
 
 ## File reference
 
-| File             | Path                                                  | LOC           | Scope    |
-| ---------------- | ----------------------------------------------------- | ------------- | -------- |
-| Migration schema | `db/migrations/0002_phase13_dashboard_engine.sql`     | 130           | DB       |
-| Seed data        | `db/seeds/phase13_dashboard_presets.sql`              | 175           | DB       |
-| Schema Prisma    | `services/app/prisma/schema.prisma` (+50 LOC)         | —             | ORM      |
-| Engine loader    | `services/app/src/lib/dashboard-engine/loader.ts`     | 50            | Server   |
-| Engine resolver  | `services/app/src/lib/dashboard-engine/resolver.ts`   | 95            | Pure     |
-| Engine registry  | `services/app/src/lib/dashboard-engine/registry.tsx`  | 230           | Client   |
-| Engine grid      | `services/app/src/lib/dashboard-engine/grid.tsx`      | 65            | Client   |
-| Engine barrel    | `services/app/src/lib/dashboard-engine/index.ts`      | 20            | Server   |
-| Route page       | `services/app/src/app/dashboard/[code]/page.tsx`      | 90            | Server   |
-| Resolver tests   | `services/app/src/__tests__/dashboard-engine.test.ts` | 175 (18 test) | Test     |
-| Atomic widgets   | `packages/ui/src/components/dashboard/*.tsx`          | 8 component   | UI       |
-| Mockup HTML      | `.ux-design/06-mockups/dashboards/*.html`             | 9 file        | Designer |
+| File             | Path                                                                                              | Scope    |
+| ---------------- | ------------------------------------------------------------------------------------------------- | -------- |
+| Migration schema | `db/migrations/0002_phase13_dashboard_engine.sql`                                                 | DB       |
+| Seed data        | `db/seeds/phase13_dashboard_presets.sql`                                                          | DB       |
+| Seed 14.A SQL    | `db/seeds/phase14a_dashboard_data_sources.sql`                                                    | DB       |
+| Seed 14.A static | `db/seeds/phase14b_dashboard_composite_static.sql`                                                | DB       |
+| Schema Prisma    | `services/app/prisma/schema.prisma`                                                               | ORM      |
+| Engine loader    | `services/app/src/lib/dashboard-engine/loader.ts`                                                 | Server   |
+| Engine resolver  | `services/app/src/lib/dashboard-engine/resolver.ts`                                               | Pure     |
+| Engine fetcher   | `services/app/src/lib/dashboard-engine/data-fetcher.ts`                                           | Server   |
+| Engine adapters  | `services/app/src/lib/dashboard-engine/adapters.ts`                                               | Pure     |
+| Engine prefetch  | `services/app/src/lib/dashboard-engine/prefetch.ts`                                               | Server   |
+| Engine hook      | `services/app/src/lib/dashboard-engine/use-widget-data.ts`                                        | Client   |
+| Engine registry  | `services/app/src/lib/dashboard-engine/registry.tsx`                                              | Client   |
+| Engine grid      | `services/app/src/lib/dashboard-engine/grid.tsx`                                                  | Client   |
+| Engine barrel    | `services/app/src/lib/dashboard-engine/index.ts`                                                  | Server   |
+| Data route       | `services/app/src/app/api/dashboard/data/[elementId]/route.ts`                                    | Server   |
+| Route page       | `services/app/src/app/dashboard/[code]/page.tsx`                                                  | Server   |
+| Root layout      | `services/app/src/app/layout.tsx`                                                                 | Server   |
+| i18n utils       | `services/app/src/lib/i18n/locale-utils.ts`                                                       | Pure     |
+| i18n provider    | `services/app/src/lib/i18n/locale.tsx`                                                            | Client   |
+| i18n switcher    | `services/app/src/lib/i18n/locale-switcher.tsx`                                                   | Client   |
+| Atomic widgets   | `packages/ui/src/components/dashboard/*.tsx`                                                      | UI       |
+| Mockup HTML      | `.ux-design/06-mockups/dashboards/*.html`                                                         | Designer |
+| Vitest engine    | `services/app/src/__tests__/dashboard-{engine,data-fetcher,adapters,prefetch,data-route}.test.ts` | Test     |
+| Vitest hook      | `services/app/src/__tests__/use-widget-data.test.ts`                                              | Test     |
+| Vitest i18n      | `services/app/src/__tests__/i18n-locale.test.tsx`                                                 | Test     |
+| E2E dashboard    | `services/app/tests/e2e/dashboard.spec.ts`                                                        | Test     |
+| Perf script      | `services/app/scripts/perf-dashboard.mjs`                                                         | Tooling  |
 
 ## Cross-reference
 
-- `~/.claude/plans/credo-che-se-tu-jazzy-key.md` § Phase 13 — strategic plan (autonomous execution)
-- `.ux-design/DECISIONS-LOG.md` § L29 (13.A) + L30 (13.B) + L31 (13.C/D/E) — decision history
+- `~/.claude/plans/credo-che-se-tu-jazzy-key.md` § Phase 13 — Phase 13 strategic plan (executed)
+- `~/.claude/plans/phase14-{index,sprint1-foundation,sprint2-ai-compliance,sprint3-ux-tier2}.md` — Phase 14 Bundle F plan
+- `docs/70-planning/phase14-scope.md` — Phase 14 scope draft (8 tracce, 5 bundle)
+- `.ux-design/DECISIONS-LOG.md` § L29 (13.A) + L30 (13.B) + L31 (13.C/D/E) — Phase 13 decision history
 - `docs/20-architecture/rls-with-prisma-pattern.md` — RLS bypass pattern explained
 - `docs/30-developer/security-baseline.md` — P1-P10 enforcement baseline
 - `.ux-design/06-mockups/dashboards/index.html` — designer hub for 5 Phase 9 mockup
