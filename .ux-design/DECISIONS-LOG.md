@@ -893,6 +893,37 @@ Risposte alle 2 domande operative pre-formalizzazione:
 | Direzione "Editorial Cinematic Ontologico"                        | Sciolta in L11 (esplorazione libera)                           | L11                                  |
 | Variant C palette confermata                                      | Sciolta in L11 (palette varia per ogni delle 8 direzioni)      | L11                                  |
 
+## L32 — 2026-05-07 — Phase 14 Sprint 1 (Bundle F · sub-phase A+H) shipped autonomous
+
+**Decisione**: Phase 14 Bundle F (Full · 60-89 FTE-day · tutte 8 tracce A-H) selezionato post-Phase 13 closure. Sprint 1 sub-phase **A (live data binding)** + **H (i18n IT/EN)** shippate end-to-end in autonomous mode con 6 commit consecutivi su main:
+
+- `1cd433f` 14.A.0 PoC live data binding · KpiRing live in hr_director_overview
+- `6c90a66` 14.A.4 expansion · 7 adapters + Live wrappers + seed expansion (8 KpiRing SQL + 4 IntegrationHealthPill static)
+- `bda9e16` 14.A.5+6 route handler `/api/dashboard/data/[elementId]` + SWR client hook + 14.H i18n primitives + page integration
+- `ae6b6f7` 14.A.7 perf script (autocannon) + 14.D Playwright PoC (3 spec verde su HR_DIRECTOR/hr_director_overview)
+- `19d3172` 14.A composite static seed (9 widget instances · SuccessionCard, CareerArc×2, KgMiniGraph×2, SkillHeatmap×2, CapabilityRadar, RbacMatrix)
+- `dff5e80` docs/20-architecture/dashboard-engine-pattern.md update con Phase 14.A status
+
+**Contesto**: utente ha selezionato bundle F (Full) sapendo che è multi-sprint vs default raccomandato R. Sub-phase A è high-value foundation (sblocca trasformazione MVP→prodotto operativo); H è quick win (dataset bilingue già seedato). Eseguito in autonomous mode stile Phase 13: ogni sub-phase con commit + smoke test live + STATE.md update + push diretto main, senza chiedere conferma a ogni step.
+
+**Conseguenza**:
+
+- Pipeline live data binding attiva: `data-fetcher` (sql/static dispatch + cache TTL + RLS via `withTenant`), `adapters` (8 widget coverage), `prefetch` (parallel server-side), `registry` rifattorizzato a Live wrapper unificato con Demo fallback. Tutti 8 widget code Live-capable; basta seedare `config_overrides.data_source` per attivarli per element specifico.
+- Route handler `/api/dashboard/data/[elementId]` con auth + RBP visibility + tenant ownership gates pronto per refresh client-side.
+- Hook `useWidgetData()` SWR-style zero-deps disponibile per consumare il route handler.
+- i18n IT/EN runtime live: `?lang=` + localStorage + `LocaleProvider` + `useLocale()` + `pickBilingual()` server-safe. Header dashboard switcha runtime IT↔EN.
+- Smoke verified live: KpiRing pos 1 in hr_director_overview mostra `Active employees · 270` (RLS scope RTL Bank); SuccessionCard pos 2 mostra `Stefania Bianchi`; ?lang=it ↔ ?lang=en switcha header copy.
+- Test: 120/120 vitest verde su services/app (43 baseline + 16 fetcher + 28 adapters + 6 prefetch + 10 route + 9 hook + 17 i18n). 3/3 E2E Playwright verde. 5/5 typecheck verde.
+- Sprint 1 follow-up registrate: composite SQL queries (jsonb_agg per talents/skills · richiede schema knowledge), production-mode perf binding (`next build && start` + autocannon), full 72-fixture matrix (8 ruoli × 9 dashboard).
+- Sprint 2-3 da scope draft restano disponibili: E audit log mutations · F /ontology + OpenAI advisor · C drag-resize editor · B mockup PROCESS expansion · G Tier 2 (ESCO/SAP/KG explorer).
+
+**Riferimenti**:
+
+- Plan Bundle F: `~/.claude/plans/phase14-{index,sprint1-foundation,sprint2-ai-compliance,sprint3-ux-tier2}.md`
+- Scope draft: `docs/70-planning/phase14-scope.md`
+- Engine pattern aggiornato: `docs/20-architecture/dashboard-engine-pattern.md` § Phase 14.A
+- STATE: `.handoff/STATE.md`
+
 ## Format per nuove entry
 
 Quando aggiungi una nuova decisione, segui questo template:
