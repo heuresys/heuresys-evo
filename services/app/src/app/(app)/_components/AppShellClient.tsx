@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { AppShell, HeuresysWordmark, type AppShellNavItem } from '@heuresys/ui';
 import type { NavSection } from '@/lib/navigation/types';
 import { UserMenu } from './UserMenu';
+import { ThemeToggle } from './ThemeToggle';
 import { buildAppShellNav } from './nav-builder';
 
 export interface AppShellClientProps {
@@ -33,7 +34,12 @@ export function AppShellClient({ sections, user, children }: AppShellClientProps
     <AppShell
       brand={<HeuresysWordmark variant="default" size="md" />}
       nav={nav}
-      topbarRight={<UserMenu username={user.username} role={user.role} />}
+      topbarRight={
+        <>
+          <ThemeToggle />
+          <UserMenu username={user.username} role={user.role} />
+        </>
+      }
     >
       {children}
     </AppShell>
