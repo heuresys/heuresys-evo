@@ -1,10 +1,38 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-07T16:50Z · **DBMS bare-metal promosso SoT** + Phase 14 Bundle F shipped + **Phase 14.SH plan approvato** (fresh session ready)
+> Updated: 2026-05-07T17:58Z · **Phase 14.SH SH-1 closed** · brand applied + role-based sidebar + governed backup chain · SH-2 ready (FASE 3 sidebar views live data e2e)
 
 ## ⚠️ DIRETTIVA ATTIVA
 
 **SEMPLICITÀ + ROBUSTEZZA**. Vedi [`docs/_meta/operating-baseline.md`](../docs/_meta/operating-baseline.md).
+
+## 🟢 SH-1 CLOSED (2026-05-07T17:58Z)
+
+| Track | Commit | Result |
+|---|---|---|
+| **FASE 1** Brand identity applied | `33527b4` | μ-architect-legacy tokens (dark default + light alt) · Tailwind 4 `@theme inline` mapping · `<HeuresysWordmark>` (3 variants × 5 sizes) · login-aurora page (mesh + glass + brand hero) · `(app)` route group + `<AppShell>` cablato · routes spostate sotto `(app)/` |
+| **FASE 2** Role-based dynamic sidebar | `11280f4` | `SIDEBAR_MAP` per 8 ruoli canonical · `getNavForUser(session)` server-side · `AppShellClient` con active state via `usePathname` + sezioni Workspace/Ontology/System collapsibili · 27 vitest role-nav · smoke 5/8 ruoli PASS via curl (3 PRE-EXISTING data issue su pwd legacy) |
+| **Backup track** | `5624aa3` | Cron postgres daily/weekly/monthly + drill mensile installato su `oracle-vm-default` · `heuresys-backup.sh` + `heuresys-restore-drill.sh` (mode 750, owner `root:postgres`) · prima daily run 2026-05-07T15:48Z 367MB · drill PASS 270/270 employees + 30/30 elements · doc `docs/40-operations/dbms-backup-restore.md` ACTIVE |
+
+### Code health post SH-1
+
+- **vitest**: services/app **180/180** verde (153 preexisting + 27 new role-nav) · packages/ui **95/95** (10 new wordmark)
+- **typecheck**: 5/5 workspace verde
+- **app runtime**: Next.js dev :3200 + api-gateway :8200 entrambi UP, login-aurora rendering OK, dashboard auth-gated 200 con AppShell + brand wordmark + role-driven sidebar
+- **DBMS SoT**: invariato (270 employees, 30 dashboard_elements, 506 tables, 477774 rows). Backup chain horizon ~12 mesi.
+
+### Pre-existing data issue → fixup in SH-2
+
+3 utenti hanno password legacy non-unificate (FASE 2 smoke 3/8 fail su login):
+- `evo.dev` (SUPERUSER) password `admin123` legacy dev seed
+- `rtl-hr` (HR_DIRECTOR) password `password` legacy default
+- canonical EMPLOYEE users (`rtl-bank.andrea.derosa`, `rtl-bank.sara.greco`, `econova.elisa.cattaneo`, ecc.) → password unificata `Heuresys2026!` non applicata
+
+→ Re-run `node scripts/db/apply-canonical-users.mjs` con full sweep (compresi pre-canonical batch) come prima azione SH-2.
+
+## 🟡 SH-2 — Sidebar views live data e2e (next session)
+
+Plan canonical: `~/.claude/plans/questo-quello-che-glittery-charm.md` · Handoff input: `.handoff/HANDOFF.md`. Stima 10-15 FTE-day. Stop condition: 50-70 viste live e2e con dati real DBMS · zero demo placeholder · RBP gates su tutte · screenshot 8 ruoli × ogni voce · commit handoff `chore(handoff): SH-2 closed → SH-3 ready`.
 
 ## 🟢 DBMS = SoT (certified 2026-05-07T14:30Z)
 

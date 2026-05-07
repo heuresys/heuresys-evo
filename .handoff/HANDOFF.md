@@ -1,8 +1,12 @@
 # HANDOFF — fresh session input
 
-> Generato 2026-05-07T16:45Z · last update: post-piano-approvato Phase 14.SH (Brand-driven shell live e2e role-based)
-> Plan file: `~/.claude/plans/questo-quello-che-glittery-charm.md` (approvato dall'utente)
-> Stato repository: branch `main` clean post `6a48706` (DBMS SoT promotion + composite SQL coverage 30/30)
+> Updated 2026-05-07T17:58Z · last update: **SH-1 closed → SH-2 ready** (brand applied + role-based sidebar + governed backup chain shipped)
+> Plan file: `~/.claude/plans/questo-quello-che-glittery-charm.md` (approvato)
+> Stato repository: branch `main` clean post `5624aa3` (3 commit autonomous SH-1: `33527b4` brand · `11280f4` nav · `5624aa3` backup)
+>
+> ## 🟢 SH-1 done · 🟡 next session entry: **SH-2** (FASE 3 sidebar views live data e2e — 10-15 FTE-day)
+>
+> SH-2 first action: re-run `node scripts/db/apply-canonical-users.mjs` con full sweep per fixup 3 utenti pwd legacy (vedi STATE.md "Pre-existing data issue").
 
 ## Identità della prossima sessione
 
