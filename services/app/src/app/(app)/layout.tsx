@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react';
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
+import { getNavForUser } from '@/lib/navigation';
 import { AppShellClient } from './_components/AppShellClient';
-import { PLACEHOLDER_NAV } from './_components/placeholder-nav';
 
 /**
  * (app) route group layout — wraps all authenticated app routes with the
@@ -10,8 +10,8 @@ import { PLACEHOLDER_NAV } from './_components/placeholder-nav';
  *
  * Authenticated routes only: unauthenticated visitors are redirected to /login.
  *
- * Phase 14.SH FASE 1.7 — placeholder static nav. FASE 2 replaces this with
- * `getNavForUser(session)` (role-driven SIDEBAR_MAP).
+ * Phase 14.SH FASE 2 — sidebar is now role-driven via `getNavForUser(session)`
+ * pulling the SIDEBAR_MAP for the user's role (8 canonical evo roles).
  */
 export default async function AppGroupLayout({ children }: { children: ReactNode }) {
   const session = await auth();
@@ -28,6 +28,8 @@ export default async function AppGroupLayout({ children }: { children: ReactNode
     tenantId?: string;
   };
 
+  const sections = getNavForUser(session);
+
   return (
     <AppShellClient
       user={{
@@ -35,7 +37,7 @@ export default async function AppGroupLayout({ children }: { children: ReactNode
         role: u.role ?? 'EMPLOYEE',
         tenantId: u.tenantId,
       }}
-      nav={PLACEHOLDER_NAV}
+      sections={sections}
     >
       {children}
     </AppShellClient>
