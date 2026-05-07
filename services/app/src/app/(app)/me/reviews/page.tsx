@@ -1,7 +1,27 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { withTenant } from '@/lib/db';
+import { getServerLocale } from '@/lib/i18n/server';
 import { isAuthenticated } from '@heuresys/shared/rbp';
+
+const STRINGS = {
+  it: {
+    title: 'Le mie review',
+    noSession: 'Nessun contesto sessione.',
+    reviewee: (n: string) => `Reviewee: ${n}`,
+    loadError: 'Caricamento fallito:',
+    noLink: 'Nessun record dipendente collegato.',
+    empty: 'Ancora nessuna review.',
+  },
+  en: {
+    title: 'My reviews',
+    noSession: 'No session context.',
+    reviewee: (n: string) => `Reviewee: ${n}`,
+    loadError: 'Could not load:',
+    noLink: 'No employee record linked.',
+    empty: 'No reviews yet.',
+  },
+} as const;
 
 async function fetchMyReviews(tenantId: string, userId: string) {
   return withTenant(tenantId, async (tx) => {
@@ -24,6 +44,8 @@ async function fetchMyReviews(tenantId: string, userId: string) {
 }
 
 export default async function MyReviewsPage() {
+  const locale = await getServerLocale();
+  const t = STRINGS[locale];
   const session = await auth();
   const user = session?.user as
     | { id?: string; username?: string; role?: string; tenantId?: string }
@@ -32,8 +54,8 @@ export default async function MyReviewsPage() {
   if (!user?.id || !user?.tenantId)
     return (
       <main className="p-8">
-        <h1>My reviews</h1>
-        <p className="text-sm text-destructive">No session context.</p>
+        <h1>{t.title}</h1>
+        <p className="text-sm text-destructive">{t.noSession}</p>
       </main>
     );
 
@@ -48,20 +70,20 @@ export default async function MyReviewsPage() {
   return (
     <main className="mx-auto max-w-4xl p-8">
       <header>
-        <h1 className="text-3xl font-semibold">My reviews</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Reviewee: {user.username}</p>
+        <h1 className="text-3xl font-semibold">{t.title}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{t.reviewee(user.username ?? '')}</p>
       </header>
       <section className="mt-6">
         {err ? (
           <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
-            Could not load: <code>{err}</code>
+            {t.loadError} <code>{err}</code>
           </p>
         ) : !reviews ? (
           <p className="rounded-md border border-border bg-muted/30 p-4 text-sm text-muted-foreground">
-            No employee record linked.
+            {t.noLink}
           </p>
         ) : reviews.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No reviews yet.</p>
+          <p className="text-sm text-muted-foreground">{t.empty}</p>
         ) : (
           <ul className="divide-y divide-border rounded-md border border-border">
             {reviews.map((r) => (

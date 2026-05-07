@@ -1,7 +1,31 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { withTenant } from '@/lib/db';
+import { getServerLocale } from '@/lib/i18n/server';
 import { isAuthenticated } from '@heuresys/shared/rbp';
+
+const STRINGS = {
+  it: {
+    title: 'I miei obiettivi',
+    noSession: 'Nessun contesto sessione.',
+    owner: (n: string) => `Owner: ${n}`,
+    loadError: 'Caricamento fallito:',
+    noLink: 'Nessun record dipendente collegato.',
+    empty: 'Nessun obiettivo attivo.',
+    statusLabel: 'stato:',
+    fallbackType: 'objective',
+  },
+  en: {
+    title: 'My goals',
+    noSession: 'No session context.',
+    owner: (n: string) => `Owner: ${n}`,
+    loadError: 'Could not load:',
+    noLink: 'No employee record linked.',
+    empty: 'No active goals.',
+    statusLabel: 'status:',
+    fallbackType: 'objective',
+  },
+} as const;
 
 async function fetchMyGoals(tenantId: string, userId: string) {
   return withTenant(tenantId, async (tx) => {
@@ -25,6 +49,8 @@ async function fetchMyGoals(tenantId: string, userId: string) {
 }
 
 export default async function MyGoalsPage() {
+  const locale = await getServerLocale();
+  const t = STRINGS[locale];
   const session = await auth();
   const user = session?.user as
     | { id?: string; username?: string; role?: string; tenantId?: string }
@@ -33,8 +59,8 @@ export default async function MyGoalsPage() {
   if (!user?.id || !user?.tenantId)
     return (
       <main className="p-8">
-        <h1>My goals</h1>
-        <p className="text-sm text-destructive">No session context.</p>
+        <h1>{t.title}</h1>
+        <p className="text-sm text-destructive">{t.noSession}</p>
       </main>
     );
 
@@ -49,20 +75,20 @@ export default async function MyGoalsPage() {
   return (
     <main className="mx-auto max-w-4xl p-8">
       <header>
-        <h1 className="text-3xl font-semibold">My goals</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Owner: {user.username}</p>
+        <h1 className="text-3xl font-semibold">{t.title}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{t.owner(user.username ?? '')}</p>
       </header>
       <section className="mt-6">
         {err ? (
           <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
-            Could not load: <code>{err}</code>
+            {t.loadError} <code>{err}</code>
           </p>
         ) : !goals ? (
           <p className="rounded-md border border-border bg-muted/30 p-4 text-sm text-muted-foreground">
-            No employee record linked.
+            {t.noLink}
           </p>
         ) : goals.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No active goals.</p>
+          <p className="text-sm text-muted-foreground">{t.empty}</p>
         ) : (
           <ul className="divide-y divide-border rounded-md border border-border">
             {goals.map((g) => {
@@ -72,7 +98,7 @@ export default async function MyGoalsPage() {
                   <div>
                     <div className="font-medium">{g.title}</div>
                     <div className="text-xs text-muted-foreground">
-                      {g.goal_type ?? 'objective'} · status: {g.status ?? 'not_started'}
+                      {g.goal_type ?? t.fallbackType} · {t.statusLabel} {g.status ?? 'not_started'}
                     </div>
                   </div>
                   <div className="text-right">

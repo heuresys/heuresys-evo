@@ -1,7 +1,27 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
+import { getServerLocale } from '@/lib/i18n/server';
 import { hasMinRole } from '@heuresys/shared/rbp';
+
+const STRINGS = {
+  it: {
+    title: 'Matrice RBAC',
+    summary: (r: number, a: number) =>
+      `${r} ruoli × ${a} aree funzionali · permessi: V=visualizza, A=approva, E=modifica, D=elimina`,
+    loadError: 'Caricamento fallito:',
+    empty: 'Nessun ruolo configurato.',
+    thArea: 'Area funzionale',
+  },
+  en: {
+    title: 'RBAC matrix',
+    summary: (r: number, a: number) =>
+      `${r} roles × ${a} functional areas · permissions: V=view, A=approve, E=edit, D=delete`,
+    loadError: 'Could not load:',
+    empty: 'No roles configured.',
+    thArea: 'Functional area',
+  },
+} as const;
 
 /**
  * /admin/rbac — RBAC matrix viewer (8 roles × 33+ functional areas).
@@ -54,6 +74,8 @@ const PERM_TONE: Record<string, string> = {
 };
 
 export default async function RbacMatrixPage() {
+  const locale = await getServerLocale();
+  const t = STRINGS[locale];
   const session = await auth();
   const user = session?.user as { role?: string } | undefined;
   if (!hasMinRole(user, 'HR_DIRECTOR')) redirect('/dashboard');
@@ -73,26 +95,25 @@ export default async function RbacMatrixPage() {
   return (
     <main className="mx-auto max-w-full p-6">
       <header>
-        <h1 className="text-3xl font-semibold">RBAC matrix</h1>
+        <h1 className="text-3xl font-semibold">{t.title}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          {data.roles.length} roles × {data.areas.length} functional areas · permissions: V=view,
-          A=approve, E=edit, D=delete
+          {t.summary(data.roles.length, data.areas.length)}
         </p>
       </header>
       <section className="mt-6">
         {err ? (
           <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
-            Could not load: <code>{err}</code>
+            {t.loadError} <code>{err}</code>
           </p>
         ) : data.roles.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No roles configured.</p>
+          <p className="text-sm text-muted-foreground">{t.empty}</p>
         ) : (
           <div className="overflow-x-auto rounded-md border border-border">
             <table className="text-xs">
               <thead className="bg-muted">
                 <tr>
                   <th className="sticky left-0 z-10 bg-muted p-2 text-left font-mono uppercase tracking-wide text-muted-foreground border-r border-border min-w-[200px]">
-                    Functional area
+                    {t.thArea}
                   </th>
                   {data.roles.map((r) => (
                     <th

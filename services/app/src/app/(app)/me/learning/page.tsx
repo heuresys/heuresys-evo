@@ -1,7 +1,33 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { withTenant } from '@/lib/db';
+import { getServerLocale } from '@/lib/i18n/server';
 import { isAuthenticated } from '@heuresys/shared/rbp';
+
+const STRINGS = {
+  it: {
+    title: 'La mia formazione',
+    noSession: 'Nessun contesto sessione.',
+    learner: (n: string) => `Learner: ${n}`,
+    loadError: 'Caricamento fallito:',
+    noLink: 'Nessun record dipendente collegato.',
+    empty: 'Nessuna iscrizione a corsi.',
+    counter: (n: number) => `${n} iscrizioni`,
+    coursePrefix: 'corso',
+    enrolledLabel: 'iscritto',
+  },
+  en: {
+    title: 'My learning',
+    noSession: 'No session context.',
+    learner: (n: string) => `Learner: ${n}`,
+    loadError: 'Could not load:',
+    noLink: 'No employee record linked.',
+    empty: 'No course enrollments yet.',
+    counter: (n: number) => `${n} enrollments`,
+    coursePrefix: 'course',
+    enrolledLabel: 'enrolled',
+  },
+} as const;
 
 async function fetchMyLearning(tenantId: string, userId: string) {
   return withTenant(tenantId, async (tx) => {
@@ -30,6 +56,8 @@ const STATUS_TONE: Record<string, string> = {
 };
 
 export default async function MyLearningPage() {
+  const locale = await getServerLocale();
+  const t = STRINGS[locale];
   const session = await auth();
   const user = session?.user as
     | { id?: string; username?: string; role?: string; tenantId?: string }
@@ -38,8 +66,8 @@ export default async function MyLearningPage() {
   if (!user?.id || !user?.tenantId)
     return (
       <main className="p-8">
-        <h1>My learning</h1>
-        <p className="text-sm text-destructive">No session context.</p>
+        <h1>{t.title}</h1>
+        <p className="text-sm text-destructive">{t.noSession}</p>
       </main>
     );
 
@@ -54,23 +82,23 @@ export default async function MyLearningPage() {
   return (
     <main className="mx-auto max-w-4xl p-8">
       <header>
-        <h1 className="text-3xl font-semibold">My learning</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Learner: {user.username}</p>
+        <h1 className="text-3xl font-semibold">{t.title}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{t.learner(user.username ?? '')}</p>
       </header>
       <section className="mt-6">
         {err ? (
           <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
-            Could not load: <code>{err}</code>
+            {t.loadError} <code>{err}</code>
           </p>
         ) : !enrollments ? (
           <p className="rounded-md border border-border bg-muted/30 p-4 text-sm text-muted-foreground">
-            No employee record linked.
+            {t.noLink}
           </p>
         ) : enrollments.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No course enrollments yet.</p>
+          <p className="text-sm text-muted-foreground">{t.empty}</p>
         ) : (
           <>
-            <p className="mb-3 text-sm text-muted-foreground">{enrollments.length} enrollments</p>
+            <p className="mb-3 text-sm text-muted-foreground">{t.counter(enrollments.length)}</p>
             <ul className="divide-y divide-border rounded-md border border-border">
               {enrollments.map((e) => {
                 const pct = e.progress_percent != null ? Number(e.progress_percent) : 0;
@@ -80,9 +108,11 @@ export default async function MyLearningPage() {
                     className="grid grid-cols-[1fr_auto_auto] items-center gap-3 p-3 text-sm"
                   >
                     <div>
-                      <code className="text-xs">course {e.course_id?.slice(0, 8) ?? '—'}…</code>
+                      <code className="text-xs">
+                        {t.coursePrefix} {e.course_id?.slice(0, 8) ?? '—'}…
+                      </code>
                       <div className="text-xs text-muted-foreground">
-                        enrolled {e.enrolled_at?.toISOString().slice(0, 10) ?? '—'} ·{' '}
+                        {t.enrolledLabel} {e.enrolled_at?.toISOString().slice(0, 10) ?? '—'} ·{' '}
                         {e.enrollment_source ?? 'self'}
                       </div>
                     </div>

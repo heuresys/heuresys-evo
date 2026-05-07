@@ -2,7 +2,7 @@ import { notFound, redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { loadDashboardPreset, prefetchElements, resolveElements } from '@/lib/dashboard-engine';
 import { DashboardGrid } from '@/lib/dashboard-engine/grid';
-import { DEFAULT_LOCALE, isLocale, LocaleSwitcher, pickBilingual, type Locale } from '@/lib/i18n';
+import { DEFAULT_LOCALE, isLocale, pickBilingual, type Locale } from '@/lib/i18n';
 
 /**
  * Phase 13.C — /dashboard/[code] — data-driven dashboard renderer.
@@ -81,7 +81,6 @@ export default async function DashboardCodePage({ params, searchParams }: PagePr
           ) : null}
         </div>
         <div className="flex flex-col items-end gap-2 text-right font-mono text-[10px] uppercase tracking-wider text-muted-fg">
-          <LocaleSwitcher />
           <div>
             {visibleElements.length} widget{visibleElements.length === 1 ? '' : 's'}
             {user.role ? <div className="mt-0.5">role · {user.role}</div> : null}

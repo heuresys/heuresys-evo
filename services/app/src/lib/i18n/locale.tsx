@@ -68,6 +68,13 @@ export function LocaleProvider({ children, initialLocale }: LocaleProviderProps)
       } catch {
         // ignore
       }
+      // Mirror to cookie so server components can read the active locale.
+      // 1 year max-age, root path, lax samesite.
+      try {
+        document.cookie = `${STORAGE_KEY}=${next}; path=/; max-age=31536000; samesite=lax`;
+      } catch {
+        // ignore
+      }
     }
   }, []);
 

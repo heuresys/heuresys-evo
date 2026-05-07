@@ -1,7 +1,23 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { withTenant } from '@/lib/db';
+import { getServerLocale } from '@/lib/i18n/server';
 import { hasMinRole, isRbpPlatformAdmin } from '@heuresys/shared/rbp';
+
+const STRINGS = {
+  it: {
+    title: 'Integrazioni',
+    platformWide: 'Integrazioni platform-wide',
+    tenantScope: (id: string) => `Ambito tenant · ${id}…`,
+    sapHint: (n: number) => `${n} dipendenti con SAP pernr`,
+  },
+  en: {
+    title: 'Integrations',
+    platformWide: 'Platform-wide integrations',
+    tenantScope: (id: string) => `Tenant scope · ${id}…`,
+    sapHint: (n: number) => `${n} employees with SAP pernr`,
+  },
+} as const;
 
 const KNOWN_INTEGRATIONS = [
   {
@@ -51,6 +67,8 @@ const STATUS_TONE: Record<string, { bg: string; fg: string }> = {
 };
 
 export default async function IntegrationsPage() {
+  const locale = await getServerLocale();
+  const t = STRINGS[locale];
   const session = await auth();
   const user = session?.user as { role?: string; tenantId?: string } | undefined;
   if (!hasMinRole(user, 'IT_ADMIN')) redirect('/dashboard');
@@ -73,11 +91,11 @@ export default async function IntegrationsPage() {
   return (
     <main className="mx-auto max-w-5xl p-8">
       <header>
-        <h1 className="text-3xl font-semibold">Integrations</h1>
+        <h1 className="text-3xl font-semibold">{t.title}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           {isRbpPlatformAdmin(user)
-            ? 'Platform-wide integrations'
-            : `Tenant scope · ${user?.tenantId?.slice(0, 8) ?? '—'}…`}
+            ? t.platformWide
+            : t.tenantScope(user?.tenantId?.slice(0, 8) ?? '—')}
         </p>
       </header>
 
@@ -101,9 +119,7 @@ export default async function IntegrationsPage() {
                 </div>
                 <p className="mt-2 text-xs text-muted-foreground">{i.description}</p>
                 {i.code === 'sap' && sapStatus ? (
-                  <p className="mt-2 text-xs">
-                    <strong>{sapStatus.sync_count}</strong> employees with SAP pernr
-                  </p>
+                  <p className="mt-2 text-xs">{t.sapHint(sapStatus.sync_count)}</p>
                 ) : null}
               </li>
             );

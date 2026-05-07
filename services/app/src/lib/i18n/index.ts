@@ -16,3 +16,8 @@ export {
 export { LocaleProvider, useLocale, useTranslate, type LocaleProviderProps } from './locale';
 
 export { LocaleSwitcher, type LocaleSwitcherProps } from './locale-switcher';
+
+// Note: `getServerLocale` is intentionally NOT re-exported here. It lives in
+// `./server` and pulls in `next/headers` + `server-only`. Server components
+// must import it directly from `@/lib/i18n/server` to keep client bundles
+// (and vitest transforms) free of server-only modules.

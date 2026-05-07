@@ -1,7 +1,37 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { withTenant } from '@/lib/db';
+import { getServerLocale } from '@/lib/i18n/server';
 import { hasMinRole } from '@heuresys/shared/rbp';
+
+const STRINGS = {
+  it: {
+    title: 'Performance review',
+    fallbackTitle: 'Review',
+    noTenant: 'Nessun contesto tenant.',
+    tenantScope: (id: string) => `Ambito tenant · ${id}…`,
+    loadError: 'Caricamento review fallito:',
+    empty: 'Nessuna review nello scope.',
+    counter: (n: number) => `${n} review`,
+    thPeriod: 'Periodo',
+    thType: 'Tipo',
+    thStatus: 'Stato',
+    thRating: 'Punteggio',
+  },
+  en: {
+    title: 'Performance reviews',
+    fallbackTitle: 'Reviews',
+    noTenant: 'No tenant context.',
+    tenantScope: (id: string) => `Tenant scope · ${id}…`,
+    loadError: 'Could not load reviews:',
+    empty: 'No reviews in scope.',
+    counter: (n: number) => `${n} reviews`,
+    thPeriod: 'Period',
+    thType: 'Type',
+    thStatus: 'Status',
+    thRating: 'Rating',
+  },
+} as const;
 
 async function fetchReviews(tenantId: string) {
   return withTenant(tenantId, (tx) =>
@@ -30,14 +60,16 @@ const STATUS_TONE: Record<string, string> = {
 };
 
 export default async function ReviewsPage() {
+  const locale = await getServerLocale();
+  const t = STRINGS[locale];
   const session = await auth();
   const user = session?.user as { role?: string; tenantId?: string } | undefined;
   if (!hasMinRole(user, 'HR_MANAGER')) redirect('/dashboard');
   if (!user?.tenantId) {
     return (
       <main className="p-8">
-        <h1>Reviews</h1>
-        <p>No tenant context.</p>
+        <h1>{t.fallbackTitle}</h1>
+        <p>{t.noTenant}</p>
       </main>
     );
   }
@@ -53,29 +85,29 @@ export default async function ReviewsPage() {
   return (
     <main className="mx-auto max-w-6xl p-8">
       <header>
-        <h1 className="text-3xl font-semibold">Performance reviews</h1>
+        <h1 className="text-3xl font-semibold">{t.title}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Tenant scope · {user.tenantId.slice(0, 8)}…
+          {t.tenantScope(user.tenantId.slice(0, 8))}
         </p>
       </header>
       <section className="mt-6">
         {err ? (
           <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
-            Could not load reviews: <code>{err}</code>
+            {t.loadError} <code>{err}</code>
           </p>
         ) : reviews.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No reviews in scope.</p>
+          <p className="text-sm text-muted-foreground">{t.empty}</p>
         ) : (
           <>
-            <p className="mb-3 text-sm text-muted-foreground">{reviews.length} reviews</p>
+            <p className="mb-3 text-sm text-muted-foreground">{t.counter(reviews.length)}</p>
             <div className="overflow-x-auto rounded-md border border-border">
               <table className="w-full text-sm">
                 <thead className="bg-muted text-xs uppercase tracking-wide text-muted-foreground">
                   <tr>
-                    <th className="p-2 text-left font-mono">Period</th>
-                    <th className="p-2 text-left font-mono">Type</th>
-                    <th className="p-2 text-left font-mono">Status</th>
-                    <th className="p-2 text-right font-mono">Rating</th>
+                    <th className="p-2 text-left font-mono">{t.thPeriod}</th>
+                    <th className="p-2 text-left font-mono">{t.thType}</th>
+                    <th className="p-2 text-left font-mono">{t.thStatus}</th>
+                    <th className="p-2 text-right font-mono">{t.thRating}</th>
                   </tr>
                 </thead>
                 <tbody>

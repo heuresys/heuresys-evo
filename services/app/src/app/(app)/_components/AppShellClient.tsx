@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { usePathname } from 'next/navigation';
 import { AppShell, HeuresysWordmark, type AppShellNavItem } from '@heuresys/ui';
+import { LocaleSwitcher } from '@/lib/i18n';
 import type { NavSection } from '@/lib/navigation/types';
 import { UserMenu } from './UserMenu';
 import { ThemeToggle } from './ThemeToggle';
@@ -36,6 +37,7 @@ export function AppShellClient({ sections, user, children }: AppShellClientProps
       nav={nav}
       topbarRight={
         <>
+          <LocaleSwitcher />
           <ThemeToggle />
           <UserMenu username={user.username} role={user.role} />
         </>
