@@ -1,6 +1,6 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-07T20:10Z · **Phase 14.SH FULLY CLOSED** (SH-1 + SH-2 + SH-3 done, 8 commits, all pushed main)
+> Updated: 2026-05-08T01:10Z · **Brand identity cycle SEALED (Phase 1→12 done, L37+L38)** + Phase 14.SH carry-forward shipped (commits `0958625`/`5ebdc45`/`34f9ac8`/`5ee6636`)
 
 ## ⚠️ DIRETTIVA ATTIVA
 
@@ -8,32 +8,34 @@
 
 ## Last session brief
 
-Phase 14.SH chiusa. SH-3 ha shippato: composite real aggregations (`phase14e` migration, 4 widget × 13 elements), 9 routes carry-forward (`/reviews`, `/goals`, `/learning`, `/compensation`, `/me/{goals,reviews,learning}`, `/admin/{rbac,integrations}`), theme toggle dark/light + localStorage, perf baseline autocannon (P50=1s dev). Brand-driven role-based shell live e2e operativo per 8 ruoli canonical.
+Sessione carry-forward Phase 14.SH + closure brand identity cycle. Shipped: 2 mockup overview (`cross-tenant-overview` + `tenant-owner-overview`) + seed `phase14f_overview_presets.sql` applicato bare-metal SoT + LocaleSwitcher cablato in topbar AppShell + 9 viste SH-3 i18n IT/EN. Poi chiusura ciclo brand identity Phase 11/12 (theme variants W3C DTCG + brand book v0). Audit pre-promotion ha rilevato 5 gap reali, tutti chiusi (D1-D4 risolte + 4 personas mancanti + v1.0-checklist + promotion-candidates update + brand book § 3 expanded). ADR-0025 + sync CLAUDE.md + role-views-matrix.
 
 ## Top priorities (next session)
 
-1. **WCAG 2.2 AAA full audit** (~3-5h) — axe-core CI integration + manual NVDA/VoiceOver pass. Ref: `docs/_meta/operating-baseline.md` §a11y, plan FASE 4.
-2. **Production build perf bench** (~1-2h) — `next build && next start` + autocannon su 8 viste auth-required. Target P95 ≤ 500ms. Ref: `scripts/perf/results/`.
-3. **API gateway cross-service JWT** (~2-3h) — fix NextAuth v4 ↔ Auth.js v5 JWE decode via `jose` library, riabilitare api-gateway calls. Ref: `services/api-gateway/src/auth.ts`, bypassed con Prisma direct in SH-2.
+1. **Brand v1.0 promotion — Quick wins (~1-2h)** — design tokens JSON copy in `packages/ui/design-tokens/` + logo SVG copy in `services/app/public/brand/` + favicon multi-size + apple-touch-icon + og-image. Ref: `.ux-design/08-promotion/v1.0-checklist.md` § 2.1-2.5.
+2. **WCAG 2.2 AAA full audit (~3-5h)** — axe-core CI integration + manual NVDA/VoiceOver pass su 8 viste rappresentative. Ref: `docs/_meta/operating-baseline.md` §a11y.
+3. **Production build perf bench (~1-2h)** — `next build && next start` + autocannon su 8 viste auth-required. Target P95 ≤ 500ms. Ref: `scripts/perf/results/`.
 
 ## Open questions
 
-- Carry-forward route presets `/dashboard/cross_tenant_overview` + `tenant_owner_overview`: aggiungere ai dashboard_presets seed (rimasti placeholder href in SIDEBAR_MAP)?
-- i18n locale switcher: estendere a 9 viste SH-3? (riusa `pickBilingual()`)
+- Sequence promotion v1.0: incremental (1 categoria asset alla volta) o bulk (tutto in 1 sessione lunga)? `v1.0-checklist.md` raccomanda incremental.
+- API gateway JWT fix (~2-3h, `jose` library): priorità prima o dopo le 3 sopra?
 
 ## Stack snapshot
 
-| Layer       | Tech                                                                         |
-| ----------- | ---------------------------------------------------------------------------- |
-| Frontend    | Next.js 16 · 3200 · 17+ routes (app)/ live data · theme toggle               |
-| API Gateway | Express 5 · 8200 · 30 endpoint (bypassed in (app)/ via Prisma direct)        |
-| UI Library  | `@heuresys/ui` Cantiere B + `<HeuresysWordmark>` + `<AppShell>` cablato      |
-| Shared      | `@heuresys/shared/rbp` (hasMinRole, requireMinRole, isRbpPlatformAdmin) — 12 vitest |
-| **DB**      | **Postgres 16.13 bare-metal SoT certified** — 4 tenants, 270+ employees      |
-| Test        | Vitest 180/180 services/app · 82/82 packages/shared · 95/95 packages/ui      |
-| Backup      | Cron daily/weekly/monthly + drill mensile (`heuresys-backup.sh` su VM)       |
+| Layer       | Tech                                                                                  |
+| ----------- | ------------------------------------------------------------------------------------- |
+| Frontend    | Next.js 16 · 3200 · 17+ routes (app)/ live data · theme toggle · LocaleSwitcher topbar |
+| API Gateway | Express 5 · 8200 · 30 endpoint (bypassed in (app)/ via Prisma direct, JWT fix pending) |
+| UI Library  | `@heuresys/ui` Cantiere B + `<HeuresysWordmark>` + `<AppShell>` cablato                |
+| Shared      | `@heuresys/shared/rbp` — 82/82 vitest                                                  |
+| **DB**      | **Postgres 16.13 bare-metal SoT certified** — 4 tenants, 270+ employees · 11 dashboard presets (incl. cross_tenant + tenant_owner) |
+| i18n        | `LocaleProvider` + `getServerLocale()` cookie-based + `STRINGS` per-page const         |
+| Brand SoT   | `.ux-design/` — 12 phase ✅ · 8 personas (1:1 RBP) · v1.0-checklist · BRAND-BOOK-v0    |
+| Test        | Vitest 180/180 services/app · 82/82 packages/shared · 95/95 packages/ui                |
+| ADR         | 25 (ADR-0025 brand cycle sealed + v1.0 plan)                                           |
 
-## Background processes attivi
+## Background processes
 
 - Tunnel SSH PID variabile (`scripts/dev-local/tunnel-vm.ps1 -Status`) · porte 5432+6380 listening
 - Next.js dev :3200 + api-gateway :8200 (entrambi 0.0.0.0)
@@ -41,24 +43,16 @@ Phase 14.SH chiusa. SH-3 ha shippato: composite real aggregations (`phase14e` mi
 ## Verification
 
 ```bash
-cd D:/evo.heuresys.com
-git status -sb                              # clean post 56ea24b
-npm run typecheck --workspaces --if-present  # 5/5 verde
-npm test --workspace=services/app -- --run    # 180/180
-npm test --workspace=packages/shared -- --run  # 82/82
-```
-
-```bash
-# DBMS SoT integrity
-ssh oracle-vm-default 'sudo -u postgres psql -d heuresys_platform -tAc "SELECT count(*) FROM employees"'  # 270
-ssh oracle-vm-default 'sudo ls /var/backups/heuresys-evo/ | head'  # backup chain
+git status -sb                                   # clean post 5ee6636
+npm run typecheck --workspaces --if-present       # 5/5 verde
+npm test --workspace=services/app -- --run         # 180/180
+ssh oracle-vm-default 'sudo -u postgres psql -d heuresys_platform -tAc "SELECT count(*) FROM dashboard_presets"'  # 11
 ```
 
 ## Riferimenti
 
-- Plan canonical (eseguito): `~/.claude/plans/questo-quello-che-glittery-charm.md`
+- Brand v1.0 checklist: `.ux-design/08-promotion/v1.0-checklist.md`
+- Brand book v0: `.ux-design/07-brand-book/BRAND-BOOK-v0.md`
+- Brand state: `.ux-design/BRAND-STATE.md` · DECISIONS-LOG L1→L38
 - Role × Views matrix: `docs/20-architecture/role-views-matrix.md`
-- Backup policy: `docs/40-operations/dbms-backup-restore.md`
-- ADR-0023 SoT promotion · ADR-0024 Phase 14.SH plan
-- Brand state: `.ux-design/BRAND-STATE.md`
-- Composite migration: `db/migrations/phase14e_composite_real_aggregations.sql`
+- ADR-0023 SoT · ADR-0024 Phase 14.SH · ADR-0025 brand cycle sealed
