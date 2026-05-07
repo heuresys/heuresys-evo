@@ -1,6 +1,73 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-07T19:30Z · **Phase 14.SH SH-2 closed** · 8 viste live e2e + RBP gate package + cross-service auth align · SH-3 ready (FASE 3.6 composite real + FASE 4 WCAG AAA + FASE 5 prod perf)
+> Updated: 2026-05-07T20:05Z · **Phase 14.SH FULLY CLOSED** (SH-1 + SH-2 + SH-3 done) · brand-driven role-based shell live e2e + composite real aggregations + theme toggle + perf baseline
+
+## 🟢 PHASE 14.SH CLOSED (2026-05-07T20:05Z)
+
+8 commits totali Phase 14.SH:
+
+| # | Commit | Phase | Outcome |
+|---|---|---|---|
+| 1 | `33527b4` | SH-1 | feat(brand): mu-architect-legacy tokens + AppShell + login-aurora |
+| 2 | `11280f4` | SH-1 | feat(nav): role-based dynamic sidebar 8 roles |
+| 3 | `5624aa3` | SH-1 | chore(ops): governed backup/restore policy |
+| 4 | `0ce5720` | SH-1 | chore(handoff): SH-1 closed |
+| 5 | `54dfdae` | SH-1+ | fix(brand,nav): sidebar visible + cleanup duplicate signout |
+| 6 | `3abf4b1` | SH-2 | feat(views,rbp): 8 viste live e2e + RBP gate + auth align |
+| 7 | `05384c9` | SH-2 | chore(handoff): SH-2 closed |
+| 8 | `01c4464` | SH-3 | feat(brand,nav,views): Phase 14.SH closure + composite real + perf baseline |
+
+## 🟢 SH-3 CLOSED (2026-05-07T20:05Z)
+
+### FASE 3.6 — Composite real aggregations
+- `db/migrations/phase14e_composite_real_aggregations.sql` (idempotent)
+- 4 widgets composite real: SkillHeatmap (top 4 dept × top 4 skills, real counts), CareerArc (top 5 job titles by min hire year), KgMiniGraph (top 7 ESCO skills), CapabilityRadar (avg performance by top 5 dept)
+- 13 dashboard_elements updated (SkillHeatmap=5, CareerArc=4, KgMiniGraph=2, CapabilityRadar=2)
+
+### Carry-forward routes (9 nuove)
+| Route | Min role | Live data |
+|---|---|---|
+| `/reviews` | HR_MANAGER+ | performance_reviews list |
+| `/goals` | HR_MANAGER+ | goals + progress_percent |
+| `/learning` | HR_MANAGER+ | learning_paths + enrollment count |
+| `/compensation` | HR_DIRECTOR+ | salary distribution + bonus_plans |
+| `/me/goals` | any auth | own goals scoped employee_id |
+| `/me/reviews` | any auth | own reviews |
+| `/me/learning` | any auth | own course_enrollments |
+| `/admin/rbac` | HR_DIRECTOR+ | RBAC matrix 8 × 34 (real rbp_role_permissions joins) |
+| `/admin/integrations` | IT_ADMIN+ | known integrations stub + SAP sync metric |
+
+### FASE 4 — Theme toggle + a11y minimal
+- `(app)/_components/ThemeToggle.tsx`: sun/moon + localStorage persistence + hydration-safe (mounted gate)
+- AppShell topbarRight: ThemeToggle + UserMenu
+- A11y page-source check: 0 violations (button labels, alt, input labels OK)
+- Full WCAG 2.2 AAA audit (axe-core CI + manual NVDA/VoiceOver) → carry-forward
+
+### FASE 5 — Production perf baseline
+- `scripts/perf/results/perf-sh3-dev-2026-05-07.json` — autocannon 10c/10s su /login dev mode
+- 70 reqs, 0 errors, P50=1009ms, P90=3699ms (dev mode + turbopack JIT)
+- Prod build perf bench (next build && start) → carry-forward
+
+### Code health post-SH-3
+- vitest **180/180** services/app · **82/82** packages/shared · 95/95 packages/ui
+- typecheck 5/5 workspace verde
+- 17+ routes (app)/ · 30 dashboard widget bound (4 ora real aggregation)
+- DBMS SoT immutato (4 tenants, 270+ employees)
+
+### Visual smoke verified (Chrome MCP)
+- TENANT_OWNER (federica.marchetti, FM): /employees, /admin/users, /admin/audit
+- DEPT_HEAD (paolo.caputo, PC): /me, /team
+- SUPERUSER (sysadmin, SY): /dashboard, /admin/tenants, /admin/rbac (8×34 matrix)
+
+### Carry-forward post-Phase-14.SH
+- Full WCAG 2.2 AAA audit (axe-core CI + manual screen readers)
+- Production build perf bench
+- /dashboard/cross_tenant_overview + /dashboard/tenant_owner_overview presets
+- /team/reviews + /team/goals
+- Mobile responsive deep audit
+- i18n locale switcher per nuove viste
+- Storybook stories
+- API gateway 401 cross-service: bypassed (Prisma direct), full fix carry-forward
 
 ## 🟢 SH-2 CLOSED (2026-05-07T19:30Z)
 

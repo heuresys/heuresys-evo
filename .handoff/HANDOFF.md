@@ -1,14 +1,21 @@
 # HANDOFF — fresh session input
 
-> Updated 2026-05-07T19:30Z · last update: **SH-2 closed → SH-3 ready** (8 viste live e2e shipped + RBP gate + cross-service auth aligned)
-> Plan file: `~/.claude/plans/questo-quello-che-glittery-charm.md` (approvato)
-> Stato repository: branch `main` clean post `3abf4b1` (commit principale SH-2)
+> Updated 2026-05-07T20:05Z · last update: **PHASE 14.SH FULLY CLOSED** (SH-1 + SH-2 + SH-3 done)
+> Plan file: `~/.claude/plans/questo-quello-che-glittery-charm.md` (eseguito)
+> Stato repository: branch `main` clean post `01c4464` (commit principale SH-3)
 >
-> ## 🟢 SH-1 + 🟢 SH-2 done · 🟠 next session entry: **SH-3** (FASE 3.6 composite real + FASE 4 WCAG AAA + FASE 5 prod perf — 7-10 FTE-day)
+> ## 🟢 Phase 14.SH done — brand-driven role-based shell live e2e + 17+ routes + composite real + theme toggle + perf baseline
 >
-> SH-3 first action: scrivere e applicare `db/migrations/phase14e_composite_real_aggregations.sql` (5 widget composite con real aggregations replacing static-via-SELECT). Poi WCAG audit + production perf.
+> Next session: post-Phase-14.SH carry-forward o nuova phase. Riferimenti:
+> - Full WCAG 2.2 AAA audit (axe-core CI + manual NVDA/VoiceOver) — alta priorità
+> - Production build perf bench (next build && next start + autocannon)
+> - /dashboard/cross_tenant_overview + /dashboard/tenant_owner_overview presets
+> - /team/reviews + /team/goals (LINE_MANAGER follow-up)
+> - i18n locale switcher per le 9 viste SH-3
+> - Storybook stories per le viste SH-2/SH-3
+> - API gateway cross-service auth (NextAuth v4 → Auth.js v5) — bypassed con Prisma direct, full fix possibile usando `jose` library JWE decode
 >
-> SH-2 ha implementato 8 routes core/representative; le ~12 routes pendenti (reviews/goals/learning/compensation/analytics/admin-rbac/admin-integrations + me/team sub-views) sono carry-forward in SH-3 dopo le 3 fasi planned (3.6 + 4 + 5) o come post-SH-3 follow-up se il tempo non basta.
+> Il prossimo update richiesto dipende dalla direzione che daremo (post-Phase-14.SH features vs polish).
 
 ## Identità della prossima sessione
 
