@@ -1,39 +1,47 @@
-import { headers } from 'next/headers';
 import { auth } from '@/lib/auth';
+import { withTenant } from '@/lib/db';
 
 /**
- * /dashboard — server component that calls the api-gateway /employees
- * endpoint, forwarding the inbound session cookie so the gateway can
- * authenticate the same caller.
+ * /dashboard — server component reading employees directly from Prisma
+ * with RLS enforcement via withTenant(). Bypasses api-gateway since the
+ * cross-service JWT decode (NextAuth v4 JWE → Auth.js v5) is non-trivial
+ * and not needed here — the same Postgres SoT is reachable from both
+ * services with the same RLS policies.
  *
- * Cookie name is forced to `authjs.session-token` in lib/auth.config.ts so
- * the gateway (Auth.js v5 family via @auth/express) can decode the same
- * cookie minted here by NextAuth v4. AUTH_SECRET is also shared.
+ * Phase 14.SH SH-2 — replaces the api-gateway fetch with direct Prisma.
  */
-async function fetchEmployees(): Promise<{
-  data: Array<{ id: string; first_name?: string | null; last_name?: string | null }>;
-  total: number;
-  nextCursor: string | null;
-} | null> {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8200';
-  const cookie = (await headers()).get('cookie') ?? '';
-  try {
-    const res = await fetch(`${apiUrl}/employees?limit=10`, {
-      headers: { cookie },
-      cache: 'no-store',
-    });
-    if (!res.ok) return null;
-    return (await res.json()) as Awaited<ReturnType<typeof fetchEmployees>>;
-  } catch {
-    return null;
-  }
+async function fetchTopEmployees(tenantId: string) {
+  return withTenant(tenantId, (tx) =>
+    tx.employees.findMany({
+      where: { is_active: true, deleted_at: null },
+      orderBy: [{ performance_rating: 'desc' }, { last_name: 'asc' }],
+      take: 10,
+      select: {
+        id: true,
+        first_name: true,
+        last_name: true,
+        job_title: true,
+        performance_rating: true,
+      },
+    })
+  );
 }
 
 export default async function DashboardPage() {
   const session = await auth();
   const user = session?.user as { username?: string; role?: string; tenantId?: string } | undefined;
 
-  const result = await fetchEmployees();
+  let employees: Awaited<ReturnType<typeof fetchTopEmployees>> = [];
+  let fetchError: string | null = null;
+  if (user?.tenantId) {
+    try {
+      employees = await fetchTopEmployees(user.tenantId);
+    } catch (e) {
+      fetchError = e instanceof Error ? e.message : String(e);
+    }
+  } else {
+    fetchError = 'No tenant context — cannot scope query.';
+  }
 
   return (
     <main className="mx-auto max-w-5xl p-8">
@@ -52,29 +60,32 @@ export default async function DashboardPage() {
       </header>
 
       <section className="mt-8">
-        <h2 className="text-lg font-medium">Employees</h2>
-        {result === null ? (
+        <h2 className="text-lg font-medium">Top employees by performance</h2>
+        {fetchError ? (
           <p className="mt-4 rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
-            Could not reach api-gateway. Is it running on{' '}
-            <code>{process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8200'}</code>?
+            Could not load employees: <code>{fetchError}</code>
+          </p>
+        ) : employees.length === 0 ? (
+          <p className="mt-4 text-sm text-muted-foreground">
+            No employees in scope (tenant may have empty registry).
           </p>
         ) : (
-          <>
-            <p className="mt-2 text-sm text-neutral-500">
-              {result.total} total · showing {result.data.length}
-              {result.nextCursor ? ' · more available' : ''}
-            </p>
-            <ul className="mt-4 divide-y divide-neutral-200 rounded-md border border-neutral-200">
-              {result.data.map((emp) => (
+          <ul className="mt-4 divide-y divide-border rounded-md border border-border">
+            {employees.map((emp) => {
+              const name = [emp.first_name, emp.last_name].filter(Boolean).join(' ') || '(unnamed)';
+              return (
                 <li key={emp.id} className="flex items-center gap-3 p-3 text-sm">
-                  <span className="font-medium">
-                    {[emp.first_name, emp.last_name].filter(Boolean).join(' ') || '(no name)'}
-                  </span>
-                  <code className="ml-auto text-xs text-neutral-400">{emp.id.slice(0, 8)}…</code>
+                  <span className="font-medium">{name}</span>
+                  <span className="text-muted-foreground">{emp.job_title ?? '—'}</span>
+                  {emp.performance_rating != null ? (
+                    <span className="ml-auto rounded-full bg-accent-soft px-2 py-0.5 text-xs font-medium text-foreground">
+                      {emp.performance_rating.toFixed(1)}
+                    </span>
+                  ) : null}
                 </li>
-              ))}
-            </ul>
-          </>
+              );
+            })}
+          </ul>
         )}
       </section>
     </main>

@@ -10,7 +10,8 @@
     ".": "./src/index.ts",
     "./auth": "./src/auth/index.ts",
     "./schemas": "./src/schemas/index.ts",
-    "./types": "./src/types/index.ts"
+    "./types": "./src/types/index.ts",
+    "./rbp": "./src/rbp/index.ts"
   },
   "scripts": {
     "lint": "echo '@heuresys/shared: lint via tsc only' && exit 0",

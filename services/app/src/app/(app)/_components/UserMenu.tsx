@@ -17,15 +17,35 @@ export interface UserMenuProps {
   role: string;
 }
 
+/**
+ * Extract user initials from `<tenant>.<first>.<last>` style usernames.
+ * Examples:
+ *   "rtl-bank.maria.colombo"     → "MC"  (skip tenant, first+last)
+ *   "rtl-bank.federica.marchetti" → "FM"
+ *   "sysadmin"                    → "SY"
+ *   "evo.dev"                     → "ED"
+ *   "admin"                       → "AD"
+ */
+export function computeInitials(username: string): string {
+  const trimmed = username.trim();
+  if (!trimmed) return 'U';
+  const parts = trimmed.split(/[.\s_@]+/).filter(Boolean);
+  // 3+ parts → assume <tenant>.<first>.<last…> pattern, take last 2
+  if (parts.length >= 3) {
+    const first = parts[parts.length - 2]?.[0] ?? '';
+    const last = parts[parts.length - 1]?.[0] ?? '';
+    return (first + last).toUpperCase() || 'U';
+  }
+  // 2 parts → first letter of each
+  if (parts.length === 2) {
+    return ((parts[0]?.[0] ?? '') + (parts[1]?.[0] ?? '')).toUpperCase() || 'U';
+  }
+  // 1 part → first 2 chars
+  return trimmed.slice(0, 2).toUpperCase();
+}
+
 export function UserMenu({ username, role }: UserMenuProps) {
-  const initials = React.useMemo(() => {
-    const trimmed = username.trim();
-    if (!trimmed) return 'U';
-    const parts = trimmed.split(/[.\s_@-]+/).filter(Boolean);
-    return (
-      (parts[0]?.[0] ?? trimmed[0])?.toUpperCase() + ((parts[1]?.[0] ?? '') as string).toUpperCase()
-    );
-  }, [username]);
+  const initials = React.useMemo(() => computeInitials(username), [username]);
 
   return (
     <DropdownMenu>

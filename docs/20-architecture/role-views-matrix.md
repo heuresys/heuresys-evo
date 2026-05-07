@@ -1,86 +1,94 @@
-# Role × Views Matrix (Phase 14.SH FASE 3.1)
+# Role × Views Matrix (Phase 14.SH FASE 3)
 
-> **Status**: schema scaffolded, da popolare in fresh session FASE 3.1.
->
-> **Owner**: fresh session task #22 (inventory completa).
-> **D-SCOPE**: coverage completa (~50-70 viste totali) per 8 ruoli.
-> **Source priority**: import-first da `/home/ubuntu/heuresys.com.evo`, build from scratch solo per gap.
+> **Status**: ACTIVE 2026-05-07T19:07Z (SH-2 in corso) · sincronizzato con `services/app/src/lib/navigation/role-nav-map.ts` (SIDEBAR_MAP).
+> **D-SCOPE**: coverage completa (~50-70 viste totali) per 8 ruoli — split SH-2 (core ~10-15) + SH-3 follow-up (rest).
 
 ## Scopo
 
-Catalogare ogni voce sidebar mostrata per ogni ruolo, mapparla alla view target (route Next.js) e identificare:
+Catalogare ogni route mostrata nella sidebar di ogni ruolo, mapparla alla view target Next.js e tracciare l'implementation status.
 
-1. **Asset legacy**: route + API + Prisma query già presenti in `heuresys.com.evo` legacy → import path
-2. **Asset evo**: già esistenti in `services/app` o `services/api-gateway`
-3. **Build from scratch**: gap identificati
+## Implementation phases
 
-## Tabella inventory (da popolare)
+| Phase         | Scope                                                           | Status      |
+| ------------- | --------------------------------------------------------------- | ----------- |
+| **SH-2 core** | Routes che cover tutti gli 8 ruoli con almeno 1 vista per ruolo | 🟡 in corso |
+| **SH-3 fill** | Routes secondarie (compensation, analytics, integrations, ecc.) | ⏳ deferred |
 
-| #   | Ruolo        | Sidebar voce                                          | Route target                                                       | Asset legacy import                                                         | Asset evo riusabile | Build from scratch            | Data source DB                          | RBP gate         | Status                             |
-| --- | ------------ | ----------------------------------------------------- | ------------------------------------------------------------------ | --------------------------------------------------------------------------- | ------------------- | ----------------------------- | --------------------------------------- | ---------------- | ---------------------------------- |
-| 1   | SUPERUSER    | Platform overview                                     | `/(app)/platform`                                                  | `services/frontend/src/app/platform/page.tsx`                               | —                   | metrics aggregate             | tenants + audit_logs                    | platform-only    | ⏳ pending                         |
-| 2   | SUPERUSER    | All tenants                                           | `/(app)/platform/tenants`                                          | `services/api-gateway/src/routes/tenants.ts`                                | —                   | —                             | tenants                                 | platform-only    | ⏳ pending                         |
-| 3   | SUPERUSER    | Cross-tenant audit                                    | `/(app)/platform/audit`                                            | `services/api-gateway/src/routes/audit-logs.ts`                             | —                   | —                             | audit_logs                              | platform-only    | ⏳ pending                         |
-| 4   | TENANT_OWNER | Tenant overview                                       | `/(app)/dashboard/hr_director_overview`                            | —                                                                           | exists              | refactor (root view)          | dashboard_presets                       | TENANT\_\*\_VIEW | 🟢 partial (engine OK, layout TBD) |
-| 5   | TENANT_OWNER | Org & systems                                         | `/(app)/dashboard/org_systems`                                     | —                                                                           | exists              | refactor                      | rbp\_\* + tenants                       | TENANT\_\*\_VIEW | 🟢 partial                         |
-| 6   | TENANT_OWNER | Settings · users                                      | `/(app)/settings/users`                                            | `services/frontend/src/app/admin/users/page.tsx`                            | —                   | —                             | users + roles                           | USERS_EDIT       | ⏳ pending                         |
-| 7   | TENANT_OWNER | Settings · billing                                    | `/(app)/settings/billing`                                          | (verify legacy)                                                             | —                   | (likely build)                | tenants + payments                      | BILLING_VIEW     | ⏳ pending                         |
-| 8   | IT_ADMIN     | Knowledge graph                                       | `/(app)/dashboard/capability_graph`                                | —                                                                           | exists (engine)     | composite SQL real (FASE 3.6) | esco\_\*                                | ESCO_KG_VIEW     | 🟢 partial                         |
-| 9   | IT_ADMIN     | RBAC matrix                                           | `/(app)/dashboard/org_systems`                                     | —                                                                           | exists              | —                             | rbp_role_permissions                    | RBP_ADMIN        | 🟢 partial                         |
-| 10  | IT_ADMIN     | Audit log                                             | `/(app)/audit`                                                     | `services/frontend/src/app/admin/audit/page.tsx`                            | —                   | —                             | audit_logs                              | AUDIT_VIEW       | ⏳ pending                         |
-| 11  | IT_ADMIN     | Integrations                                          | `/(app)/integrations`                                              | (verify)                                                                    | —                   | (likely build)                | sap\_\* + integrations                  | INTEGRATION_VIEW | ⏳ pending                         |
-| 12  | HR_DIRECTOR  | HR overview                                           | `/(app)/dashboard/hr_director_overview`                            | —                                                                           | exists              | live data complete            | various                                 | HR_DIR_VIEW      | 🟢 ready                           |
-| 13  | HR_DIRECTOR  | Talent registry                                       | `/(app)/talent`                                                    | `services/frontend/src/app/dashboards/talent/page.tsx`                      | —                   | —                             | employees + skills                      | TALENT_VIEW      | ⏳ pending                         |
-| 14  | HR_DIRECTOR  | Skill gap analysis                                    | `/(app)/dashboard/skills_heatmap` + `/(app)/skills/gaps`           | partial legacy                                                              | partial             | composite SQL real            | employees.skills × department           | SKILL_VIEW       | 🟢 partial                         |
-| 15  | HR_DIRECTOR  | Career bridging                                       | `/(app)/dashboard/employee_journey` + `/(app)/career-paths`        | `services/api-gateway/src/routes/career-paths.ts`                           | partial             | —                             | career_paths + esco_occupations         | CAREER_VIEW      | 🟢 partial                         |
-| 16  | HR_DIRECTOR  | Review cycle Q1                                       | `/(app)/dashboard/process_performance_cycle` + `/(app)/reviews`    | partial                                                                     | partial             | —                             | review_cycles + performance_reviews     | REVIEW_VIEW      | 🟢 partial                         |
-| 17  | HR_DIRECTOR  | Compensation analytics                                | `/(app)/compensation`                                              | `services/api-gateway/src/routes/compensation-analytics.ts`                 | —                   | —                             | bonus_plans + bonus_allocations         | COMP_VIEW        | ⏳ pending                         |
-| 18  | HR_DIRECTOR  | Marketplace candidates                                | `/(app)/marketplace`                                               | `services/api-gateway/src/routes/marketplace-*.ts` (7+ files)               | —                   | —                             | candidates + applications               | MARKETPLACE_VIEW | ⏳ pending                         |
-| 19  | HR_DIRECTOR  | Onboarding flow                                       | `/(app)/dashboard/process_onboarding_flow`                         | partial                                                                     | partial             | —                             | employees (last 90d)                    | ONBOARDING_VIEW  | 🟢 partial                         |
-| 20  | HR_DIRECTOR  | Learning paths                                        | `/(app)/dashboard/process_learning_paths` + `/(app)/learning`      | `services/api-gateway/src/routes/courses.ts`                                | partial             | —                             | learning_paths + course_enrollments     | LEARNING_VIEW    | 🟢 partial                         |
-| 21  | HR_MANAGER   | Team overview                                         | `/(app)/team`                                                      | (verify)                                                                    | —                   | (likely build)                | employees WHERE manager_id              | TEAM_VIEW        | ⏳ pending                         |
-| 22  | HR_MANAGER   | Team performance                                      | `/(app)/team/performance`                                          | partial legacy                                                              | —                   | —                             | performance_reviews                     | PERF_VIEW        | ⏳ pending                         |
-| 23  | HR_MANAGER   | Recruiting funnel                                     | `/(app)/dashboard/process_recruiting_funnel` + `/(app)/recruiting` | `services/api-gateway/src/routes/{candidates,job-postings,requisitions}.ts` | partial             | —                             | candidates + applications               | RECRUIT_VIEW     | 🟢 partial                         |
-| 24  | DEPT_HEAD    | Department overview                                   | `/(app)/department`                                                | (verify)                                                                    | —                   | build                         | employees WHERE department              | DEPT_VIEW        | ⏳ pending                         |
-| 25  | DEPT_HEAD    | Dept skill heatmap                                    | `/(app)/department/skills`                                         | partial                                                                     | partial             | —                             | employees.skills filtered               | DEPT_SKILL_VIEW  | ⏳ pending                         |
-| 26  | LINE_MANAGER | Direct reports                                        | `/(app)/manager/reports`                                           | (verify)                                                                    | —                   | build                         | employees WHERE manager_id = self       | MANAGER_VIEW     | ⏳ pending                         |
-| 27  | LINE_MANAGER | 1:1 reviews                                           | `/(app)/manager/reviews`                                           | partial                                                                     | —                   | —                             | performance_reviews + check_ins         | REVIEW_VIEW      | ⏳ pending                         |
-| 28  | EMPLOYEE     | My profile                                            | `/(app)/me`                                                        | `services/frontend/src/app/dashboards/employee-self/page.tsx`               | —                   | —                             | employees WHERE id = self               | SELF_VIEW        | ⏳ pending                         |
-| 29  | EMPLOYEE     | My career arc                                         | `/(app)/me/career`                                                 | partial                                                                     | —                   | —                             | employees + career_paths                | SELF_VIEW        | ⏳ pending                         |
-| 30  | EMPLOYEE     | My skills                                             | `/(app)/me/skills`                                                 | partial                                                                     | —                   | —                             | employee_skills + skill_assessments     | SELF_VIEW        | ⏳ pending                         |
-| 31  | EMPLOYEE     | My goals                                              | `/(app)/me/goals`                                                  | partial                                                                     | —                   | —                             | goals WHERE owner_id = self             | SELF_VIEW        | ⏳ pending                         |
-| 32  | EMPLOYEE     | My learning                                           | `/(app)/me/learning`                                               | partial                                                                     | —                   | —                             | course_enrollments WHERE user_id = self | SELF_VIEW        | ⏳ pending                         |
-| 33+ | (extension)  | Audit log + integrations + governance views per ruolo | —                                                                  | governance/\*                                                               | —                   | —                             | various                                 | various          | ⏳ pending                         |
+## Routes inventory (deduplicated da SIDEBAR_MAP)
 
-> **Note**: questa è una matrix indicative iniziale (~32 entry). Fresh session FASE 3.1 deve completarla a coverage **~50-70 viste** secondo D-SCOPE confermato. Aggiungere righe per: settings nested, notification center, search globale, profile pages, ecc.
+Sigle role:
 
-## Status legend
+- **SU**=SUPERUSER · **TO**=TENANT_OWNER · **IT**=IT_ADMIN · **HD**=HR_DIRECTOR · **HM**=HR_MANAGER · **DH**=DEPT_HEAD · **LM**=LINE_MANAGER · **EM**=EMPLOYEE
 
-- 🟢 ready / partial = view già presente nel codebase evo (engine pattern OK), refactor richiesto per FASE 14.SH
-- ⏳ pending = view da creare (import legacy o build)
-- ❌ blocked = mancano dati DB o asset essenziali
+Status legend:
 
-## Workflow per ogni view
+- ✅ implemented in SH-2 + visual smoke OK
+- 🟡 stub (page renders, real data partial)
+- 🟢 already exists pre-SH-2 (engine dashboard)
+- ⏳ deferred SH-3
+- ❌ deferred / out-of-scope
 
-1. **Check legacy import**: cercare in `/home/ubuntu/heuresys.com.evo` (tipicamente `services/frontend/src/app/<area>/page.tsx` + `services/api-gateway/src/routes/<area>.ts`). Se trovato → import + adapt.
-2. **Check evo riuso**: pattern `dashboard-engine` riusabile? component da `packages/ui/`?
-3. **Build from scratch (last resort)**: page Next.js + Prisma query + RBP gate + i18n + a11y AAA.
-4. **Verify**: Chrome MCP screenshot + test → status → 🟢
+| #   | Route                              | Roles using it       | Page status | Data source                               | Notes                                              |
+| --- | ---------------------------------- | -------------------- | ----------- | ----------------------------------------- | -------------------------------------------------- |
+| 1   | `/dashboard`                       | all 8                | 🟢 SH-1     | employees top-perf via Prisma direct      | Already up post-SH-1 fix. RLS via withTenant.      |
+| 2   | `/dashboard/[code]`                | all 8 (preset 9)     | 🟢          | dashboard_elements + adapter registry     | Phase 14 Bundle F. 30/30 widgets bound.            |
+| 3   | `/dashboard/cross_tenant_overview` | SU                   | ⏳ SH-3     | aggregate tenants + audit_logs            | Platform-wide. Build from scratch.                 |
+| 4   | `/dashboard/tenant_owner_overview` | TO                   | ⏳ SH-3     | dashboard preset                          | Add to dashboard_presets seed. Reuse engine.       |
+| 5   | `/dashboard/hr_director_overview`  | HD                   | 🟢          | dashboard preset (existing)               | Live since Phase 14 Bundle F.                      |
+| 6   | `/dashboard/capability_graph`      | HD, DH (?scope=team) | 🟢          | esco_skills + relations                   | Existing preset. Composite real → SH-3 FASE 3.6.   |
+| 7   | `/employees`                       | SU, TO, HD, HM       | ✅ SH-2     | employees (paginated, RLS-scoped)         | Talent registry. Implemented this session.         |
+| 8   | `/compensation`                    | TO, HD               | ⏳ SH-3     | bonus_plans + bonus_allocations           | HR-only. Build with charts.                        |
+| 9   | `/analytics/workforce`             | TO, HD               | ⏳ SH-3     | aggregates                                | Multiple charts. Build with `recharts` or echarts. |
+| 10  | `/reviews`                         | HD, HM (?scope=dept) | ⏳ SH-3     | performance_reviews                       | Cycle-based listing.                               |
+| 11  | `/goals`                           | HD, HM (?scope=dept) | ⏳ SH-3     | goals                                     | Cascading view.                                    |
+| 12  | `/learning`                        | HD, HM               | ⏳ SH-3     | learning_paths + course_enrollments       | Per-employee progress.                             |
+| 13  | `/ontology`                        | SU, TO, IT, HD, HM   | 🟢          | OpenAI advisor + esco                     | Phase 14 Bundle F.                                 |
+| 14  | `/explorer/esco`                   | all 8                | 🟢          | esco_occupations + skills                 | Phase 14 Sprint 3.G.                               |
+| 15  | `/explorer/sap`                    | SU, TO, IT           | 🟢          | sap\_\*                                   | Sprint 3.G.                                        |
+| 16  | `/explorer/kg`                     | SU, TO, IT, HD, HM   | 🟢          | KG canvas (esco relations)                | Sprint 3.G.                                        |
+| 17  | `/admin/tenants`                   | SU                   | ✅ SH-2     | tenants                                   | Platform list. Implemented this session.           |
+| 18  | `/admin/users`                     | SU, TO, IT           | ✅ SH-2     | users                                     | Implemented this session.                          |
+| 19  | `/admin/rbac`                      | SU, TO, IT, HD       | ⏳ SH-3     | rbp_role_area_permissions matrix          | Reuse `<RbacMatrix>` component.                    |
+| 20  | `/admin/integrations`              | SU, TO, IT           | ⏳ SH-3     | sap_status + integrations                 | Build from scratch.                                |
+| 21  | `/admin/audit`                     | SU, TO, IT, HD       | ✅ SH-2     | audit_logs                                | Implemented this session.                          |
+| 22  | `/showcase`                        | SU                   | 🟢          | static                                    | UI components showcase, pre-existing.              |
+| 23  | `/me`                              | DH, LM, EM           | ✅ SH-2     | employees WHERE user_id = self            | Implemented this session.                          |
+| 24  | `/me/skills`                       | DH, LM, EM           | ✅ SH-2     | employee_skills                           | Implemented this session.                          |
+| 25  | `/me/goals`                        | DH, LM, EM           | ⏳ SH-3     | goals WHERE owner_id = self               | Carry-forward.                                     |
+| 26  | `/me/reviews`                      | DH, LM, EM           | ⏳ SH-3     | performance_reviews WHERE reviewee = self | Carry-forward.                                     |
+| 27  | `/me/learning`                     | DH, LM, EM           | ⏳ SH-3     | course_enrollments WHERE user_id = self   | Carry-forward.                                     |
+| 28  | `/team`                            | DH, LM               | ✅ SH-2     | employees WHERE manager_id = self         | Implemented this session.                          |
+| 29  | `/team/reviews`                    | LM                   | ⏳ SH-3     | performance_reviews WHERE reviewer = self | Carry-forward.                                     |
+| 30  | `/team/goals`                      | LM                   | ⏳ SH-3     | goals filtered by team                    | Carry-forward.                                     |
 
-## Acceptance per ogni view (tutte devono passare)
+**Totale: 30 routes uniche** (con varianti ?scope=… aggiungono ~5 viste filtrate). SH-2 ne implementa **8 nuove + 1 refactor** (#1 dashboard) = **9 routes attive**. Le altre 12 ⏳ SH-3 + 9 🟢 già esistenti.
+
+## SH-2 implementation summary
+
+| Route            | Implementation strategy           | RBP gate          | Visual smoke (Chrome MCP)                    |
+| ---------------- | --------------------------------- | ----------------- | -------------------------------------------- |
+| `/dashboard`     | Refactor: Prisma direct (was api) | role: any auth    | TENANT_OWNER + SUPERUSER + HR_MANAGER (SH-1) |
+| `/employees`     | New: Prisma + DataTable           | role: HR/TO/SU    | TBD                                          |
+| `/admin/tenants` | New: Prisma platform-wide         | role: SUPERUSER   | TBD                                          |
+| `/admin/users`   | New: Prisma + tenant scope        | role: TO/IT/SU    | TBD                                          |
+| `/admin/audit`   | New: Prisma audit_logs paginated  | role: HD/IT/TO/SU | TBD                                          |
+| `/me`            | New: Prisma + session.user.id     | role: any auth    | TBD                                          |
+| `/me/skills`     | New: Prisma employee_skills       | role: any auth    | TBD                                          |
+| `/team`          | New: Prisma WHERE manager_id      | role: DH/LM       | TBD                                          |
+
+## Workflow per ogni view (acceptance)
 
 - [ ] Page Next.js sotto `(app)/` group (eredita AppShell + brand)
-- [ ] RBP gate via `requirePermission(area, action)` (helper estratto in `packages/shared/src/rbp/`)
+- [ ] RBP gate via `requirePermission(area, action)` server-side (helper in `packages/shared/src/rbp/`)
 - [ ] Server-side Prisma query con `withTenant(tenantId, tx => ...)` (RLS preservato)
-- [ ] i18n via `pickBilingual()` + locale switcher
+- [ ] i18n via `pickBilingual()` (deferred SH-3 per le nuove viste)
 - [ ] Empty/loading/error states (NO demo fallback hardcoded)
-- [ ] WCAG 2.2 AAA (contrast 7:1, target size ≥ 24×24, focus visible, aria-live, focus order)
-- [ ] Smoke Chrome MCP via login del ruolo → page render OK
+- [ ] Smoke Chrome MCP via login del ruolo → page render OK + dati real
 - [ ] Commit dedicato (o batch logic-grouped)
 
 ## Riferimenti incrociati
 
+- SIDEBAR_MAP source: `services/app/src/lib/navigation/role-nav-map.ts`
 - Plan canonical: `~/.claude/plans/questo-quello-che-glittery-charm.md` FASE 3
 - ADR-0024 Phase 14.SH plan: `docs/50-reference/decisions/0024-phase14sh-brand-driven-shell.md`
 - Engine pattern: `docs/20-architecture/dashboard-engine-pattern.md`
-- Brand state: `.ux-design/BRAND-STATE.md` Phase 10
