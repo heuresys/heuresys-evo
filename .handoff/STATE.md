@@ -1,6 +1,6 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-07 · Phase 14 Sprint 1 (A+H) shipped · live data pipeline + route handler + SWR hook + i18n IT/EN runtime
+> Updated: 2026-05-07 · Phase 14 Sprint 1 (A+D+H) closed + Sprint 2 (E audit helper) shipped · 10 commit consecutivi
 
 ## ⚠️ DIRETTIVA ATTIVA
 
@@ -8,43 +8,55 @@
 
 ## Last session brief
 
-Phase 14 Bundle F (Full · 60-89 FTE-day) selezionato. 4 plan files generati (`~/.claude/plans/phase14-*.md`). **Sprint 1 sub-phase A (live data binding) + H (i18n) shippate end-to-end in autonomous**:
+Phase 14 Bundle F (Full · 60-89 FTE-day) selezionato. **10 commit consecutivi su main** in autonomous mode (Phase 13-style):
 
-- **14.A.0 PoC** (commit `1cd433f`): data-fetcher (sql/static + cache TTL + RLS via withTenant), adapters (KpiRing PoC), prefetch (parallel server-side), wiring page/grid/registry, seed phase14a applicato in DB live.
-- **14.A.4 expansion** (commit `6c90a66`): full 8-widget ADAPTER_REGISTRY (KpiRing + IntegrationHealthPill + SuccessionCard + CareerArc + KgMiniGraph + SkillHeatmap + CapabilityRadar + RbacMatrix); Live wrapper unificato; seed esteso (8 KpiRing SQL + 4 IntegrationHealthPill static).
-- **14.A.5+6** (this session): Next.js route handler `/api/dashboard/data/[elementId]` con auth + RBP + tenant gates · `useWidgetData()` SWR hook custom (zero deps · cache + revalidate + mutate).
-- **14.H**: LocaleProvider client + `useLocale()`/`useTranslate()` hooks + `pickBilingual()` server-safe pure + `LocaleSwitcher` UI · split client/server modules per Next.js 16 boundary · ?lang= query + localStorage persistence · default 'it'.
+| Commit    | Phase / Scope                                                                  |
+| --------- | ------------------------------------------------------------------------------ |
+| `1cd433f` | 14.A.0 PoC live data binding · KpiRing live in hr_director_overview            |
+| `6c90a66` | 14.A.4 expansion · 7 adapters + Live wrappers + seed phase14a (8 SQL + 4 static) |
+| `bda9e16` | 14.A.5+6 route handler + SWR hook + 14.H i18n IT/EN runtime                    |
+| `ae6b6f7` | 14.A.7 perf script (autocannon) + 14.D PoC Playwright (3 spec verde)           |
+| `19d3172` | 14.A composite static seed (9 widget instances)                                |
+| `dff5e80` | docs(architecture): engine-pattern Phase 14.A status                           |
+| `c09e323` | docs(decisions): L32 Phase 14 Sprint 1 closure                                 |
+| `0f1db5e` | docs(brand-state): Phase 14 row · Sprint 1 A+H shipped                         |
+| `532d13a` | 14.D RBP matrix · 5 ruoli RTL Bank × hr_director_overview (5/5 verde)          |
+| `d1fba14` | 14 Sprint 2.E `auditedDashboardMutation()` helper · 12 vitest verde            |
 
-**Smoke test live verified**: 
-- KpiRing pos 1 hr_director_overview → `[{value:270, label:"Active employees", sublabel:"tenant-scoped · live"}]` (RLS scope RTL Bank)
+**Smoke verified live**:
+- KpiRing pos 1 hr_director_overview → `value:270, label:"Active employees"` (RLS scope RTL Bank)
 - IntegrationHealthPill pos 4 → live static `tone:ok, label:HR API`
+- SuccessionCard pos 2 → `Stefania Bianchi` (composite static)
 - ?lang=it → "Vista Direzione HR" · ?lang=en → "HR Director Overview"
+- 5/7 ruoli RTL Bank login OK con Heuresys2026! (DEPT_HEAD + EMPLOYEE legacy bcrypt $2a$ → Sprint 1 follow-up)
 
-**Test status**: 120/120 vitest verde su services/app (43 baseline + 16 fetcher + 28 adapters + 6 prefetch + 10 route + 9 hook + 17 i18n - 9 dedup). Typecheck 5/5 verde.
+**Test status**: 132/132 vitest verde su services/app · 5/5 typecheck verde · 8/8 E2E Playwright verde (5 RBP matrix + 3 base).
 
-## Top priorities (next session — Sprint 1 follow-up + Sprint 2)
+## Top priorities (next session)
 
-1. **14.A.7 perf test** (~1 FTE-day): load test 100 req/s su `/dashboard/<code>`, target P95 ≤ 500ms. Tools: autocannon o k6.
-2. **14.D Playwright E2E** (5-8 FTE-day): setup + 9 dashboard × 8 ruoli = 72 fixture + pixel diff <5% + axe-core ≥95 + CI workflow.
-3. **14.A composite SQL queries** (~2-3 FTE-day): SQL queries reali per CareerArc/KgMiniGraph/SkillHeatmap/CapabilityRadar/RbacMatrix usando jsonb_agg (richiede schema knowledge talents/skills).
-4. **Sprint 2 · E audit log mutations** (3-5 FTE-day): wrap dashboard_presets/elements mutations con `auditedTransaction()`.
-5. **Sprint 2 · F /ontology + OpenAI advisor** (8-12 FTE-day): USP AI integration.
-6. **Sprint 3 · C drag-resize editor** (12-18 FTE-day) e **G Tier 2 explorer** (18-25 FTE-day).
+1. **Sprint 1 follow-up: re-seed canonical demo users** (~1 FTE-day): unify password Heuresys2026! across 8 ruoli per tenant (RTL Bank + SmartFood + EcoNova) per sbloccare full 72-fixture matrix Playwright.
+2. **Sprint 1 follow-up: composite SQL queries** (~2-3 FTE-day): jsonb_agg over talents/skills/org joins per CareerArc/KgMiniGraph/SkillHeatmap/CapabilityRadar/RbacMatrix (sostituisce static seed phase14b).
+3. **Sprint 1 follow-up: production-mode perf binding** (~30min): `next build && next start`, run `node scripts/perf-dashboard.mjs /dashboard/hr_director_overview 30 100`, valida P95 ≤ 500ms.
+4. **Sprint 2 · F: /ontology + OpenAI advisor** (~8-12 FTE-day): blocker requires `OPENAI_API_KEY` + cost monitoring config.
+5. **Sprint 3 · C: drag-resize editor** (~12-18 FTE-day): consumer naturale per `auditedDashboardMutation()` (Sprint 2.E).
+6. **Sprint 3 · G: Tier 2 explorer** (~18-25 FTE-day): ESCO/SAP/KG admin UI (depends Sprint 2.F).
 
 ## Open questions
 
-- D14.B: usare client-side SWR refresh (via `useWidgetData` hook ora disponibile) per dashboard live updates? Default: no per Phase 14, sì per Phase 15 quando dashboard editor sarà attivo.
+- D14.B: re-seed canonical users now (sblocca 72-matrix) o defer fino a Sprint 3 · C? Suggerito: re-seed ora, è bassa priorità ma quick win + sblocca CI E2E.
+- D14.C: Sprint 2 · F OpenAI advisor — Enzo conferma disponibilità API key + cost cap?
 
 ## Stack snapshot
 
-| Layer       | Tech                                                                       |
-| ----------- | -------------------------------------------------------------------------- |
-| API Gateway | Express 5 · 8200 · 30 endpoint Pack 1-8 mounted                            |
+| Layer       | Tech                                                                            |
+| ----------- | ------------------------------------------------------------------------------- |
+| API Gateway | Express 5 · 8200 · 30 endpoint Pack 1-8 mounted                                 |
 | Frontend    | Next.js 16 · 3200 · `/dashboard/[code]` engine + prefetch + i18n + route handler |
-| UI Library  | `packages/ui` Cantiere B · TIER 17 atomic dashboard (8 component)          |
-| DB          | Postgres 16 bare-metal · seed phase14a applied (8+4 widget live)           |
-| Test        | Vitest · 120/120 verde su services/app (Phase 14 delta: +85 nuovi)         |
-| i18n        | LocaleProvider client + pickBilingual server-safe · IT/EN runtime          |
+| UI Library  | `packages/ui` Cantiere B · TIER 17 atomic dashboard (8 component)               |
+| DB          | Postgres 16 bare-metal · seed phase14a + phase14b applied                       |
+| Test        | Vitest 132/132 · Playwright 8/8 · perf script ready (autocannon)                 |
+| i18n        | LocaleProvider client + pickBilingual server-safe · IT/EN runtime               |
+| Audit       | `auditedDashboardMutation()` helper ready (consumer arrives Sprint 3 · C)       |
 
 ## Background processes attivi
 
@@ -55,47 +67,69 @@ Phase 14 Bundle F (Full · 60-89 FTE-day) selezionato. 4 plan files generati (`~
 ## Verification
 
 ```bash
-git status -sb && git log --oneline -5
+git status -sb && git log --oneline -10
 npm run typecheck --workspaces --if-present     # 5/5 verde
-npm test --workspace=services/app               # 120/120 verde
-
-# Smoke live (richiede dev up + login)
-CSRF=$(curl -s http://localhost:3200/api/auth/csrf | grep -oP '"csrfToken":"\K[^"]+')
-CSRF_COOKIE=$(curl -s -D - http://localhost:3200/api/auth/csrf | grep -i "set-cookie: next-auth.csrf-token=" | sed 's/^[Ss]et-[Cc]ookie: //; s/;.*$//')
-SESSION=$(curl -s -D - -X POST http://localhost:3200/api/auth/callback/credentials \
-  -H "Cookie: $CSRF_COOKIE" -H "Content-Type: application/x-www-form-urlencoded" \
-  -d "username=rtl-bank.valentina.conti&password=Heuresys2026!&csrfToken=$CSRF&json=true" \
-  -o /dev/null | grep -i "set-cookie: authjs.session-token=" | sed 's/^[Ss]et-[Cc]ookie: //; s/;.*$//')
-curl -s -H "Cookie: $SESSION" "http://localhost:3200/dashboard/hr_director_overview?lang=en" | grep -oE 'HR Director Overview|Active employees'
+npm test --workspace=services/app               # 132/132 verde
+DATABASE_URL=$(grep DATABASE_URL services/app/.env.local | cut -d= -f2-) \
+  AUTH_SECRET=$(grep AUTH_SECRET services/app/.env | cut -d= -f2-) \
+  NEXT_PUBLIC_API_URL=http://localhost:8200 \
+  PLAYWRIGHT_NO_WEBSERVER=1 \
+  npx playwright test --project=chromium --workers=1  # 8/8 verde
 ```
 
 ## Riferimenti
 
-- Plan Phase 14 Bundle F: `~/.claude/plans/phase14-index.md` + 3 sprint files
-- Phase 14 scope draft: [`docs/70-planning/phase14-scope.md`](../docs/70-planning/phase14-scope.md)
-- Engine pattern: [`docs/20-architecture/dashboard-engine-pattern.md`](../docs/20-architecture/dashboard-engine-pattern.md)
-- DECISIONS-LOG: L29-L31 (Phase 13) · L32 prevista (Phase 14 Sprint 1 A+H closure)
+- Plan Phase 14 Bundle F: `~/.claude/plans/phase14-{index,sprint1-foundation,sprint2-ai-compliance,sprint3-ux-tier2}.md`
+- Phase 14 scope: [`docs/70-planning/phase14-scope.md`](../docs/70-planning/phase14-scope.md)
+- Engine pattern (Phase 13 + 14.A): [`docs/20-architecture/dashboard-engine-pattern.md`](../docs/20-architecture/dashboard-engine-pattern.md)
+- DECISIONS-LOG: L29-L31 (Phase 13) · L32 (Phase 14 Sprint 1 A+H)
 - Registry CSV: [`legacy-import-registry.csv`](legacy-import-registry.csv) (30 Promoted · 57 Test Stage · 36 Rejected)
 
-## Phase 14 files shipped (Sprint 1 A+H)
+## Phase 14 files shipped (cumulative)
 
-| Layer | File                                                                | Purpose                                      |
-| ----- | ------------------------------------------------------------------- | -------------------------------------------- |
-| Engine | `services/app/src/lib/dashboard-engine/data-fetcher.ts`             | Dispatch sql/static + cache TTL + RLS       |
-| Engine | `services/app/src/lib/dashboard-engine/adapters.ts`                 | Widget data → props (8 adapter)              |
-| Engine | `services/app/src/lib/dashboard-engine/prefetch.ts`                 | Parallel server-side fetch per element       |
-| Engine | `services/app/src/lib/dashboard-engine/use-widget-data.ts`          | Client-side SWR-style hook (zero deps)       |
-| API    | `services/app/src/app/api/dashboard/data/[elementId]/route.ts`      | Route handler + auth + RBP + tenant gates    |
-| Engine | `services/app/src/lib/dashboard-engine/registry.tsx`                | KpiRing/IntegrationHealthPill/... Live wrappers |
-| i18n   | `services/app/src/lib/i18n/locale-utils.ts`                         | Pure server-safe (isLocale, pickBilingual)   |
-| i18n   | `services/app/src/lib/i18n/locale.tsx`                              | LocaleProvider + useLocale + useTranslate    |
-| i18n   | `services/app/src/lib/i18n/locale-switcher.tsx`                     | UI dropdown                                  |
-| Page   | `services/app/src/app/dashboard/[code]/page.tsx`                    | Server prefetch + i18n bilingue header       |
-| Page   | `services/app/src/app/layout.tsx`                                   | LocaleProvider wrapping                      |
-| DB     | `db/seeds/phase14a_dashboard_data_sources.sql`                      | 8 KpiRing live + 4 IntegrationHealthPill     |
-| Tests  | `dashboard-data-fetcher.test.ts`                                    | 16 test                                      |
-| Tests  | `dashboard-adapters.test.ts`                                        | 28 test                                      |
-| Tests  | `dashboard-prefetch.test.ts`                                        | 6 test                                       |
-| Tests  | `dashboard-data-route.test.ts`                                      | 10 test                                      |
-| Tests  | `use-widget-data.test.ts`                                           | 9 test                                       |
-| Tests  | `i18n-locale.test.tsx`                                              | 17 test                                      |
+### Engine + data layer (Sprint 1.A)
+
+- `services/app/src/lib/dashboard-engine/data-fetcher.ts`
+- `services/app/src/lib/dashboard-engine/adapters.ts` (8 adapters)
+- `services/app/src/lib/dashboard-engine/prefetch.ts`
+- `services/app/src/lib/dashboard-engine/use-widget-data.ts` (SWR-style, zero deps)
+- `services/app/src/lib/dashboard-engine/registry.tsx` (refactored Live wrapper unified)
+- `services/app/src/lib/dashboard-engine/grid.tsx` (data prop pipeline)
+- `services/app/src/lib/dashboard-engine/index.ts` (Phase 14.A surface)
+- `services/app/src/app/api/dashboard/data/[elementId]/route.ts`
+- `services/app/src/app/dashboard/[code]/page.tsx` (server prefetch + i18n header)
+- `services/app/src/lib/db.ts` (`withTenant()` extended)
+
+### i18n (Sprint 1.H)
+
+- `services/app/src/lib/i18n/locale-utils.ts` (pure server-safe)
+- `services/app/src/lib/i18n/locale.tsx` (LocaleProvider + hooks)
+- `services/app/src/lib/i18n/locale-switcher.tsx` (UI)
+- `services/app/src/lib/i18n/index.ts` (barrel)
+- `services/app/src/app/layout.tsx` (LocaleProvider wrapping)
+
+### Audit (Sprint 2.E)
+
+- `services/app/src/lib/audit/dashboard-audit.ts` (`auditedDashboardMutation()`)
+
+### Seed
+
+- `db/seeds/phase14a_dashboard_data_sources.sql` (8 KpiRing SQL + 4 IntegrationHealthPill static)
+- `db/seeds/phase14b_dashboard_composite_static.sql` (9 composite static)
+
+### Tooling
+
+- `services/app/scripts/perf-dashboard.mjs` (autocannon perf script)
+
+### Tests (132 vitest + 8 E2E)
+
+- `services/app/src/__tests__/dashboard-data-fetcher.test.ts` (16)
+- `services/app/src/__tests__/dashboard-adapters.test.ts` (28)
+- `services/app/src/__tests__/dashboard-prefetch.test.ts` (6)
+- `services/app/src/__tests__/dashboard-data-route.test.ts` (10)
+- `services/app/src/__tests__/use-widget-data.test.ts` (9)
+- `services/app/src/__tests__/i18n-locale.test.tsx` (17)
+- `services/app/src/__tests__/dashboard-audit.test.ts` (12)
+- `services/app/tests/e2e/helpers/auth.ts` (5 ruoli RTL Bank)
+- `services/app/tests/e2e/dashboard.spec.ts` (3 spec)
+- `services/app/tests/e2e/dashboard-rbp-matrix.spec.ts` (5 spec)
