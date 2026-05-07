@@ -1,12 +1,14 @@
 # HANDOFF — fresh session input
 
-> Updated 2026-05-07T17:58Z · last update: **SH-1 closed → SH-2 ready** (brand applied + role-based sidebar + governed backup chain shipped)
+> Updated 2026-05-07T19:30Z · last update: **SH-2 closed → SH-3 ready** (8 viste live e2e shipped + RBP gate + cross-service auth aligned)
 > Plan file: `~/.claude/plans/questo-quello-che-glittery-charm.md` (approvato)
-> Stato repository: branch `main` clean post `5624aa3` (3 commit autonomous SH-1: `33527b4` brand · `11280f4` nav · `5624aa3` backup)
+> Stato repository: branch `main` clean post `3abf4b1` (commit principale SH-2)
 >
-> ## 🟢 SH-1 done · 🟡 next session entry: **SH-2** (FASE 3 sidebar views live data e2e — 10-15 FTE-day)
+> ## 🟢 SH-1 + 🟢 SH-2 done · 🟠 next session entry: **SH-3** (FASE 3.6 composite real + FASE 4 WCAG AAA + FASE 5 prod perf — 7-10 FTE-day)
 >
-> SH-2 first action: re-run `node scripts/db/apply-canonical-users.mjs` con full sweep per fixup 3 utenti pwd legacy (vedi STATE.md "Pre-existing data issue").
+> SH-3 first action: scrivere e applicare `db/migrations/phase14e_composite_real_aggregations.sql` (5 widget composite con real aggregations replacing static-via-SELECT). Poi WCAG audit + production perf.
+>
+> SH-2 ha implementato 8 routes core/representative; le ~12 routes pendenti (reviews/goals/learning/compensation/analytics/admin-rbac/admin-integrations + me/team sub-views) sono carry-forward in SH-3 dopo le 3 fasi planned (3.6 + 4 + 5) o come post-SH-3 follow-up se il tempo non basta.
 
 ## Identità della prossima sessione
 

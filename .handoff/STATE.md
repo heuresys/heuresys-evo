@@ -1,6 +1,51 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-07T17:58Z · **Phase 14.SH SH-1 closed** · brand applied + role-based sidebar + governed backup chain · SH-2 ready (FASE 3 sidebar views live data e2e)
+> Updated: 2026-05-07T19:30Z · **Phase 14.SH SH-2 closed** · 8 viste live e2e + RBP gate package + cross-service auth align · SH-3 ready (FASE 3.6 composite real + FASE 4 WCAG AAA + FASE 5 prod perf)
+
+## 🟢 SH-2 CLOSED (2026-05-07T19:30Z)
+
+**Commit principale**: `3abf4b1` feat(views,rbp): SH-2 core viste live e2e + RBP gate + cross-service auth align (14 file, +1309/-125)
+
+### Pre-flight + fix
+- `node scripts/db/apply-canonical-users.mjs` full sweep → 11/11 utenti canonical con Heuresys2026!, 8/8 ruoli login OK
+- AUTH_SECRET cross-service align (`.env.local` ↔ `services/api-gateway/.env`)
+- UserMenu initials fix (split su `[. _@]+`, take last 2 parts → "MC" per maria.colombo, era "RB")
+- /dashboard refactor: api-gateway fetch → Prisma direct (withTenant + RLS)
+
+### `packages/shared/rbp` (NEW)
+5 helper SH-2 scope + 12 vitest:
+- `hasMinRole(user, min)` · `requireMinRole(user, min)` (throws RbpDenied)
+- `isAuthenticated(user)` · `isRbpPlatformAdmin(user)`
+- ROLE_LEVELS aligned con `services/app/src/lib/navigation/types`
+- export subpath `@heuresys/shared/rbp`
+
+### 8 viste implementate (Prisma direct + RLS via withTenant + RBP gate)
+
+| Route                | Min role       | Smoke visivo Chrome MCP                                                                |
+| -------------------- | -------------- | -------------------------------------------------------------------------------------- |
+| `/dashboard`         | any auth       | TENANT_OWNER federica: top employees by performance · refactored Prisma direct         |
+| `/employees`         | HR_MANAGER+    | TENANT_OWNER: 50 employees RTL Bank · perf rating · job titles real                    |
+| `/admin/tenants`     | SUPERUSER      | sysadmin: 4 tenants real (EcoNova 26, Heuresys 3, RTL 156, SmartFood 82)               |
+| `/admin/users`       | IT_ADMIN+      | TENANT_OWNER: 100 users RTL · role badges colorati · last login real                   |
+| `/admin/audit`       | HR_DIRECTOR+   | TENANT_OWNER: 100 audit entries · category tones · FAIL flag · actor email             |
+| `/me`                | any auth       | DEPT_HEAD paolo.caputo: profile reale (Operations Director, BS01, 9 skills)            |
+| `/me/skills`         | any auth       | impl + ESCO mapped + freeform tags (smoke deferred — paolo no employee_skills strutt.) |
+| `/team`              | LINE_MANAGER+  | DEPT_HEAD paolo.caputo: 5 direct reports reali (Amato 5.0, Ferri, Fiore, Greco, Martelli) |
+
+### Code health
+- vitest **180/180** services/app · **82/82** packages/shared (12 new RBP) · 95/95 packages/ui
+- typecheck 5/5 workspace verde
+- DBMS SoT immutato (4 tenants, 270+ employees)
+- UserMenu initials confermato visivamente (FM=federica, PC=paolo, SY=sysadmin)
+
+### Deferred SH-3 (carry-forward)
+- **Routes pendenti** (~12): `/reviews`, `/goals`, `/learning`, `/compensation`, `/analytics/workforce`, `/me/goals`, `/me/reviews`, `/me/learning`, `/team/reviews`, `/team/goals`, `/admin/rbac`, `/admin/integrations`, `/dashboard/cross_tenant_overview`, `/dashboard/tenant_owner_overview`
+- **FASE 3.6** composite real aggregations (`phase14e_composite_real_aggregations.sql`)
+- **FASE 4** WCAG 2.2 AAA full audit (axe-core + manual NVDA/VoiceOver, contrast 7:1, target ≥24×24)
+- **FASE 5** production perf (next build && start, autocannon P95 ≤ 500ms)
+- **api-gateway 401 cross-service**: bypassato via Prisma direct in (app)/ pages. Integration con api-gateway resta disponibile ma non più usato dalle viste server-side.
+
+## 🟢 SH-1 CLOSED (2026-05-07T17:58Z)
 
 ## ⚠️ DIRETTIVA ATTIVA
 
