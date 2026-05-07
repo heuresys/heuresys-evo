@@ -1080,6 +1080,44 @@ Risposte alle 2 domande operative pre-formalizzazione:
 
 ---
 
+## L38 — 2026-05-08 — Pre-promotion audit · 5 gap reali chiusi · ciclo brand identity sigillato
+
+**Decisione**: post-L37 commit `5ebdc45` di chiusura ciclo brand identity, su richiesta esplicita di Enzo è stato eseguito un audit pre-promozione per verificare loose ends. Sono stati identificati **5 gap reali** (più 3 minori rinviabili a v1.0 promotion) e tutti chiusi nello stesso commit di sigillo.
+
+**Contesto**: Enzo: _"prima della promozione voglio che tu indaghi per essere certo che non sono necessari ulteriori fasi prima di chiudere la creazione della brand identity"_. L'audit ha rivelato che la dichiarazione di chiusura L37 era prematura su 5 fronti (decisioni pending obsolete · checklist promotion mancante · personas incomplete · candidate registry stale · brand book inconsistenza).
+
+**5 gap reali chiusi**:
+
+1. **Gap #1 — D1/D2/D3/D4 pending obsolete** (`BRAND-STATE.md` § Decisioni pending → § Decisioni risolte). D1 risolto L21, D2 implicito β Enterprise, D3 cristallizzato L25/L27/L28, D4 implicito Exo2+Inter+JetBrains L21. Tabella sostituita con "Decisioni risolte (storico)" con riferimenti puntuali.
+2. **Gap #2 — `08-promotion/v1.0-checklist.md` scritto** (referenziato 2 volte ma mancante: `palette-final.md` + `logo/final/README.md`). Deliverable completo: scope · pre-flight checks per 8 categorie · workflow `/studio:bootstrap` integration · rollback plan · cadence raccomandata · sign-off final v1.0.
+3. **Gap #3 — 4 personas mancanti** create per coverage 8 ruoli RBP: `05-superuser.md` (Enzo · platform admin) · `06-tenant-owner.md` (Marco · COO RTL Bank) · `07-hr-manager.md` (Federica · HRBP Risk & Compliance) · `08-dept-head.md` (Sabrina · Head Risk & Compliance). Pattern narrativo allineato alle 4 esistenti (profilo · vuole · frustra · sa · arriva · demo · voce · surface · NON fare).
+4. **Gap #4 — `promotion-candidates.md` updated**: login-aurora marked 🚀 Promoted (Phase 14.SH FASE 1) · altri 4 login ❌ Rejected archive. Cross-tenant + tenant-owner overview aggiunti come 🚀 Promoted (carry-forward 2026-05-07 L35). Sezione "Other Phase 10 surface" rinominata "status update" con 4 surface utility (404 · empty · onboarding · settings) marcate "Roadmap promotion v1.0" → tracked in `v1.0-checklist.md`.
+5. **Gap #5 — Brand Book v0 § 3 personas expanded** da 4 a 8 con tabella coverage 1:1 RBP roles + RBP role column + scope notes + cross-ref ai 8 file md. Risolta inconsistenza interna con § 4 audience β Enterprise + RBP 8 ruoli.
+
+**3 gap minori posposti** (in `v1.0-checklist.md` come tasks promotion):
+
+- favicon.ico multi-size + apple-touch-icon.png (asset bitmap da generare)
+- 4 surface utility (404 · empty · onboarding · settings) — mockup HTML da creare
+- Brand book v1 visivo (typesetting curato + cover art) — opzionale, non bloccante
+
+**Conseguenza**:
+
+- **Ciclo brand identity Heuresys (Phase 1 → Phase 12) ufficialmente sigillato** senza loose ends · zero contraddizioni interne · zero dangling references
+- 8 personas = 1:1 coverage RBP roles (-1 → 6) · prossime feature possono assumere persona mapping completo
+- Promotion v1.0 ha checklist operativa rigorosa · roadmap incrementale (16-25h totali, eseguibile in 2-3 sessioni)
+- Brand book v0 è internamente consistente e può essere distribuito a auditor/partner come single entry point unificato
+- Roadmap successiva: WCAG 2.2 AAA audit · prod perf bench · API gateway JWT fix · v1.0 promotion (in qualsiasi ordine)
+
+**Riferimenti**:
+
+- 4 nuovi personas: `.ux-design/01-strategy/personas/0[5-8]-*.md`
+- v1.0 checklist: `.ux-design/08-promotion/v1.0-checklist.md`
+- Brand book updated: `.ux-design/07-brand-book/BRAND-BOOK-v0.md` § 3 (8 personas)
+- Promotion candidates updated: `.ux-design/08-promotion/promotion-candidates.md`
+- BRAND-STATE updated: `.ux-design/BRAND-STATE.md` (decisioni risolte D1-D4)
+
+---
+
 ## Format per nuove entry
 
 Quando aggiungi una nuova decisione, segui questo template:

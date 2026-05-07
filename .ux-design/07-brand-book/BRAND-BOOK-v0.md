@@ -58,18 +58,28 @@ Il prodotto rende esplicito un grafo di conoscenza che le aziende mature hanno i
 
 ---
 
-## 3 · Personas (4)
+## 3 · Personas (8 — coverage RBP completa)
 
-Personas illustrative, non utenti reali. Definiscono mappa dei bisogni e dei vincoli del prodotto.
+Personas illustrative, non utenti reali. **8 personas = 1:1 mapping con i ruoli RBP canonici Heuresys** (level −1 → 6). Definiscono mappa dei bisogni e dei vincoli del prodotto a tutti i livelli.
 
-| #   | Persona                           | Età | Org           | Titolo                        | Capability bisogni                                           |
-| --- | --------------------------------- | --- | ------------- | ----------------------------- | ------------------------------------------------------------ |
-| 1   | **Maria · CHRO**                  | 47  | RTL Bank      | Chief Human Resources Officer | Skill gap matrix · succession ready · perf calibration       |
-| 2   | **Davide · IT Architect**         | 38  | RTL Bank / IT | Architect / IT_ADMIN          | RBAC governance · integrations health · audit live · KG sync |
-| 3   | **Stefania · Line Manager**       | 41  | RTL Bank      | Head Credit Risk Modelling    | Team capability · review cycles · 1:1 OKR · talent retention |
-| 4   | **Andrea · Quant Analyst Junior** | 29  | RTL Bank      | Employee · level 6            | Self-service career arc · ESCO mapping · learning paths      |
+| #   | Persona                            | Età | RBP role         | Org · ruolo                       | Capability bisogni / surface chiave                                                              |
+| --- | ---------------------------------- | --- | ---------------- | --------------------------------- | ------------------------------------------------------------------------------------------------ |
+| 1   | **Maria · CHRO**                   | 47  | HR_DIRECTOR (2)  | RTL Bank · Chief HR Officer       | Skill gap matrix · succession ready · perf calibration · capability radar                        |
+| 2   | **Davide · IT Architect**          | 38  | IT_ADMIN (1)     | RTL Bank · IT Architect           | RBAC governance · integrations health · audit live · KG sync · SAP HCM                           |
+| 3   | **Stefania · Line Manager**        | 41  | LINE_MANAGER (5) | RTL Bank · Head Credit Risk Mod.  | Team capability · review cycles · 1:1 OKR · talent retention                                     |
+| 4   | **Andrea · Employee**              | 29  | EMPLOYEE (6)     | RTL Bank · Quant Analyst Junior   | Self-service career arc · ESCO mapping · learning paths                                          |
+| 5   | **Enzo · Platform Admin**          | —   | SUPERUSER (-1)   | Heuresys System · founder         | Cross-tenant analytics · system metrics · audit log unificato · RBAC matrix viewer cross-tenant  |
+| 6   | **Marco · Tenant Owner**           | 54  | TENANT_OWNER (0) | RTL Bank · COO                    | Org snapshot · 8-dept breakdown · compensation FY · 9-box top-2 succession · capability gauge    |
+| 7   | **Federica · HR Business Partner** | 39  | HR_MANAGER (3)   | RTL Bank · Risk & Compliance HRBP | Reviews dept-scoped · goals dept-scoped · skill heatmap dept · hire request workflow             |
+| 8   | **Sabrina · Department Head**      | 51  | DEPT_HEAD (4)    | RTL Bank · Head Risk & Compliance | Team capability KG scope=team · capability emerging gap · 9-box succession dept · ESCO read-only |
 
-> Riferimenti: [`.ux-design/01-strategy/personas/`](../01-strategy/personas/)
+### Note sulle personas
+
+- **1:1 con RBP**: ogni persona corrisponde a uno dei 8 ruoli canonici (`SUPERUSER` -1 → `EMPLOYEE` 6). Coverage completa.
+- **Tutte tranne SUPERUSER condividono lo stesso tenant** illustrativo (RTL Bank). SUPERUSER opera cross-tenant (Heuresys System platform).
+- **Personas hanno scope-aware surface preferences**: il route handler + RBP middleware rispettano lo scope (es. `?scope=dept` per HR_MANAGER, `?scope=team` per DEPT_HEAD/LINE_MANAGER).
+
+> Riferimenti: [`.ux-design/01-strategy/personas/`](../01-strategy/personas/) — 8 file md narrativi (`01-hr-director.md` … `08-dept-head.md`)
 
 ---
 

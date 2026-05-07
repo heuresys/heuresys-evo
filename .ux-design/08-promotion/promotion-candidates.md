@@ -31,15 +31,15 @@
 
 Path base: `06-mockups/auth/`
 
-| Rank | Candidato             | Path                         | Status | Note                                                                                                                                                                   |
-| ---- | --------------------- | ---------------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| —    | login (base / formal) | `auth/login.html`            | 🟡     | Enterprise-rigid · tenant pill RTL Bank · M365 + Google Workspace SSO · primary feel B2B                                                                               |
-| —    | login-aurora          | `auth/login-aurora.html`     | 🟡     | Glassmorphism futuristico · animated mesh gradient blu→viola · 6 floating dots · soft glow buttons hover                                                               |
-| —    | login-split           | `auth/login-split.html`      | 🟡     | Layout 50/50 brand showcase + form · KG topology animata SVG · trust badges · editorial typography                                                                     |
-| —    | login-playful         | `auth/login-playful.html`    | 🟡     | Magnetic Playful v1 · 5 shapes pastel (peach/sky/lilac) 120-240px · magnetic button hover · wordmark mouse-parallax · animated underline focus                         |
-| —    | login-playful-v2      | `auth/login-playful-v2.html` | 🟡     | Playful v2 (no tenant) · 8 shapes piccole 40-92px solo brand-blue+accent · 4 motion asimmetriche (drift-rotate · bounce-tilt · flutter · scale-pulse) durate 6.2-11.3s |
+| Rank | Candidato             | Path                         | Status | Note                                                                                                                                                                        |
+| ---- | --------------------- | ---------------------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 🏆 1 | **login-aurora**      | `auth/login-aurora.html`     | 🚀     | **Promosso production via Phase 14.SH FASE 1** (2026-05-07, D-LOGIN selection). Live in `services/app/src/app/login/page.tsx`. Glassmorphism · aurora gradient · soft glow. |
+| 2    | login (base / formal) | `auth/login.html`            | ❌     | Archive. Enterprise-rigid · M365 + Google Workspace SSO. Mantenuto come riferimento storico, no promozione.                                                                 |
+| 2    | login-split           | `auth/login-split.html`      | ❌     | Archive. Layout 50/50 brand showcase + KG topology animata SVG.                                                                                                             |
+| 2    | login-playful         | `auth/login-playful.html`    | ❌     | Archive. Magnetic Playful v1 · 5 shapes pastel + magnetic button hover.                                                                                                     |
+| 2    | login-playful-v2      | `auth/login-playful-v2.html` | ❌     | Archive. Playful v2 · 8 shapes + 4 motion asimmetriche.                                                                                                                     |
 
-**Decisione pending**: visual review + assegnazione rank · selezione winner per `/studio:bootstrap login`.
+**Decisione resolved** (2026-05-07): visual review chiuso · winner = `login-aurora` · promosso in production durante Phase 14.SH FASE 1.
 
 ---
 
@@ -49,14 +49,16 @@ Path base: `06-mockups/dashboards/`
 
 Layout v2 (L22) + L23 architect customizations + L25 logo permanent + L27 retro-update applicati a tutti.
 
-| Rank | Surface              | Path                                   | Status | Note                                                                                     |
-| ---- | -------------------- | -------------------------------------- | ------ | ---------------------------------------------------------------------------------------- |
-| 🏆 1 | hr-director-overview | `dashboards/hr-director-overview.html` | 🏆     | Maria CHRO · KPI ring + skill gap matrix + activity feed live + succession ready         |
-| 🏆 1 | capability-graph     | `dashboards/capability-graph.html`     | 🏆     | Davide IT · KG topology SVG hero + ontology breakdown + ESCO sync                        |
-| 🏆 1 | skills-heatmap       | `dashboards/skills-heatmap.html`       | 🏆     | Maria CHRO · matrice 8 dept × 12 skill heat + filters + distribution                     |
-| 🏆 1 | employee-journey     | `dashboards/employee-journey.html`     | 🏆     | Andrea EMP · profile hero + career arc 5 stage + capability radar + bridging suggestions |
-| 🏆 1 | org-systems          | `dashboards/org-systems.html`          | 🏆     | Davide IT (platform) · 4 tenant fleet + RBAC matrix + integration health + audit log     |
-| —    | (index hub)          | `dashboards/index.html`                | 🏆     | Navigation hub 5 surface                                                                 |
+| Rank | Surface               | Path                                    | Status | Note                                                                                                                                                                                                                                           |
+| ---- | --------------------- | --------------------------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 🏆 1 | hr-director-overview  | `dashboards/hr-director-overview.html`  | 🏆     | Maria CHRO · KPI ring + skill gap matrix + activity feed live + succession ready                                                                                                                                                               |
+| 🏆 1 | capability-graph      | `dashboards/capability-graph.html`      | 🏆     | Davide IT · KG topology SVG hero + ontology breakdown + ESCO sync                                                                                                                                                                              |
+| 🏆 1 | skills-heatmap        | `dashboards/skills-heatmap.html`        | 🏆     | Maria CHRO · matrice 8 dept × 12 skill heat + filters + distribution                                                                                                                                                                           |
+| 🏆 1 | employee-journey      | `dashboards/employee-journey.html`      | 🏆     | Andrea EMP · profile hero + career arc 5 stage + capability radar + bridging suggestions                                                                                                                                                       |
+| 🏆 1 | org-systems           | `dashboards/org-systems.html`           | 🏆     | Davide IT (platform) · 4 tenant fleet + RBAC matrix + integration health + audit log                                                                                                                                                           |
+| 🏆 1 | cross-tenant-overview | `dashboards/cross-tenant-overview.html` | 🚀     | **Promosso 2026-05-07 carry-forward Phase 14.SH** (L35). SUPERUSER · cross-tenant analytics + 12-month workforce trend + 4-tenant comparison + capability gauges. Bound a preset `cross_tenant_overview` (sort 5, visibility -1).              |
+| 🏆 1 | tenant-owner-overview | `dashboards/tenant-owner-overview.html` | 🚀     | **Promosso 2026-05-07 carry-forward Phase 14.SH** (L35). TENANT_OWNER (Marco Rossi · RTL Bank) · org snapshot + 8-dept breakdown + compensation FY26 + 9-box top-2 succession. Bound a preset `tenant_owner_overview` (sort 15, visibility 0). |
+| —    | (index hub)           | `dashboards/index.html`                 | 🏆     | Navigation hub 5 surface                                                                                                                                                                                                                       |
 
 **Note**: i 5 dashboard non sono "varianti tra cui scegliere" — sono **5 surface diverse** della stessa famiglia, tutte da promuovere ognuna alla propria route React. Il "rank 🏆 1" indica "selected for promotion" (non confronto tra esse).
 
@@ -129,15 +131,15 @@ Path base: `03-visual-identity/logo/final/`
 
 ---
 
-## Other Phase 10 surface (work-in-progress)
+## Other Phase 10 surface (status update 2026-05-08)
 
-| Surface           | Status                        | Path expected               |
-| ----------------- | ----------------------------- | --------------------------- |
-| 1/5 Login         | 🟡 5 candidati pending review | `06-mockups/auth/` (5 file) |
-| 2/5 404 Not Found | ⏳ Not yet generated          | `06-mockups/public/`        |
-| 3/5 Empty state   | ⏳ Not yet generated          | `06-mockups/application/`   |
-| 4/5 Onboarding    | ⏳ Not yet generated          | `06-mockups/application/`   |
-| 5/5 Settings      | ⏳ Not yet generated          | `06-mockups/application/`   |
+| Surface           | Status                         | Path expected               | Note                                                                      |
+| ----------------- | ------------------------------ | --------------------------- | ------------------------------------------------------------------------- |
+| 1/5 Login         | 🚀 **Promoted** (login-aurora) | `06-mockups/auth/` (5 file) | Vedi sezione Login sopra. Phase 14.SH FASE 1.                             |
+| 2/5 404 Not Found | ⏳ Roadmap promotion v1.0      | `06-mockups/public/`        | Non bloccante per chiusura brand. Va in `08-promotion/v1.0-checklist.md`. |
+| 3/5 Empty state   | ⏳ Roadmap promotion v1.0      | `06-mockups/application/`   | idem                                                                      |
+| 4/5 Onboarding    | ⏳ Roadmap promotion v1.0      | `06-mockups/application/`   | idem                                                                      |
+| 5/5 Settings      | ⏳ Roadmap promotion v1.0      | `06-mockups/application/`   | idem                                                                      |
 
 ---
 
