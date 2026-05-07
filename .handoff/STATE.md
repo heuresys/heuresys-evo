@@ -13,6 +13,7 @@
 | **FASE 1** Brand identity applied | `33527b4` | μ-architect-legacy tokens (dark default + light alt) · Tailwind 4 `@theme inline` mapping · `<HeuresysWordmark>` (3 variants × 5 sizes) · login-aurora page (mesh + glass + brand hero) · `(app)` route group + `<AppShell>` cablato · routes spostate sotto `(app)/` |
 | **FASE 2** Role-based dynamic sidebar | `11280f4` | `SIDEBAR_MAP` per 8 ruoli canonical · `getNavForUser(session)` server-side · `AppShellClient` con active state via `usePathname` + sezioni Workspace/Ontology/System collapsibili · 27 vitest role-nav · smoke 5/8 ruoli PASS via curl (3 PRE-EXISTING data issue su pwd legacy) |
 | **Backup track** | `5624aa3` | Cron postgres daily/weekly/monthly + drill mensile installato su `oracle-vm-default` · `heuresys-backup.sh` + `heuresys-restore-drill.sh` (mode 750, owner `root:postgres`) · prima daily run 2026-05-07T15:48Z 367MB · drill PASS 270/270 employees + 30/30 elements · doc `docs/40-operations/dbms-backup-restore.md` ACTIVE |
+| **Post-SH-1 e2e fixes** | `54dfdae` | Visual smoke via Chrome MCP rivelò 3 issue: (1) sidebar invisibile a 1568px viewport — Tailwind 4 specificity `hidden md:flex` → fix `flex max-md:hidden`; (2) sign-out duplicato dashboard/page.tsx → rimosso (UserMenu copre); (3) api-gateway 401 cross-service auth — DEFERRED a SH-2 (pre-existing) |
 
 ### Code health post SH-1
 
@@ -20,6 +21,21 @@
 - **typecheck**: 5/5 workspace verde
 - **app runtime**: Next.js dev :3200 + api-gateway :8200 entrambi UP, login-aurora rendering OK, dashboard auth-gated 200 con AppShell + brand wordmark + role-driven sidebar
 - **DBMS SoT**: invariato (270 employees, 30 dashboard_elements, 506 tables, 477774 rows). Backup chain horizon ~12 mesi.
+
+### Visual smoke verified (3 ruoli rappresentativi via Chrome MCP)
+
+| Role | Username | Sidebar voci osservate (visibili in screenshot) |
+|---|---|---|
+| **TENANT_OWNER** | `rtl-bank.federica.marchetti` | Workspace + Ontology + System (3 voci: RBAC matrix · Integrations · Audit log) |
+| **SUPERUSER** | `evo.dev` | Workspace (Dashboard · Cross-tenant analytics · Employees) + Ontology + System (7 voci: Tenants · Users · RBAC · SAP · Integrations · Audit · Components) |
+| **HR_MANAGER** | `rtl-bank.maria.colombo` | Workspace dept-scoped (Dashboard · Employees dept · Reviews · Goals dept · Learning paths) + Ontology · **no System** (least privilege) |
+
+I 5 ruoli rimanenti (IT_ADMIN, DEPT_HEAD, LINE_MANAGER, EMPLOYEE, HR_DIRECTOR) sono coperti dai 27 vitest del SIDEBAR_MAP (assertion role-specific). Visual smoke completo per gli altri 5 ruoli rinviato a SH-2 dopo password fixup.
+
+### Issue minori scoperti (non bloccanti, fixup in SH-2)
+
+- **UserMenu initials bug**: `username.split(/[.\s_@-]+/)` su `rtl-bank.maria.colombo` produce iniziali "RB" (rtl + bank) invece di "MC" (maria + colombo). Da raffinare con name-based extraction.
+- **api-gateway 401**: il cookie NextAuth v4 minted da Next non viene accettato da api-gateway @auth/express v5 (cookie name align ok, ma JWT decode forse fallisce). Pre-existing; non blocca shell render.
 
 ### Pre-existing data issue → fixup in SH-2
 
