@@ -316,3 +316,23 @@ export {
   type RbacAssignment,
   type RbacPermissionLevel,
 } from './components/dashboard';
+
+// Phase 14 Sprint 3.G — Tier 2 explorer atomics
+export {
+  ESCOTreeNavigator,
+  type ESCOTreeNavigatorProps,
+  type ESCOTreeNode,
+} from './components/esco-tree-navigator';
+export {
+  KGGraphCanvas,
+  type KGGraphCanvasProps,
+  type KGNode,
+  type KGEdge,
+} from './components/kg-graph-canvas';
+export {
+  SAPSyncPanel,
+  type SAPSyncPanelProps,
+  type SAPJobSummary,
+  type SAPJobStatus,
+  type SAPDeltaEntry,
+} from './components/sap-sync-panel';
