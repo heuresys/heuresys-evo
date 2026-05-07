@@ -27,6 +27,26 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: 'Heuresys — Workforce Orchestration',
   description: 'Heuresys.com.evo — Organizational Intelligence platform',
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+    ],
+    apple: { url: '/apple-touch-icon.png', sizes: '180x180' },
+  },
+  openGraph: {
+    title: 'Heuresys — Workforce Orchestration',
+    description: 'Organizational Intelligence & Workforce Orchestration platform',
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'Heuresys' }],
+    type: 'website',
+    locale: 'it_IT',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Heuresys — Workforce Orchestration',
+    description: 'Organizational Intelligence & Workforce Orchestration platform',
+    images: ['/og-image.png'],
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
