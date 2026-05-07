@@ -51,7 +51,7 @@ SET config_overrides = jsonb_set(
     $q$
   )
 )
-WHERE id = 46;
+WHERE dashboard_preset_id = (SELECT id FROM dashboard_presets WHERE code = 'org_systems') AND widget_code = 'RbacMatrix';
 
 -- 35 — capability_graph · KgMiniGraph · static-via-SELECT
 UPDATE dashboard_elements
@@ -70,7 +70,7 @@ SET config_overrides = jsonb_set(
     $q$
   )
 )
-WHERE id = 35;
+WHERE dashboard_preset_id = (SELECT id FROM dashboard_presets WHERE code = 'capability_graph') AND widget_code = 'KgMiniGraph';
 
 -- 42 — employee_journey · CareerArc · static-via-SELECT
 UPDATE dashboard_elements
@@ -87,7 +87,7 @@ SET config_overrides = jsonb_set(
     $q$
   )
 )
-WHERE id = 42;
+WHERE dashboard_preset_id = (SELECT id FROM dashboard_presets WHERE code = 'employee_journey') AND widget_code = 'CareerArc';
 
 -- 43 — employee_journey · CapabilityRadar · static-via-SELECT
 UPDATE dashboard_elements
@@ -105,7 +105,7 @@ SET config_overrides = jsonb_set(
     $q$
   )
 )
-WHERE id = 43;
+WHERE dashboard_preset_id = (SELECT id FROM dashboard_presets WHERE code = 'employee_journey') AND widget_code = 'CapabilityRadar';
 
 -- 44 — employee_journey · KgMiniGraph (skill graph) · static-via-SELECT
 UPDATE dashboard_elements
@@ -120,11 +120,11 @@ SET config_overrides = jsonb_set(
         '[{"id":"self","group":"self","label":"You"},{"id":"fin","group":"domain","label":"Finance"},{"id":"risk","group":"domain","label":"Risk"},{"id":"sql","group":"tech","label":"SQL"},{"id":"lead","group":"soft","label":"Leadership"}]'::jsonb AS nodes,
         '[{"id":"e1","source":"self","target":"fin"},{"id":"e2","source":"self","target":"risk"},{"id":"e3","source":"self","target":"sql"},{"id":"e4","source":"fin","target":"risk"},{"id":"e5","source":"lead","target":"self"}]'::jsonb AS edges,
         '[{"id":"self","label":"You"},{"id":"domain","label":"Domain"},{"id":"tech","label":"Tech"},{"id":"soft","label":"Soft"}]'::jsonb AS legend,
-        'radial' AS layout
+        'concentric' AS layout
     $q$
   )
 )
-WHERE id = 44;
+WHERE dashboard_preset_id = (SELECT id FROM dashboard_presets WHERE code = 'employee_journey') AND widget_code = 'KgMiniGraph';
 
 -- 50 — process_recruiting_funnel · CareerArc (funnel stages) · static-via-SELECT
 UPDATE dashboard_elements
@@ -141,7 +141,7 @@ SET config_overrides = jsonb_set(
     $q$
   )
 )
-WHERE id = 50;
+WHERE dashboard_preset_id = (SELECT id FROM dashboard_presets WHERE code = 'process_recruiting_funnel') AND widget_code = 'CareerArc';
 
 -- 51 — process_recruiting_funnel · SkillHeatmap (department × quarter) · static-via-SELECT
 UPDATE dashboard_elements
@@ -161,7 +161,7 @@ SET config_overrides = jsonb_set(
     $q$
   )
 )
-WHERE id = 51;
+WHERE dashboard_preset_id = (SELECT id FROM dashboard_presets WHERE code = 'process_recruiting_funnel') AND widget_code = 'SkillHeatmap';
 
 -- 39 — skills_heatmap · SkillHeatmap (skill × domain) · static-via-SELECT
 UPDATE dashboard_elements
@@ -181,19 +181,27 @@ SET config_overrides = jsonb_set(
     $q$
   )
 )
-WHERE id = 39;
+WHERE dashboard_preset_id = (SELECT id FROM dashboard_presets WHERE code = 'skills_heatmap') AND widget_code = 'SkillHeatmap';
 
--- Assert: all 8 elements now have type='sql'
+-- Assert: all 8 composite widgets now have type='sql'
 DO $$
 DECLARE
-  remaining_static INTEGER;
+  remaining_non_sql INTEGER;
 BEGIN
-  SELECT count(*)::int INTO remaining_static
-  FROM dashboard_elements
-  WHERE id IN (35, 39, 42, 43, 44, 46, 50, 51)
-    AND config_overrides->'data_source'->>'type' = 'static';
-  IF remaining_static > 0 THEN
-    RAISE EXCEPTION 'phase14c: % elements still have type=static (expected 0)', remaining_static;
+  SELECT count(*)::int INTO remaining_non_sql
+  FROM dashboard_elements de JOIN dashboard_presets dp ON dp.id = de.dashboard_preset_id
+  WHERE (dp.code, de.widget_code) IN (
+          ('capability_graph','KgMiniGraph'),
+          ('skills_heatmap','SkillHeatmap'),
+          ('employee_journey','CareerArc'),
+          ('employee_journey','CapabilityRadar'),
+          ('employee_journey','KgMiniGraph'),
+          ('org_systems','RbacMatrix'),
+          ('process_recruiting_funnel','CareerArc'),
+          ('process_recruiting_funnel','SkillHeatmap'))
+    AND COALESCE(de.config_overrides->'data_source'->>'type', '') <> 'sql';
+  IF remaining_non_sql > 0 THEN
+    RAISE EXCEPTION 'phase14c: % composite widgets still not type=sql', remaining_non_sql;
   END IF;
 END $$;
 
