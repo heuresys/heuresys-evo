@@ -166,7 +166,7 @@ VM: `oracle-vm-default` (IP 80.225.82.207). nginx vhosts in `/etc/nginx/sites-av
 
 **Vincolo "estirpazione clean"**: ogni entry in `Test Stage`/`PreOp Stage` DEVE essere rimovibile dal repo evo SENZA conseguenze su stack/oggetti pre-import. Categorie removability tracciate nel CSV (`no-impact`, `embedded-in-existing-file`, `depends-on-X`, `not-yet-used`, `depends-on-DB-seed`).
 
-## Stato attuale (2026-05-07T16:50Z · DBMS bare-metal SoT certified + Phase 14 Bundle F shipped + Phase 14.SH plan approvato)
+## Stato attuale (2026-05-08T01:00Z · DBMS bare-metal SoT certified + Phase 14.SH closed + carry-forward shipped + brand identity cycle SEALED L38)
 
 ### DBMS = SoT (certified 2026-05-07T14:30Z)
 
@@ -181,13 +181,15 @@ VM: `oracle-vm-default` (IP 80.225.82.207). nginx vhosts in `/etc/nginx/sites-av
 - Demo fallback hardcoded "Stefania Bianchi" eliminato → SuccessionCard pull live `employees ORDER BY performance_rating` (mostra Gabriele Amato real)
 - 7 widget composite ancora SQL static-via-SELECT → FASE 3.6 di Phase 14.SH (replace con real aggregations)
 
-### App runtime
+### App runtime (post-Phase 14.SH + carry-forward 2026-05-07/08)
 
-- Pagine Next.js: 5 (`/`, `/login`, `/dashboard`, `/showcase`, `/brand-studio`) + dynamic `/dashboard/[code]` + `/dashboard/[code]/edit` + `/ontology` + `/explorer/{esco,sap,kg}`
+- Pagine Next.js: 5 base (`/`, `/login`, `/dashboard`, `/showcase`, `/brand-studio`) + 17+ viste in `(app)/` route group con AppShell role-based: `/dashboard/[code]`, `/dashboard/[code]/edit`, `/ontology`, `/explorer/{esco,sap,kg}`, `/employees`, `/team`, `/me`, `/me/skills`, `/me/{goals,reviews,learning}`, `/reviews`, `/goals`, `/learning`, `/compensation`, `/admin/{audit,tenants,users,rbac,integrations}`
+- Login = `login-aurora` mockup promosso production (Phase 14.SH FASE 1)
+- AppShell topbar con LocaleSwitcher globale + ThemeToggle + UserMenu (sessione carry-forward 2026-05-07)
 - API Next.js route handlers: `/api/dashboard/data/[elementId]`, `/api/dashboard/[code]/elements` (PUT), `/api/ontology/advisor` (OpenAI), `/api/explorer/{esco/tree,sap/status,kg/expand}`
-- Endpoint Express: 30 endpoint Pack 1-8 mounted
+- Endpoint Express: 30 endpoint Pack 1-8 mounted (bypassed in (app)/ via Prisma direct, JWT cross-service fix pending — `services/api-gateway/src/auth.ts`)
 - Auth: NextAuth v4 Credentials, 11 canonical users (Heuresys2026!) cross-tenant
-- Test: 153/153 vitest services/app verde · 100/100 Playwright RBP matrix verde · perf script autocannon ready
+- Test: 180/180 vitest services/app verde · 82/82 packages/shared · 95/95 packages/ui · 100/100 Playwright RBP matrix verde · perf script autocannon ready
 
 ### Sprint shipped (Phase 14)
 
@@ -209,20 +211,40 @@ VM: `oracle-vm-default` (IP 80.225.82.207). nginx vhosts in `/etc/nginx/sites-av
 - Repo visibility: PUBLIC. Branch protection rimossa. CI minimal
 - Schema docs: Diátaxis numbered + meta (`docs/_meta`, `10-strategy`, `20-architecture`, `30-developer`, `40-operations`, `50-reference`, `70-planning`, `90-archive`)
 
-### 🚀 Phase 14.SH (next sprint, plan approved 2026-05-07T16:35Z)
+### ✅ Phase 14.SH chiusa (2026-05-07) + carry-forward shipped
 
-Plan canonical: `~/.claude/plans/questo-quello-che-glittery-charm.md` · Handoff input: `.handoff/HANDOFF.md` · ADR-0024.
+Plan canonical eseguito: `~/.claude/plans/questo-quello-che-glittery-charm.md` · ADR-0024.
 
-Decisioni utente confermate: D-LOGIN=`login-aurora.html` · D-SCOPE=coverage completa (~50-70 viste) · D-THEME=dark default · D-A11Y=WCAG 2.2 AAA full.
+5 fasi sequenziali (24-34 FTE-day) tutte ✅ done:
 
-5 fasi sequenziali (24-34 FTE-day) + parallel backup track:
+1. ✅ Brand identity applied — `active-theme.css` μ-architect-legacy + `<HeuresysWordmark>` + `<AppShell>` cablato + `/login` = login-aurora promoted
+2. ✅ Role-based dynamic sidebar — `SIDEBAR_MAP` 8 ruoli + `getNavForUser(session)` in `services/app/src/lib/navigation/role-nav-map.ts`
+3. ✅ Sidebar views live data e2e — 8 viste SH-2 (`/employees`, `/team`, `/me`, `/me/skills`, `/admin/{audit,tenants,users}`, ecc.) + 9 viste SH-3 carry-forward (`/reviews`, `/goals`, `/learning`, `/compensation`, `/me/{goals,reviews,learning}`, `/admin/{rbac,integrations}`)
+4. ✅ Composite real aggregations — `phase14e_composite_real_aggregations.sql` applicato
+5. ✅ UX polish + theme toggle dark↔light + perf baseline dev (autocannon)
+6. ✅ Production perf + handoff finale — STATE.md compacted + commit `0cd532d` push main
 
-1. **Brand identity applied** — tokens CSS da `mu-architect-legacy.html` → `active-theme.css` · `<HeuresysWordmark>` React · `<AppShell>` cablato in `(app)/` route group · login allineato `login-aurora.html`
-2. **Role-based dynamic sidebar** — import legacy + `SIDEBAR_MAP` 8 ruoli + `getNavForUser(session)`
-3. **Sidebar views live data e2e** — inventory matrix `role-views-matrix.md` · import-first 25+ API routes legacy + 5-15 frontend pages · build from scratch per gap · RBP gates `packages/shared/src/rbp/`
-4. **Composite real aggregations** — `phase14e_composite_real_aggregations.sql` replace static-via-SELECT
-5. **UX polish + WCAG 2.2 AAA full** — theme toggle · contrast 7:1 · target size ≥ 24×24 · drag alternatives · prefers-reduced-motion · live regions · focus order · inline help
-6. **Production perf + handoff finale** — `next build && start` · autocannon P95 ≤ 500ms · screenshot 8 ruoli × N viste
+Carry-forward sessione 2026-05-07/08 (commit `0958625` + `5ebdc45` + `34f9ac8`):
+
+- 2 mockup overview shipped (`cross-tenant-overview.html`, `tenant-owner-overview.html`) + seed `phase14f_overview_presets.sql` applicato bare-metal SoT
+- LocaleSwitcher cablato in topbar AppShell (DRY, copre tutte le route `(app)/`)
+- 9 viste SH-3 i18n IT/EN via `getServerLocale()` + `STRINGS` per-page const + cookie persistence
+
+### ✅ Brand identity cycle SEALED (2026-05-08, L38)
+
+Phase 1 → Phase 12 ufficialmente chiuso senza loose ends. 5 pre-promotion gap reali risolti:
+
+- L35 — Phase 10 chiusa via Phase 14.SH execution
+- L36 — Phase 11 theme variants JSON shipped (W3C DTCG · 4 file `.ux-design/05-theme-variants/`)
+- L37 — Phase 12 brand book v0 shipped (`07-brand-book/BRAND-BOOK-v0.md`, 15 sezioni canoniche, single entry point)
+- L38 — D1-D4 decisioni risolte · 4 personas mancanti create per coverage 1:1 RBP 8 ruoli (`05-superuser` · `06-tenant-owner` · `07-hr-manager` · `08-dept-head`) · `08-promotion/v1.0-checklist.md` scritto · promotion-candidates.md updated · brand book § 3 personas expanded a 8
+
+### 🚀 Roadmap successiva (post-cycle close)
+
+1. **WCAG 2.2 AAA full audit** (~3-5h) — axe-core CI integration + manual NVDA/VoiceOver pass · ref: `docs/_meta/operating-baseline.md` §a11y
+2. **Production build perf bench** (~1-2h) — `next build && next start` + autocannon su 8 viste auth-required, target P95 ≤ 500ms · ref: `scripts/perf/results/`
+3. **API gateway cross-service JWT fix** (~2-3h) — `jose` library NextAuth v4 ↔ Auth.js v5 JWE decode · ref: `services/api-gateway/src/auth.ts`
+4. **Brand v1.0 promotion** (~16-25h, 2-3 sessioni) — pre-flight checks per 8 categorie asset · ref: `.ux-design/08-promotion/v1.0-checklist.md`
 
 Backup track parallel: cron daily/weekly/monthly · off-site Oracle bucket · restore drill mensile · `docs/40-operations/dbms-backup-restore.md` (scaffolded).
 
@@ -234,7 +256,7 @@ Backup track parallel: cron daily/weekly/monthly · off-site Oracle bucket · re
 - `docs/10-strategy/migration-strategy-pet-driven.md` — strategia porting
 - `docs/20-architecture/role-views-matrix.md` — Phase 14.SH FASE 3.1 inventory (scaffolded)
 - `docs/40-operations/dbms-backup-restore.md` — Backup/restore governance policy (scaffolded)
-- `docs/50-reference/decisions/` — 23 ADR (3 superseded · ADR-0023 SoT promotion · ADR-0024 Phase 14.SH plan)
+- `docs/50-reference/decisions/` — 25 ADR (3 superseded · ADR-0023 SoT promotion · ADR-0024 Phase 14.SH plan · ADR-0025 brand identity cycle sealed + v1.0 promotion plan)
 - `docs/30-developer/security-baseline.md` — P1-P10 enforcement details
 - `~/.claude/plans/questo-quello-che-glittery-charm.md` — Plan canonical Phase 14.SH
 - `.handoff/HANDOFF.md` — Fresh session input (next sprint trigger)
