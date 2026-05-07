@@ -166,25 +166,65 @@ VM: `oracle-vm-default` (IP 80.225.82.207). nginx vhosts in `/etc/nginx/sites-av
 
 **Vincolo "estirpazione clean"**: ogni entry in `Test Stage`/`PreOp Stage` DEVE essere rimovibile dal repo evo SENZA conseguenze su stack/oggetti pre-import. Categorie removability tracciate nel CSV (`no-impact`, `embedded-in-existing-file`, `depends-on-X`, `not-yet-used`, `depends-on-DB-seed`).
 
-## Stato attuale (2026-05-07, Phase 14 Sprint 1 closed + Sprint 2.E shipped)
+## Stato attuale (2026-05-07T16:50Z · DBMS bare-metal SoT certified + Phase 14 Bundle F shipped + Phase 14.SH plan approvato)
 
-- Pagine Next.js: 5 (`/`, `/login`, `/dashboard`, `/showcase`, `/brand-studio`) + dynamic `/dashboard/[code]` (data-driven engine)
-- API: Next.js route handler `/api/dashboard/data/[elementId]` (Phase 14.A.5 · auth + RBP + tenant gates)
-- Endpoint Express: 30 endpoint Pack 1-8 mounted (Promoted in legacy-import-registry.csv)
-- Test totali: 132/132 services/app vitest verde · 8/8 E2E Playwright (5 RBP matrix + 3 base) · perf script (autocannon) ready
-- Phase 14 Sprint 1 (A+D+H) shipped end-to-end: data-fetcher (sql/static + cache TTL + RLS) · 8-widget adapter registry (KpiRing live SQL · IntegrationHealthPill live static · 6 composite static) · prefetch parallel · Live wrapper unified con Demo fallback · `useWidgetData()` SWR-style hook zero-deps · i18n IT/EN runtime (LocaleProvider + pickBilingual + LocaleSwitcher · ?lang= + localStorage)
-- Phase 14 Sprint 2.E `auditedDashboardMutation()` helper (consumer arrives Sprint 3.C drag-resize editor)
-- 11 commit consecutivi su main (1cd433f → b4b303e) in autonomous mode (2026-05-07)
-- Live smoke verified: KpiRing pos 1 hr_director_overview → `Active employees · 270` (RLS scope RTL Bank)
-- Helper cross-cutting Pack 1: 4 famiglie (`escapeILIKE`/`safeParseInt`/`isUUID`/`buildMeta`/`validatePassword`/`generateSecurePassword`/`requirePermission` lazy/`ROLES` constant)
+### DBMS = SoT (certified 2026-05-07T14:30Z)
+
+- **Database `heuresys_platform`** (postgres 16.13 bare-metal, oracle-vm-default:5432) promosso a **Source of Truth unica**. Docker legacy NON è più riferimento (resta running come storico)
+- Forensic certified vs docker: 506/506 tabelle popolate match · 477774/477774 rows match · 0 schema DDL diff · 17/18 MD5 bit-identical
+- Primo backup baseline restorable: `oracle-vm-default:/var/backups/heuresys-evo/heuresys_platform-SoT-baseline-2026-05-07T143000Z.dump` (sha256 `1d1150ced1016638f8ac31c2b85e056752592c9ced0870cfca84fe6328eda46a`)
+- ADR-0023 documenta promotion + proof, ADR-0024 documenta plan Phase 14.SH
+
+### Coverage live SQL widget
+
+- **30/30 dashboard_elements bound** (26 sql + 4 static + 0 null) post `phase14c` + `phase14d`
+- Demo fallback hardcoded "Stefania Bianchi" eliminato → SuccessionCard pull live `employees ORDER BY performance_rating` (mostra Gabriele Amato real)
+- 7 widget composite ancora SQL static-via-SELECT → FASE 3.6 di Phase 14.SH (replace con real aggregations)
+
+### App runtime
+
+- Pagine Next.js: 5 (`/`, `/login`, `/dashboard`, `/showcase`, `/brand-studio`) + dynamic `/dashboard/[code]` + `/dashboard/[code]/edit` + `/ontology` + `/explorer/{esco,sap,kg}`
+- API Next.js route handlers: `/api/dashboard/data/[elementId]`, `/api/dashboard/[code]/elements` (PUT), `/api/ontology/advisor` (OpenAI), `/api/explorer/{esco/tree,sap/status,kg/expand}`
+- Endpoint Express: 30 endpoint Pack 1-8 mounted
+- Auth: NextAuth v4 Credentials, 11 canonical users (Heuresys2026!) cross-tenant
+- Test: 153/153 vitest services/app verde · 100/100 Playwright RBP matrix verde · perf script autocannon ready
+
+### Sprint shipped (Phase 14)
+
+- **Sprint 1.A** live data binding: data-fetcher (sql/static + cache TTL + RLS) · 8-widget adapter registry · prefetch · route handler · `useWidgetData()` hook
+- **Sprint 1.D** Playwright RBP matrix 8 RTL × 9 dashboards = 72 + 27 cross-tenant smoke + regression anchor = 100/100
+- **Sprint 1.H** i18n IT/EN runtime (LocaleProvider · pickBilingual · LocaleSwitcher)
+- **Sprint 2.E** `auditedDashboardMutation()` helper + consumer wired in 3.C
+- **Sprint 2.F** `/ontology` page + OpenAI advisor route handler + cost cap (graceful 503 senza key) + ADR-0022
+- **Sprint 3.C** drag-resize dashboard editor + `auditedDashboardMutation` integration (`category=CONFIG`)
+- **Sprint 3.G(foundation)** Tier 2 explorer: 3 atomic UI (`ESCOTreeNavigator`, `KGGraphCanvas`, `SAPSyncPanel`) + 3 route + 3 endpoint
+
+### Stack snapshot
+
+- Helper cross-cutting Pack 1: `escapeILIKE`/`safeParseInt`/`isUUID`/`buildMeta`/`validatePassword`/`generateSecurePassword`/`requirePermission` lazy/`ROLES`
 - Prisma allowlist api-gateway: 16 model
 - RLS policies: 605 attive · RBP joins: 326
 - packages/ui: ~180 component, Storybook 9 (84 stories), GH Pages
 - npm audit: 0 vulnerabilities
 - Repo visibility: PUBLIC. Branch protection rimossa. CI minimal
 - Schema docs: Diátaxis numbered + meta (`docs/_meta`, `10-strategy`, `20-architecture`, `30-developer`, `40-operations`, `50-reference`, `70-planning`, `90-archive`)
-- Migration legacy → evo: PET-driven (vedi `docs/10-strategy/migration-strategy-pet-driven.md`) + Phase 13.0 forensic mining (8 pack legacy → registry CSV)
-- Phase 14 follow-up pending: re-seed canonical demo users (sblocca 72-fixture matrix) · composite SQL queries (sostituiscono static seed phase14b) · production-mode perf binding · Sprint 2.F OpenAI advisor · Sprint 3.C drag-resize editor · Sprint 3.G Tier 2 explorer
+
+### 🚀 Phase 14.SH (next sprint, plan approved 2026-05-07T16:35Z)
+
+Plan canonical: `~/.claude/plans/questo-quello-che-glittery-charm.md` · Handoff input: `.handoff/HANDOFF.md` · ADR-0024.
+
+Decisioni utente confermate: D-LOGIN=`login-aurora.html` · D-SCOPE=coverage completa (~50-70 viste) · D-THEME=dark default · D-A11Y=WCAG 2.2 AAA full.
+
+5 fasi sequenziali (24-34 FTE-day) + parallel backup track:
+
+1. **Brand identity applied** — tokens CSS da `mu-architect-legacy.html` → `active-theme.css` · `<HeuresysWordmark>` React · `<AppShell>` cablato in `(app)/` route group · login allineato `login-aurora.html`
+2. **Role-based dynamic sidebar** — import legacy + `SIDEBAR_MAP` 8 ruoli + `getNavForUser(session)`
+3. **Sidebar views live data e2e** — inventory matrix `role-views-matrix.md` · import-first 25+ API routes legacy + 5-15 frontend pages · build from scratch per gap · RBP gates `packages/shared/src/rbp/`
+4. **Composite real aggregations** — `phase14e_composite_real_aggregations.sql` replace static-via-SELECT
+5. **UX polish + WCAG 2.2 AAA full** — theme toggle · contrast 7:1 · target size ≥ 24×24 · drag alternatives · prefers-reduced-motion · live regions · focus order · inline help
+6. **Production perf + handoff finale** — `next build && start` · autocannon P95 ≤ 500ms · screenshot 8 ruoli × N viste
+
+Backup track parallel: cron daily/weekly/monthly · off-site Oracle bucket · restore drill mensile · `docs/40-operations/dbms-backup-restore.md` (scaffolded).
 
 ## Documenti strategici
 
@@ -192,8 +232,12 @@ VM: `oracle-vm-default` (IP 80.225.82.207). nginx vhosts in `/etc/nginx/sites-av
 - `docs/_meta/doc-architecture.md` — schema docs/ canonical
 - `docs/_meta/governance-evo.md` — governance progetto
 - `docs/10-strategy/migration-strategy-pet-driven.md` — strategia porting
-- `docs/50-reference/decisions/` — 21 ADR (3 superseded)
+- `docs/20-architecture/role-views-matrix.md` — Phase 14.SH FASE 3.1 inventory (scaffolded)
+- `docs/40-operations/dbms-backup-restore.md` — Backup/restore governance policy (scaffolded)
+- `docs/50-reference/decisions/` — 23 ADR (3 superseded · ADR-0023 SoT promotion · ADR-0024 Phase 14.SH plan)
 - `docs/30-developer/security-baseline.md` — P1-P10 enforcement details
+- `~/.claude/plans/questo-quello-che-glittery-charm.md` — Plan canonical Phase 14.SH
+- `.handoff/HANDOFF.md` — Fresh session input (next sprint trigger)
 
 ## Quando deragli — segnale
 

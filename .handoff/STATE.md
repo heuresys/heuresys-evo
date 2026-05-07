@@ -1,6 +1,6 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-07 · **DBMS bare-metal promosso SoT** + Phase 14 Bundle F shipped
+> Updated: 2026-05-07T16:50Z · **DBMS bare-metal promosso SoT** + Phase 14 Bundle F shipped + **Phase 14.SH plan approvato** (fresh session ready)
 
 ## ⚠️ DIRETTIVA ATTIVA
 
@@ -50,13 +50,34 @@ Tabelle/dati che esistono solo nel bare-metal (non nel docker), reapplicate dopo
 
 Migrazione full docker → bare-metal completata + certificata SoT + primo backup restorable. Cambio sostanziale di posture: il bare-metal contiene ora 477K righe reali (employees con skills/perf/manager, ESCO 3,040 occupations + 14,011 skills + 126,051 relations, SAP infotype tables pa* 9.6K, course_enrollments 3K, employee_attendance 5.2K, ecc.) e tutte le surface evo (dashboard engine, ontology, explorer) leggono da queste fonti.
 
-## Top priorities (next session)
+## 🚀 Phase 14.SH — Brand-driven shell (plan approved 2026-05-07T16:35Z, fresh session ready)
 
-1. **Sistema governato di backup/restore** (~1-2 FTE-day) — definire policy: cron daily incremental + weekly full, retention 30/90/365, restore drill, off-site (S3 oracle bucket). Path bucket policy: `/var/backups/heuresys-evo/`.
-2. **AppShell brandizzato** (~3-4 FTE-day) — cablare `<AppShell>` da `packages/ui` (sidebar nav + topbar + footer) + popolare `services/app/src/styles/active-theme.css` con tokens da `mu-architect-legacy.html` + creare `<HeuresysWordmark>` React + login allineato a `06-mockups/auth/login.html`.
-3. **Composite SQL real (replace static-via-SELECT)** (~2-3 FTE-day) — migrare 7 widget composite static-via-SELECT a SQL aggregations vere su employee_skills × department, esco_skill_relations, performance_reviews.
-4. **Process preset 14.D backfill** (~2 FTE-day) — process_onboarding_flow + process_performance_cycle + process_learning_paths sono ora bound ma con SQL static-via-SELECT, da rendere semantici.
-5. **Tier 2 advanced** — vedi piano fase 14 Sprint 3.G full scope (saved views, ESCO crosswalk, SAP infotype matrix, ecc.)
+Tutte le priorità precedenti sono state consolidate nel **plan canonical** approvato dall'utente:
+
+📋 **Plan**: `~/.claude/plans/questo-quello-che-glittery-charm.md`
+📋 **Handoff input**: `.handoff/HANDOFF.md`
+📋 **ADR-0024**: `docs/50-reference/decisions/0024-phase14sh-brand-driven-shell.md`
+
+**Decisioni utente confermate** (D-LOGIN, D-SCOPE, D-THEME, D-A11Y):
+
+| ID | Decisione | Valore |
+|---|---|---|
+| D-LOGIN | Login mockup canonical | `login-aurora.html` |
+| D-SCOPE | Scope viste sidebar | Coverage completa (~50-70 viste) per 8 ruoli |
+| D-THEME | Theme default | Dark (light toggle pari dignità) |
+| D-A11Y | Compliance level | WCAG 2.2 AAA full |
+
+**Sequenza fasi** (24-34 FTE-day totali):
+
+1. **FASE 1 — Brand identity applied** (~4-5 FTE-day): tokens CSS da `mu-architect-legacy.html` → `active-theme.css` · `<HeuresysWordmark>` React · `<AppShell>` cablato in `(app)/` route group · login allineato a `login-aurora.html`
+2. **FASE 2 — Role-based dynamic sidebar** (~2-3 FTE-day): import legacy `use-sidebar-nav.ts` + `navigation.ts` · `SIDEBAR_MAP` 8 ruoli · `getNavForUser(session)` server-side
+3. **FASE 3 — Sidebar views live data e2e** (~10-15 FTE-day): inventory matrix `docs/20-architecture/role-views-matrix.md` · import-first 25+ API routes legacy + 5-15 frontend pages legacy · build from scratch per gap · RBP gates `packages/shared/src/rbp/`
+4. **FASE 3.6 — Composite real aggregations** (~2-3 FTE-day): `phase14e_composite_real_aggregations.sql` replace static-via-SELECT con real aggregations
+5. **FASE 4 — UX polish + WCAG 2.2 AAA full** (~4-5 FTE-day): theme toggle · contrast 7:1 · target size ≥ 24×24 · drag alternatives · `prefers-reduced-motion` · live regions · focus order · inline help
+6. **FASE 5 — Production perf + handoff finale** (~1-2 FTE-day): `next build && start` · autocannon P95 ≤ 500ms · screenshot final 8 ruoli × N viste
+7. **Backup track parallel** (~1 FTE-day): cron daily/weekly/monthly · off-site Oracle bucket · restore drill mensile · `docs/40-operations/dbms-backup-restore.md` (scaffolded)
+
+**Stop condition** fresh session: tutte 5 fasi + backup track complete · vitest 153+/153+ verde · Playwright matrix 100/100 + role-nav suite verde · WCAG AAA pass via axe-core + manual screen reader · screenshot e2e per 8 ruoli × ogni voce sidebar.
 
 ## Stack snapshot
 
@@ -98,12 +119,19 @@ ssh oracle-vm-default "bash /tmp/md5-verify.sh"        # 17/18 MD5 identical
 
 ## Riferimenti
 
-- Plan execution: `~/.claude/plans/questo-quello-che-glittery-charm.md`
+- **Plan canonical Phase 14.SH**: `~/.claude/plans/questo-quello-che-glittery-charm.md`
+- **HANDOFF input fresh session**: [`.handoff/HANDOFF.md`](HANDOFF.md)
+- **ADR-0023 SoT promotion**: [`docs/50-reference/decisions/0023-promote-baremetal-as-sot.md`](../docs/50-reference/decisions/0023-promote-baremetal-as-sot.md)
+- **ADR-0024 Phase 14.SH plan**: [`docs/50-reference/decisions/0024-phase14sh-brand-driven-shell.md`](../docs/50-reference/decisions/0024-phase14sh-brand-driven-shell.md)
+- **Role × Views matrix**: [`docs/20-architecture/role-views-matrix.md`](../docs/20-architecture/role-views-matrix.md) (scaffolded, da popolare)
+- **DBMS backup policy**: [`docs/40-operations/dbms-backup-restore.md`](../docs/40-operations/dbms-backup-restore.md) (scaffolded)
 - Migration assets: `db/migrations/phase14c_dashboard_composite_sql_binding.sql` + `db/migrations/phase14d_dashboard_full_binding_coverage.sql`
-- SoT backup: `/var/backups/heuresys-evo/heuresys_platform-SoT-baseline-2026-05-07T143000Z.dump` (sulla VM)
-- Migration log: `/tmp/migration-2026-05-07/restore.log` (su VM)
+- SoT backup baseline: `oracle-vm-default:/var/backups/heuresys-evo/heuresys_platform-SoT-baseline-2026-05-07T143000Z.dump`
+- Migration log: `oracle-vm-default:/tmp/migration-2026-05-07/restore.log`
 - Engine pattern: [`docs/20-architecture/dashboard-engine-pattern.md`](../docs/20-architecture/dashboard-engine-pattern.md)
 - Tier 2 doc: [`docs/20-architecture/tier2-explorer.md`](../docs/20-architecture/tier2-explorer.md)
 - Setup OpenAI: [`docs/setup/openai-advisor.md`](../docs/setup/openai-advisor.md)
 - ADR-0022: [`docs/50-reference/decisions/0022-openai-advisor-integration.md`](../docs/50-reference/decisions/0022-openai-advisor-integration.md)
+- Brand state: [`.ux-design/BRAND-STATE.md`](../.ux-design/BRAND-STATE.md)
+- Decisions log: [`.ux-design/DECISIONS-LOG.md`](../.ux-design/DECISIONS-LOG.md) (L34 added)
 - Registry CSV: [`legacy-import-registry.csv`](legacy-import-registry.csv)

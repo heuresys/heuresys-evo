@@ -959,6 +959,33 @@ Risposte alle 2 domande operative pre-formalizzazione:
 - STATE: `.handoff/STATE.md` (summary completo)
 - CLAUDE.md "Stato attuale" sezione
 
+## L34 — 2026-05-07 — DBMS bare-metal promosso SoT + Phase 14.SH plan approvato
+
+**Decisione**: il database `heuresys_platform` postgres bare-metal su oracle-vm-default:5432 è promosso a Source of Truth unica. Il docker legacy (`heuresys_evo_platform_db`) NON è più riferimento operativo. Phase 14.SH (Brand-driven role-based shell) è il prossimo sprint, plan approvato per fresh session autonomous (24-34 FTE-day, 5 fasi + parallel backup track).
+
+**Contesto**: post Sprint 1+2.E+2.F+3.C+3.G(foundation) shipped, l'utente ha richiesto migrazione dei dati reali docker → bare-metal con verifica forense bit-by-bit, e successivamente la realizzazione operativa dei modelli brand `mu-architect-legacy` (login + AppShell + sidebar dinamica role-based + ~50-70 viste live e2e + WCAG 2.2 AAA full + theme dark default). Migrazione completata 2026-05-07T13:54-14:00Z con 17/18 MD5 bit-identical, 506/506 tabelle popolate match, 477774 rows match, schema DDL diff 0. Primo backup baseline restorable creato. Decisioni utente confermate: D-LOGIN=`login-aurora.html`, D-SCOPE=coverage completa, D-THEME=dark, D-A11Y=WCAG 2.2 AAA full.
+
+**Conseguenza**:
+
+- Da ora in avanti "DBMS" ≡ "DBMS bare-metal" ≡ "SoT" — non serve più qualificare
+- Composite SQL coverage 30/30 (zero null, zero "Stefania Bianchi" placeholder; SuccessionCard pull live `employees ORDER BY performance_rating`)
+- Phase 14.SH passa a fresh session autonomous con plan canonical `~/.claude/plans/questo-quello-che-glittery-charm.md`
+- ADR-0023 documenta SoT promotion + forensic proof
+- ADR-0024 documenta Phase 14.SH plan + decisioni utente
+- Brand workstream Phase 10 (altre surface) avanza in-progress con questo sprint
+- Backup chain governance da automatizzare (parallel track)
+
+**Riferimenti**:
+
+- Commit `6a48706` (DBMS SoT + composite SQL coverage 30/30)
+- ADR-0023: `docs/50-reference/decisions/0023-promote-baremetal-as-sot.md`
+- ADR-0024: `docs/50-reference/decisions/0024-phase14sh-brand-driven-shell.md`
+- Plan canonical: `~/.claude/plans/questo-quello-che-glittery-charm.md`
+- HANDOFF: `.handoff/HANDOFF.md`
+- Backup baseline: `oracle-vm-default:/var/backups/heuresys-evo/heuresys_platform-SoT-baseline-2026-05-07T143000Z.dump` (sha256 `1d1150ced1016638f8ac31c2b85e056752592c9ced0870cfca84fe6328eda46a`)
+
+---
+
 ## Format per nuove entry
 
 Quando aggiungi una nuova decisione, segui questo template:

@@ -9,6 +9,13 @@ const config: NextConfig = {
   // Workspace packages must be transpiled by Next; otherwise their TS source
   // breaks SSR/RSC compilation.
   transpilePackages: ['@heuresys/ui', '@heuresys/shared'],
+
+  // Allow LAN IPs to fetch dev-mode static chunks (Next.js 15+ blocks cross-origin
+  // /_next/static/* by default; without this entry, dynamic-imported widget bundles
+  // 4xx silently and the dashboard stays in "Loading widget…" forever when accessed
+  // from another machine on the network).
+  allowedDevOrigins: ['192.168.1.8', 'localhost', '127.0.0.1'],
+
   experimental: {
     // typedRoutes: true,  // enable later when route surface is stable
   },
