@@ -924,6 +924,41 @@ Risposte alle 2 domande operative pre-formalizzazione:
 - Engine pattern aggiornato: `docs/20-architecture/dashboard-engine-pattern.md` § Phase 14.A
 - STATE: `.handoff/STATE.md`
 
+## L33 — 2026-05-07 — Phase 14 Sprint 1 follow-up + Sprint 2.E shipped (RBP matrix + audit helper)
+
+**Decisione**: Continuata l'esecuzione autonomous post-L32 con altri 4 commit consecutivi su main:
+
+- `532d13a` 14.D RBP matrix · CANONICAL_USERS espansa a 5 ruoli RTL Bank (TENANT_OWNER, IT_ADMIN, HR_DIRECTOR, HR_MANAGER, LINE_MANAGER) · `dashboard-rbp-matrix.spec.ts` parametrizza l'asserzione "sees 4 widgets" sui 5 ruoli · 8/8 verde (5 matrix + 3 base) in 26s
+- `d1fba14` Sprint 2.E `auditedDashboardMutation()` helper · wrap atomico mutation + audit_logs insert in singola transazione Prisma · 4 action types (CREATE/UPDATE/DELETE/PUBLISH) · guard contract enforce oldValue=null su CREATE e newValue=null su DELETE · 12 vitest verde
+- `b4b303e` STATE.md final · summary 11 commit cumulative + verification commands + follow-up roadmap
+- `80673e6` docs globali · CLAUDE.md "Stato attuale" Phase 14 + BRAND-STATE Phase 14 row updated
+
+**Contesto**: dopo L32 (Sprint 1 A+H closure) l'utente ha ribadito "non devi fermarti a chiedere autorizzazione · proprio come prevedeva autonomous mode stile Phase 13". Esecuzione autonomous proseguita allargando coverage Sprint 1.D (matrix RBP scaffold) e introducendo Sprint 2.E come standalone helper pronto per Sprint 3.C drag-resize editor (consumer naturale).
+
+**Conseguenza**:
+
+- Coverage E2E Playwright passa da 3 spec (single role) a 8 spec (5 ruoli × 1 dashboard + 3 base): infrastruttura matrix validata, espansione a 9 dashboard è meccanica.
+- Discovery: 2/7 ruoli RTL Bank (DEPT_HEAD `alice.esposito` + EMPLOYEE `alberto.colombo`) hanno bcrypt `$2a$10$` legacy hash con password diversa da Heuresys2026!. Documentati come Sprint 1 follow-up: re-seed canonical demo users con password unificata sblocca full 72-fixture matrix.
+- `auditedDashboardMutation()` disponibile come scaffolding pulito: zero produzione consumer attuale, ma quando Sprint 3.C introduce route handler POST/PUT/DELETE per dashboard_presets/elements, l'integrazione è 1-line wrap.
+- Test totali: 132/132 vitest (era 120 + 12 nuovi audit) · typecheck 5/5 verde · E2E 8/8 verde.
+- STATE.md + CLAUDE.md "Stato attuale" + BRAND-STATE Phase 14 row aggiornati con summary cumulative 11 commit + roadmap follow-up esplicita.
+
+**Cumulative Phase 14 status (post-L33)**:
+
+- ✅ Sprint 1.A live data binding (5 commit · data-fetcher + 8 adapters + prefetch + route + hook + perf)
+- ✅ Sprint 1.D Playwright (PoC 1 dashboard + RBP matrix 5 ruoli)
+- ✅ Sprint 1.H i18n IT/EN runtime
+- ✅ Sprint 2.E audit log helper standalone
+- ⏳ Sprint 1 follow-up: re-seed canonical users · composite SQL · prod perf binding
+- ⏳ Sprint 2.F: /ontology + OpenAI advisor (richiede `OPENAI_API_KEY`)
+- ⏳ Sprint 3.B/C/G: mockup PROCESS expansion · drag-resize editor · Tier 2 explorer
+
+**Riferimenti**:
+
+- Commit range: `1cd433f..80673e6` (12 commit consecutivi 2026-05-07)
+- STATE: `.handoff/STATE.md` (summary completo)
+- CLAUDE.md "Stato attuale" sezione
+
 ## Format per nuove entry
 
 Quando aggiungi una nuova decisione, segui questo template:
