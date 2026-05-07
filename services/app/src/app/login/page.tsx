@@ -1,11 +1,15 @@
+import { HeuresysWordmark } from '@heuresys/ui';
 import { LoginForm } from './login-form';
+import './login-aurora.css';
 
 /**
- * /login — credentials sign-in.
+ * /login — credentials sign-in (NextAuth v4 + Aurora brand surface).
  *
- * NextAuth v4 does not support `signIn` as a Server Action (the helper lives
- * in `next-auth/react` and runs client-side). The form is therefore a small
- * client island; the rest of the page is server-rendered.
+ * Visual ref: .ux-design/06-mockups/auth/login-aurora.html (D-LOGIN canonical).
+ * - Animated aurora mesh background (CSS only, prefers-reduced-motion respected)
+ * - Glass card with gradient border (backdrop-filter blur)
+ * - Hero brand wordmark (Exo 2 700, brand-blue + accent y)
+ * - Form is a client island; the rest of the page is server-rendered
  */
 export default async function LoginPage({
   searchParams,
@@ -13,20 +17,51 @@ export default async function LoginPage({
   searchParams?: Promise<{ error?: string }>;
 }) {
   const sp = (await searchParams) ?? {};
-  const showDevHint = process.env.NEXT_PUBLIC_SHOW_DEV_HINT === '1';
   return (
-    <main className="flex min-h-screen items-center justify-center bg-neutral-50 p-6">
-      <div className="w-full max-w-sm rounded-lg border border-neutral-200 bg-white p-8 shadow-sm">
-        <h1 className="text-2xl font-semibold">Sign in</h1>
-        <p className="mt-1 text-sm text-neutral-500">Use your Heuresys credentials.</p>
-        {showDevHint ? (
-          <p className="mt-1 text-xs text-amber-600">
-            Dev seed: <code>evo.dev</code> / <code>admin123</code>.
-          </p>
-        ) : null}
-
-        <LoginForm initialError={sp.error} />
+    <div className="auth-shell">
+      <div className="aurora" aria-hidden="true" />
+      <div className="dots" aria-hidden="true">
+        <span />
+        <span />
+        <span />
+        <span />
+        <span />
+        <span />
       </div>
-    </main>
+
+      <header className="top-bar">
+        <a href="/" className="top-back">
+          ← heuresys.com
+        </a>
+      </header>
+
+      <main className="auth-main">
+        <section className="auth-card" aria-labelledby="auth-heading">
+          <h1 id="auth-heading" className="auth-hero">
+            <HeuresysWordmark variant="brand" size="hero" as="span" />
+          </h1>
+          <p className="auth-tagline">Accedi al tuo workspace</p>
+
+          <LoginForm initialError={sp.error} />
+
+          <div className="auth-footnote">
+            Non hai un account?{' '}
+            <a href="#" aria-disabled="true">
+              Contatta il tuo IT_ADMIN
+            </a>
+          </div>
+        </section>
+      </main>
+
+      <footer className="auth-footer">
+        <div className="copy">© 2026 heuresys.com — Organizational Intelligence platform</div>
+        <div className="links">
+          <a href="#">Privacy</a>
+          <a href="#">Terms</a>
+          <a href="#">Security</a>
+          <a href="#">Status</a>
+        </div>
+      </footer>
+    </div>
   );
 }

@@ -4,9 +4,12 @@ import { useState, useTransition } from 'react';
 import { signIn } from 'next-auth/react';
 
 /**
- * Client island that wraps NextAuth v4's `signIn` from next-auth/react.
- * Emits an `error` query string on failure so the server-rendered shell
- * can render an inline error.
+ * Client island wrapping NextAuth v4's `signIn` from next-auth/react.
+ * Aurora-styled form aligned to .ux-design/06-mockups/auth/login-aurora.html.
+ *
+ * Hydration-safe: form has no `action`/`method`, and the submit handler
+ * always preventDefaults — preventing native GET submission if Playwright
+ * (or a user) clicks before React hydrates.
  */
 export function LoginForm({ initialError }: { initialError?: string }) {
   const [error, setError] = useState<string | undefined>(initialError);
@@ -33,42 +36,56 @@ export function LoginForm({ initialError }: { initialError?: string }) {
   }
 
   return (
-    <>
-      <form onSubmit={onSubmit} className="mt-6 flex flex-col gap-4">
-        <label className="flex flex-col gap-1 text-sm">
-          <span className="font-medium">Username</span>
-          <input
-            name="username"
-            type="text"
-            autoComplete="username"
-            required
-            className="h-9 rounded-md border border-neutral-300 px-3"
-          />
+    <form onSubmit={onSubmit} className="auth-form" noValidate aria-busy={isPending}>
+      <div className="field">
+        <label className="field-label" htmlFor="username">
+          Email aziendale
         </label>
-        <label className="flex flex-col gap-1 text-sm">
-          <span className="font-medium">Password</span>
-          <input
-            name="password"
-            type="password"
-            autoComplete="current-password"
-            required
-            className="h-9 rounded-md border border-neutral-300 px-3"
-          />
+        <input
+          id="username"
+          name="username"
+          type="text"
+          autoComplete="username"
+          required
+          placeholder="maria.chro@rtl-bank.it"
+          className="field-input"
+        />
+      </div>
+
+      <div className="field">
+        <label className="field-label" htmlFor="password">
+          Password
         </label>
-        <button
-          type="submit"
-          disabled={isPending}
-          className="mt-2 inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-fg hover:bg-primary/90 disabled:opacity-60"
-        >
-          {isPending ? 'Signing in…' : 'Sign in'}
-        </button>
-      </form>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          autoComplete="current-password"
+          required
+          placeholder="••••••••••"
+          className="field-input"
+        />
+      </div>
+
+      <div className="field-row">
+        <label className="checkbox-label">
+          <input type="checkbox" name="remember" />
+          <span>Ricordami su questo dispositivo</span>
+        </label>
+        <a href="#" className="forgot-link" aria-disabled="true">
+          Password dimenticata?
+        </a>
+      </div>
+
+      <button type="submit" disabled={isPending} className="btn btn-primary">
+        {isPending ? 'Accesso in corso…' : 'Accedi'}
+      </button>
 
       {error ? (
-        <p className="mt-4 rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
-          Sign-in failed: {error}
+        <p className="auth-error" role="alert">
+          Accesso fallito: {error}
         </p>
       ) : null}
-    </>
+    </form>
   );
 }

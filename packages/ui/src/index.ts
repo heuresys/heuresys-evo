@@ -317,6 +317,14 @@ export {
   type RbacPermissionLevel,
 } from './components/dashboard';
 
+// Phase 14.SH — Brand wordmark
+export {
+  HeuresysWordmark,
+  type HeuresysWordmarkProps,
+  type WordmarkVariant,
+  type WordmarkSize,
+} from './components/wordmark';
+
 // Phase 14 Sprint 3.G — Tier 2 explorer atomics
 export {
   ESCOTreeNavigator,
