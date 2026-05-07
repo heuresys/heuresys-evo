@@ -16,7 +16,9 @@
  *   user_id            uuid (the actor)
  *   user_role          varchar(50)
  *   action             varchar(50)   — CREATE | UPDATE | DELETE | PUBLISH
- *   category           varchar(50)   — 'dashboards'
+ *   category           varchar(50)   — 'CONFIG' (constrained to audit_logs.category enum
+ *                                      check; dashboards live under the broader
+ *                                      configuration/setup family alongside RBP roles, etc.)
  *   resource_type      varchar(100)  — 'dashboard_presets' | 'dashboard_elements'
  *   resource_id        varchar(255)  — stringified id (BigInt → string)
  *   resource_name      varchar(500)  — preset code / element widget_code
@@ -112,7 +114,7 @@ export async function auditedDashboardMutation<T>(
         user_id: actor.userId,
         user_role: actor.userRole,
         action,
-        category: 'dashboards',
+        category: 'CONFIG',
         resource_type: resourceType,
         resource_id: String(resourceId),
         resource_name: resourceName,

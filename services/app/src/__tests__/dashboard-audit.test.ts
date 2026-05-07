@@ -58,7 +58,7 @@ describe('auditedDashboardMutation — happy path', () => {
       user_id: 'user-1',
       user_role: 'TENANT_OWNER',
       action: 'UPDATE',
-      category: 'dashboards',
+      category: 'CONFIG',
       resource_type: 'dashboard_presets',
       resource_id: '42',
       resource_name: 'hr_director_overview',
