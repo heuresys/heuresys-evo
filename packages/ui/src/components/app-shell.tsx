@@ -48,7 +48,7 @@ export function AppShell({
       {/* Sidebar (desktop) */}
       <aside
         className={cn(
-          'hidden border-r border-border bg-muted/30 transition-all md:flex md:flex-col',
+          'flex flex-col border-r border-border bg-muted/30 transition-all max-md:hidden',
           collapsed ? 'w-16' : 'w-64'
         )}
         aria-label="Primary navigation"

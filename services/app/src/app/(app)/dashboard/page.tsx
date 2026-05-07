@@ -1,6 +1,5 @@
 import { headers } from 'next/headers';
 import { auth } from '@/lib/auth';
-import { SignOutButton } from './sign-out-button';
 
 /**
  * /dashboard — server component that calls the api-gateway /employees
@@ -38,21 +37,18 @@ export default async function DashboardPage() {
 
   return (
     <main className="mx-auto max-w-5xl p-8">
-      <header className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-semibold">Dashboard</h1>
-          <p className="mt-1 text-sm text-neutral-500">
-            Signed in as <strong>{user?.username ?? 'unknown'}</strong>
-            {user?.role ? <> · {user.role}</> : null}
-            {user?.tenantId ? (
-              <>
-                {' '}
-                · tenant <code className="text-xs">{user.tenantId.slice(0, 8)}…</code>
-              </>
-            ) : null}
-          </p>
-        </div>
-        <SignOutButton />
+      <header>
+        <h1 className="text-3xl font-semibold">Dashboard</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Signed in as <strong>{user?.username ?? 'unknown'}</strong>
+          {user?.role ? <> · {user.role}</> : null}
+          {user?.tenantId ? (
+            <>
+              {' '}
+              · tenant <code className="text-xs">{user.tenantId.slice(0, 8)}…</code>
+            </>
+          ) : null}
+        </p>
       </header>
 
       <section className="mt-8">
