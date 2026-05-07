@@ -1,6 +1,17 @@
--- Apply canonical demo users. All values come from psql -v variables
--- (passed in by scripts/apply-canonical-users.sh from .env). No literals here.
--- Idempotent: re-running is a no-op when DB is already aligned.
+-- Apply canonical demo users — REFERENCE (operational form: scripts/db/apply-canonical-users.mjs)
+--
+-- This file documents the canonical state for the canonical_demo_users registry
+-- and the password-stabilization step on canonical users. The executable form is
+-- the Node script `scripts/db/apply-canonical-users.mjs` (uses Prisma + bcryptjs;
+-- generates hash at runtime from a unified password and applies idempotent UPDATEs).
+--
+-- The .mjs script extends this SoT with:
+--   * cross-tenant TENANT_OWNER updates (heuresys/admin, smartfood/smartfood-admin, econova/econova-admin)
+--   * legacy $2a$ duplicate soft-delete (rtl-bank.alice.esposito, rtl-bank.alberto.colombo)
+--   * runtime bcrypt verification for every canonical
+--
+-- This .sql file is preserved for psql/CI-driven flows that pre-date the .mjs
+-- and is idempotent on its own (re-runs are no-ops when DB is aligned).
 
 \set ON_ERROR_STOP on
 
@@ -55,7 +66,15 @@ WHERE username IN (SELECT username FROM canonical_demo_users)
     OR deleted_at IS NOT NULL
   );
 
--- 4. Assert: every canonical user exists with the expected role.
+-- 4. Soft-delete legacy duplicates (added 2026-05-07: alice.esposito + alberto.colombo
+--    were $2a$ duplicates of the canonical paolo.caputo + francesca.gallo).
+UPDATE users
+SET is_active = false, deleted_at = NOW()
+WHERE username IN ('rtl-bank.alice.esposito', 'rtl-bank.alberto.colombo')
+  AND is_active = true
+  AND deleted_at IS NULL;
+
+-- 5. Assert: every canonical user exists with the expected role.
 DO $$
 DECLARE
   r RECORD;

@@ -3,9 +3,10 @@
  *
  * Performs a NextAuth Credentials login through the public form (so the test
  * exercises the same path as a real user) and returns the resulting Page
- * already authenticated. Use the canonical demo users:
- *   rtl-bank.valentina.conti / Heuresys2026!  → HR_DIRECTOR / RTL Bank tenant
- *   (see .handoff/PROJECT-STATE for the full role roster.)
+ * already authenticated. All canonical demo users share the unified password
+ * `Heuresys2026!` (re-seeded via scripts/db/apply-canonical-users.mjs on
+ * 2026-05-07; legacy $2a$ duplicates alice.esposito + alberto.colombo were
+ * soft-deleted in the same pass).
  */
 import type { Page } from '@playwright/test';
 
@@ -16,51 +17,125 @@ export interface CanonicalUser {
   tenant: string;
 }
 
+const PASSWORD = 'Heuresys2026!';
+
 export const CANONICAL_USERS = {
+  // 8 RTL Bank canonical roles (primary RBP matrix)
+  superuser: {
+    username: 'sysadmin',
+    password: PASSWORD,
+    role: 'SUPERUSER',
+    tenant: 'platform',
+  } satisfies CanonicalUser,
   tenantOwnerRtl: {
     username: 'rtl-bank.federica.marchetti',
-    password: 'Heuresys2026!',
+    password: PASSWORD,
     role: 'TENANT_OWNER',
     tenant: 'RTL Bank',
   } satisfies CanonicalUser,
   itAdminRtl: {
     username: 'rtl-bank.marco.desantis',
-    password: 'Heuresys2026!',
+    password: PASSWORD,
     role: 'IT_ADMIN',
     tenant: 'RTL Bank',
   } satisfies CanonicalUser,
   hrDirectorRtl: {
     username: 'rtl-bank.valentina.conti',
-    password: 'Heuresys2026!',
+    password: PASSWORD,
     role: 'HR_DIRECTOR',
     tenant: 'RTL Bank',
   } satisfies CanonicalUser,
   hrManagerRtl: {
     username: 'rtl-bank.maria.colombo',
-    password: 'Heuresys2026!',
+    password: PASSWORD,
     role: 'HR_MANAGER',
+    tenant: 'RTL Bank',
+  } satisfies CanonicalUser,
+  deptHeadRtl: {
+    username: 'rtl-bank.paolo.caputo',
+    password: PASSWORD,
+    role: 'DEPT_HEAD',
     tenant: 'RTL Bank',
   } satisfies CanonicalUser,
   lineManagerRtl: {
     username: 'rtl-bank.giuseppe.ferri',
-    password: 'Heuresys2026!',
+    password: PASSWORD,
     role: 'LINE_MANAGER',
     tenant: 'RTL Bank',
   } satisfies CanonicalUser,
-  // DEPT_HEAD (rtl-bank.alice.esposito) + EMPLOYEE (rtl-bank.alberto.colombo)
-  // were seeded by an older smart_seed pass with bcrypt $2a$ hash and a
-  // different password — they do not accept Heuresys2026!. Re-seeding to align
-  // the demo user roster on a single password is a Sprint 1 follow-up.
-  // Likewise SUPERUSER (platform-wide) + tenant variants for SmartFood/EcoNova
-  // are deferred — full 72-fixture matrix lives downstream.
+  employeeRtl: {
+    username: 'rtl-bank.francesca.gallo',
+    password: PASSWORD,
+    role: 'EMPLOYEE',
+    tenant: 'RTL Bank',
+  } satisfies CanonicalUser,
+
+  // Cross-tenant TENANT_OWNERs (smoke matrix)
+  tenantOwnerHeuresys: {
+    username: 'admin',
+    password: PASSWORD,
+    role: 'TENANT_OWNER',
+    tenant: 'Heuresys System',
+  } satisfies CanonicalUser,
+  tenantOwnerSmartfood: {
+    username: 'smartfood-admin',
+    password: PASSWORD,
+    role: 'TENANT_OWNER',
+    tenant: 'SmartFood',
+  } satisfies CanonicalUser,
+  tenantOwnerEconova: {
+    username: 'econova-admin',
+    password: PASSWORD,
+    role: 'TENANT_OWNER',
+    tenant: 'EcoNova',
+  } satisfies CanonicalUser,
 };
 
+/** All RTL Bank canonical roles (8) — primary RBP matrix (8 × 9 = 72). */
+export const RTL_MATRIX_USERS: CanonicalUser[] = [
+  CANONICAL_USERS.superuser,
+  CANONICAL_USERS.tenantOwnerRtl,
+  CANONICAL_USERS.itAdminRtl,
+  CANONICAL_USERS.hrDirectorRtl,
+  CANONICAL_USERS.hrManagerRtl,
+  CANONICAL_USERS.deptHeadRtl,
+  CANONICAL_USERS.lineManagerRtl,
+  CANONICAL_USERS.employeeRtl,
+];
+
+/** Cross-tenant TENANT_OWNER smoke users (3 × 9 = 27). */
+export const CROSS_TENANT_OWNERS: CanonicalUser[] = [
+  CANONICAL_USERS.tenantOwnerHeuresys,
+  CANONICAL_USERS.tenantOwnerSmartfood,
+  CANONICAL_USERS.tenantOwnerEconova,
+];
+
+/** All 9 published dashboard preset codes (Phase 13). */
+export const DASHBOARD_CODES = [
+  'hr_director_overview',
+  'capability_graph',
+  'skills_heatmap',
+  'employee_journey',
+  'org_systems',
+  'process_recruiting_funnel',
+  'process_onboarding_flow',
+  'process_performance_cycle',
+  'process_learning_paths',
+] as const;
+
 export async function loginAs(page: Page, user: CanonicalUser): Promise<void> {
-  await page.goto('/login');
+  await page.goto('/login', { waitUntil: 'networkidle' });
+  // Hydration: ensure NextAuth signIn handler is wired before clicking, otherwise
+  // the form falls back to native HTML GET (no auth, query string in URL).
+  await page.waitForFunction(
+    () => {
+      const btn = document.querySelector('button[type="submit"]');
+      return btn instanceof HTMLButtonElement && !btn.disabled;
+    },
+    { timeout: 15_000 }
+  );
   await page.fill('input[name="username"]', user.username);
   await page.fill('input[name="password"]', user.password);
-  await Promise.all([
-    page.waitForURL((url) => !url.pathname.startsWith('/login'), { timeout: 30_000 }),
-    page.click('button[type="submit"]'),
-  ]);
+  await page.click('button[type="submit"]');
+  await page.waitForURL((url) => !url.pathname.startsWith('/login'), { timeout: 30_000 });
 }
