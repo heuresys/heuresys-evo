@@ -166,19 +166,25 @@ VM: `oracle-vm-default` (IP 80.225.82.207). nginx vhosts in `/etc/nginx/sites-av
 
 **Vincolo "estirpazione clean"**: ogni entry in `Test Stage`/`PreOp Stage` DEVE essere rimovibile dal repo evo SENZA conseguenze su stack/oggetti pre-import. Categorie removability tracciate nel CSV (`no-impact`, `embedded-in-existing-file`, `depends-on-X`, `not-yet-used`, `depends-on-DB-seed`).
 
-## Stato attuale (2026-05-06, Phase 13.0 Pack 1 closure)
+## Stato attuale (2026-05-07, Phase 14 Sprint 1 closed + Sprint 2.E shipped)
 
-- Pagine Next.js: 5 (`/`, `/login`, `/dashboard`, `/showcase`, `/brand-studio`)
-- Endpoint Express: 8 baseline + 6 Pack 1 importati (`/roles` · `/tenants` · `/users` · `/employees` extend · `/org-units` · `/workforce-planning`) tutti `Test Stage`
-- Test totali: ~205 api-gateway verde (era ~80 baseline pre-Pack 1) + altri workspace = ~360 globali
+- Pagine Next.js: 5 (`/`, `/login`, `/dashboard`, `/showcase`, `/brand-studio`) + dynamic `/dashboard/[code]` (data-driven engine)
+- API: Next.js route handler `/api/dashboard/data/[elementId]` (Phase 14.A.5 · auth + RBP + tenant gates)
+- Endpoint Express: 30 endpoint Pack 1-8 mounted (Promoted in legacy-import-registry.csv)
+- Test totali: 132/132 services/app vitest verde · 8/8 E2E Playwright (5 RBP matrix + 3 base) · perf script (autocannon) ready
+- Phase 14 Sprint 1 (A+D+H) shipped end-to-end: data-fetcher (sql/static + cache TTL + RLS) · 8-widget adapter registry (KpiRing live SQL · IntegrationHealthPill live static · 6 composite static) · prefetch parallel · Live wrapper unified con Demo fallback · `useWidgetData()` SWR-style hook zero-deps · i18n IT/EN runtime (LocaleProvider + pickBilingual + LocaleSwitcher · ?lang= + localStorage)
+- Phase 14 Sprint 2.E `auditedDashboardMutation()` helper (consumer arrives Sprint 3.C drag-resize editor)
+- 11 commit consecutivi su main (1cd433f → b4b303e) in autonomous mode (2026-05-07)
+- Live smoke verified: KpiRing pos 1 hr_director_overview → `Active employees · 270` (RLS scope RTL Bank)
 - Helper cross-cutting Pack 1: 4 famiglie (`escapeILIKE`/`safeParseInt`/`isUUID`/`buildMeta`/`validatePassword`/`generateSecurePassword`/`requirePermission` lazy/`ROLES` constant)
-- Prisma allowlist api-gateway: 16 model (era 9 · expansion per workforce + pre-prep)
+- Prisma allowlist api-gateway: 16 model
 - RLS policies: 605 attive · RBP joins: 326
 - packages/ui: ~180 component, Storybook 9 (84 stories), GH Pages
 - npm audit: 0 vulnerabilities
 - Repo visibility: PUBLIC. Branch protection rimossa. CI minimal
 - Schema docs: Diátaxis numbered + meta (`docs/_meta`, `10-strategy`, `20-architecture`, `30-developer`, `40-operations`, `50-reference`, `70-planning`, `90-archive`)
 - Migration legacy → evo: PET-driven (vedi `docs/10-strategy/migration-strategy-pet-driven.md`) + Phase 13.0 forensic mining (8 pack legacy → registry CSV)
+- Phase 14 follow-up pending: re-seed canonical demo users (sblocca 72-fixture matrix) · composite SQL queries (sostituiscono static seed phase14b) · production-mode perf binding · Sprint 2.F OpenAI advisor · Sprint 3.C drag-resize editor · Sprint 3.G Tier 2 explorer
 
 ## Documenti strategici
 
