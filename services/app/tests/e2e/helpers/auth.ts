@@ -17,14 +17,42 @@ export interface CanonicalUser {
 }
 
 export const CANONICAL_USERS = {
+  tenantOwnerRtl: {
+    username: 'rtl-bank.federica.marchetti',
+    password: 'Heuresys2026!',
+    role: 'TENANT_OWNER',
+    tenant: 'RTL Bank',
+  } satisfies CanonicalUser,
+  itAdminRtl: {
+    username: 'rtl-bank.marco.desantis',
+    password: 'Heuresys2026!',
+    role: 'IT_ADMIN',
+    tenant: 'RTL Bank',
+  } satisfies CanonicalUser,
   hrDirectorRtl: {
     username: 'rtl-bank.valentina.conti',
     password: 'Heuresys2026!',
     role: 'HR_DIRECTOR',
     tenant: 'RTL Bank',
   } satisfies CanonicalUser,
-  // Sprint 1 follow-up will add the remaining 7 ruoli × 2 tenant for the full
-  // 72-fixture matrix.
+  hrManagerRtl: {
+    username: 'rtl-bank.maria.colombo',
+    password: 'Heuresys2026!',
+    role: 'HR_MANAGER',
+    tenant: 'RTL Bank',
+  } satisfies CanonicalUser,
+  lineManagerRtl: {
+    username: 'rtl-bank.giuseppe.ferri',
+    password: 'Heuresys2026!',
+    role: 'LINE_MANAGER',
+    tenant: 'RTL Bank',
+  } satisfies CanonicalUser,
+  // DEPT_HEAD (rtl-bank.alice.esposito) + EMPLOYEE (rtl-bank.alberto.colombo)
+  // were seeded by an older smart_seed pass with bcrypt $2a$ hash and a
+  // different password — they do not accept Heuresys2026!. Re-seeding to align
+  // the demo user roster on a single password is a Sprint 1 follow-up.
+  // Likewise SUPERUSER (platform-wide) + tenant variants for SmartFood/EcoNova
+  // are deferred — full 72-fixture matrix lives downstream.
 };
 
 export async function loginAs(page: Page, user: CanonicalUser): Promise<void> {
