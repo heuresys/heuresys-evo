@@ -46,6 +46,18 @@ Approccio import-first: survey legacy `/home/ubuntu/heuresys.com.evo` (~68% riut
 
 **Stima totale**: 24-34 FTE-day (sprint corposo, multi-fase).
 
+### Split obbligatorio in 3 fresh session
+
+24-34 FTE-day eccede il limite raccomandato per single session Claude Code (~15 FTE-day prima di context saturation + drift cognitivo + cumulative error rate elevato). Split:
+
+| Session  | Fasi incluse                                                                 | Stima FTE-day | Stop condition                                                                              |
+| -------- | ---------------------------------------------------------------------------- | ------------- | ------------------------------------------------------------------------------------------- |
+| **SH-1** | FASE 1 (Brand applied) + FASE 2 (Role-based sidebar) + Backup track parallel | 7-9           | Brand identity applicata · sidebar dinamica 8 ruoli · cron backup attivo + drill verificato |
+| **SH-2** | FASE 3 (50-70 viste live e2e)                                                | 10-15         | viste e2e con dati real DBMS · RBP gates · `role-views-matrix.md` popolato                  |
+| **SH-3** | FASE 3.6 + FASE 4 + FASE 5                                                   | 7-10          | composite real · WCAG 2.2 AAA pass · perf prod · Phase 14.SH closure                        |
+
+Tra le sessioni: handoff via STATE.md + HANDOFF.md update + commit dedicato `chore(handoff): SH-N closed → SH-(N+1) ready`. DBMS SoT immutato. Servizi UP cross-session.
+
 ## Rationale
 
 Tre opzioni considerate:

@@ -67,7 +67,17 @@ Tutte le priorità precedenti sono state consolidate nel **plan canonical** appr
 | D-THEME | Theme default | Dark (light toggle pari dignità) |
 | D-A11Y | Compliance level | WCAG 2.2 AAA full |
 
-**Sequenza fasi** (24-34 FTE-day totali):
+**⚠️ Split obbligatorio in 3 fresh session** (24-34 FTE-day totali eccede limite single session ~15 FTE-day):
+
+| Session | Fasi | Stima | Stop condition |
+|---|---|---|---|
+| **SH-1** | FASE 1 + FASE 2 + Backup track | 7-9 FTE-day | Brand applied · sidebar 8 ruoli · backup cron + drill |
+| **SH-2** | FASE 3 (50-70 viste live) | 10-15 FTE-day | viste e2e · RBP gates · matrix popolata |
+| **SH-3** | FASE 3.6 + FASE 4 + FASE 5 | 7-10 FTE-day | composite real · WCAG AAA · perf prod · closure |
+
+Tra una session e l'altra: pausa utente per review + commit handoff `chore(handoff): SH-N closed → SH-(N+1) ready`.
+
+**Sequenza fasi dettagliata** (24-34 FTE-day totali):
 
 1. **FASE 1 — Brand identity applied** (~4-5 FTE-day): tokens CSS da `mu-architect-legacy.html` → `active-theme.css` · `<HeuresysWordmark>` React · `<AppShell>` cablato in `(app)/` route group · login allineato a `login-aurora.html`
 2. **FASE 2 — Role-based dynamic sidebar** (~2-3 FTE-day): import legacy `use-sidebar-nav.ts` + `navigation.ts` · `SIDEBAR_MAP` 8 ruoli · `getNavForUser(session)` server-side

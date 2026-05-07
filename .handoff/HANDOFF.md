@@ -8,8 +8,22 @@
 
 **Tipo**: fresh session autonomous (con interventi utente solo su decisioni esplicite)
 **Obiettivo**: rendere i mockup brand `mu-architect-legacy` operativi end-to-end con sidebar role-based + ~50-70 viste live alimentate da DBMS SoT + WCAG 2.2 AAA + theme dark default
-**Stima totale effort**: 24-34 FTE-day (sprint corposo, multi-fase)
+**Stima totale effort**: 24-34 FTE-day (split in 3 sessioni — vedi sotto)
 **Mode operativo**: autonomous con commit + push per ogni step completato
+
+### ⚠️ Split obbligatorio in 3 sessioni
+
+24-34 FTE-day eccede il limite raccomandato per single session Claude Code (~15 FTE-day max prima di context saturation + drift). Split:
+
+| Session | Fasi | Stima FTE-day | Trigger fresh session |
+|---|---|---|---|
+| **SH-1** (questo handoff) | FASE 1 + FASE 2 + Backup track | 7-9 | `cat .handoff/HANDOFF.md` |
+| **SH-2** | FASE 3 (50-70 viste live e2e) | 10-15 | dopo commit `chore(handoff): SH-1 closed → SH-2 ready` |
+| **SH-3** | FASE 3.6 + FASE 4 + FASE 5 | 7-10 | dopo commit `chore(handoff): SH-2 closed → SH-3 ready` |
+
+Tra una session e l'altra: pausa utente per review + decisioni residue, poi fresh session legge HANDOFF aggiornato e parte.
+
+**Questa sessione (SH-1) deve eseguire**: FASE 1 (Brand applied) + FASE 2 (Role-based sidebar) + Backup track parallel. Stop quando: brand identity applicata + login `login-aurora.html` operativo + AppShell cablato + sidebar dinamica 8 ruoli verde su Chrome MCP + cron backup attivo + restore drill verificato + STATE.md aggiornato + commit handoff per SH-2.
 
 ## Decisioni utente confermate (immutate, NO ri-domandare)
 
@@ -49,11 +63,13 @@ Se uno qualunque di questi check fallisce:
 - DBMS unreachable → ssh check + verify postgres systemd
 - Git diverso da `6a48706` → `git pull --rebase origin main`
 
-## Sequenza operativa (5 fasi + parallel backup track)
+## Sequenza operativa (5 fasi + parallel backup track, split SH-1/SH-2/SH-3)
 
 Lista completa task in `~/.claude/plans/questo-quello-che-glittery-charm.md`. Sintesi:
 
-### FASE 1 — Brand identity applied (12 task, ~4-5 FTE-day)
+### 🟢 SH-1 (fasi questa sessione)
+
+#### FASE 1 — Brand identity applied (12 task, ~4-5 FTE-day)
 
 1. Pre-flight services
 2. Estrai CSS tokens da `mu-architect-legacy.html` → `services/app/src/styles/active-theme.css`
@@ -68,7 +84,7 @@ Lista completa task in `~/.claude/plans/questo-quello-che-glittery-charm.md`. Si
 11. Vitest + typecheck verdi
 12. Commit + push: `feat(brand): apply mu-architect-legacy tokens + AppShell + login-aurora`
 
-### FASE 2 — Role-based dynamic sidebar (8 task, ~2-3 FTE-day)
+#### FASE 2 — Role-based dynamic sidebar (8 task, ~2-3 FTE-day)
 
 13. Import legacy `services/frontend/src/lib/hooks/use-sidebar-nav.ts` + `lib/navigation.ts` + adapt NextAuth v4
 14. Definisci `SIDEBAR_MAP` in `services/app/src/lib/navigation/role-nav-map.ts` per 8 ruoli
@@ -79,7 +95,9 @@ Lista completa task in `~/.claude/plans/questo-quello-che-glittery-charm.md`. Si
 19. Smoke Chrome MCP login per 8 ruoli + verifica sidebar diversa
 20. Commit + push: `feat(nav): role-based dynamic sidebar 8 roles`
 
-### FASE 3 — Sidebar views live data e2e (~30-50 task, ~10-15 FTE-day)
+### 🟡 SH-2 (fase prossima sessione)
+
+#### FASE 3 — Sidebar views live data e2e (~30-50 task, ~10-15 FTE-day)
 
 21. Crea schema `docs/20-architecture/role-views-matrix.md` (già scaffolded — da popolare)
 22. Inventory: 8 ruoli × voci sidebar → matrix completa (utente conferma scope dettaglio)
@@ -90,7 +108,9 @@ Lista completa task in `~/.claude/plans/questo-quello-che-glittery-charm.md`. Si
 N+1. Smoke matrix completa: Chrome MCP login per 8 ruoli × ogni voce
 N+2. Commit batch + push: `feat(views): N role-based views with live data e2e`
 
-### FASE 3.6 — Composite real aggregations (5 task, ~2-3 FTE-day)
+### 🟠 SH-3 (fasi terza sessione)
+
+#### FASE 3.6 — Composite real aggregations (5 task, ~2-3 FTE-day)
 
 N+3. Scrivere `db/migrations/phase14e_composite_real_aggregations.sql` (5 widget query reali)
 N+4. Apply migration on bare-metal
@@ -98,7 +118,7 @@ N+5. Smoke browser: 5 dashboard preset con widget composite real
 N+6. Vitest update se cambia adapter contract
 N+7. Commit + push: `feat(dashboard): composite widgets real aggregations`
 
-### FASE 4 — UX polish + WCAG 2.2 AAA (5 task, ~4-5 FTE-day)
+#### FASE 4 — UX polish + WCAG 2.2 AAA (5 task, ~4-5 FTE-day)
 
 N+8. Theme toggle dark/light + persist localStorage (default dark D-THEME)
 N+9. a11y audit WCAG 2.2 AAA (axe-core + Lighthouse + manual NVDA/VoiceOver)
@@ -113,7 +133,7 @@ N+10. Empty/loading/error states revisione completa (no demo fallback)
 N+11. Mobile responsive (sidebar drawer, target size mantenuto)
 N+12. Commit + push: `feat(ux): theme toggle + WCAG 2.2 AAA + responsive polish`
 
-### FASE 5 — Production perf + handoff finale (5 task, ~1-2 FTE-day)
+#### FASE 5 — Production perf + handoff finale (5 task, ~1-2 FTE-day)
 
 N+13. `next build && next start` su 0.0.0.0:3200
 N+14. autocannon su tutte route (login + 8 ruoli × viste)
@@ -121,7 +141,9 @@ N+15. Restart dev mode
 N+16. Update STATE.md + BRAND-STATE.md finale
 N+17. Commit + push: `feat(brand,nav,views): Phase 14.SH closure + perf baseline`
 
-### Backup track (parallel, ~1 FTE-day)
+### 🟢 SH-1 (backup track parallel)
+
+#### Backup track (parallel, ~1 FTE-day)
 
 P+1. Crontab postgres daily backup
 P+2. Restore drill script
@@ -170,13 +192,31 @@ P+4. Commit + push: `chore(ops): governed backup/restore policy`
 | ADR-0023 | `docs/50-reference/decisions/0023-promote-baremetal-as-sot.md` | DBMS SoT promotion |
 | ADR-0024 | `docs/50-reference/decisions/0024-phase14sh-brand-driven-shell.md` | Phase 14.SH plan |
 
-## Stop condition per fresh session
+## Stop condition per ogni fresh session (split SH-1/SH-2/SH-3)
 
-La fresh session **TERMINA** (commit final + STATE update + handoff successivo) quando:
-- 5 fasi complete + backup track done
-- Verifica e2e: 8 ruoli × ogni voce sidebar → screenshot OK
+### SH-1 termina quando:
+- FASE 1 done: tokens CSS in `active-theme.css` + `<HeuresysWordmark>` + `<AppShell>` cablato in `(app)/` route group + login `login-aurora.html` + routes spostate sotto `(app)/`
+- FASE 2 done: `SIDEBAR_MAP` 8 ruoli + `getNavForUser(session)` + active state sync + sidebar diversa per ognuno degli 8 ruoli verificato Chrome MCP
+- Backup track done: cron daily/weekly attivo + restore drill verificato 1× con count match
 - Vitest 153+/153+ verde
-- Playwright matrix invariata
-- Production perf P95 ≤ 500ms (target) o ≤ 600ms (acceptable + follow-up)
-- WCAG 2.2 AAA pass via axe-core + manual screen reader
-- Documentazione aggiornata
+- Commit: `chore(handoff): SH-1 closed → SH-2 ready`
+- STATE.md + HANDOFF.md aggiornati per SH-2 input
+
+### SH-2 termina quando:
+- FASE 3 done: 50-70 viste live data e2e con dati real DBMS SoT
+- Ogni voce sidebar per ogni 8 ruoli → page renderizzata con dati real (no demo placeholder)
+- RBP gates su ogni view secondaria (estratti in `packages/shared/src/rbp/`)
+- `role-views-matrix.md` popolato a coverage completa
+- Chrome MCP screenshot per 8 ruoli × ogni voce
+- Vitest invariato + nuovi test view-specifici verde
+- Commit: `chore(handoff): SH-2 closed → SH-3 ready`
+- STATE.md + HANDOFF.md aggiornati per SH-3 input
+
+### SH-3 termina (= Phase 14.SH closure) quando:
+- FASE 3.6 done: 30/30 widget composite real (`phase14e_composite_real_aggregations.sql`)
+- FASE 4 done: WCAG 2.2 AAA full pass (axe-core + manual NVDA/VoiceOver)
+- FASE 5 done: prod perf P95 ≤ 500ms (target) o ≤ 600ms (acceptable + follow-up)
+- Verifica e2e finale: 8 ruoli × ogni voce sidebar → screenshot OK
+- Vitest 153+/153+ verde · Playwright matrix invariata 100/100 + role-nav suite verde
+- Documentazione completa aggiornata (STATE, BRAND-STATE, DECISIONS-LOG L35+)
+- Commit final: `feat(brand,nav,views): Phase 14.SH closure + perf baseline`
