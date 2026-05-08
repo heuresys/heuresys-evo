@@ -61,7 +61,7 @@ const KNOWN_INTEGRATIONS = [
 
 const STATUS_TONE: Record<string, { bg: string; fg: string }> = {
   connected: { bg: 'rgba(95,184,122,0.18)', fg: '#5fb87a' },
-  configured: { bg: 'rgba(212,160,23,0.20)', fg: '#d4a017' },
+  configured: { bg: 'rgba(212,160,23,0.20)', fg: '#e8b835' },
   planned: { bg: 'rgba(138,142,155,0.18)', fg: '#8a8e9b' },
   failed: { bg: 'rgba(239,68,68,0.18)', fg: '#ef4444' },
 };

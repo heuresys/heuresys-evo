@@ -4,7 +4,7 @@ export default function HomePage() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-6 p-12">
       <h1 className="text-5xl font-bold tracking-tight">Heuresys</h1>
-      <p className="text-lg text-neutral-600">
+      <p className="text-lg text-muted-foreground">
         Organizational Intelligence &amp; Workforce Orchestration
       </p>
       <div className="flex gap-3">
@@ -21,7 +21,7 @@ export default function HomePage() {
           Dashboard
         </Link>
       </div>
-      <p className="text-xs uppercase tracking-widest text-neutral-400">
+      <p className="text-xs uppercase tracking-widest text-muted-foreground">
         services/app · phase 1
       </p>
     </main>

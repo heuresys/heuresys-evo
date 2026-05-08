@@ -23,20 +23,20 @@ export function ExplorerEscoClient({ initialNodes }: { initialNodes: ESCOTreeNod
         {selected ? (
           <dl className="mt-2 space-y-1 text-xs">
             <div>
-              <dt className="text-neutral-500">Label</dt>
+              <dt className="text-muted-foreground">Label</dt>
               <dd className="font-medium">{selected.label}</dd>
             </div>
             <div>
-              <dt className="text-neutral-500">ESCO code</dt>
+              <dt className="text-muted-foreground">ESCO code</dt>
               <dd className="font-mono">{selected.code ?? '—'}</dd>
             </div>
             <div>
-              <dt className="text-neutral-500">ISCO code</dt>
+              <dt className="text-muted-foreground">ISCO code</dt>
               <dd className="font-mono">{selected.iscoCode ?? '—'}</dd>
             </div>
           </dl>
         ) : (
-          <p className="mt-2 text-xs text-neutral-500">Pick a node to inspect.</p>
+          <p className="mt-2 text-xs text-muted-foreground">Pick a node to inspect.</p>
         )}
       </aside>
     </div>

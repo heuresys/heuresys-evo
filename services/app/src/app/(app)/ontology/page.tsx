@@ -69,7 +69,7 @@ export default async function OntologyPage({ searchParams }: OntologyPageProps) 
     <main className="mx-auto max-w-5xl px-4 py-8">
       <header className="mb-6">
         <h1 className="text-2xl font-semibold">Ontology · ESCO knowledge graph</h1>
-        <p className="mt-1 text-sm text-neutral-600">
+        <p className="mt-1 text-sm text-muted-foreground">
           Search 3,040 ESCO occupations + 14,011 skills. Pick one to ask the OpenAI advisor for a
           workforce-planning recommendation.
         </p>
@@ -94,9 +94,9 @@ export default async function OntologyPage({ searchParams }: OntologyPageProps) 
       <div className="grid gap-6 md:grid-cols-2">
         <section>
           <h2 className="mb-3 text-lg font-medium">Results</h2>
-          {!query && <p className="text-sm text-neutral-500">Type a query to start.</p>}
+          {!query && <p className="text-sm text-muted-foreground">Type a query to start.</p>}
           {query && occupations.length === 0 && (
-            <p className="text-sm text-neutral-500">No occupations matched “{query}”.</p>
+            <p className="text-sm text-muted-foreground">No occupations matched “{query}”.</p>
           )}
           <ul className="space-y-1">
             {occupations.map((o) => {
@@ -113,7 +113,7 @@ export default async function OntologyPage({ searchParams }: OntologyPageProps) 
                     data-testid="ontology-result"
                   >
                     <span className="font-medium">{o.preferred_label_en}</span>
-                    <span className="ml-2 text-xs text-neutral-500">
+                    <span className="ml-2 text-xs text-muted-foreground">
                       ESCO {o.code} · ISCO {o.isco_code}
                     </span>
                   </a>
@@ -126,7 +126,9 @@ export default async function OntologyPage({ searchParams }: OntologyPageProps) 
         <section>
           <h2 className="mb-3 text-lg font-medium">Advisor</h2>
           {!selected ? (
-            <p className="text-sm text-neutral-500">Select an occupation to ask the advisor.</p>
+            <p className="text-sm text-muted-foreground">
+              Select an occupation to ask the advisor.
+            </p>
           ) : (
             <OntologyAdvisor
               occupation={{

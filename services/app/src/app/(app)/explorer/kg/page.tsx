@@ -83,14 +83,14 @@ export default async function ExplorerKgPage({ searchParams }: PageProps) {
     <main className="mx-auto max-w-5xl px-4 py-8">
       <header className="mb-6">
         <h1 className="text-2xl font-semibold">Explorer · Knowledge graph</h1>
-        <p className="mt-1 text-sm text-neutral-600">
+        <p className="mt-1 text-sm text-muted-foreground">
           Occupation-centred 1-hop neighbourhood. Pass{' '}
           <code className="rounded bg-neutral-100 px-1">?occ=&lt;uuid&gt;</code> to centre on a
           specific ESCO occupation; default seed is a sample manager role.
         </p>
       </header>
       {center && (
-        <p className="mb-3 text-sm text-neutral-600">
+        <p className="mb-3 text-sm text-muted-foreground">
           Centre: <span className="font-medium">{center.preferred_label_en}</span> (ESCO code{' '}
           {center.code})
         </p>

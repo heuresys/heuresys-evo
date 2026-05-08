@@ -57,7 +57,7 @@ export default async function ExplorerEscoPage() {
     <main className="mx-auto max-w-5xl px-4 py-8">
       <header className="mb-6">
         <h1 className="text-2xl font-semibold">Explorer · ESCO occupation tree</h1>
-        <p className="mt-1 text-sm text-neutral-600">
+        <p className="mt-1 text-sm text-muted-foreground">
           Hierarchical view over 3,040 ESCO occupations (1 root + 8 ISCO major groups + nested unit
           groups). Click a parent to lazy-expand its children.
         </p>

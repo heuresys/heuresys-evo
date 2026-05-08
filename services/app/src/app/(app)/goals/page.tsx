@@ -46,7 +46,7 @@ async function fetchGoals(tenantId: string) {
 const STATUS_COLOR: Record<string, string> = {
   achieved: '#5fb87a',
   on_track: '#3b82f6',
-  at_risk: '#d4a017',
+  at_risk: '#e8b835',
   off_track: '#ef4444',
   not_started: '#8a8e9b',
 };

@@ -59,8 +59,8 @@ const ROLE_BADGE: Record<string, { bg: string; fg: string }> = {
   IT_ADMIN: { bg: 'rgba(59,130,246,0.15)', fg: '#3b82f6' },
   HR_DIRECTOR: { bg: 'rgba(95,184,122,0.18)', fg: '#5fb87a' },
   HR_MANAGER: { bg: 'rgba(95,184,122,0.10)', fg: '#5fb87a' },
-  DEPT_HEAD: { bg: 'rgba(212,160,23,0.15)', fg: '#d4a017' },
-  LINE_MANAGER: { bg: 'rgba(212,160,23,0.10)', fg: '#d4a017' },
+  DEPT_HEAD: { bg: 'rgba(212,160,23,0.15)', fg: '#e8b835' },
+  LINE_MANAGER: { bg: 'rgba(212,160,23,0.10)', fg: '#e8b835' },
   EMPLOYEE: { bg: 'rgba(138,142,155,0.15)', fg: '#c8ccd6' },
 };
 

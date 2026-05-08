@@ -18,14 +18,14 @@
   /* Ink */
   --ink: #f5f6fa;
   --ink-soft: #c8ccd6;
-  --ink-muted: #8a8e9b;
-  --ink-tertiary: #5e616c;
+  --ink-muted: #b8bcc6;
+  --ink-tertiary: #9da0aa;
   /* Rule */
   --rule: #25262d;
   --rule-strong: #383944;
   /* Accent — μ-architect Linear "brand-secure" */
-  --accent: #5e69d1;
-  --accent-hover: #7280e0;
+  --accent: #aab5f7;
+  --accent-hover: #c0c8fa;
   --accent-soft: #1e1f3a;
   --accent-deep: #4954c4;
   /* Logo brand-blue (L27 wordmark legacy two-color) */
@@ -39,9 +39,9 @@
   --token-label: #a4ffba;
   /* Semantic */
   --semantic-success: #5fb87a;
-  --semantic-warning: #d4a017;
+  --semantic-warning: #e8b835;
   --semantic-danger: #ef4444;
-  --semantic-info: #3b82f6;
+  --semantic-info: #5b9df7;
   /* Aurora gradient (auth) */
   --gradient-aurora: linear-gradient(135deg, var(--brand-blue) 0%, var(--brand-purple) 100%);
   /* Glass surfaces (auth, modals) */

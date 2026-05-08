@@ -1,0 +1,63 @@
+name: Accessibility (WCAG 2.2 AAA)
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'services/app/**'
+      - 'packages/ui/**'
+      - 'services/app/src/styles/**'
+      - 'services/app/src/app/globals.css'
+  schedule:
+    # Nightly 02:30 UTC — full a11y audit against latest main
+    - cron: '30 2 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: a11y-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  axe-aaa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      NODE_OPTIONS: --max-old-space-size=4096
+      DATABASE_URL: ${{ secrets.DATABASE_URL_TEST }}
+      AUTH_SECRET: ${{ secrets.AUTH_SECRET_TEST }}
+      NEXTAUTH_SECRET: ${{ secrets.AUTH_SECRET_TEST }}
+      NEXTAUTH_URL: http://localhost:3200
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - id: scope
+        uses: ./.github/actions/handoff-only-detect
+
+      - if: steps.scope.outputs.handoff_only == 'true'
+        run: echo "Handoff-only PR — emitting fast green (a11y skipped, no UI changes)"
+
+      - if: steps.scope.outputs.handoff_only != 'true'
+        uses: ./.github/actions/setup-node-prisma
+        with:
+          fetch-depth: '1'
+
+      - if: steps.scope.outputs.handoff_only != 'true'
+        name: Install Playwright browsers
+        working-directory: services/app
+        run: npx playwright install --with-deps chromium
+
+      - if: steps.scope.outputs.handoff_only != 'true'
+        name: Run WCAG 2.2 AAA audit (8 representative views)
+        working-directory: services/app
+        run: npx playwright test tests/e2e/a11y/wcag-aaa.spec.ts --reporter=list,html
+
+      - if: failure() && steps.scope.outputs.handoff_only != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: a11y-report-${{ github.run_id }}
+          path: |
+            .rtg-state-evo/playwright/report/
+            .rtg-state-evo/playwright/results/
+          retention-days: 14

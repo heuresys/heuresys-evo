@@ -97,7 +97,7 @@ export default async function ExplorerSapPage() {
     <main className="mx-auto max-w-5xl px-4 py-8">
       <header className="mb-6">
         <h1 className="text-2xl font-semibold">Explorer · SAP migration</h1>
-        <p className="mt-1 text-sm text-neutral-600">
+        <p className="mt-1 text-sm text-muted-foreground">
           Read-only summary of SAP infotype migration jobs and delta sync activity for your tenant.
         </p>
       </header>

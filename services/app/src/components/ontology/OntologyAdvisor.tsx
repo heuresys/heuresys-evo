@@ -83,7 +83,7 @@ export function OntologyAdvisor({
   return (
     <div className="rounded-md border border-neutral-200 p-4" data-testid="advisor-panel">
       <h3 className="text-sm font-medium">{occupation.labelEn}</h3>
-      <p className="mt-1 text-xs text-neutral-500">
+      <p className="mt-1 text-xs text-muted-foreground">
         ESCO {occupation.code} · ISCO {occupation.iscoCode}
       </p>
 
@@ -119,7 +119,7 @@ export function OntologyAdvisor({
       {response && (
         <div className="mt-3 space-y-2" data-testid="advisor-response">
           <p className="whitespace-pre-line text-sm">{response.answer}</p>
-          <p className="text-xs text-neutral-500">
+          <p className="text-xs text-muted-foreground">
             Model {response.model} · ${response.costUsd.toFixed(4)} this call · today $
             {response.todayCostUsd.toFixed(2)} / cap ${response.capUsd.toFixed(2)}
           </p>
