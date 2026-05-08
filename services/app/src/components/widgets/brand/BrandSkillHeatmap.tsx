@@ -20,11 +20,13 @@ export interface BrandSkillHeatmapProps {
 }
 
 function bucket(value: number): string {
-  if (value >= 85) return 'hl-90';
-  if (value >= 65) return 'hl-70';
-  if (value >= 45) return 'hl-50';
-  if (value >= 25) return 'hl-30';
-  return 'hl-10';
+  if (value >= 85) return 'heat-6';
+  if (value >= 75) return 'heat-5';
+  if (value >= 60) return 'heat-4';
+  if (value >= 45) return 'heat-3';
+  if (value >= 30) return 'heat-2';
+  if (value >= 15) return 'heat-1';
+  return 'heat-0';
 }
 
 /**

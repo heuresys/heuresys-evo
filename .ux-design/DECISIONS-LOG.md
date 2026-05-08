@@ -1174,6 +1174,31 @@ Risposte alle 2 domande operative pre-formalizzazione:
 
 ---
 
+## L41 — 2026-05-08 — Drift D1+D3 risolti · pill canonical `.pill` · heatmap bucket canonical `.heat-{0..6}`
+
+**Decisione**: risolti i 2 drift HIGH severity identificati nell'audit L40:
+
+1. **D1 (pill 2-system)** → opzione **A**: tieni `.pill` + `.pill-{ok,warn,critical,info}` come sistema canonical · `.status-pill` + `.status-{ok,warn,down}` viene rimosso e i 2 callsite migrati a `.pill` con mapping `down → critical`.
+2. **D3 (heatmap bucket 2-system)** → opzione **A**: tieni `.heat-{0..6}` (7 bucket, granularità ricca, in produzione attiva) come sistema canonical · `.heatmap-cell.hl-{10,30,50,70,90}` viene rimosso · `BrandSkillHeatmap.tsx` helper migrato a 7 soglie matching `SkillsHeatmapView.tsx:42-48`.
+
+**Contesto**: S19 inizio sessione, decisioni concordate dopo presentazione opzioni concrete con counts callsite reali (D1: `.pill` 8 callsite vs `.status-pill` 2 callsite · D3: `.heat-*` consumer su route attiva vs `.hl-*` consumer su widget registry inattivo). Audit L40 raccomandava entrambe le opzioni A. Enzo confirmed A+A. D2/D4/D5/D6 (severity MED/LOW) ancora pending — decisione separata.
+
+**Conseguenza**:
+
+- G2-partial sbloccato (drift remediation D1+D3 only)
+- CSS canonical `dashboard-brand.css`: rimossi blocchi `.status-pill` + `.status-{ok,warn,down}` (1697-1720) e `.heatmap-cell.hl-{10,30,50,70,90}` (1243-1257)
+- TSX migrati: `OrgSystemsView.tsx:253` + `CrossTenantOverviewView.tsx:293` (status → pill mapping) · `BrandSkillHeatmap.tsx:22-28` (hl-helper → heat-helper a 7 soglie)
+- Catalogo asset Brand Identity dashboard ora ha **1 sola scala pill semantica** (4 modifier ok/warn/critical/info) e **1 sola scala heatmap bucket** (7 step heat-0..heat-6)
+- D2 (split 3-system) · D4 (bar fill 2-system) · D5 (activity vs audit) · D6 (RBAC matrix wrapper) restano pending — drift map audit doc §5 aggiornata in cross-link
+
+**Riferimenti**:
+
+- Audit doc: `.ux-design/08-promotion/brand-dashboard-catalog-CURRENT-STATE.md` § 5 (drift map)
+- Audit raccomandazione: §5 D1 "Unify a 1 sistema (raccomandato `.pill` BEM)" · §5 D3 "Unify a 1 scala (raccomandato `.heat-{0..6}` per bucket esplicito)"
+- L40 (decisione fondante: catalogo dashboard ≡ Brand Identity)
+
+---
+
 ## Format per nuove entry
 
 Quando aggiungi una nuova decisione, segui questo template:

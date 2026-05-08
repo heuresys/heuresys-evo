@@ -1240,22 +1240,6 @@ table.dense tr:last-child td {
   font-variant-numeric: tabular-nums;
   color: #ffffff;
 }
-.heatmap-cell.hl-90 {
-  background: var(--cap-competence);
-}
-.heatmap-cell.hl-70 {
-  background: rgba(95, 184, 122, 0.7);
-}
-.heatmap-cell.hl-50 {
-  background: rgba(245, 158, 11, 0.7);
-  color: var(--ink);
-}
-.heatmap-cell.hl-30 {
-  background: rgba(239, 68, 68, 0.6);
-}
-.heatmap-cell.hl-10 {
-  background: rgba(239, 68, 68, 0.85);
-}
 .heatmap-row-label {
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
@@ -1694,31 +1678,6 @@ table.rbac td.lvl-5 {
   font-family: 'JetBrains Mono', monospace;
   letter-spacing: 0.5px;
 }
-.status-pill {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  padding: 3px 8px;
-  border-radius: 3px;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
-  font-weight: 600;
-}
-.status-ok {
-  background: rgba(95, 184, 122, 0.15);
-  color: var(--semantic-success);
-  border: 1px solid var(--semantic-success);
-}
-.status-warn {
-  background: rgba(245, 158, 11, 0.15);
-  color: var(--semantic-warning);
-  border: 1px solid var(--semantic-warning);
-}
-.status-down {
-  background: rgba(255, 107, 107, 0.15);
-  color: var(--semantic-danger);
-  border: 1px solid var(--semantic-danger);
-}
-
 /* ============================================================
  * Audit log — live stream
  * ============================================================ */

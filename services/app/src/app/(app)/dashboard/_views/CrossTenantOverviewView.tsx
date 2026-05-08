@@ -290,7 +290,7 @@ export default async function CrossTenantOverviewView({ role }: { role: string }
                 <div className="name">{it.name}</div>
                 <div className="meta">{it.meta}</div>
               </div>
-              <span className={`status-pill status-${it.status}`}>{it.status.toUpperCase()}</span>
+              <span className={`pill pill-${it.status}`}>{it.status.toUpperCase()}</span>
             </div>
           ))}
         </div>
