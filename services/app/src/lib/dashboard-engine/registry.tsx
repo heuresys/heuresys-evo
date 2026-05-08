@@ -1,8 +1,9 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import type { ComponentType } from 'react';
+import type { ComponentType, ReactNode } from 'react';
 import { resolveAdapter } from './adapters';
+import { LAYOUT_CONTAINERS } from '@/components/widgets/brand/BrandLayoutContainers';
 
 /**
  * Phase 15.A — Widget registry (brand-fedele variants).
@@ -386,4 +387,23 @@ export const WIDGET_REGISTRY: Record<string, WidgetComponent> = {
 
 export function resolveWidget(widget_code: string): WidgetComponent | null {
   return WIDGET_REGISTRY[widget_code] ?? null;
+}
+
+/* ============================================================
+ * G5-phase-2 — Layout container registry
+ * ============================================================
+ * Mappa widget_code → Container component che accetta { data?, children }.
+ * Distinguibile da WIDGET_REGISTRY per signature: il renderer prima cerca qui,
+ * se trova rende ricorsivamente i figli (parent_element_id) come children.
+ */
+
+export type LayoutContainerComponent = (props: {
+  data?: unknown;
+  children: ReactNode;
+}) => ReactNode;
+
+export const LAYOUT_REGISTRY: Record<string, LayoutContainerComponent> = LAYOUT_CONTAINERS;
+
+export function resolveLayout(widget_code: string): LayoutContainerComponent | null {
+  return LAYOUT_REGISTRY[widget_code] ?? null;
 }

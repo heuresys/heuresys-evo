@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { WIDGET_REGISTRY } from '@/lib/dashboard-engine/registry';
+import { LAYOUT_REGISTRY, WIDGET_REGISTRY } from '@/lib/dashboard-engine/registry';
 import type { DashboardElementShape } from '@/lib/dashboard-engine/resolver';
 
 export interface DashboardRendererSlot {
@@ -25,36 +25,115 @@ export interface DashboardRendererProps {
   unknownWidgetFallback?: (widget_code: string) => React.ReactNode;
 }
 
+const ROOT_KEY = '__root__';
+
+interface ChildrenMap {
+  get(key: string): DashboardRendererSlot[] | undefined;
+}
+
+function buildChildrenMap(elements: DashboardRendererSlot[]): Map<string, DashboardRendererSlot[]> {
+  const map = new Map<string, DashboardRendererSlot[]>();
+  for (const s of elements) {
+    const key = s.parent_element_id == null ? ROOT_KEY : String(s.parent_element_id);
+    let bucket = map.get(key);
+    if (!bucket) {
+      bucket = [];
+      map.set(key, bucket);
+    }
+    bucket.push(s);
+  }
+  for (const arr of map.values()) {
+    arr.sort((a, b) => a.position - b.position);
+  }
+  return map;
+}
+
+interface RenderContext {
+  childrenMap: ChildrenMap;
+  data?: Record<string, unknown>;
+  fallback?: (widget_code: string) => React.ReactNode;
+}
+
+function renderSlot(slot: DashboardRendererSlot, ctx: RenderContext): React.ReactNode {
+  const elKey = String(slot.id);
+  const elData = ctx.data?.[elKey];
+  const Layout = LAYOUT_REGISTRY[slot.widget_code];
+
+  if (Layout) {
+    const childSlots = ctx.childrenMap.get(elKey) ?? [];
+    const renderedChildren = childSlots.map((c) => renderSlot(c, ctx));
+    return (
+      <Layout key={elKey} data={elData}>
+        {renderedChildren}
+      </Layout>
+    );
+  }
+
+  const Widget = WIDGET_REGISTRY[slot.widget_code];
+  if (Widget) {
+    return (
+      <div
+        key={elKey}
+        data-element-id={elKey}
+        data-widget-code={slot.widget_code}
+        data-variant={slot.variant ?? undefined}
+      >
+        <Widget data={elData} />
+      </div>
+    );
+  }
+
+  if (ctx.fallback) {
+    return <React.Fragment key={elKey}>{ctx.fallback(slot.widget_code)}</React.Fragment>;
+  }
+  return (
+    <div
+      key={elKey}
+      role="alert"
+      style={{
+        padding: 12,
+        margin: '6px 0',
+        border: '1px dashed var(--semantic-warning)',
+        borderRadius: 6,
+        fontFamily: "'JetBrains Mono', monospace",
+        fontSize: 11,
+        color: 'var(--semantic-warning)',
+        background: 'var(--surface-2)',
+      }}
+    >
+      Unknown widget_code: <strong>{slot.widget_code}</strong>
+    </div>
+  );
+}
+
 /**
- * G5 — DashboardRenderer skeleton.
+ * G5 — DashboardRenderer (hierarchy support post-G5-phase-2).
  *
- * Consume singolo entry-point per qualunque preset DB-driven. Sostituisce i 7
- * `_views/*View.tsx` bespoke (D9 concordato S18). Risolve ogni element via
- * WIDGET_REGISTRY[widget_code] e passa data preloaded.
+ * Single entry-point per qualunque preset DB-driven. Risolve element via
+ * LAYOUT_REGISTRY (container ricorsivo) o WIDGET_REGISTRY (leaf), passa data
+ * preloaded via mapping per id.
  *
- * **MVP scope (S19)**: rendering FLAT — tutti gli element top-level renderizzati
- * in document order. Hierarchical slots via parent_element_id sono parsati ma
- * renderizzati come flat fallback finché G5-phase-2 non aggiunge i layout
- * containers (.double-split, .main-split, .panel) come widget_code dedicati.
+ * **Hierarchy support**:
+ *   - Element con `parent_element_id == null` → top-level slot (renderizzato direttamente)
+ *   - Element con `parent_element_id != null` → child slot (renderizzato dentro il parent)
+ *   - Layout container risolve i figli ricorsivamente; se nessuno, container vuoto
+ *   - Leaf widget ignora figli (non dovrebbero esistere per design)
  *
- * **Adoption path**:
- *   1. S19 (skeleton): nessun consumer attivo. Renderer disponibile per tests + future migration.
- *   2. S20+ (G5-phase-2): aggiungere layout container widgets nel registry, abilitare hierarchy nesting.
- *   3. S20+ (G6): seedare 8 preset DB-driven, redirect `dashboard/page.tsx` a `<DashboardRenderer/>`.
+ * **Adoption path** (S20):
+ *   1. ✅ S19 G5 skeleton: rendering FLAT (parent_element_id ignorato)
+ *   2. ✅ S19 G5-phase-2 (questo): hierarchy ricorsivo · 4 layout containers shipped
+ *   3. S20+ G6 full: seedare 8 preset DB-driven matching i 7 view bespoke
+ *   4. S20+ G6 adoption: redirect `dashboard/page.tsx` switch a `<DashboardRenderer/>`
  *
- * Riferimento: `docs/30-developer/brand-dashboard-catalog.md` § Appendix A roadmap G5/G6.
+ * Riferimento: `docs/30-developer/brand-dashboard-catalog.md` § Appendix A · DECISIONS-LOG L43+L44.
  */
 export function DashboardRenderer({
   elements,
   data,
   unknownWidgetFallback,
 }: DashboardRendererProps) {
-  // Filtra solo top-level (parent_element_id === null) per MVP flat rendering.
-  const topLevel = React.useMemo(
-    () =>
-      elements.filter((e) => e.parent_element_id == null).sort((a, b) => a.position - b.position),
-    [elements]
-  );
+  const childrenMap = React.useMemo(() => buildChildrenMap(elements), [elements]);
+  const topLevel = childrenMap.get(ROOT_KEY) ?? [];
 
   if (topLevel.length === 0) {
     return (
@@ -73,51 +152,9 @@ export function DashboardRenderer({
     );
   }
 
-  return (
-    <div className="dashboard-renderer">
-      {topLevel.map((el) => {
-        const Widget = WIDGET_REGISTRY[el.widget_code];
-        const elKey = String(el.id);
-        const elData = data?.[elKey];
+  const ctx: RenderContext = { childrenMap, data, fallback: unknownWidgetFallback };
 
-        if (!Widget) {
-          if (unknownWidgetFallback)
-            return (
-              <React.Fragment key={elKey}>{unknownWidgetFallback(el.widget_code)}</React.Fragment>
-            );
-          return (
-            <div
-              key={elKey}
-              role="alert"
-              style={{
-                padding: 12,
-                margin: '6px 0',
-                border: '1px dashed var(--semantic-warning)',
-                borderRadius: 6,
-                fontFamily: "'JetBrains Mono', monospace",
-                fontSize: 11,
-                color: 'var(--semantic-warning)',
-                background: 'var(--surface-2)',
-              }}
-            >
-              Unknown widget_code: <strong>{el.widget_code}</strong>
-            </div>
-          );
-        }
-
-        return (
-          <div
-            key={elKey}
-            data-element-id={elKey}
-            data-widget-code={el.widget_code}
-            data-variant={el.variant ?? undefined}
-          >
-            <Widget data={elData} />
-          </div>
-        );
-      })}
-    </div>
-  );
+  return <div className="dashboard-renderer">{topLevel.map((s) => renderSlot(s, ctx))}</div>;
 }
 
 /**

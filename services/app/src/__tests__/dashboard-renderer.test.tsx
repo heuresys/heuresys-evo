@@ -1,25 +1,41 @@
 /**
- * G5 — DashboardRenderer skeleton unit tests.
+ * G5 + G5-phase-2 — DashboardRenderer unit tests.
  *
  * Copre:
- *  - rendering flat: top-level elements ordinati per position
- *  - filter: parent_element_id non-null esclusi (TODO hierarchy in G5-phase-2)
- *  - fallback: widget_code unknown → alert visibile (warn UX)
- *  - empty state: zero elements → "no slots configured"
+ *  - Flat rendering: top-level elements ordinati per position
+ *  - Hierarchy: parent_element_id ricorsivo via LAYOUT_REGISTRY
+ *  - Layout container: render children correttamente
+ *  - Empty layout container: rende contenitore senza children
+ *  - Nested layout: 2+ livelli di profondità
+ *  - Fallback: widget_code unknown → alert visibile (warn UX)
+ *  - Empty state: zero elements → "no slots configured"
  *  - elementsToSlots adapter
  */
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-// Mock WIDGET_REGISTRY: stub semplice per evitare dynamic import in jsdom.
-vi.mock('@/lib/dashboard-engine/registry', () => ({
-  WIDGET_REGISTRY: {
-    KpiRing: ({ data }: { data?: unknown }) => (
-      <div data-testid="widget-kpiring">KpiRing data={JSON.stringify(data ?? null)}</div>
-    ),
-    Histogram: () => <div data-testid="widget-histogram">Histogram</div>,
-  },
-}));
+// Mock entrambi i registry per evitare dynamic import in jsdom.
+vi.mock('@/lib/dashboard-engine/registry', () => {
+  const KpiRing = ({ data }: { data?: unknown }) => (
+    <div data-testid="widget-kpiring">KpiRing data={JSON.stringify(data ?? null)}</div>
+  );
+  const Histogram = () => <div data-testid="widget-histogram">Histogram</div>;
+  const LayoutDoubleSplit = ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="layout-double-split">{children}</div>
+  );
+  const LayoutPanel = ({ data, children }: { data?: unknown; children: React.ReactNode }) => {
+    const d = (data as { title?: string } | undefined) ?? {};
+    return (
+      <div data-testid="layout-panel" data-panel-title={d.title ?? ''}>
+        {children}
+      </div>
+    );
+  };
+  return {
+    WIDGET_REGISTRY: { KpiRing, Histogram },
+    LAYOUT_REGISTRY: { LayoutDoubleSplit, LayoutPanel },
+  };
+});
 
 import {
   DashboardRenderer,
@@ -36,7 +52,7 @@ const slot = (overrides: Partial<DashboardRendererSlot> = {}): DashboardRenderer
   ...overrides,
 });
 
-describe('DashboardRenderer (G5 skeleton)', () => {
+describe('DashboardRenderer (G5 flat)', () => {
   it('renders top-level slots in position order', () => {
     render(
       <DashboardRenderer
@@ -50,15 +66,6 @@ describe('DashboardRenderer (G5 skeleton)', () => {
     expect(all).toHaveLength(2);
     expect(all[0]).toHaveAttribute('data-testid', 'widget-kpiring');
     expect(all[1]).toHaveAttribute('data-testid', 'widget-histogram');
-  });
-
-  it('skips children (parent_element_id non-null) — flat MVP', () => {
-    render(
-      <DashboardRenderer
-        elements={[slot({ id: '1' }), slot({ id: '2', parent_element_id: '1' })]}
-      />
-    );
-    expect(screen.getAllByTestId(/widget-/)).toHaveLength(1);
   });
 
   it('renders alert fallback for unknown widget_code', () => {
@@ -101,6 +108,102 @@ describe('DashboardRenderer (G5 skeleton)', () => {
     expect(wrapper).not.toBeNull();
     expect(wrapper).toHaveAttribute('data-widget-code', 'KpiRing');
     expect(wrapper).toHaveAttribute('data-variant', 'kpi-warn');
+  });
+});
+
+describe('DashboardRenderer (G5-phase-2 hierarchy)', () => {
+  it('renders layout container with children widgets', () => {
+    render(
+      <DashboardRenderer
+        elements={[
+          slot({ id: 'split', widget_code: 'LayoutDoubleSplit' }),
+          slot({ id: 'kpi1', parent_element_id: 'split', position: 1, widget_code: 'KpiRing' }),
+          slot({ id: 'hist', parent_element_id: 'split', position: 2, widget_code: 'Histogram' }),
+        ]}
+      />
+    );
+    const layout = screen.getByTestId('layout-double-split');
+    expect(layout).toBeInTheDocument();
+    const kpi = screen.getByTestId('widget-kpiring');
+    const hist = screen.getByTestId('widget-histogram');
+    expect(layout).toContainElement(kpi);
+    expect(layout).toContainElement(hist);
+  });
+
+  it('renders nested layout containers (2 levels)', () => {
+    render(
+      <DashboardRenderer
+        elements={[
+          slot({ id: 'outer', widget_code: 'LayoutDoubleSplit' }),
+          slot({
+            id: 'panel-l',
+            parent_element_id: 'outer',
+            position: 1,
+            widget_code: 'LayoutPanel',
+          }),
+          slot({
+            id: 'panel-r',
+            parent_element_id: 'outer',
+            position: 2,
+            widget_code: 'LayoutPanel',
+          }),
+          slot({
+            id: 'kpi-in-l',
+            parent_element_id: 'panel-l',
+            position: 1,
+            widget_code: 'KpiRing',
+          }),
+          slot({
+            id: 'hist-in-r',
+            parent_element_id: 'panel-r',
+            position: 1,
+            widget_code: 'Histogram',
+          }),
+        ]}
+      />
+    );
+    const split = screen.getByTestId('layout-double-split');
+    const panels = screen.getAllByTestId('layout-panel');
+    expect(panels).toHaveLength(2);
+    expect(split).toContainElement(panels[0]!);
+    expect(split).toContainElement(panels[1]!);
+    expect(panels[0]).toContainElement(screen.getByTestId('widget-kpiring'));
+    expect(panels[1]).toContainElement(screen.getByTestId('widget-histogram'));
+  });
+
+  it('passes data to layout container via element id', () => {
+    render(
+      <DashboardRenderer
+        elements={[slot({ id: 'p1', widget_code: 'LayoutPanel' })]}
+        data={{ p1: { title: 'Tenant fleet' } }}
+      />
+    );
+    const panel = screen.getByTestId('layout-panel');
+    expect(panel).toHaveAttribute('data-panel-title', 'Tenant fleet');
+  });
+
+  it('renders empty layout container when no children', () => {
+    render(<DashboardRenderer elements={[slot({ id: 'empty', widget_code: 'LayoutPanel' })]} />);
+    expect(screen.getByTestId('layout-panel')).toBeInTheDocument();
+  });
+
+  it('orders children within parent by position', () => {
+    render(
+      <DashboardRenderer
+        elements={[
+          slot({ id: 'split', widget_code: 'LayoutDoubleSplit' }),
+          slot({ id: 'b', parent_element_id: 'split', position: 2, widget_code: 'Histogram' }),
+          slot({ id: 'a', parent_element_id: 'split', position: 1, widget_code: 'KpiRing' }),
+        ]}
+      />
+    );
+    const layout = screen.getByTestId('layout-double-split');
+    const order = Array.from(layout.children).map(
+      (c) => (c as HTMLElement).getAttribute('data-widget-code') ?? c.getAttribute('data-testid')
+    );
+    // First child should wrap KpiRing (position 1)
+    expect(order[0]).toBe('KpiRing');
+    expect(order[1]).toBe('Histogram');
   });
 });
 
