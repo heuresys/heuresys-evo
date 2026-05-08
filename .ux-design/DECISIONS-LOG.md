@@ -1300,6 +1300,48 @@ Errore intermedio evitato: tentazione di allargare scope a redirect `dashboard/p
 
 ---
 
+## L45 — 2026-05-09 — G6 full · 7 preset hierarchical seedati · adoption shipped via dashboard/page.tsx
+
+**Decisione**:
+
+1. **G6 full** — Tutti i 7 preset brand-fedeli ora hanno versione hierarchical DB-driven (suffix `_v2`): `org_systems_v2` (10 elem) · `hr_director_overview_v2` (11 elem) · `cross_tenant_overview_v2` (11 elem) · `tenant_owner_overview_v2` (13 elem) · `skills_heatmap_v2` (10 elem) · `capability_graph_v2` (11 elem) · `employee_journey_v2` (11 elem). Totale **77 dashboard_elements** seedati. Pattern `config_overrides = {"data_source":{"type":"static","value":{...}}}` per leverage del data-fetcher esistente (`type='static'` supportato già in data-fetcher.ts:95-97).
+2. **Adoption shipped** — `role_default_dashboards.preset_code` aggiornato per tutti gli 8 ruoli da `<original>` a `<original>_v2` (8 row UPDATE in transaction). `dashboard/page.tsx` modificato con branch `if (presetCode.endsWith('_v2'))` che:
+   - Carica elements via `$queryRaw<DashboardElementG4[]>` (Prisma client non rigenerato per dev server lock — schema.prisma comunque aggiornato per S20+ regen)
+   - Esegue `prefetchElements` per data fetching server-side (config_overrides.data_source.static → value)
+   - Converte a `DashboardRendererSlot[]` (BigInt → string per RSC serialization)
+   - Renderizza `<DashboardRenderer elements={slots} data={data} />` dentro `ws-header` brand-fedele
+   - Per preset non-`_v2`: switch originale a 7 `_views/*View.tsx` come fallback (preservato per rollback rapido revert role_default_dashboards)
+3. **Schema.prisma update** — Aggiunti `parent_element_id BigInt?` + `variant String? @db.VarChar(64)` con self-relation `dashboard_elements_hierarchy` al model `dashboard_elements`. **`prisma generate` BLOCCATO** in S19 da Next.js dev server (PID 1036 + 11716) che lockano `query_engine-windows.dll.node`. TODO S20: stop dev server + `npx prisma generate` per rigenerare client. Adoption code usa `$queryRaw` come bypass temporaneo.
+
+**Contesto**: continuazione finale S19 dopo G5-phase-2 + G6 smoke (L44). User esplicitamente richiede "G6 full + adoption" → eseguito senza step intermedi. Decisione architetturale: NON eliminare i 7 `_views/*View.tsx` in questa sessione perché il rollback dovrebbe essere immediato se l'adoption fallisce in browser test (R5 TEST-BEFORE-CLAIM). Adoption è quindi "soft": i v2 presets sono il default attivo, ma il fallback path (revert role_default_dashboards) è un singolo UPDATE SQL (rollback in fondo a `phase15g6_full_preset_layouts.sql`).
+
+**Ammissione di gap**:
+
+- **Browser test pending**: in CLI mode non possibile verificare visivamente che il rendering DashboardRenderer sia equivalente alle 7 view bespoke. User deve testare manualmente al primo accesso `/dashboard` post-S19.
+- **Visual fidelity ridotta**: i preset `_v2` usano 14 widget esistenti + 4 layout containers per approssimare i 7 mockup originali. **5 widget mancanti** (`BrandTenantCard`, `BrandMetricCard`, `BrandSectionHead`, `BrandIntRow`, `BrandAuditRow`) → il render G6 mostra solo i widget catalogati, omettendo elementi specifici dei mockup (es. tenant cards in org-systems, metrics grid in tenant-owner). Questi gap saranno chiusi in S20 G3-bis-completion.
+- **Data static vs live**: i 77 elements usano `data_source.type='static'` con valori hardcoded JSON. Per data binding live SQL (es. tenants count reale per org_systems), serve trasformare i config_overrides in `type='sql'` con query Prisma — lavoro S20+.
+
+**Conseguenza**:
+
+- DB bare-metal SoT: 7 nuovi preset in `dashboard_presets` (`*_v2`) + 77 dashboard_elements hierarchical · 8 row updated in `role_default_dashboards` mappa role → `*_v2`
+- Rollback istantaneo: ultime 7 righe SQL commented in `phase15g6_full_preset_layouts.sql` ripristinano mapping originale (1 UPDATE per ruolo)
+- `dashboard/page.tsx` ora ha 2 path:
+  - **Path nuovo (default attivo S19+)**: `presetCode.endsWith('_v2')` → DashboardRenderer
+  - **Path legacy fallback**: switch su 7 preset originali → 7 `_views/*View.tsx`
+- 7 `_views/*View.tsx` preservati (~2200 righe) — eliminazione deferred a S20 post-browser-verification
+- Schema.prisma documenta G4 fields ma client non rigenerato in S19 → adoption usa `$queryRaw` con interface tipizzata
+- Test totale services/app: **199/199 passed** invariato (no nuovi test richiesti per adoption — DashboardRenderer test coverage già robusta dal G5-phase-2)
+
+**Riferimenti**:
+
+- Commit `35ba6bb feat(app+db): G6 full + adoption · *_v2 presets via DashboardRenderer`
+- Seed: `db/seeds/phase15g6_full_preset_layouts.sql` (~370 righe · 7 DO blocks + UPDATE + rollback documented)
+- Page handler: `services/app/src/app/(app)/dashboard/page.tsx` (riscritto · 240 righe · 2 path)
+- Schema update: `services/app/prisma/schema.prisma` § dashboard_elements model (G4 fields formalized)
+- L44 (G5-phase-2 + G6 smoke)
+
+---
+
 ## Format per nuove entry
 
 Quando aggiungi una nuova decisione, segui questo template:
