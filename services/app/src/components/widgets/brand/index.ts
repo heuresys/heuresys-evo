@@ -2,8 +2,9 @@
  * Heuresys brand widget variants — μ-architect-legacy mockup-fedele.
  * Used by the dashboard registry to swap @heuresys/ui Phase 13.A widgets
  * with brand-faithful implementations sharing CSS classes from
- * dashboard-brand.css (.kpi-card, .skill-gap, .activity, .succession-card,
- * .career-arc, .capability-radar, .kg-graph, .heatmap-wrap, etc.).
+ * dashboard-brand.css (.kpi-card, .matrix-wrap, .skill-gap, .activity,
+ * .succession-card, .career-arc, .capability-radar, .kg-graph, .heatmap-wrap,
+ * .widget-head, etc.).
  */
 export { BrandKpiCard, type BrandKpiCardProps } from './BrandKpiCard';
 export {

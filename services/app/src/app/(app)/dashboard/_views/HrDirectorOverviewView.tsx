@@ -77,7 +77,7 @@ export default async function HrDirectorOverviewView({
 
       <div className="main-split">
         <div className="skill-gap">
-          <div className="skill-gap-head">
+          <div className="widget-head">
             <h2>
               Skill gap <em>analysis</em>
             </h2>

@@ -12,9 +12,9 @@ import { resolveAdapter } from './adapters';
  *
  * Brand variants live in services/app/src/components/widgets/brand/ and
  * use the canonical CSS classes from dashboard-brand.css (.kpi-card,
- * .skill-gap, .activity, .succession-card, .career-arc, .capability-radar,
- * .kg-graph, .heatmap-wrap). The original Phase 13.A widgets in @heuresys/ui
- * are preserved for non-dashboard use cases.
+ * .matrix-wrap, .skill-gap, .activity, .succession-card, .career-arc,
+ * .capability-radar, .kg-graph, .heatmap-wrap, .widget-head). The original
+ * Phase 13.A widgets in @heuresys/ui are preserved for non-dashboard use cases.
  *
  * Each wrapper applies the matching adapter; when `data` is null or the
  * adapter rejects the shape, the wrapper falls back to a hardcoded demo

@@ -54,7 +54,7 @@ export function BrandSkillHeatmap({
 
   return (
     <div className="heatmap-wrap">
-      <div className="skill-gap-head" style={{ borderBottom: 0, padding: 0, marginBottom: 12 }}>
+      <div className="widget-head" style={{ borderBottom: 0, padding: 0, marginBottom: 12 }}>
         <h2>
           {caption ? (
             <>

@@ -1199,6 +1199,34 @@ Risposte alle 2 domande operative pre-formalizzazione:
 
 ---
 
+## L42 — 2026-05-08 — G2 completion · drift D2 D4 D5 D6 risolti · split unified · matrix-wrap promoted
+
+**Decisione**: risolti gli ultimi 4 drift identificati nell'audit L40 con scelte mirate per minimizzare churn pur preservando coerenza catalog:
+
+1. **D2 (split 3-system)** → opzione **A**: tieni `.double-split` (3/5 callsite, ratio 1.4fr/1fr) come canonical. Rimossi `.kg-split` (era 2fr/1fr per CapabilityGraph) e `.bottom-split` (era 1.2fr/1fr per SkillsHeatmap). Visual side-effect: i 2 view migrati passano da ratio specifici a 1.4:1 — accettato come prezzo della single-SoT visiva.
+2. **D4 (bar fill 2-system)** → opzione **A**: rimossi `.gauge-bar-fill.gauge-{accent,success,warn}` (3 rules background-color). Selettore base `.gauge-card .gauge-bar-fill` rinominato a `.gauge-card .bar-fill`. 1 callsite (`CrossTenantOverviewView:256`) migrato a `.bar-fill.fill-${tone}` con mapping `accent → info, success → ok, warn → warn`. Le rules text-color `.gauge-{accent,success,warn}` solo (per `.gauge-val`) sono conservate.
+3. **D5 (activity vs audit row)** → opzione **A**: tieni separati. `.activity-list/.activity-item` (BrandActivityFeed + HrDirector) ha DOM shape `.when/.what/.who` (3 slot verticali); `.audit-list/.audit-row` (OrgSystems) ha DOM shape `.ts/.what/.actor/.accent` (4 slot orizzontali). Promossi entrambi a catalog come 2 pattern legittimamente distinti (live activity feed vs audit trail).
+4. **D6 (RBAC matrix wrapper)** → opzione **B** (refactor full): introdotto `.matrix-wrap` come wrapper canonical per RBAC matrix (BrandRbacMatrix). Rinominato `.skill-gap-head` → `.widget-head` come header pattern condiviso (4 widget migrati: BrandRbacMatrix, BrandSkillHeatmap, BrandCapabilityRadar, BrandKgGraph). `.skill-gap` root preservato per HrDirector "skill gap analysis section" (legittima per audit doc §3.4 `(c) PROMOTE-NEW`). Consolidata `.matrix-wrap` + `.skill-gap` in single CSS rule via comma selector (DRY: stesso chrome body, semantica distinta).
+
+**Contesto**: S19, blocco subito dopo L41. Decisioni concordate dopo presentazione opzioni con counts callsite reali. D2/D4 = audit raccomandazione A. D5 = decisione di non-unificazione vs raccomandazione audit (DOM shape è genuinamente diverso, unificazione sarebbe forzata). D6 = audit raccomandazione B (full refactor) preferita a opzione A (`.matrix-wrap` minimal con drift naming residuo). Errore intermedio: rinomina aggressiva di `.skill-gap` (root) a `.matrix-wrap` ha rotto `.skill-gap` analysis section di HrDirector — fixato con restore via consolidated rule.
+
+**Conseguenza**:
+
+- CSS canonical `dashboard-brand.css`: rimossi blocchi `.bottom-split` (1967-1976) + `.kg-split` (2062-2071) + 3 rules `.gauge-bar-fill.gauge-*` (1829, 1835, 1841). Selettore `.gauge-card .gauge-bar-fill` → `.gauge-card .bar-fill`. Rinominate 4 selettori `.skill-gap-head*` → `.widget-head*`. Introdotto `.matrix-wrap` come wrapper RBAC (consolidato con `.skill-gap` via comma selector).
+- TSX migrati: `CapabilityGraphView.tsx:105` (kg-split → double-split) · `SkillsHeatmapView.tsx:176` (bottom-split → double-split) · `CrossTenantOverviewView.tsx:256` (gauge-bar-fill → bar-fill + tone mapping inline) · `BrandRbacMatrix.tsx:61-62` (skill-gap → matrix-wrap, skill-gap-head → widget-head) · `BrandSkillHeatmap.tsx:57` · `BrandCapabilityRadar.tsx:82` · `BrandKgGraph.tsx:88` · `HrDirectorOverviewView.tsx:80` (skill-gap-head → widget-head, ma `.skill-gap` root preservato).
+- JSDoc comments aggiornati per coerenza catalog: `BrandRbacMatrix.tsx:47` · `widgets/brand/index.ts:5` · `dashboard-engine/registry.tsx:13-17`.
+- **Catalogo dashboard post-G2**: 0 drift duplicate semantici · 1 split layout · 1 bar fill system · 2 event-stream patterns (legittimi) · 1 matrix wrapper · 1 widget-head shared. Catalog converge verso single-SoT.
+- Visual side-effect documentato: SkillsHeatmap e CapabilityGraph perdono il loro ratio split specifico. Da rivedere se feedback brand emerge — possibile reintroduzione `.double-split--wide` / `.double-split--narrow` come variant modifiers.
+- D7 (atomic packages/ui keep/deprecate) ancora pending — discussione in G3.
+
+**Riferimenti**:
+
+- Audit doc: `.ux-design/08-promotion/brand-dashboard-catalog-CURRENT-STATE.md` § 5 (drift map) — line numbers post-L42 shiftano `−40` cumulativo per CSS oltre 1700 e `−15` per CSS oltre 1260.
+- L41 (D1+D3 risolti)
+- L40 (decisione fondante)
+
+---
+
 ## Format per nuove entry
 
 Quando aggiungi una nuova decisione, segui questo template:

@@ -85,7 +85,7 @@ export function BrandKgGraph({
 
   return (
     <section className="kg-graph">
-      <div className="skill-gap-head" style={{ borderBottom: 0, padding: 0, marginBottom: 4 }}>
+      <div className="widget-head" style={{ borderBottom: 0, padding: 0, marginBottom: 4 }}>
         <h2>
           Capability <em>graph</em>
         </h2>

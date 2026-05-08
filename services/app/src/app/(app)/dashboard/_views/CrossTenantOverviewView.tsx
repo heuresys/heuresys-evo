@@ -253,7 +253,7 @@ export default async function CrossTenantOverviewView({ role }: { role: string }
                 </div>
                 <div className="gauge-bar">
                   <div
-                    className={`gauge-bar-fill gauge-${g.tone}`}
+                    className={`bar-fill fill-${g.tone === 'accent' ? 'info' : g.tone === 'success' ? 'ok' : 'warn'}`}
                     style={{ width: `${g.val}%` }}
                   />
                 </div>

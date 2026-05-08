@@ -102,7 +102,7 @@ export default async function CapabilityGraphView({
         </div>
       </div>
 
-      <div className="kg-split">
+      <div className="double-split">
         <section className="panel">
           <div className="panel-head">
             <h2>

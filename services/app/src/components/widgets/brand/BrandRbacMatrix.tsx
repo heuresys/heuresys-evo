@@ -44,7 +44,7 @@ const LEVEL_LABEL: Record<RbacPermissionLevel, string> = {
 
 /**
  * BrandRbacMatrix — table.dense + pill role/area cells (mockup-fedele).
- * Layout: skill-gap chrome + table.dense + colored pill per cell.
+ * Layout: matrix-wrap chrome + widget-head + table.dense + colored pill per cell.
  */
 export function BrandRbacMatrix({ roles, areas, assignments }: BrandRbacMatrixProps) {
   // Lookup helper
@@ -58,8 +58,8 @@ export function BrandRbacMatrix({ roles, areas, assignments }: BrandRbacMatrixPr
   }, [assignments]);
 
   return (
-    <div className="skill-gap">
-      <div className="skill-gap-head">
+    <div className="matrix-wrap">
+      <div className="widget-head">
         <h2>
           RBAC <em>matrix</em>
         </h2>

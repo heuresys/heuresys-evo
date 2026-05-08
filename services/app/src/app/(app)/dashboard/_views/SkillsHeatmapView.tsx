@@ -173,7 +173,7 @@ export default async function SkillsHeatmapView({
         </div>
       </div>
 
-      <div className="bottom-split">
+      <div className="double-split">
         <div className="panel">
           <div className="panel-head">
             <h2>

@@ -686,15 +686,17 @@
 }
 
 /* ============================================================
- * Skill gap matrix — table.dense + filters + pill + gap-bar
+ * Widget chrome — matrix-wrap (RBAC root) / skill-gap (HrDirector
+ * skill gap section) / widget-head (shared section header)
  * ============================================================ */
+.matrix-wrap,
 .skill-gap {
   background: var(--surface-1);
   border: 1px solid var(--rule);
   border-radius: 8px;
   overflow: hidden;
 }
-.skill-gap-head {
+.widget-head {
   padding: 14px 18px;
   border-bottom: 1px solid var(--rule);
   display: flex;
@@ -703,19 +705,19 @@
   gap: 12px;
   flex-wrap: wrap;
 }
-.skill-gap-head h2 {
+.widget-head h2 {
   font-family: 'Inter', sans-serif;
   font-weight: 600;
   font-size: 16px;
   letter-spacing: -0.3px;
   color: var(--ink);
 }
-.skill-gap-head h2 em {
+.widget-head h2 em {
   color: var(--accent);
   font-style: normal;
   font-weight: 600;
 }
-.skill-gap-head .filters {
+.widget-head .filters {
   display: flex;
   gap: 8px;
   align-items: center;
@@ -1819,27 +1821,18 @@ table.rbac td.lvl-5 {
   border-radius: 3px;
   overflow: hidden;
 }
-.gauge-card .gauge-bar-fill {
+.gauge-card .bar-fill {
   height: 100%;
   border-radius: 3px;
 }
 .gauge-accent {
   color: var(--accent);
 }
-.gauge-bar-fill.gauge-accent {
-  background: var(--accent);
-}
 .gauge-success {
   color: var(--semantic-success);
 }
-.gauge-bar-fill.gauge-success {
-  background: var(--semantic-success);
-}
 .gauge-warn {
   color: var(--semantic-warning);
-}
-.gauge-bar-fill.gauge-warn {
-  background: var(--semantic-warning);
 }
 
 /* ============================================================
@@ -1964,17 +1957,6 @@ table.rbac td.lvl-5 {
 /* ============================================================
  * Histogram (skills heatmap distribution)
  * ============================================================ */
-.bottom-split {
-  display: grid;
-  grid-template-columns: 1.2fr 1fr;
-  gap: 14px;
-  margin-bottom: 24px;
-}
-@media (max-width: 1100px) {
-  .bottom-split {
-    grid-template-columns: 1fr;
-  }
-}
 .histogram {
   padding: 16px 18px 18px;
   display: flex;
@@ -2057,19 +2039,8 @@ table.rbac td.lvl-5 {
 }
 
 /* ============================================================
- * KG split (capability graph)
+ * KG legend (capability graph)
  * ============================================================ */
-.kg-split {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 14px;
-  margin-bottom: 24px;
-}
-@media (max-width: 1100px) {
-  .kg-split {
-    grid-template-columns: 1fr;
-  }
-}
 .kg-legend {
   display: flex;
   gap: 18px;
