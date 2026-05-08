@@ -166,7 +166,7 @@ VM: `oracle-vm-default` (IP 80.225.82.207). nginx vhosts in `/etc/nginx/sites-av
 
 **Vincolo "estirpazione clean"**: ogni entry in `Test Stage`/`PreOp Stage` DEVE essere rimovibile dal repo evo SENZA conseguenze su stack/oggetti pre-import. Categorie removability tracciate nel CSV (`no-impact`, `embedded-in-existing-file`, `depends-on-X`, `not-yet-used`, `depends-on-DB-seed`).
 
-## Stato attuale (2026-05-08T01:00Z · DBMS bare-metal SoT certified + Phase 14.SH closed + carry-forward shipped + brand identity cycle SEALED L38)
+## Stato attuale (2026-05-08T17:18Z · Phase 15.A brand-fedele dashboard rendering shipped to main)
 
 ### DBMS = SoT (certified 2026-05-07T14:30Z)
 
@@ -230,6 +230,35 @@ Carry-forward sessione 2026-05-07/08 (commit `0958625` + `5ebdc45` + `34f9ac8`):
 - LocaleSwitcher cablato in topbar AppShell (DRY, copre tutte le route `(app)/`)
 - 9 viste SH-3 i18n IT/EN via `getServerLocale()` + `STRINGS` per-page const + cookie persistence
 
+### ✅ Phase 15.A shipped (2026-05-08, commit `d59ae3e`)
+
+Brand-fedele dashboard rendering: la rotta `/dashboard` ora renderizza un'interfaccia visivamente fedele ai mockup canonical (`.ux-design/06-mockups/dashboards/*.html`) con role-driven branching via `role_default_dashboards` (P9 + P10).
+
+**7 view brand-fedeli** in `services/app/src/app/(app)/dashboard/_views/` — una per preset_code:
+
+| Role                    | preset_code             | View                                                  | Mockup                     |
+| ----------------------- | ----------------------- | ----------------------------------------------------- | -------------------------- |
+| SUPERUSER               | `cross_tenant_overview` | `CrossTenantOverviewView`                             | cross-tenant-overview.html |
+| TENANT_OWNER            | `tenant_owner_overview` | `TenantOwnerOverviewView`                             | tenant-owner-overview.html |
+| IT_ADMIN                | `org_systems`           | `OrgSystemsView` (LIVE: tenants + audit + RBP counts) | org-systems.html           |
+| HR_DIRECTOR             | `hr_director_overview`  | `HrDirectorOverviewView`                              | hr-director-overview.html  |
+| HR_MANAGER              | `skills_heatmap`        | `SkillsHeatmapView`                                   | skills-heatmap.html        |
+| DEPT_HEAD               | `capability_graph`      | `CapabilityGraphView`                                 | capability-graph.html      |
+| LINE_MANAGER + EMPLOYEE | `employee_journey`      | `EmployeeJourneyView`                                 | employee-journey.html      |
+
+**Architettura 4-layer**:
+
+- **Layer A — Brand chrome via CSS canonical**: `services/app/src/styles/dashboard-brand.css` (~2370 righe scoped) — μ-architect-legacy direction. Classes: shell + nav-bar + sidebar collapsibile + workspace + ws-header/footer + app-footer + widget chrome (kpi-card · scope-pill · tenant-grid · double-split · panel · table.rbac heat-graded · int-row · status-pill · audit-list · metrics-grid + sparkline · gauge-grid · comp-grid · filter-bar · heatmap heat-0..6 · histogram · crit-row · kg-split · ontology-row · profile-hero · pbadge · career-arc 5-stage · capability-radar SVG · bridge-grid). 6 nuovi token in `active-theme.css` (`--cap-process/structure/role/competence/performance` + `--glow`).
+- **Layer B — Layout brand-fedele**: `services/app/src/app/(app)/_components/BrandShell.tsx` (client) sostituisce AppShell generico Tailwind. `(app)/layout.tsx` (server) fa tenant lookup Prisma + passa user/tenant/env.
+- **Layer C — Resolver + branching**: `lib/dashboard-engine/role-preset-resolver.ts` (`$queryRaw` P6) legge `role_default_dashboards` (tenant override > platform default > null). `(app)/dashboard/page.tsx` switch su preset_code → view brand-fedele dedicata.
+- **Layer D — Data fetcher live + 9 brand widget**: `lib/dashboard-views/org-systems-data.ts` (Prisma server-side, tenants + audit + RBP counts live). 9 BrandWidget variants in `services/app/src/components/widgets/brand/` (BrandKpiCard · BrandIntegrationHealth · BrandSuccessionCard · BrandRbacMatrix · BrandSkillHeatmap · BrandActivityFeed · BrandKgGraph SVG no-Cytoscape · BrandCareerArc · BrandCapabilityRadar) registrati nel widget registry per la route override `/dashboard/[code]`.
+
+**DB**: `db/seeds/phase15a_role_default_dashboards.sql` (CREATE TABLE + RLS + 8 platform seed). Applicato bare-metal SoT.
+
+**Verifica**: typecheck UI+app PASS · 95/95 vitest UI · 186/186 vitest app · browser smoke PASS su SUPERUSER (cross_tenant_overview) + HR_DIRECTOR (hr_director_overview).
+
+ADR-0026 documenta architettura + decisioni.
+
 ### ✅ Brand identity cycle SEALED (2026-05-08, L38)
 
 Phase 1 → Phase 12 ufficialmente chiuso senza loose ends. 5 pre-promotion gap reali risolti:
@@ -239,12 +268,14 @@ Phase 1 → Phase 12 ufficialmente chiuso senza loose ends. 5 pre-promotion gap 
 - L37 — Phase 12 brand book v0 shipped (`07-brand-book/BRAND-BOOK-v0.md`, 15 sezioni canoniche, single entry point)
 - L38 — D1-D4 decisioni risolte · 4 personas mancanti create per coverage 1:1 RBP 8 ruoli (`05-superuser` · `06-tenant-owner` · `07-hr-manager` · `08-dept-head`) · `08-promotion/v1.0-checklist.md` scritto · promotion-candidates.md updated · brand book § 3 personas expanded a 8
 
-### 🚀 Roadmap successiva (post-cycle close)
+### 🚀 Roadmap successiva (post Phase 15.A)
 
-1. **WCAG 2.2 AAA full audit** (~3-5h) — axe-core CI integration + manual NVDA/VoiceOver pass · ref: `docs/_meta/operating-baseline.md` §a11y
-2. **Production build perf bench** (~1-2h) — `next build && next start` + autocannon su 8 viste auth-required, target P95 ≤ 500ms · ref: `scripts/perf/results/`
-3. **API gateway cross-service JWT fix** (~2-3h) — `jose` library NextAuth v4 ↔ Auth.js v5 JWE decode · ref: `services/api-gateway/src/auth.ts`
-4. **Brand v1.0 promotion** (~16-25h, 2-3 sessioni) — pre-flight checks per 8 categorie asset · ref: `.ux-design/08-promotion/v1.0-checklist.md`
+1. **Data binding live full** (~3-5h) — sostituisci dati hardcoded mockup-fedeli nelle 6 view non-org_systems con query Prisma reali (employees per tenant + skill_assessments + review_cycles + succession_pipeline)
+2. **Estensione preset minori** (~2-3h) — view brand-fedeli per `process_recruiting_funnel` · `process_onboarding_flow` · `process_performance_cycle` · `process_learning_paths`
+3. **WCAG 2.2 AAA full audit** (~3-5h) — axe-core CI integration + manual NVDA/VoiceOver pass · ref: `docs/_meta/operating-baseline.md` §a11y
+4. **Production build perf bench** (~1-2h) — `next build && next start` + autocannon su 8 viste auth-required, target P95 ≤ 500ms · ref: `scripts/perf/results/`
+5. **API gateway cross-service JWT fix** (~2-3h) — `jose` library NextAuth v4 ↔ Auth.js v5 JWE decode · ref: `services/api-gateway/src/auth.ts`
+6. **Brand v1.0 promotion** (~16-25h, 2-3 sessioni) — pre-flight checks per 8 categorie asset · ref: `.ux-design/08-promotion/v1.0-checklist.md`
 
 Backup track parallel: cron daily/weekly/monthly · off-site Oracle bucket · restore drill mensile · `docs/40-operations/dbms-backup-restore.md` (scaffolded).
 
@@ -256,7 +287,7 @@ Backup track parallel: cron daily/weekly/monthly · off-site Oracle bucket · re
 - `docs/10-strategy/migration-strategy-pet-driven.md` — strategia porting
 - `docs/20-architecture/role-views-matrix.md` — Phase 14.SH FASE 3.1 inventory (scaffolded)
 - `docs/40-operations/dbms-backup-restore.md` — Backup/restore governance policy (scaffolded)
-- `docs/50-reference/decisions/` — 25 ADR (3 superseded · ADR-0023 SoT promotion · ADR-0024 Phase 14.SH plan · ADR-0025 brand identity cycle sealed + v1.0 promotion plan)
+- `docs/50-reference/decisions/` — 26 ADR (3 superseded · ADR-0023 SoT promotion · ADR-0024 Phase 14.SH plan · ADR-0025 brand identity cycle sealed + v1.0 promotion plan · ADR-0026 Phase 15.A brand-fedele dashboard rendering)
 - `docs/30-developer/security-baseline.md` — P1-P10 enforcement details
 - `~/.claude/plans/questo-quello-che-glittery-charm.md` — Plan canonical Phase 14.SH
 - `.handoff/HANDOFF.md` — Fresh session input (next sprint trigger)

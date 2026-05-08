@@ -1118,6 +1118,33 @@ Risposte alle 2 domande operative pre-formalizzazione:
 
 ---
 
+## L39 — 2026-05-08 — Phase 15.A brand-fedele dashboard rendering shipped
+
+**Decisione**: la rotta `/dashboard` ora renderizza un'interfaccia visivamente fedele ai mockup canonical Heuresys (`.ux-design/06-mockups/dashboards/*.html`, Phase 9 μ-architect-legacy). Mockup `org-systems.html` confermato come riferimento brand identity ("la vera brand identity delle nostre dashboard"). Architettura 4-layer (CSS canonical scoped + BrandShell layout + role-driven branching + 7 view brand-fedeli + 9 brand widget). Role-to-preset mapping data-driven via `role_default_dashboards` (P9 + P10).
+
+**Contesto**: pre-15.A `/dashboard` placeholder generic (employees top-10 Tailwind utility). I 7 mockup brand erano produzione completa ma mai tradotti in production runtime. Itinerario in sessione: prima generalizzazione errata (uso hr-director-overview come base shell — interrotta dall'utente "il vero brand è org-systems"), poi 4 reset → ricostruzione con CSS canonical scoped + 7 view dedicate per preset_code.
+
+**Conseguenza**:
+
+- 7 view brand-fedeli in `services/app/src/app/(app)/dashboard/_views/` (OrgSystems · CrossTenantOverview · TenantOwnerOverview · HrDirectorOverview · SkillsHeatmap · CapabilityGraph · EmployeeJourney)
+- CSS canonical `services/app/src/styles/dashboard-brand.css` (~2370 righe scoped) sostituisce AppShell Tailwind generico per route `(app)/`
+- `BrandShell.tsx` client component sostituisce AppShell di `@heuresys/ui`
+- 9 brand widget in `services/app/src/components/widgets/brand/` per widget registry
+- Tabella `role_default_dashboards` + seed 8 platform default
+- 6 nuovi token in `active-theme.css` (`--cap-process/structure/role/competence/performance` + `--glow`)
+- `org_systems` view con data binding live (tenants reali + audit_logs reali + RBP counts via pg_policies); altre 6 view con dati hardcoded mockup-fedeli (visual fidelity prima, data binding full in iterazione successiva)
+- ADR-0026 documenta architettura completa
+
+**Riferimenti**:
+
+- Commit `d59ae3e feat(app+db): brand-fedele dashboard rendering — 7 views + role-driven + live data`
+- Branch `feature/dashboard-shell-canonical` mergiato fast-forward su `main` e cancellato
+- ADR-0026: `docs/50-reference/decisions/0026-phase15a-brand-fedele-dashboard-rendering.md`
+- Plan canonical: `~/.claude/plans/humble-soaring-lake.md`
+- Mockup brand canonical: `.ux-design/06-mockups/dashboards/org-systems.html`
+
+---
+
 ## Format per nuove entry
 
 Quando aggiungi una nuova decisione, segui questo template:
