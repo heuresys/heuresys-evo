@@ -5,11 +5,17 @@ import type { ComponentType } from 'react';
 import { resolveAdapter } from './adapters';
 
 /**
- * Phase 13.C / 14.A — Widget registry.
- * Maps `widget_code` (from dashboard_elements) to React component lazy-imported
- * via next/dynamic for code-splitting per route.
+ * Phase 15.A — Widget registry (brand-fedele variants).
  *
- * Phase 14.A V2 contract: every entry receives `{data?: unknown}` prop.
+ * Maps `widget_code` (from dashboard_elements) to brand React component
+ * lazy-imported via next/dynamic for code-splitting per route.
+ *
+ * Brand variants live in services/app/src/components/widgets/brand/ and
+ * use the canonical CSS classes from dashboard-brand.css (.kpi-card,
+ * .skill-gap, .activity, .succession-card, .career-arc, .capability-radar,
+ * .kg-graph, .heatmap-wrap). The original Phase 13.A widgets in @heuresys/ui
+ * are preserved for non-dashboard use cases.
+ *
  * Each wrapper applies the matching adapter; when `data` is null or the
  * adapter rejects the shape, the wrapper falls back to a hardcoded demo
  * fixture so dashboards remain renderable while data sources are progressively
@@ -22,7 +28,21 @@ const Loading = () => (
   <div
     role="status"
     aria-label="Widget loading"
-    className="flex h-full min-h-[120px] w-full items-center justify-center rounded-md border border-dashed border-border bg-muted/30 text-xs text-muted-fg"
+    style={{
+      minHeight: 120,
+      width: '100%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: 8,
+      border: '1px dashed var(--rule)',
+      background: 'var(--surface-2)',
+      fontFamily: 'JetBrains Mono, monospace',
+      fontSize: 11,
+      letterSpacing: 1,
+      color: 'var(--ink-muted)',
+      textTransform: 'uppercase',
+    }}
   >
     Loading widget…
   </div>
@@ -32,12 +52,6 @@ function lazyWidget(loader: () => Promise<{ default: WidgetComponent }>) {
   return dynamic<{ data?: unknown }>(loader, { loading: Loading, ssr: false });
 }
 
-/**
- * Build a Live+Demo-fallback wrapper for a widget code.
- * `widgetCode` selects the adapter from ADAPTER_REGISTRY.
- * `demoProps` is the static fixture used when data is null/invalid.
- * `render(props)` is the JSX projection — typically `<m.Component {...props}/>`.
- */
 function liveWrapper<P extends object>(
   widgetCode: string,
   demoProps: P,
@@ -54,38 +68,33 @@ function liveWrapper<P extends object>(
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 const KpiRingWidget: WidgetComponent = lazyWidget(() =>
-  import('@heuresys/ui').then((m: any) => ({
+  import('@/components/widgets/brand').then((m: any) => ({
     default: liveWrapper(
       'KpiRing',
       {
         value: 72,
-        label: 'Capability',
+        label: 'CAPABILITY',
         sublabel: 'company-wide · Q4',
         unit: '%',
-        thresholds: { goodAt: 80, warnAt: 60 },
         trend: 4.2,
       },
-      (props) => <m.KpiRing {...props} />
+      (props) => <m.BrandKpiCard {...props} />
     ),
   }))
 );
 
 const IntegrationHealthPillWidget: WidgetComponent = lazyWidget(() =>
-  import('@heuresys/ui').then((m: any) => ({
+  import('@/components/widgets/brand').then((m: any) => ({
     default: liveWrapper(
       'IntegrationHealthPill',
-      { tone: 'ok' as const, pulse: false, label: undefined as string | undefined },
-      (props) => (
-        <div className="flex flex-wrap items-center gap-2">
-          <m.IntegrationHealthPill {...props} />
-        </div>
-      )
+      { tone: 'ok' as const, pulse: false },
+      (props) => <m.BrandIntegrationHealth {...props} />
     ),
   }))
 );
 
 const SuccessionCardWidget: WidgetComponent = lazyWidget(() =>
-  import('@heuresys/ui').then((m: any) => ({
+  import('@/components/widgets/brand').then((m: any) => ({
     default: liveWrapper(
       'SuccessionCard',
       {
@@ -97,13 +106,13 @@ const SuccessionCardWidget: WidgetComponent = lazyWidget(() =>
         risk: 'low' as const,
         readyBy: '2026 Q3',
       },
-      (props) => <m.SuccessionCard {...props} />
+      (props) => <m.BrandSuccessionCard {...props} />
     ),
   }))
 );
 
 const CareerArcWidget: WidgetComponent = lazyWidget(() =>
-  import('@heuresys/ui').then((m: any) => ({
+  import('@/components/widgets/brand').then((m: any) => ({
     default: liveWrapper(
       'CareerArc',
       {
@@ -116,13 +125,13 @@ const CareerArcWidget: WidgetComponent = lazyWidget(() =>
           { id: '5', label: 'Head', year: '2029+' },
         ],
       },
-      (props) => <m.CareerArc {...props} />
+      (props) => <m.BrandCareerArc {...props} />
     ),
   }))
 );
 
 const KgMiniGraphWidget: WidgetComponent = lazyWidget(() =>
-  import('@heuresys/ui').then((m: any) => ({
+  import('@/components/widgets/brand').then((m: any) => ({
     default: liveWrapper(
       'KgMiniGraph',
       {
@@ -143,13 +152,13 @@ const KgMiniGraphWidget: WidgetComponent = lazyWidget(() =>
           { group: 'soft', label: 'Soft', color: '#5fb87a' },
         ],
       },
-      (props) => <m.KgMiniGraph {...props} />
+      (props) => <m.BrandKgGraph {...props} />
     ),
   }))
 );
 
 const SkillHeatmapWidget: WidgetComponent = lazyWidget(() =>
-  import('@heuresys/ui').then((m: any) => {
+  import('@/components/widgets/brand').then((m: any) => {
     const rows = [
       { id: 'fin', label: 'Finance' },
       { id: 'risk', label: 'Risk' },
@@ -173,14 +182,14 @@ const SkillHeatmapWidget: WidgetComponent = lazyWidget(() =>
       default: liveWrapper(
         'SkillHeatmap',
         { rows, cols, cells, caption: 'Skill coverage' },
-        (props) => <m.SkillHeatmap {...props} />
+        (props) => <m.BrandSkillHeatmap {...props} />
       ),
     };
   })
 );
 
 const CapabilityRadarWidget: WidgetComponent = lazyWidget(() =>
-  import('@heuresys/ui').then((m: any) => ({
+  import('@/components/widgets/brand').then((m: any) => ({
     default: liveWrapper(
       'CapabilityRadar',
       {
@@ -196,13 +205,13 @@ const CapabilityRadarWidget: WidgetComponent = lazyWidget(() =>
           { id: 'tgt', label: 'Target', values: [75, 80, 70, 80, 85] },
         ],
       },
-      (props) => <m.CapabilityRadar {...props} />
+      (props) => <m.BrandCapabilityRadar {...props} />
     ),
   }))
 );
 
 const RbacMatrixWidget: WidgetComponent = lazyWidget(() =>
-  import('@heuresys/ui').then((m: any) => {
+  import('@/components/widgets/brand').then((m: any) => {
     const roles = [
       { id: 'su', label: 'SUPERUSER', level: -1 },
       { id: 'to', label: 'TENANT_OWNER', level: 0 },
@@ -232,7 +241,7 @@ const RbacMatrixWidget: WidgetComponent = lazyWidget(() =>
     );
     return {
       default: liveWrapper('RbacMatrix', { roles, areas, assignments, readonly: true }, (props) => (
-        <m.RbacMatrix {...props} />
+        <m.BrandRbacMatrix {...props} />
       )),
     };
   })

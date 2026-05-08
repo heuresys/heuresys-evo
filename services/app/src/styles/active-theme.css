@@ -49,6 +49,14 @@
   --role-green: #8dd49e;
   --role-amber: #e8b835;
   --role-gray: #c8ccd6;
+  /* Capability palette (PET ontology — dashboard heatmap + KG + skill-gap fill) */
+  --cap-process: #3b82f6;
+  --cap-structure: #6c5ce7;
+  --cap-role: #a855f7;
+  --cap-competence: #5fb87a;
+  --cap-performance: #f59e0b;
+  /* Glow (drop-shadow accent for hero wordmark in dashboard surfaces) */
+  --glow: 0 0 30px rgba(168, 85, 247, 0.25);
   /* Aurora gradient (auth) */
   --gradient-aurora: linear-gradient(135deg, var(--brand-blue) 0%, var(--brand-purple) 100%);
   /* Glass surfaces (auth, modals) */
@@ -113,6 +121,13 @@
   --role-gray: #404249;
   --glass-bg: rgba(255, 255, 255, 0.55);
   --glass-border: rgba(10, 13, 24, 0.08);
+  /* Capability palette — light variant */
+  --cap-process: #2452c8;
+  --cap-structure: #5a45c0;
+  --cap-role: #7e3fc8;
+  --cap-competence: #2da147;
+  --cap-performance: #b8860b;
+  --glow: 0 0 20px rgba(126, 63, 200, 0.15);
 }
 
 /* ============================================================

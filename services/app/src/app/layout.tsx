@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Inter, Exo_2, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import '../styles/active-theme.css';
+import '../styles/dashboard-brand.css';
 import { ThemePreviewInjector } from './_components/ThemePreviewInjector';
 import { LocaleProvider } from '@/lib/i18n';
 

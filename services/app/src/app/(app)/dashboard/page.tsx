@@ -1,93 +1,112 @@
+import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
-import { withTenant } from '@/lib/db';
+import { prisma } from '@/lib/db';
+import { resolvePresetCodeForRole } from '@/lib/dashboard-engine/role-preset-resolver';
+
+import OrgSystemsView from './_views/OrgSystemsView';
+import CrossTenantOverviewView from './_views/CrossTenantOverviewView';
+import TenantOwnerOverviewView from './_views/TenantOwnerOverviewView';
+import HrDirectorOverviewView from './_views/HrDirectorOverviewView';
+import SkillsHeatmapView from './_views/SkillsHeatmapView';
+import CapabilityGraphView from './_views/CapabilityGraphView';
+import EmployeeJourneyView from './_views/EmployeeJourneyView';
 
 /**
- * /dashboard — server component reading employees directly from Prisma
- * with RLS enforcement via withTenant(). Bypasses api-gateway since the
- * cross-service JWT decode (NextAuth v4 JWE → Auth.js v5) is non-trivial
- * and not needed here — the same Postgres SoT is reachable from both
- * services with the same RLS policies.
+ * /dashboard — canonical role-driven dashboard route (Phase 15.A).
  *
- * Phase 14.SH SH-2 — replaces the api-gateway fetch with direct Prisma.
+ *   1. Auth + redirect to login if no session
+ *   2. resolvePresetCodeForRole(role, tenantId) → preset_code
+ *      via role_default_dashboards table (P9 data-driven · P10 multi-tenant)
+ *   3. Switch to brand-fedele view per preset_code (mockup-faithful inline)
+ *
+ * Each view renders the canonical mockup design from
+ * .ux-design/06-mockups/dashboards/{preset}.html with live data where
+ * available + demo data where DB tables not yet populated.
+ *
+ * For explicit override (admin preview · super-user simulation), use
+ * /dashboard/[code] (generic engine renderer).
  */
-async function fetchTopEmployees(tenantId: string) {
-  return withTenant(tenantId, (tx) =>
-    tx.employees.findMany({
-      where: { is_active: true, deleted_at: null },
-      orderBy: [{ performance_rating: 'desc' }, { last_name: 'asc' }],
-      take: 10,
-      select: {
-        id: true,
-        first_name: true,
-        last_name: true,
-        job_title: true,
-        performance_rating: true,
-      },
-    })
-  );
-}
-
 export default async function DashboardPage() {
   const session = await auth();
-  const user = session?.user as { username?: string; role?: string; tenantId?: string } | undefined;
-
-  let employees: Awaited<ReturnType<typeof fetchTopEmployees>> = [];
-  let fetchError: string | null = null;
-  if (user?.tenantId) {
-    try {
-      employees = await fetchTopEmployees(user.tenantId);
-    } catch (e) {
-      fetchError = e instanceof Error ? e.message : String(e);
-    }
-  } else {
-    fetchError = 'No tenant context — cannot scope query.';
+  if (!session?.user) {
+    redirect('/login?next=/dashboard');
   }
 
-  return (
-    <main className="mx-auto max-w-5xl p-8">
-      <header>
-        <h1 className="text-3xl font-semibold">Dashboard</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Signed in as <strong>{user?.username ?? 'unknown'}</strong>
-          {user?.role ? <> · {user.role}</> : null}
-          {user?.tenantId ? (
-            <>
-              {' '}
-              · tenant <code className="text-xs">{user.tenantId.slice(0, 8)}…</code>
-            </>
-          ) : null}
-        </p>
-      </header>
+  const user = session.user as {
+    role?: string;
+    tenantId?: string;
+    username?: string;
+    name?: string | null;
+    email?: string | null;
+  };
+  const role = user.role ?? 'EMPLOYEE';
+  const tenantId = user.tenantId ?? null;
+  const username = user.name ?? user.username ?? user.email ?? 'user';
 
-      <section className="mt-8">
-        <h2 className="text-lg font-medium">Top employees by performance</h2>
-        {fetchError ? (
-          <p className="mt-4 rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
-            Could not load employees: <code>{fetchError}</code>
+  // Tenant name for views that need branded breadcrumb
+  let tenantName = 'Heuresys System';
+  if (tenantId) {
+    const t = await prisma.tenants.findUnique({
+      where: { id: tenantId },
+      select: { name: true },
+    });
+    if (t?.name) tenantName = t.name;
+  }
+
+  // Resolve preset_code for the logged-in role (data-driven via DB)
+  const presetCode = await resolvePresetCodeForRole({ role, tenantId });
+
+  if (!presetCode) {
+    return (
+      <>
+        <header className="ws-header">
+          <div className="title-block">
+            <div className="breadcrumb">DASHBOARD · {role}</div>
+            <h1>
+              Nessuna dashboard <em>configurata</em>
+            </h1>
+          </div>
+        </header>
+        <p style={{ fontSize: 14, color: 'var(--ink-soft)', maxWidth: 600 }}>
+          Il ruolo <strong>{role}</strong> non ha una dashboard di default mappata in{' '}
+          <code>role_default_dashboards</code>. Contatta l&apos;amministratore di piattaforma.
+        </p>
+      </>
+    );
+  }
+
+  // Switch to the right brand-fedele view
+  switch (presetCode) {
+    case 'org_systems':
+      return <OrgSystemsView role={role} />;
+    case 'cross_tenant_overview':
+      return <CrossTenantOverviewView role={role} />;
+    case 'tenant_owner_overview':
+      return <TenantOwnerOverviewView role={role} tenantName={tenantName} />;
+    case 'hr_director_overview':
+      return <HrDirectorOverviewView role={role} tenantName={tenantName} />;
+    case 'skills_heatmap':
+      return <SkillsHeatmapView role={role} tenantName={tenantName} />;
+    case 'capability_graph':
+      return <CapabilityGraphView role={role} tenantName={tenantName} />;
+    case 'employee_journey':
+      return <EmployeeJourneyView role={role} username={username} tenantName={tenantName} />;
+    default:
+      return (
+        <>
+          <header className="ws-header">
+            <div className="title-block">
+              <div className="breadcrumb">DASHBOARD · {role}</div>
+              <h1>
+                Preset <em>{presetCode}</em> non ancora migrato
+              </h1>
+            </div>
+          </header>
+          <p style={{ fontSize: 14, color: 'var(--ink-soft)', maxWidth: 600 }}>
+            Il preset <code>{presetCode}</code> non ha una view brand-fedele dedicata. Visita{' '}
+            <code>/dashboard/{presetCode}</code> per il rendering generico via Dashboard Engine.
           </p>
-        ) : employees.length === 0 ? (
-          <p className="mt-4 text-sm text-muted-foreground">
-            No employees in scope (tenant may have empty registry).
-          </p>
-        ) : (
-          <ul className="mt-4 divide-y divide-border rounded-md border border-border">
-            {employees.map((emp) => {
-              const name = [emp.first_name, emp.last_name].filter(Boolean).join(' ') || '(unnamed)';
-              return (
-                <li key={emp.id} className="flex items-center gap-3 p-3 text-sm">
-                  <span className="font-medium">{name}</span>
-                  <span className="text-muted-foreground">{emp.job_title ?? '—'}</span>
-                  {emp.performance_rating != null ? (
-                    <span className="ml-auto rounded-full bg-accent-soft px-2 py-0.5 text-xs font-medium text-foreground">
-                      {emp.performance_rating.toFixed(1)}
-                    </span>
-                  ) : null}
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </section>
-    </main>
-  );
+        </>
+      );
+  }
 }

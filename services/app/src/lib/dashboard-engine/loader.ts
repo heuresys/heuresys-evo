@@ -1,4 +1,3 @@
-import { unstable_cache } from 'next/cache';
 import { prisma } from '@/lib/db';
 import type { Prisma } from '../../../prisma/generated/client/index.js';
 
@@ -46,25 +45,18 @@ async function loadDashboardPresetUncached(
 }
 
 /**
- * Cached preset loader. Presets + element layout change rarely (config-time,
- * not request-time), so a 5-minute Next.js cache absorbs hot dashboards
- * (esp. cross_tenant_overview) without serving stale UI for editors.
- *
- * Cache key: code + tenantId + requirePublished. Tag-based revalidation
- * is wired so a future admin "save preset" can call `revalidateTag()` to
- * invalidate without a deploy.
+ * Preset loader. Phase 15.A — direct DB read (cache temporarily bypassed).
+ * Next.js `unstable_cache` calls JSON.stringify on cached return values,
+ * which fails on BigInt fields (preset.id, dashboard_elements[].id,
+ * dashboard_preset_id). Hot path is ~30-100ms; preset definitions change
+ * rarely. Caching can be reintroduced after refactoring loader to return
+ * a serialized BigInt-stripped shape.
  */
 export async function loadDashboardPreset(
   code: string,
   opts: LoadPresetOptions
 ): Promise<DashboardPresetWithElements | null> {
-  const requirePublished = opts.requirePublished ?? true;
-  const cached = unstable_cache(
-    () => loadDashboardPresetUncached(code, opts.tenantId, requirePublished),
-    ['dashboard-preset', code, opts.tenantId ?? 'platform', String(requirePublished)],
-    { revalidate: 300, tags: [`dashboard-preset:${code}`] }
-  );
-  return cached();
+  return loadDashboardPresetUncached(code, opts.tenantId, opts.requirePublished ?? true);
 }
 
 /**
