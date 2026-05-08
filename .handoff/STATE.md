@@ -1,6 +1,6 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-08T01:54Z · S16 closed — 11 commit shipped (`9f7a283` → `4355641`)
+> Updated: 2026-05-08T17:24Z · S17 closed — 2 commit shipped (`d59ae3e` Phase 15.A · `597d471` docs sync)
 
 ## ⚠️ DIRETTIVA ATTIVA
 
@@ -8,56 +8,56 @@
 
 ## Last session brief
 
-S16 omnibus: API gateway JWT v4↔v5 fix (decoder + E2E verified) · brand v1.0 quick wins · WCAG 2.2 AAA full audit DARK+LIGHT (16/16 pass) · perf bench production con 4 round optimizations (cross_tenant 2385→794ms -67%, hr_director 692→194 -72%, MV cross_tenant + MV tenant_owner) · vulns express-rate-limit fix (0 residual) · /me/skills Prisma bug fix scoperto via tour browser. Direttiva utente: ogni round chiuso con commit/push direct.
+S17 omnibus Phase 15.A: brand-fedele dashboard rendering shipped. `/dashboard` ora role-driven via `role_default_dashboards` con 7 view brand-fedeli al mockup canonical `org-systems.html`. Architettura 4-layer: CSS canonical scoped 2370 righe + BrandShell layout sostituisce AppShell generico + role-preset resolver + 9 brand widget. `org_systems` view con data binding live (tenants reali · audit_logs · RBP counts · pg_policies). ADR-0026 + global doc sync.
 
 ## Top priorities (next session)
 
-1. **MV auto-refresh** (~2-3h) — verifica pg_cron extension + schedule REFRESH ogni 5min su `mv_cross_tenant_rollup` + `mv_tenant_owner_rollup`. Manual REFRESH richiesta tra deploy. Ref: `db/seeds/phase14i_*.sql` + `phase14j_*.sql`.
-2. **Perf round-5 React.cache + SWR** (~2-4h) — `cache()` su `prefetchElements` per render dedup + HTTP `Cache-Control: stale-while-revalidate=120` su dashboard pages. Target: P95 ≤500ms su tutte le 8 viste (oggi 5/8 dentro target).
-3. **/me family parity check** (~1-2h) — `/me/skills` fixed; verifica `/me/goals` · `/me/reviews` · `/me/learning` per stessi pattern Prisma deleted_at o column-name drift.
+1. **Data binding live full** (~3-5h) — sostituisci dati hardcoded mockup-fedeli nelle 6 view non-`org_systems` con query Prisma reali (employees per tenant + skill_assessments + review_cycles + succession_pipeline + compensation_plan + esco_metrics). Pattern: estendere `lib/dashboard-views/` con un fetcher per view.
+2. **Estensione preset minori** (~2-3h) — view brand-fedeli per `process_recruiting_funnel` · `process_onboarding_flow` · `process_performance_cycle` · `process_learning_paths` (4 preset PROCESS attualmente fallback al renderer override `/dashboard/[code]`).
+3. **MV auto-refresh** (~2-3h) — pg_cron schedule REFRESH 5min su `mv_cross_tenant_rollup` + `mv_tenant_owner_rollup`. Manual REFRESH richiesta tra deploy. Ref: `db/seeds/phase14{i,j}_*.sql`.
 
 ## Open questions
 
+- Re-skin brand widget Phase 13.A in `@heuresys/ui` (BrandKpiCard etc) per future sostituzione completa, o mantenere doppia track (atomic Phase 13.A + Brand Phase 15.A)?
 - `pg_cron` extension installata su Postgres bare-metal? Se no, alternativa systemd timer + psql script.
-- Cross_tenant_overview P95 residual 794ms (just at 800ms edge, variance): accept come baseline o serve perf round-5 hard?
 
 ## Stack snapshot
 
-| Layer       | Tech                                                                                  |
-| ----------- | ------------------------------------------------------------------------------------- |
-| Frontend    | Next.js 16 · 3200 · 17+ routes · theme toggle DARK/LIGHT WCAG-AAA                     |
-| API Gateway | Express 5 · 8200 · JWT v4↔v5 decoder shipped · 457/457 vitest                          |
-| UI Library  | `@heuresys/ui` Cantiere B + AppShell cablato · 95/95 vitest                            |
-| Shared      | `@heuresys/shared/rbp` · 82/82 vitest                                                  |
-| **DB**      | Postgres 16.13 bare-metal SoT · 4 tenants · 270 employees · 11 presets · 2 MV         |
-| Brand       | `.ux-design/` 12 phase ✅ · v1.0 quick wins promoted (tokens JSON + logos + icons)    |
-| a11y        | WCAG 2.2 AAA 16/16 (8 viste × 2 themes) · axe-core CI workflow attivo                  |
-| Perf        | P95 794ms (was 2385) · MV cross_tenant + tenant_owner · TTL 600s omnibus              |
-| Vulns       | 0 (post `express-rate-limit` 8.5.1)                                                    |
-| Tests       | 457 gw · 180 app · 82 shared · 95 ui · WCAG e2e 16                                     |
-| ADR         | 25 (ADR-0025 brand cycle sealed + v1.0 plan)                                           |
+| Layer       | Tech                                                                                 |
+| ----------- | ------------------------------------------------------------------------------------ |
+| Frontend    | Next.js 16 · 3200 · 17+ routes · `/dashboard` role-driven brand-fedele 7 view        |
+| API Gateway | Express 5 · 8200 · JWT v4↔v5 decoder · 457/457 vitest                                 |
+| UI Library  | `@heuresys/ui` Cantiere B + 9 brand widget in `services/app/components/widgets/brand`|
+| **DB**      | Postgres 16.13 bare-metal SoT · 4 tenants · 270 emp · 11 presets · 2 MV · `role_default_dashboards` 8 row |
+| Brand       | `.ux-design/` 13 phase ✅ (Phase 15.A added) · CSS canonical 2370 righe              |
+| a11y        | WCAG 2.2 AAA 16/16 (verifica spot only post Phase 15.A — full audit pending)         |
+| Perf        | P95 794ms baseline · MV active · TTL 600s omnibus                                     |
+| Vulns       | 0                                                                                     |
+| Tests       | 457 gw · 186 app · 82 shared · 95 ui (820 totali)                                     |
+| ADR         | 26 (ADR-0026 Phase 15.A brand-fedele dashboard)                                       |
 
 ## Background processes
 
 - Tunnel SSH (`scripts/dev-local/tunnel-vm.ps1 -Status`) · 5432 + 6380 listening
-- Next.js dev :3200 attivo nel terminale Enzo (HMR live)
-- Prod server :3201 spento (riavviare per perf bench)
+- Next.js dev :3200 attivo (HMR live in this session, may need restart)
 
 ## Verification
 
 ```bash
-git status -sb                                                     # clean post 4355641
+git status -sb                                                     # clean post 597d471
 npm run typecheck --workspaces --if-present                        # 5/5 verde
-npm test --workspaces --if-present                                  # 814 totali (457+180+82+95)
-bash scripts/integration/jwt-cross-service.sh                      # E2E PASS
-cd services/app && PLAYWRIGHT_NO_WEBSERVER=1 npx playwright test tests/e2e/a11y/wcag-aaa.spec.ts  # 16/16
-ssh oracle-vm-default 'sudo -u postgres psql -d heuresys_platform -c "SELECT * FROM mv_cross_tenant_rollup"'
+npm test --workspaces --if-present                                  # 820 totali (457+186+82+95)
+ssh oracle-vm-default 'sudo -u postgres psql -d heuresys_platform -c "SELECT role, preset_code FROM role_default_dashboards ORDER BY role"'
+# Browser smoke /dashboard come SUPERUSER + HR_DIRECTOR confermato Phase 15.A
 ```
 
 ## Riferimenti
 
-- Perf reports: `scripts/perf/results/views-prod-2026-05-08T01-42-03.{json,md}` (final P95 794ms)
-- WCAG manual checklist: `docs/40-operations/a11y-manual-checklist.md`
-- E2E JWT script: `scripts/integration/jwt-cross-service.sh`
-- MV seeds: `db/seeds/phase14{g,h,i,j}_*.sql`
-- Brand v1.0 checklist: `.ux-design/08-promotion/v1.0-checklist.md`
+- ADR-0026: `docs/50-reference/decisions/0026-phase15a-brand-fedele-dashboard-rendering.md`
+- Plan canonical: `~/.claude/plans/humble-soaring-lake.md`
+- Mockup brand canonical: `.ux-design/06-mockups/dashboards/org-systems.html`
+- 7 view brand-fedeli: `services/app/src/app/(app)/dashboard/_views/`
+- 9 brand widget: `services/app/src/components/widgets/brand/`
+- CSS canonical: `services/app/src/styles/dashboard-brand.css`
+- BrandShell layout: `services/app/src/app/(app)/_components/BrandShell.tsx`
+- Data fetcher live: `services/app/src/lib/dashboard-views/org-systems-data.ts`
