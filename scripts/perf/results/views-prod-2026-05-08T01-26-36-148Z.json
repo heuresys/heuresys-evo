@@ -1,0 +1,92 @@
+{
+  "timestamp": "2026-05-08T01:26:36.149Z",
+  "base": "http://127.0.0.1:3201",
+  "duration_s": 10,
+  "connections": 10,
+  "target_p95_ms": 500,
+  "acceptable_p95_ms": 800,
+  "overall_max_p95_ms": 876,
+  "verdict": "FAIL",
+  "views": [
+    {
+      "label": "login (public)",
+      "url": "http://127.0.0.1:3201/login",
+      "rps": 175,
+      "latency_avg_ms": 56.72,
+      "latency_p95_ms": 124,
+      "latency_max_ms": 161,
+      "errors": 0,
+      "non2xx": 0
+    },
+    {
+      "label": "dashboard/cross_tenant_overview",
+      "url": "http://127.0.0.1:3201/dashboard/cross_tenant_overview",
+      "rps": 20,
+      "latency_avg_ms": 485.45,
+      "latency_p95_ms": 675,
+      "latency_max_ms": 822,
+      "errors": 0,
+      "non2xx": 0
+    },
+    {
+      "label": "dashboard/tenant_owner_overview",
+      "url": "http://127.0.0.1:3201/dashboard/tenant_owner_overview",
+      "rps": 61,
+      "latency_avg_ms": 162.08,
+      "latency_p95_ms": 876,
+      "latency_max_ms": 1419,
+      "errors": 0,
+      "non2xx": 0
+    },
+    {
+      "label": "dashboard/hr_director_overview",
+      "url": "http://127.0.0.1:3201/dashboard/hr_director_overview",
+      "rps": 65,
+      "latency_avg_ms": 154.36,
+      "latency_p95_ms": 799,
+      "latency_max_ms": 1240,
+      "errors": 0,
+      "non2xx": 0
+    },
+    {
+      "label": "employees",
+      "url": "http://127.0.0.1:3201/employees",
+      "rps": 33,
+      "latency_avg_ms": 304,
+      "latency_p95_ms": 503,
+      "latency_max_ms": 537,
+      "errors": 0,
+      "non2xx": 0
+    },
+    {
+      "label": "me/skills",
+      "url": "http://127.0.0.1:3201/me/skills",
+      "rps": 24,
+      "latency_avg_ms": 408.38,
+      "latency_p95_ms": 597,
+      "latency_max_ms": 630,
+      "errors": 0,
+      "non2xx": 0
+    },
+    {
+      "label": "admin/users",
+      "url": "http://127.0.0.1:3201/admin/users",
+      "rps": 28,
+      "latency_avg_ms": 353.39,
+      "latency_p95_ms": 480,
+      "latency_max_ms": 544,
+      "errors": 0,
+      "non2xx": 0
+    },
+    {
+      "label": "ontology",
+      "url": "http://127.0.0.1:3201/ontology",
+      "rps": 151,
+      "latency_avg_ms": 65.9,
+      "latency_p95_ms": 166,
+      "latency_max_ms": 197,
+      "errors": 0,
+      "non2xx": 0
+    }
+  ]
+}
