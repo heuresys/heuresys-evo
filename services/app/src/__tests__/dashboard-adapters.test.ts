@@ -321,8 +321,8 @@ describe('resolveAdapter + ADAPTER_REGISTRY', () => {
     expect(resolveAdapter('RbacMatrix')).toBe(rbacMatrixAdapter);
   });
 
-  it('registry exposes 9 entries (TIER 17 + ActivityFeed L42)', () => {
-    expect(Object.keys(ADAPTER_REGISTRY)).toHaveLength(9);
+  it('registry exposes 14 entries (TIER 17 + ActivityFeed + 5 G3-bis L43)', () => {
+    expect(Object.keys(ADAPTER_REGISTRY)).toHaveLength(14);
   });
 
   it('returns null for unknown widget_code', () => {

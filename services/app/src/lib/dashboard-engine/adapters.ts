@@ -257,6 +257,81 @@ export const activityFeedAdapter: WidgetAdapter = (raw) => {
   return props;
 };
 
+/**
+ * GaugeCard — `{ label, value, unit?, tone?, max? }`.
+ */
+export const gaugeCardAdapter: WidgetAdapter = (raw) => {
+  const row = firstRow(raw);
+  if (!row) return null;
+  const label = asString(row.label);
+  const value = asNumber(row.value);
+  if (label === null || value === null) return null;
+  const props: Record<string, unknown> = { label, value };
+  const unit = asString(row.unit);
+  if (unit !== null) props.unit = unit;
+  const tone = asString(row.tone);
+  if (tone === 'accent' || tone === 'success' || tone === 'warn') props.tone = tone;
+  const max = asNumber(row.max);
+  if (max !== null) props.max = max;
+  return props;
+};
+
+/**
+ * Histogram — `{ items: [{ id, label, value, tone? }], max? }`.
+ */
+export const histogramAdapter: WidgetAdapter = (raw) => {
+  const row = firstRow(raw);
+  if (!row) return null;
+  const items = asArray(row.items);
+  if (!items) return null;
+  const props: Record<string, unknown> = { items };
+  const max = asNumber(row.max);
+  if (max !== null) props.max = max;
+  return props;
+};
+
+/**
+ * CompCard — `{ items: [{ id, label, value, unit? }] }`.
+ */
+export const compCardAdapter: WidgetAdapter = (raw) => {
+  const row = firstRow(raw);
+  if (!row) return null;
+  const items = asArray(row.items);
+  if (!items) return null;
+  return { items };
+};
+
+/**
+ * BridgeCard — `{ items: [{ id, role, readinessLabel, readinessValue?, gaps[] }] }`.
+ */
+export const bridgeCardAdapter: WidgetAdapter = (raw) => {
+  const row = firstRow(raw);
+  if (!row) return null;
+  const items = asArray(row.items);
+  if (!items) return null;
+  return { items };
+};
+
+/**
+ * ProfileHero — `{ name, sub?, initials?, badges?, stats? }`.
+ */
+export const profileHeroAdapter: WidgetAdapter = (raw) => {
+  const row = firstRow(raw);
+  if (!row) return null;
+  const name = asString(row.name);
+  if (name === null) return null;
+  const props: Record<string, unknown> = { name };
+  const sub = asString(row.sub);
+  if (sub !== null) props.sub = sub;
+  const initials = asString(row.initials);
+  if (initials !== null) props.initials = initials;
+  const badges = asArray(row.badges);
+  if (badges) props.badges = badges;
+  const stats = asArray(row.stats);
+  if (stats) props.stats = stats;
+  return props;
+};
+
 export const ADAPTER_REGISTRY: Record<string, WidgetAdapter> = {
   KpiRing: kpiRingAdapter,
   IntegrationHealthPill: integrationHealthPillAdapter,
@@ -267,6 +342,11 @@ export const ADAPTER_REGISTRY: Record<string, WidgetAdapter> = {
   CapabilityRadar: capabilityRadarAdapter,
   RbacMatrix: rbacMatrixAdapter,
   ActivityFeed: activityFeedAdapter,
+  GaugeCard: gaugeCardAdapter,
+  Histogram: histogramAdapter,
+  CompCard: compCardAdapter,
+  BridgeCard: bridgeCardAdapter,
+  ProfileHero: profileHeroAdapter,
 };
 
 export function resolveAdapter(widget_code: string): WidgetAdapter | null {

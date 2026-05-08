@@ -264,6 +264,107 @@ const ActivityFeedWidget: WidgetComponent = lazyWidget(() =>
     ),
   }))
 );
+
+const GaugeCardWidget: WidgetComponent = lazyWidget(() =>
+  import('@/components/widgets/brand').then((m: any) => ({
+    default: liveWrapper(
+      'GaugeCard',
+      { label: 'CAPABILITY', value: 73, unit: '%', tone: 'accent' as const },
+      (props) => <m.BrandGaugeCard {...props} />
+    ),
+  }))
+);
+
+const HistogramWidget: WidgetComponent = lazyWidget(() =>
+  import('@/components/widgets/brand').then((m: any) => ({
+    default: liveWrapper(
+      'Histogram',
+      {
+        items: [
+          { id: '1', label: '90-100', value: 18, tone: 'ok' as const },
+          { id: '2', label: '70-89', value: 42, tone: 'info' as const },
+          { id: '3', label: '50-69', value: 31, tone: 'warn' as const },
+          { id: '4', label: '0-49', value: 9, tone: 'critical' as const },
+        ],
+      },
+      (props) => <m.BrandHistogram {...props} />
+    ),
+  }))
+);
+
+const CompCardWidget: WidgetComponent = lazyWidget(() =>
+  import('@/components/widgets/brand').then((m: any) => ({
+    default: liveWrapper(
+      'CompCard',
+      {
+        items: [
+          { id: 'salary', label: 'BASE SALARY', value: 86, unit: 'k €' },
+          { id: 'bonus', label: 'BONUS Q4', value: 12, unit: 'k €' },
+          { id: 'equity', label: 'EQUITY', value: 24, unit: 'k €' },
+          { id: 'total', label: 'TOTAL TC', value: 122, unit: 'k €' },
+        ],
+      },
+      (props) => <m.BrandCompCard {...props} />
+    ),
+  }))
+);
+
+const BridgeCardWidget: WidgetComponent = lazyWidget(() =>
+  import('@/components/widgets/brand').then((m: any) => ({
+    default: liveWrapper(
+      'BridgeCard',
+      {
+        items: [
+          {
+            id: '1',
+            role: 'Senior Risk Analyst',
+            readinessLabel: 'Readiness',
+            readinessValue: 72,
+            gaps: ['Python · advanced', 'Stakeholder mgmt'],
+          },
+          {
+            id: '2',
+            role: 'Lead Risk',
+            readinessLabel: 'Readiness',
+            readinessValue: 48,
+            gaps: ['SQL · expert', 'Leadership coaching', 'P&L ownership'],
+          },
+          {
+            id: '3',
+            role: 'Director Risk & Analytics',
+            readinessLabel: 'Readiness',
+            readinessValue: 22,
+            gaps: ['Board comms', 'Strategy framing', 'Cross-domain'],
+          },
+        ],
+      },
+      (props) => <m.BrandBridgeCard {...props} />
+    ),
+  }))
+);
+
+const ProfileHeroWidget: WidgetComponent = lazyWidget(() =>
+  import('@/components/widgets/brand').then((m: any) => ({
+    default: liveWrapper(
+      'ProfileHero',
+      {
+        name: 'Gabriele Amato',
+        sub: 'Risk Analyst · Credit Risk · 4.2 yr tenure',
+        badges: [
+          { kind: 'role' as const, label: 'Analyst' },
+          { kind: 'dept' as const, label: 'Credit Risk' },
+          { kind: 'tenure' as const, label: '4y 2m' },
+        ],
+        stats: [
+          { id: 'cap', label: 'CAPABILITY', value: 78, unit: '%' },
+          { id: 'goals', label: 'GOALS Q4', value: 4, unit: '/5' },
+          { id: 'next', label: 'NEXT REVIEW', value: '12d' },
+        ],
+      },
+      (props) => <m.BrandProfileHero {...props} />
+    ),
+  }))
+);
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
 export const WIDGET_REGISTRY: Record<string, WidgetComponent> = {
@@ -276,6 +377,11 @@ export const WIDGET_REGISTRY: Record<string, WidgetComponent> = {
   CapabilityRadar: CapabilityRadarWidget,
   RbacMatrix: RbacMatrixWidget,
   ActivityFeed: ActivityFeedWidget,
+  GaugeCard: GaugeCardWidget,
+  Histogram: HistogramWidget,
+  CompCard: CompCardWidget,
+  BridgeCard: BridgeCardWidget,
+  ProfileHero: ProfileHeroWidget,
 };
 
 export function resolveWidget(widget_code: string): WidgetComponent | null {

@@ -51,3 +51,19 @@ export {
   type RadarAxis,
   type RadarSeries,
 } from './BrandCapabilityRadar';
+export { BrandGaugeCard, type BrandGaugeCardProps, type GaugeTone } from './BrandGaugeCard';
+export {
+  BrandHistogram,
+  type BrandHistogramProps,
+  type HistogramItem,
+  type HistogramTone,
+} from './BrandHistogram';
+export { BrandCompCard, type BrandCompCardProps, type CompItem } from './BrandCompCard';
+export { BrandBridgeCard, type BrandBridgeCardProps, type BridgeItem } from './BrandBridgeCard';
+export {
+  BrandProfileHero,
+  type BrandProfileHeroProps,
+  type ProfileBadge,
+  type ProfileBadgeKind,
+  type ProfileStat,
+} from './BrandProfileHero';

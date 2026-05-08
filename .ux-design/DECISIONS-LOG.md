@@ -1227,6 +1227,37 @@ Risposte alle 2 domande operative pre-formalizzazione:
 
 ---
 
+## L43 — 2026-05-08 — D7 keep parallel · D8 chiuso · G3-bis 5 nuovi BrandWidget · G5 DashboardRenderer skeleton
+
+**Decisione**:
+
+1. **D7 (atomic packages/ui keep o deprecate)** → opzione **A keep parallel**: i 8 atomic dashboard component in `packages/ui/src/components/dashboard/` restano per Storybook + design-system generic; i BrandWidget in `services/app/src/components/widgets/brand/` restano per dashboard catalog. Zero refactor compositor (opzione C scartata per costo + rischio regression). Nessuna deprecazione (opzione B scartata per perdita di Storybook coverage + design-system reuse fuori dashboard).
+2. **D8 (BrandActivityFeed registry gap)** → chiuso: registrato in `WIDGET_REGISTRY` con adapter `activityFeedAdapter` + demo fallback.
+3. **G3-bis (5 nuovi BrandWidget shipped)**: `BrandGaugeCard` · `BrandHistogram` · `BrandCompCard` · `BrandBridgeCard` · `BrandProfileHero`. Ognuno con component TSX (~40-80 righe seguendo pattern `BrandKpiCard`), adapter dedicato in `adapters.ts`, entry in `WIDGET_REGISTRY` con demo fallback live-wrapper. Catalog post-G3-bis: 14 widget registrati (era 9 post-D8).
+4. **G5 (DashboardRenderer skeleton)**: nuovo componente client `services/app/src/components/DashboardRenderer.tsx` (~150 righe) come consumer single-entry-point del widget registry. MVP scope: rendering FLAT (top-level only, hierarchy via `parent_element_id` parsata ma renderizzata come flat — finché G5-phase-2 in S20 non aggiunge layout containers `.double-split`/`.main-split`/`.panel` come widget_code dedicati). Test coverage 9 unit test (`__tests__/dashboard-renderer.test.tsx`).
+
+**Contesto**: continuazione lineare S19 dopo G3 partial (D8). L'utente conferma intenzione "fai tutto in questa sessione" con disponibilità token elevata. Reality check: G3-bis + G5 skeleton = ~100% completati; G6 (preset seed) deferred a S20 perché dipende da G5-phase-2 (layout containers) per riprodurre fedelmente i layout dei 7 view bespoke.
+
+**Conseguenza**:
+
+- 5 nuovi file in `services/app/src/components/widgets/brand/`: `BrandGaugeCard.tsx` · `BrandHistogram.tsx` · `BrandCompCard.tsx` · `BrandBridgeCard.tsx` · `BrandProfileHero.tsx`
+- `widgets/brand/index.ts` esporta 5 nuovi component + types (`GaugeTone` · `HistogramItem` · `HistogramTone` · `CompItem` · `BridgeItem` · `ProfileBadge` · `ProfileBadgeKind` · `ProfileStat`)
+- `dashboard-engine/adapters.ts`: 5 nuovi adapter + `ADAPTER_REGISTRY` 9 → 14 entries
+- `dashboard-engine/registry.tsx`: 5 nuovi `lazyWidget` + `WIDGET_REGISTRY` 9 → 14 entries
+- `__tests__/dashboard-adapters.test.ts`: count 9 → 14
+- Nuovo `components/DashboardRenderer.tsx` con interface tipizzata `DashboardRendererProps` + `DashboardRendererSlot` + adapter `elementsToSlots` da `DashboardElementShape` post-G4 (con `parent_element_id` + `variant`)
+- Nuovo `__tests__/dashboard-renderer.test.tsx` con 9 unit test coprendo: ordering position · filtro children flat MVP · fallback unknown widget · custom fallback · empty state · data preloaded passing · `data-*` attributes · `elementsToSlots` adapter
+- Test totale services/app: 186 → **195 passed**
+- Catalog brand-dashboard-catalog.md G1 ora coerente: i 5 widget 🆕 PROMOTE-NEW listati in §5/§6/§7/§11 sono shipped (status 🆕 → ✅ post-S19 G3-bis)
+
+**Riferimenti**:
+
+- Audit doc: `.ux-design/08-promotion/brand-dashboard-catalog-CURRENT-STATE.md` § 5 (D7 + D8)
+- Catalog canonical: `docs/30-developer/brand-dashboard-catalog.md` § 5.8-5.11 + §6.4 + §7.4 + §11
+- DashboardRenderer: `services/app/src/components/DashboardRenderer.tsx` (commento JSDoc include adoption path S19 → S20+)
+
+---
+
 ## Format per nuove entry
 
 Quando aggiungi una nuova decisione, segui questo template:
