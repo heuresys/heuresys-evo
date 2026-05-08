@@ -18,11 +18,11 @@ async function fetchMySkills(tenantId: string, userId: string) {
 
     const [structured, freeform] = await Promise.all([
       tx.employee_skills.findMany({
-        where: { employee_id: u.employee_id, deleted_at: null },
+        where: { employee_id: u.employee_id },
         take: 100,
         select: {
           id: true,
-          skill_id: true,
+          esco_skill_id: true,
           proficiency_level: true,
           years_experience: true,
         },
@@ -40,15 +40,6 @@ async function fetchMySkills(tenantId: string, userId: string) {
     };
   });
 }
-
-const PROFICIENCY_TONE: Record<string, string> = {
-  novice: 'rgba(138,142,155,0.18)',
-  basic: 'rgba(138,142,155,0.25)',
-  intermediate: 'rgba(94,105,209,0.25)',
-  proficient: 'rgba(95,184,122,0.18)',
-  expert: 'rgba(95,184,122,0.30)',
-  master: 'rgba(168,85,247,0.25)',
-};
 
 export default async function MySkillsPage() {
   const session = await auth();
@@ -109,17 +100,16 @@ export default async function MySkillsPage() {
                     className="grid grid-cols-[1fr_auto_auto] items-center gap-3 p-3 text-sm"
                   >
                     <code className="text-xs">
-                      {s.skill_id ? `${String(s.skill_id).slice(0, 12)}…` : '—'}
+                      {s.esco_skill_id ? `${String(s.esco_skill_id).slice(0, 12)}…` : '—'}
                     </code>
-                    {s.proficiency_level ? (
+                    {s.proficiency_level != null ? (
                       <span
                         className="rounded-full px-2 py-0.5 text-xs font-medium"
                         style={{
-                          background:
-                            PROFICIENCY_TONE[s.proficiency_level] ?? 'rgba(138,142,155,0.18)',
+                          background: 'rgba(94,105,209,0.25)',
                         }}
                       >
-                        {s.proficiency_level}
+                        L{s.proficiency_level}
                       </span>
                     ) : (
                       <span />
