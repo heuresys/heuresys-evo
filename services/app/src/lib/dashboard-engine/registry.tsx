@@ -246,6 +246,24 @@ const RbacMatrixWidget: WidgetComponent = lazyWidget(() =>
     };
   })
 );
+const ActivityFeedWidget: WidgetComponent = lazyWidget(() =>
+  import('@/components/widgets/brand').then((m: any) => ({
+    default: liveWrapper(
+      'ActivityFeed',
+      {
+        title: 'Activity feed',
+        live: true,
+        items: [
+          { id: '1', when: '2 min ago', what: 'New review cycle started', who: 'HR Director' },
+          { id: '2', when: '12 min ago', what: 'Skill assessment imported', who: 'system' },
+          { id: '3', when: '34 min ago', what: 'Goal cascade published', who: 'Maria Rossi' },
+          { id: '4', when: '1 h ago', what: 'Onboarding kickoff', who: 'Luca Bianchi' },
+        ],
+      },
+      (props) => <m.BrandActivityFeed {...props} />
+    ),
+  }))
+);
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
 export const WIDGET_REGISTRY: Record<string, WidgetComponent> = {
@@ -257,6 +275,7 @@ export const WIDGET_REGISTRY: Record<string, WidgetComponent> = {
   SkillHeatmap: SkillHeatmapWidget,
   CapabilityRadar: CapabilityRadarWidget,
   RbacMatrix: RbacMatrixWidget,
+  ActivityFeed: ActivityFeedWidget,
 };
 
 export function resolveWidget(widget_code: string): WidgetComponent | null {

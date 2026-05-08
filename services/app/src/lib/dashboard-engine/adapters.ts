@@ -240,6 +240,23 @@ export const rbacMatrixAdapter: WidgetAdapter = (raw) => {
   return props;
 };
 
+/**
+ * ActivityFeed — `{ items: ActivityFeedItem[], title?, live? }`.
+ * Items expected as JSONB array of `{ id, when, what, who? }`.
+ */
+export const activityFeedAdapter: WidgetAdapter = (raw) => {
+  const row = firstRow(raw);
+  if (!row) return null;
+  const items = asArray(row.items);
+  if (!items) return null;
+  const props: Record<string, unknown> = { items };
+  const title = asString(row.title);
+  if (title !== null) props.title = title;
+  const live = asBoolean(row.live);
+  if (live !== null) props.live = live;
+  return props;
+};
+
 export const ADAPTER_REGISTRY: Record<string, WidgetAdapter> = {
   KpiRing: kpiRingAdapter,
   IntegrationHealthPill: integrationHealthPillAdapter,
@@ -249,6 +266,7 @@ export const ADAPTER_REGISTRY: Record<string, WidgetAdapter> = {
   SkillHeatmap: skillHeatmapAdapter,
   CapabilityRadar: capabilityRadarAdapter,
   RbacMatrix: rbacMatrixAdapter,
+  ActivityFeed: activityFeedAdapter,
 };
 
 export function resolveAdapter(widget_code: string): WidgetAdapter | null {
