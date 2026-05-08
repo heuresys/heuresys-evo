@@ -2,7 +2,9 @@
 
 > **Single Source of Truth** per stato corrente del workstream brand identity. Aggiorna questo file ogni volta che cambia phase, viene presa una decisione, o si producono asset significativi. Per la cronologia completa cronologica, vedi `DECISIONS-LOG.md`.
 >
-> **Last update**: 2026-05-08 (**L39 Phase 15.A brand-fedele dashboard rendering shipped** · 7 view brand-fedeli per preset_code · CSS canonical 2370 righe + BrandShell layout + 9 brand widget · role-driven branching via `role_default_dashboards` · `org_systems` view live data binding · ADR-0026. Commit `d59ae3e` su main.)
+> **Last update**: 2026-05-08 (**L40 Tassonomia dashboard dinamica vs ad-hoc · catalogo dashboard ≡ Brand Identity · audit current-state generato in `08-promotion/brand-dashboard-catalog-CURRENT-STATE.md`** · classificazione 5-tag su 138 selettori CSS + 17 React component · 10 drift identificati · roadmap remediation G1-G6 mappata ma NON eseguita.)
+>
+> **Previous update**: 2026-05-08 (L39 Phase 15.A brand-fedele dashboard rendering shipped · 7 view brand-fedeli per preset_code · CSS canonical 2370 righe + BrandShell layout + 9 brand widget · role-driven branching via `role_default_dashboards` · `org_systems` view live data binding · ADR-0026. Commit `d59ae3e` su main.)
 
 ## Current phase
 
@@ -136,9 +138,11 @@
 
 - `BRAND-BOOK-v0.md` — 15 sezioni canoniche · single entry point unificato cross-reference. v0 textual; v1 visiva futura.
 
-### `08-promotion/`
+### `08-promotion/` (Phase 11+ promotion gate)
 
-Vuoto — popolazione successiva.
+- `v1.0-checklist.md` — gate operativo promotion da `.ux-design/` a `services/`/`packages/`. 14 categorie asset · acceptance criteria + workflow per ogni categoria · roadmap effort.
+- `promotion-candidates.md` — registry ranking visivo per ogni surface (login · 7 dashboard · motion · ecc.) con stato candidate.
+- `brand-dashboard-catalog-CURRENT-STATE.md` (L40 · 2026-05-08) — **audit current-state pre-flight dashboard promotion**: classificazione 5-tag (a/b/c/d/e) su 138 selettori CSS canonical + 17 React component (9 BrandWidget + 8 atomic packages/ui), 10 drift identificati D1-D10, 8 gap formali GA1-GA8, roadmap 6-step G1-G6 (~26-37h) verso modello unificato `<DashboardRenderer/>` DB-driven.
 
 ### `06-mockups/dashboards/` (Phase 9 · L22 layout v2 · 5 surface complete)
 

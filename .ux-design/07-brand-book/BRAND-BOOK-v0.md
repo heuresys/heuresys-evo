@@ -536,15 +536,16 @@ Post brand book v0 (questo file):
 
 ## Cross-reference rapido
 
-| Per…                                  | Vedi                                                                                      |
-| ------------------------------------- | ----------------------------------------------------------------------------------------- |
-| **Cambiare un token color**           | `services/app/src/styles/active-theme.css` + `.ux-design/05-theme-variants/tokens-*.json` |
-| **Aggiungere una direction estetica** | `.ux-design/02-aesthetic/direction-explorations/` + `BRAND-STATE.md` § Phase 4            |
-| **Capire perché D1 è μ-architect**    | `DECISIONS-LOG.md` L19→L21                                                                |
-| **Riprendere la sessione brand**      | `.ux-design/SESSION-RESUME.md` + skill `brand-resume`                                     |
-| **Integrare token in nuovo tool**     | `.ux-design/05-theme-variants/README.md` § Uso lato consumer                              |
-| **Testare WCAG su una vista**         | (pending) `docs/40-operations/a11y-audit-2026-05-07.md`                                   |
-| **Promuovere mockup a produzione**    | Skill `studio` + `/studio:promote <route> <TS>`                                           |
+| Per…                                  | Vedi                                                                                                                                 |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| **Cambiare un token color**           | `services/app/src/styles/active-theme.css` + `.ux-design/05-theme-variants/tokens-*.json`                                            |
+| **Aggiungere una direction estetica** | `.ux-design/02-aesthetic/direction-explorations/` + `BRAND-STATE.md` § Phase 4                                                       |
+| **Capire perché D1 è μ-architect**    | `DECISIONS-LOG.md` L19→L21                                                                                                           |
+| **Riprendere la sessione brand**      | `.ux-design/SESSION-RESUME.md` + skill `brand-resume`                                                                                |
+| **Integrare token in nuovo tool**     | `.ux-design/05-theme-variants/README.md` § Uso lato consumer                                                                         |
+| **Testare WCAG su una vista**         | (pending) `docs/40-operations/a11y-audit-2026-05-07.md`                                                                              |
+| **Promuovere mockup a produzione**    | Skill `studio` + `/studio:promote <route> <TS>`                                                                                      |
+| **Catalogo asset dashboard (audit)**  | [`08-promotion/brand-dashboard-catalog-CURRENT-STATE.md`](../08-promotion/brand-dashboard-catalog-CURRENT-STATE.md) — pre-flight L40 |
 
 ---
 

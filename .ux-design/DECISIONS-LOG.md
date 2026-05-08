@@ -1145,6 +1145,35 @@ Risposte alle 2 domande operative pre-formalizzazione:
 
 ---
 
+## L40 — 2026-05-08 — Tassonomia dashboard dinamica vs ad-hoc · catalogo dashboard ≡ Brand Identity · audit current-state generato
+
+**Decisione**: stabilita la tassonomia operativa per le dashboard del progetto:
+
+1. **Dashboard dinamica** = compone DOM **solo da asset del catalogo Brand Identity** (livello 1 atomi/widget + livello 2 varianti dichiarate), composti dinamicamente via preset DB-driven con slot count **variabile** (livello 3). Default per tutte le dashboard di gestione.
+2. **Dashboard ad-hoc** = eccezione che può uscire dal catalogo, definita di volta in volta.
+3. **Equazione fondante**: il catalogo del modello dashboard **≡** la libreria asset Brand Identity Heuresys. Promuovere un widget al catalogo = farlo entrare nella Brand Identity ufficiale.
+4. Header e footer possono contenere oggetti **dinamici contestuali** (breadcrumb, scope-pill, user-card, SOURCE info) accanto a oggetti **trasversali** (logo, theme-toggle, separator accent) — entrambi parte del modello unificato.
+
+**Contesto**: intervista chiarificazione concettuale 2026-05-08 17:30-18:00 GMT+2. Emergenza: le 7 view brand-fedeli shipped in Phase 15.A (L39) **non sono dashboard dinamiche** secondo questa tassonomia — sono ibridi di chrome brand-coerente + JSX bespoke per ruolo. Il mockup `org-systems.html` è **IL** modello canonical, ma è stato applicato come riferimento visivo, non come matrice strutturale. Conseguenza: drift architetturale identificato, va rimediato.
+
+**Conseguenza**:
+
+- Generato documento `brand-dashboard-catalog-CURRENT-STATE.md` in `08-promotion/`: audit read-only completo con classificazione 5-tag (a/b/c/d/e) per 138 selettori CSS + 17 React component (9 BrandWidget + 8 atomic packages/ui)
+- Identificati 10 drift D1-D10 (3 critical, 4 medium, 3 low) — pill 2-system, split 3-system, heatmap bucket 2-system, 17 implementazioni parallel di 8 viz, ecc.
+- Mappati 8 gap formali GA1-GA8 verso modello unificato
+- Roadmap 6-step G1-G6 (~26-37h) per convergenza a `<DashboardRenderer/>` DB-driven unico — NON eseguita in questa sessione, decisioni pending per ogni step
+- Cross-link aggiunti da `BRAND-BOOK-v0.md` · `v1.0-checklist.md` · `BRAND-STATE.md` (asset inventory `08-promotion/`)
+- Audit costituisce pre-flight per la promotion v1.0 dashboard (parte del workflow `08-promotion/v1.0-checklist.md`)
+
+**Riferimenti**:
+
+- Audit doc: `.ux-design/08-promotion/brand-dashboard-catalog-CURRENT-STATE.md`
+- Plan canonical: `~/.claude/plans/concordo-con-a-happy-tarjan.md`
+- Mockup brand canonical (modello unificato): `.ux-design/06-mockups/dashboards/org-systems.html`
+- Phase 15.A: ADR-0026 + L39
+
+---
+
 ## Format per nuove entry
 
 Quando aggiungi una nuova decisione, segui questo template:
