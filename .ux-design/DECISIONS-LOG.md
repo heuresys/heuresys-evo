@@ -1258,6 +1258,48 @@ Risposte alle 2 domande operative pre-formalizzazione:
 
 ---
 
+## L44 — 2026-05-09 — G5-phase-2 hierarchy + 4 layout containers · G6 smoke seed (org_systems_v2 · hr_director_overview_v2)
+
+**Decisione**:
+
+1. **G5-phase-2** — Layout container widgets shipped: `BrandDoubleSplit` · `BrandMainSplit` · `BrandKpiRing` · `BrandPanel`. Aggiunto `LAYOUT_REGISTRY` separato da `WIDGET_REGISTRY` in `dashboard-engine/registry.tsx` con tipi distinti (`LayoutContainerComponent` riceve `{ data?, children }` vs `WidgetComponent` solo `{ data? }`). DashboardRenderer riscritto con risoluzione ricorsiva: per ogni element risolto via LAYOUT prima, WIDGET poi, fallback ultimo. Tree built da flat slots via `parent_element_id` map (key `__root__` per top-level). Children ordinati per `position` ASC ricorsivamente.
+2. **G6 smoke seed** — Creati 2 NUOVI preset hierarchical (suffix `_v2`) come PoC end-to-end del DashboardRenderer post-G4 schema:
+   - **`org_systems_v2`** (ENTERPRISE · IT_ADMIN): 10 elements · `LayoutKpiRing` con 4 KPI top + `LayoutDoubleSplit` con 2 panel (Integrations · Audit) ognuno con widget interno.
+   - **`hr_director_overview_v2`** (TALENT · HR_DIRECTOR): 11 elements · `LayoutKpiRing` con 4 KPI + `LayoutMainSplit` (2fr 1fr) con panel main (RbacMatrix) e panel side (ActivityFeed) + SuccessionCard top-level standalone.
+3. **Adoption deferred a S21** — Il redirect del switch in `dashboard/page.tsx` da view bespoke a `<DashboardRenderer/>` richiede mappare `role_default_dashboards.preset_code` da `*` a `*_v2` E verifica visiva browser. NON eseguito in questa sessione per evitare regression di prod (le 7 view bespoke restano la production path attiva). I preset originali e i 38 dashboard_elements del demo grid `/dashboard/[code]` (Phase 13.C) **non sono toccati** — coesistenza pulita.
+
+**Contesto**: continuazione lineare S19 dopo G3-bis + G5 skeleton. Decisione architetturale chiave: separare `LAYOUT_REGISTRY` da `WIDGET_REGISTRY` invece di unificare via type guard runtime. Vantaggi: type-safety statica per props (children obbligatorio per layout, opzionale data), distinzione semantica esplicita tra "wrapper di altri slot" e "leaf data renderer", possibilità futura di trattamento differenziale (es. layout containers possono avere logica di passa-through, leaf widgets no).
+
+Errore intermedio evitato: tentazione di allargare scope a redirect `dashboard/page.tsx` immediato. Ferma a renderer + smoke seed → adoption come step separato post browser-test (rispetto regola "test-before-claim" R5 per UI changes).
+
+**Conseguenza**:
+
+- Nuovo file `services/app/src/components/widgets/brand/BrandLayoutContainers.tsx` (~70 righe · 4 component + LAYOUT_CONTAINERS export)
+- `widgets/brand/index.ts` esporta 4 layout containers + types `LayoutContainerProps` · `LayoutContainerCode`
+- `dashboard-engine/registry.tsx`: aggiunto `LAYOUT_REGISTRY` + `LayoutContainerComponent` type + `resolveLayout()` helper
+- `components/DashboardRenderer.tsx` riscritto con:
+  - `buildChildrenMap()` interno · `renderSlot()` ricorsivo · `RenderContext` pattern
+  - Adoption path nel JSDoc aggiornato (S19 G5 skeleton ✅ · S19 G5-phase-2 ✅ hierarchy · S20+ G6 full · S20+ adoption redirect)
+- `__tests__/dashboard-renderer.test.tsx` espanso: 13 test (era 9)
+  - 6 G5 flat (rimossi 1 obsoleto skip-children, mantenuti core)
+  - 5 G5-phase-2 hierarchy: layout container + nested 2-level + data passing + empty container + ordering siblings per position
+  - 2 elementsToSlots adapter
+- Nuovo `db/seeds/phase15g6_preset_layouts_smoke.sql` (~260 righe · 2 DO blocks PL/pgSQL · idempotent ON CONFLICT + DELETE re-seed pattern)
+- DB bare-metal SoT: 2 nuovi preset in `dashboard_presets` (`org_systems_v2` · `hr_director_overview_v2`) + 21 nuovi `dashboard_elements` rows con hierarchy
+- Test totale services/app: 195 → **199 passed** (+4 net: -1 obsoleto +5 hierarchy)
+- Roadmap residua S20+: G6 full (5 preset rimanenti) · adoption redirect dashboard/page.tsx · 7 \*View.tsx deletion (~2200 righe rimosse) · D10 atomic test coverage
+
+**Riferimenti**:
+
+- DashboardRenderer: `services/app/src/components/DashboardRenderer.tsx`
+- Layout containers: `services/app/src/components/widgets/brand/BrandLayoutContainers.tsx`
+- LAYOUT_REGISTRY: `services/app/src/lib/dashboard-engine/registry.tsx`
+- Smoke seed: `db/seeds/phase15g6_preset_layouts_smoke.sql`
+- L43 (D7+D8 + G3-bis + G5 skeleton)
+- Catalog G1: `docs/30-developer/brand-dashboard-catalog.md`
+
+---
+
 ## Format per nuove entry
 
 Quando aggiungi una nuova decisione, segui questo template:
