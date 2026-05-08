@@ -1,6 +1,6 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-09T00:50Z · S19 closed — 9 prod commit + handoff (G2 full · G1 catalog · G4 DB · G3+G3-bis · G5 skeleton + phase-2 · G6 smoke)
+> Updated: 2026-05-09T01:10Z · S19 closed — 11 prod commit + handoff (G2 full · G1 catalog · G4 DB · G3+G3-bis · G5 skeleton+phase-2 · **G6 full + adoption shipped**)
 
 ## ⚠️ DIRETTIVA ATTIVA
 
@@ -8,173 +8,185 @@
 
 ## 🎯 DA DOVE PARTIRE NELLA PROSSIMA SESSIONE (S20)
 
-**Leggi PRIMA**: [`docs/30-developer/brand-dashboard-catalog.md`](../docs/30-developer/brand-dashboard-catalog.md) — catalogo formale Brand Identity dashboard (G1, S19). SoT canonical post-L42. **5 widget 🆕→✅ shipped (G3-bis L43)** + **4 layout containers shipped (G5-phase-2 L44)**: aggiornare catalog se serve riflettere il nuovo stato.
+**🚨 PRIORITÀ #1 — TEST BROWSER `/dashboard` post-G6 adoption**: l'adoption è shipped (S19) ma non testato visivamente in browser. Loggati per ognuno degli 8 ruoli (SUPERUSER, TENANT_OWNER, IT_ADMIN, HR_DIRECTOR, HR_MANAGER, DEPT_HEAD, LINE_MANAGER, EMPLOYEE) e verifica `/dashboard` → DashboardRenderer rende correttamente vs 7 view bespoke pre-S19. **Se regressione critica**: rollback immediato via SQL alla fine di `db/seeds/phase15g6_full_preset_layouts.sql` (revert mapping `*_v2` → `*` originale).
 
-**S19 ha shipped 9 prod commit**:
+**Leggi PRIMA**: [`docs/30-developer/brand-dashboard-catalog.md`](../docs/30-developer/brand-dashboard-catalog.md) — catalogo formale Brand Identity dashboard (G1, S19). SoT canonical post-L42.
+
+**S19 ha shipped 11 prod commit**:
 
 | Commit | Subject |
 |---|---|
-| `3867c6a` | refactor(app): G2 drift remediation D1 D3 (L41) |
-| `8574d9e` | refactor(app): G2 drift remediation D2 D4 D5 D6 (L42) |
-| `7c8ebb7` | docs(developer): canonical Brand Identity dashboard catalog (G1) |
-| `2ed436b` | migration(db): G4 dashboard_elements hierarchy + variant |
-| `910ab0e` | feat(app): G3 register BrandActivityFeed in widget registry (D8 fix) |
-| `e94ad2a` | chore: handoff S19 (intermedio) |
-| `84c72e1` | feat(app): G3-bis 5 BrandWidget + G5 DashboardRenderer skeleton (L43) |
-| `27fe984` | chore: handoff S19 (intermedio post-G3-bis) |
-| `081a5e2` | feat(app): G5-phase-2 layout containers + DashboardRenderer hierarchy |
-| `7ac676d` | migration(db): G6 hierarchical preset smoke (org_systems_v2, hr_director_overview_v2) |
+| `3867c6a` | refactor(app): G2 D1 D3 (L41) |
+| `8574d9e` | refactor(app): G2 D2 D4 D5 D6 (L42) |
+| `7c8ebb7` | docs(developer): G1 canonical catalog |
+| `2ed436b` | migration(db): G4 hierarchy + variant |
+| `910ab0e` | feat(app): G3 ActivityFeed register (D8) |
+| `e94ad2a` | chore: handoff S19 (post-G3) |
+| `84c72e1` | feat(app): G3-bis 5 widget + G5 skeleton (L43) |
+| `27fe984` | chore: handoff S19 (post-G3-bis) |
+| `081a5e2` | feat(app): G5-phase-2 layout containers + hierarchy |
+| `7ac676d` | migration(db): G6 smoke preset layouts |
+| `6c42108` | chore: handoff S19 (G5-phase-2 + G6 L44) |
+| `35ba6bb` | **feat(app+db): G6 full + adoption · *_v2 via DashboardRenderer** |
 
-**Decisioni prese in S19** (10 totali · L41 + L42 + L43 + L44):
+**Decisioni prese in S19** (10 totali · L41 + L42 + L43 + L44 + L45):
 
 | ID | Drift | Risolto come | Commit |
 |---|---|---|---|
-| D1 | Pill 2-system | `.pill` canonical · `.status-pill` rimosso | L41 / 3867c6a |
-| D2 | Split 3-system | `.double-split` canonical · `.kg-split` + `.bottom-split` rimossi | L42 / 8574d9e |
-| D3 | Heatmap bucket | `.heat-{0..6}` canonical · `.hl-*` rimossi | L41 / 3867c6a |
-| D4 | Bar fill 2-system | `.bar-fill.fill-*` canonical · `.gauge-bar-fill.gauge-*` rimossi | L42 / 8574d9e |
-| D5 | Activity vs Audit | Mantenuti separati (DOM shape distinta · LOW severity) | L42 / 8574d9e |
-| D6 | RBAC matrix wrapper | `.matrix-wrap` introdotto · `.skill-gap-head` → `.widget-head` shared | L42 / 8574d9e |
-| D7 | Atomic packages/ui keep/deprecate | Keep parallel | L43 / 84c72e1 |
-| D8 | BrandActivityFeed registry gap | Registrato + adapter aggiunto | G3 / 910ab0e |
-| D9 | 7 view bespoke convergence | Renderer skeleton ✅ + hierarchy ✅ · adoption pending S20 G6 full | L43+L44 / 84c72e1+081a5e2 |
-| D10 | Atomic senza test | Pending → S20 (D7=A retained) | — |
+| D1 | Pill 2-system | `.pill` canonical | L41 |
+| D2 | Split 3-system | `.double-split` canonical | L42 |
+| D3 | Heatmap bucket | `.heat-{0..6}` canonical | L41 |
+| D4 | Bar fill 2-system | `.bar-fill.fill-*` canonical | L42 |
+| D5 | Activity vs Audit | Mantenuti separati | L42 |
+| D6 | RBAC matrix wrapper | `.matrix-wrap` + `.widget-head` | L42 |
+| D7 | Atomic packages/ui keep/deprecate | Keep parallel | L43 |
+| D8 | BrandActivityFeed registry gap | Registrato + adapter | G3 |
+| D9 | 7 view bespoke convergence | **Adoption shipped (`_v2` route attiva)** · 7 *View.tsx preserved fallback (S21 deletion post-browser-test) | L45 / 35ba6bb |
+| D10 | Atomic senza test | Pending → S20 | — |
 
 ## 🚀 Carry-forward S20 — lavoro restante
 
-**G6 full (~3-4h)** · Seed 5 preset rimanenti
+**🚨 BROWSER TEST POST-G6 adoption (PRIORITÀ #1)** · ~30min-1h
 
-- File `db/seeds/phase15g6_full_preset_layouts.sql`
-- Per ognuno: `cross_tenant_overview_v2` · `tenant_owner_overview_v2` · `skills_heatmap_v2` · `capability_graph_v2` · `employee_journey_v2`
-- Pattern: stessa hierarchy structure dei 2 smoke (org_systems_v2, hr_director_overview_v2)
-- Apply via SSH bare-metal SoT
-- Verify: `SELECT code, COUNT(*) FILTER (WHERE parent_element_id IS NULL) AS top, COUNT(*) AS total FROM dashboard_elements ... WHERE code LIKE '%_v2' GROUP BY code`
+- Login per ognuno degli 8 ruoli
+- Visit `/dashboard` → verifica DashboardRenderer brand-fedele rende
+- Confronto visivo vs view bespoke (memoria recente o screenshot S18)
+- Identifica gap visivi (5 widget mancanti, layout approssimazioni)
+- **Se OK**: procedi a delete 7 *View.tsx in commit separato
+- **Se KO**: rollback SQL per role_default_dashboards (revert mapping `*_v2` → `*` originale, vedi commenti finali in `phase15g6_full_preset_layouts.sql`)
 
-**G6-adoption (~2-3h)** · Redirect `dashboard/page.tsx` switch a `<DashboardRenderer/>`
+**`prisma generate` regen (~5min)** · S20 obbligatorio
 
-- Modifica `services/app/src/lib/dashboard-engine/role-preset-resolver.ts` per appendere `_v2` al preset_code (o aggiornare `role_default_dashboards` con `*_v2` codes)
-- Modifica `dashboard/page.tsx`: rimuovi switch lines 79-111 + i 7 import `_views/*View.tsx`, sostituisci con:
-  ```tsx
-  const elements = await loadDashboardElements(preset.code, role)
-  const slots = elementsToSlots(elements)
-  const data = await prefetchAllElements(slots) // existing pattern
-  return <DashboardRenderer elements={slots} data={data} />
-  ```
-- **TEST OBBLIGATORIO browser**: aprire `/dashboard` per ogni 8 ruoli, verificare visivamente che il render brand-fedele sia equivalente o accettabile vs view bespoke pre-S19. Screenshot diff Playwright opzionale.
-- **Rollback ready**: se regression, rinominare `_v2` → preserva i view bespoke
-- Eliminazione 7 `_views/*View.tsx` (~2200 righe rimosse) **solo dopo verifica visiva ok**
+- Stop Next.js dev server (PID 1036 + 11716 in S19)
+- `cd services/app && npx prisma generate`
+- Rigenera client con `parent_element_id` + `variant` + self-relation `dashboard_elements_hierarchy`
+- Refactor `dashboard/page.tsx`: rimuovi `loadG6Elements` $queryRaw + interface DashboardElementG4 → usa `prisma.dashboard_elements.findMany({ where: { dashboard_presets: { code: presetCode } }, include: { children: true } })` o pattern simile
+- Test gate
 
-**G3-bis-completion (~2-3h)** · 5 widget mancanti per layout matching
+**G3-bis-completion** (~6-10h) · 5 widget mancanti per layout pixel-perfect
 
-- BrandTenantCard (per tenant-grid in org_systems / cross-tenant)
-- BrandMetricCard (per metrics-grid in org_systems)
-- BrandSectionHead (per separator section-head)
-- BrandIntRow (per int-row in integration list — alternativa a IntegrationHealthPill semplice)
-- BrandAuditRow (per audit-list/.audit-row in org_systems)
-- Senza questi, i preset `*_v2` G6 sono approssimazioni
+- `BrandTenantCard` (per tenant-grid in org-systems_v2 / cross-tenant-overview_v2)
+- `BrandMetricCard` (per metrics-grid in org-systems_v2)
+- `BrandSectionHead` (per separator section-head)
+- `BrandIntRow` (per int-row in integration list)
+- `BrandAuditRow` (per audit-list/.audit-row)
+- Aggiornare adapter + registry + test count
+- Re-seedare i preset `_v2` per usare i nuovi widget (ricarica `phase15g6_full_preset_layouts.sql` con widget aggiornati)
 
-**D10 atomic packages/ui test coverage (~2-3h)** · D7=A retained → atomic mantenuti, mancano test
+**Delete 7 *View.tsx (~30min · S20 · POST browser-test ok)**
 
-- Aggiungere `.test.tsx` per 8 atomic in `packages/ui/src/components/dashboard/`
-- Vitest + React Testing Library
+- `services/app/src/app/(app)/dashboard/_views/*.tsx` (~2200 righe rimosse)
+- Plus rimuovere import in `dashboard/page.tsx` + switch case + interface
+- Plus `components/widgets/brand/index.ts`: rimuovere export di adapters dei v2-only widget se non più riutilizzati
+- Test gate
 
-**Mockup HTML drift sync** (~1h) · `.ux-design/06-mockups/dashboards/{org-systems,cross-tenant-overview}.html` ancora con `.status-pill` / `.kg-split` / `.bottom-split` (segregati). Sync ora o parte di v1.0 promotion.
+**G3-bis test coverage S20** (~30min)
 
-**Audit doc cross-references update** (~30min) · line numbers in audit doc S18 sono pre-L41/L42, shift cumulativo. Solo cosmetico.
+- Aggiungere unit test per i 5 BrandWidget creati in S19 (Gauge, Histogram, Comp, Bridge, ProfileHero)
+- Aggiungere unit test per i 4 layout containers (BrandDoubleSplit, BrandMainSplit, BrandKpiRing, BrandPanel)
 
-**G1 catalog refresh** (~30min) · 5 widget 🆕→✅ ora shipped + 4 layout containers nuovi. Aggiornare status in `docs/30-developer/brand-dashboard-catalog.md`.
+**D10 atomic packages/ui test coverage** (~2-3h) · 8 atomic in `packages/ui/src/components/dashboard/`
+
+**Mockup HTML drift sync** (~1h) · `.ux-design/06-mockups/dashboards/{org-systems,cross-tenant-overview}.html`
+
+**Audit doc cross-references update** (~30min)
+
+**G1 catalog refresh** (~30min) · 5 widget 🆕→✅ ora shipped + 4 layout containers nuovi · gli 5 widget mancanti S20 G3-bis-completion → flip status post-shipped
 
 ## Top priorities (next session — S20)
 
-1. **G6 full + adoption** (~5-7h) — completare 5 preset + redirect dashboard/page.tsx con browser test
-2. **G3-bis-completion** (~2-3h) — 5 widget mancanti per layout matching pixel-perfect
-3. **G1 catalog refresh** (~30min) — flip stati post-shipped
-4. **D10 atomic test coverage** (~2-3h)
-5. **Mockup HTML drift sync** (~1h)
+1. **🚨 Browser test G6 adoption** (~30min-1h) — verificare gli 8 ruoli su `/dashboard`
+2. **Prisma generate** (~5min) — regen client + refactor page.tsx via Prisma client
+3. **G3-bis-completion** (~6-10h) — 5 widget mancanti + re-seed
+4. **Delete 7 *View.tsx** (~30min) — solo se browser-test ok
+5. **D10 atomic test coverage** (~2-3h)
 
 ## Old priorities (carry-forward — meno urgenti)
 
-- **Data binding live full** (~3-5h) — 6 view non-`org_systems`. Post-G6-adoption assorbito (renderer + preset DB-driven con query bound).
-- **Estensione preset minori** (~2-3h) — view brand-fedeli per 4 preset PROCESS. Collassa in G6 full.
-- **MV auto-refresh** (~2-3h) — `pg_cron` schedule REFRESH 5min. Indipendente.
-- **WCAG 2.2 AAA full audit** (~3-5h) — axe-core CI. Post-G6-adoption.
-- **API gateway cross-service JWT fix** (~2-3h) — `jose` library NextAuth v4 ↔ Auth.js v5 JWE decode.
-- **Brand v1.0 promotion** (~16-25h) — pre-flight checks `v1.0-checklist.md`.
+- **Data binding live full** (~3-5h) — sostituire `data_source.type='static'` con `'sql'` + query Prisma per data live
+- **Estensione preset minori** (~2-3h) — view brand-fedeli per 4 preset PROCESS
+- **MV auto-refresh** (~2-3h) — `pg_cron` schedule REFRESH 5min
+- **WCAG 2.2 AAA full audit** (~3-5h) — axe-core CI · post-G6-adoption
+- **API gateway cross-service JWT fix** (~2-3h)
+- **Brand v1.0 promotion** (~16-25h) — pre-flight checks `v1.0-checklist.md`
 
 ## Open questions
 
-- **`pg_cron` extension installata su Postgres bare-metal?** Se no → systemd timer + psql script per MV auto-refresh
-- **Mockup HTML drift**: aggiorniamo mockup `.ux-design/06-mockups/dashboards/*.html` ora (sync brand SoT) o lasciamo come historical reference Phase 9?
-- **G6 full strategia preset_code**: continuare con suffix `_v2` (chiara distinzione) o rinominare al preset originale (overwrite limpido) post-adoption?
-- **Widget mancanti per layout pixel-perfect** (BrandTenantCard ecc.): bloccanti per G6-adoption full o adoption procede con widget correnti + gap visibili documentati?
+- **🚨 G6 adoption browser test passed?** Se KO → rollback role_default_dashboards immediato
+- **5 widget mancanti**: blocca o procede G3-bis-completion in step separato post-adoption verifica?
+- **Mockup HTML drift sync**: ora o post v1.0?
+- **`pg_cron` extension installata?**
+- **Live data binding**: progressivo per preset (org_systems_v2 prima per tenants reali) o batch?
 
 ## Stack snapshot
 
 | Layer | Tech |
 |---|---|
-| Frontend | Next.js 16 · 3200 · 17+ routes · `/dashboard` role-driven brand-fedele 7 view (S20 redirect a DashboardRenderer) |
+| Frontend | Next.js 16 · 3200 · 17+ routes · `/dashboard` **ora dual-path**: `*_v2` → DashboardRenderer (default 8 ruoli) · `*` originali → 7 *View.tsx fallback |
 | API Gateway | Express 5 · 8200 · JWT v4↔v5 decoder pending |
 | UI Library | `@heuresys/ui` Cantiere B + **14 BrandWidget + 4 layout containers** services/app + 8 atomic dashboard packages/ui · D7=keep parallel |
-| **DB** | Postgres 16.13 bare-metal SoT · 4 tenants · 270 emp · **13 presets** (11 + 2 G6 smoke `_v2`) · 2 MV · `role_default_dashboards` 8 row · `dashboard_elements` post-G4: +parent_element_id +variant + hierarchy (38 demo + 21 G6 smoke = 59 rows) |
+| **DB** | Postgres 16.13 bare-metal SoT · 4 tenants · 270 emp · **18 presets** (11 originali + 7 G6 v2) · 2 MV · `role_default_dashboards` 8 row UPDATED → `*_v2` · `dashboard_elements` post-G4: 38 demo + 77 G6 v2 = **115 rows** con hierarchy completa |
 | Brand | `.ux-design/` 13 phase ✅ · CSS canonical ~2295 righe · `docs/30-developer/brand-dashboard-catalog.md` G1 596 righe canonical SoT |
-| a11y | WCAG 2.2 AAA 16/16 (verifica spot · full audit pending post-G6-adoption) |
+| a11y | WCAG 2.2 AAA 16/16 (verifica spot · full audit pending post-browser-test G6) |
 | Perf | P95 794ms baseline · MV active · TTL 600s |
 | Vulns | 0 |
-| Tests | 457 gw · **199 app** (post-G5-phase-2: +4 hierarchy tests) · 82 shared · **95 ui** (833 totali) |
+| Tests | 457 gw · **199 app** · 82 shared · **95 ui** (833 totali) |
 | ADR | 26 (ADR-0026 Phase 15.A brand-fedele dashboard) |
-| DECISIONS-LOG | L1→**L44** (L41 D1+D3 · L42 D2+D4+D5+D6 · L43 D7+D8+G3-bis+G5 skeleton · **L44 G5-phase-2 hierarchy + G6 smoke**) |
+| DECISIONS-LOG | L1→**L45** (L41-L45 cycle in S19) |
 
 ## Background processes
 
 - Tunnel SSH (`scripts/dev-local/tunnel-vm.ps1 -Status`) · 5432 + 6380 listening
-- Next.js dev :3200 può richiedere restart in nuova sessione
+- Next.js dev :3200 può richiedere restart in nuova sessione (PID 1036 + 11716 in S19 lockano Prisma engine .dll.node)
 
 ## Verification post-S19
 
 ```bash
 git status -sb
-git log --oneline -10
+git log --oneline -12
 
-# Verifica G2 zero drift produzione
-grep -rn "status-pill\|status-ok\|status-warn\|status-down\|hl-9\|hl-7\|hl-5\|hl-3\|hl-1\|kg-split\|bottom-split\|gauge-bar-fill\|skill-gap-head" services/app/src packages/ui/src
-# Expected: 0 match
+# Verifica G6 adoption attivo
+ssh oracle-vm-default "sudo -u postgres psql -d heuresys_platform -c \"SELECT role, preset_code FROM role_default_dashboards ORDER BY role;\""
+# Expected: tutti gli 8 ruoli hanno preset_code = '<role>_v2' (LINE_MANAGER + EMPLOYEE = 'employee_journey_v2')
 
-# Verifica G3-bis 5 nuovi widget esportati
-grep -E "BrandGaugeCard|BrandHistogram|BrandCompCard|BrandBridgeCard|BrandProfileHero" services/app/src/components/widgets/brand/index.ts
-# Expected: 5 matches
+# Verifica 77 dashboard_elements per i 7 v2 presets
+ssh oracle-vm-default "sudo -u postgres psql -d heuresys_platform -c \"SELECT dp.code, COUNT(de.id) FROM dashboard_elements de JOIN dashboard_presets dp ON dp.id = de.dashboard_preset_id WHERE dp.code LIKE '%_v2' GROUP BY dp.code ORDER BY dp.code;\""
+# Expected: 7 rows totalizing 77 elements (10+11+11+13+10+11+11)
 
-# Verifica G5-phase-2 layout containers
-grep -E "BrandDoubleSplit|BrandMainSplit|BrandKpiRing|BrandPanel|LAYOUT_CONTAINERS" services/app/src/components/widgets/brand/index.ts
-# Expected: 5 matches (4 components + LAYOUT_CONTAINERS)
+# Verifica adoption code
+grep -E "loadG6Elements|endsWith.*_v2|DashboardRenderer" services/app/src/app/(app)/dashboard/page.tsx
+# Expected: branch _v2 + DashboardRenderer mount
 
-# Verifica registry: WIDGET_REGISTRY 14 + LAYOUT_REGISTRY 4
-grep -E "GaugeCard:|Histogram:|CompCard:|BridgeCard:|ProfileHero:|LAYOUT_REGISTRY" services/app/src/lib/dashboard-engine/registry.tsx
-# Expected: 6+ matches
-
-# Verifica G4 DB schema
-ssh oracle-vm-default "sudo -u postgres psql -d heuresys_platform -c '\d+ dashboard_elements'" | grep -E "parent_element_id|variant"
-# Expected: 2 colonne
-
-# Verifica G6 smoke seed
-ssh oracle-vm-default "sudo -u postgres psql -d heuresys_platform -c \"SELECT code, COUNT(*) FROM dashboard_elements de JOIN dashboard_presets dp ON dp.id = de.dashboard_preset_id WHERE code LIKE '%_v2' GROUP BY code;\""
-# Expected: org_systems_v2: 10 · hr_director_overview_v2: 11
+# Verifica schema.prisma G4 fields
+grep -A 2 "parent_element_id\s*BigInt" services/app/prisma/schema.prisma
+# Expected: parent_element_id BigInt? + variant String?
 
 # Test gate baseline
 npm run typecheck --workspace=services/app    # PASS
 npm run typecheck --workspace=packages/ui     # PASS
 npm test --workspace=services/app -- --run    # 199/199
 npm test --workspace=packages/ui -- --run     # 95/95
+
+# 🚨 BROWSER TEST (richiede dev server :3200 attivo + login)
+# Loggati come SUPERUSER → /dashboard → verifica DashboardRenderer rende
+# Se KO → rollback SQL (vedi commenti finali in phase15g6_full_preset_layouts.sql)
 ```
 
 ## Riferimenti critici per ripartire
 
 | Per… | Vedi |
 |---|---|
+| **🚨 Rollback SQL G6 adoption** | `db/seeds/phase15g6_full_preset_layouts.sql` (commenti finali, ultime 10 righe) |
+| **G6 full seed** | `db/seeds/phase15g6_full_preset_layouts.sql` (~370 righe) |
+| **G6 smoke seed (historical)** | `db/seeds/phase15g6_preset_layouts_smoke.sql` (sostituito ma preservato) |
+| **DashboardPage adoption** | `services/app/src/app/(app)/dashboard/page.tsx` (post-S19 dual-path) |
+| **Schema.prisma G4 fields** | `services/app/prisma/schema.prisma` § dashboard_elements model |
 | **Catalog canonical SoT** | `docs/30-developer/brand-dashboard-catalog.md` |
 | **L41 D1+D3** | `.ux-design/DECISIONS-LOG.md` § L41 |
 | **L42 D2+D4+D5+D6** | `.ux-design/DECISIONS-LOG.md` § L42 |
 | **L43 D7+D8 + G3-bis + G5 skeleton** | `.ux-design/DECISIONS-LOG.md` § L43 |
 | **L44 G5-phase-2 + G6 smoke** | `.ux-design/DECISIONS-LOG.md` § L44 |
+| **L45 G6 full + adoption** | `.ux-design/DECISIONS-LOG.md` § L45 |
 | **Audit catalog (S18 historical)** | `.ux-design/08-promotion/brand-dashboard-catalog-CURRENT-STATE.md` |
 | **Phase 15.A architettura** | `docs/50-reference/decisions/0026-phase15a-brand-fedele-dashboard-rendering.md` |
 | **Mockup brand canonical** | `.ux-design/06-mockups/dashboards/org-systems.html` |
@@ -185,22 +197,19 @@ npm test --workspace=packages/ui -- --run     # 95/95
 | **Widget adapters (14 entries)** | `services/app/src/lib/dashboard-engine/adapters.ts` |
 | **Role-preset resolver** | `services/app/src/lib/dashboard-engine/role-preset-resolver.ts` |
 | **DB schema migration (G4)** | `db/migrations/phase15g4_dashboard_elements_hierarchy.sql` |
-| **DB seed presets G6 smoke** | `db/seeds/phase15g6_preset_layouts_smoke.sql` |
-| **DB seed presets baseline** | `db/seeds/phase15a_role_default_dashboards.sql` |
 | **DashboardRenderer (G5+G5-phase-2)** | `services/app/src/components/DashboardRenderer.tsx` |
 | **DashboardRenderer test (13 tests)** | `services/app/src/__tests__/dashboard-renderer.test.tsx` |
-| **7 view bespoke da convergere (S20 G6-adoption)** | `services/app/src/app/(app)/dashboard/_views/*.tsx` |
+| **7 view bespoke (S20 post-test ok delete)** | `services/app/src/app/(app)/dashboard/_views/*.tsx` |
 | **14 BrandWidget catalog** | `services/app/src/components/widgets/brand/*.tsx` |
 | **8 atomic Phase 13.A** | `packages/ui/src/components/dashboard/*.tsx` |
 | **BrandShell layout** | `services/app/src/app/(app)/_components/BrandShell.tsx` |
-| **Data fetcher pattern** | `services/app/src/lib/dashboard-views/org-systems-data.ts` |
 
 ## Operating baseline reminder per nuova sessione
 
 - **R1**: pensa prima, agisci dopo
-- **R5**: TEST-BEFORE-CLAIM — verified-by stamp obbligatorio per asserzioni · per UI changes (G6-adoption): browser test obbligatorio prima di eliminare 7 *View.tsx
+- **R5**: TEST-BEFORE-CLAIM — UI changes G6 adoption richiede browser test prima di delete *View.tsx fallback
 - **R8**: parallelismo tool calls indipendenti
 - **R11**: direct push main default, no PR (post-S11)
 - **R14**: anti-bias — cerca evidenza contraria · stop dopo 30 min senza convergenza
-- Per G6 full: pattern smoke seed pronto (`phase15g6_preset_layouts_smoke.sql`) · replicare per 5 preset rimanenti seguendo stessa hierarchy structure
-- Per G6-adoption: cambio role_default_dashboards.preset_code da `*` a `*_v2` · poi modifica dashboard/page.tsx · poi browser test · poi delete 7 *View.tsx
+- Per S20 priority: BROWSER TEST G6 PRIMA di qualsiasi nuovo lavoro · rollback ready in `phase15g6_full_preset_layouts.sql`
+- Per S20 prisma generate: REQUIRE Next.js dev server stopped · poi refactor `loadG6Elements` $queryRaw → Prisma client native
