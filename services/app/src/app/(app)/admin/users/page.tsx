@@ -54,14 +54,14 @@ async function fetchUsers(tenantId: string | null) {
 }
 
 const ROLE_BADGE: Record<string, { bg: string; fg: string }> = {
-  SUPERUSER: { bg: 'rgba(168,85,247,0.15)', fg: '#a855f7' },
-  TENANT_OWNER: { bg: 'rgba(94,105,209,0.18)', fg: '#7280e0' },
-  IT_ADMIN: { bg: 'rgba(59,130,246,0.15)', fg: '#3b82f6' },
-  HR_DIRECTOR: { bg: 'rgba(95,184,122,0.18)', fg: '#5fb87a' },
-  HR_MANAGER: { bg: 'rgba(95,184,122,0.10)', fg: '#5fb87a' },
-  DEPT_HEAD: { bg: 'rgba(212,160,23,0.15)', fg: '#e8b835' },
-  LINE_MANAGER: { bg: 'rgba(212,160,23,0.10)', fg: '#e8b835' },
-  EMPLOYEE: { bg: 'rgba(138,142,155,0.15)', fg: '#c8ccd6' },
+  SUPERUSER: { bg: 'rgba(168,85,247,0.15)', fg: 'var(--role-purple)' },
+  TENANT_OWNER: { bg: 'rgba(94,105,209,0.18)', fg: 'var(--role-indigo)' },
+  IT_ADMIN: { bg: 'rgba(59,130,246,0.15)', fg: 'var(--role-blue)' },
+  HR_DIRECTOR: { bg: 'rgba(95,184,122,0.18)', fg: 'var(--role-green)' },
+  HR_MANAGER: { bg: 'rgba(95,184,122,0.10)', fg: 'var(--role-green)' },
+  DEPT_HEAD: { bg: 'rgba(212,160,23,0.15)', fg: 'var(--role-amber)' },
+  LINE_MANAGER: { bg: 'rgba(212,160,23,0.10)', fg: 'var(--role-amber)' },
+  EMPLOYEE: { bg: 'rgba(138,142,155,0.15)', fg: 'var(--role-gray)' },
 };
 
 export default async function AdminUsersPage() {

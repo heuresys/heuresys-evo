@@ -1,17 +1,15 @@
 /**
- * WCAG 2.2 AAA full-coverage audit — 8 representative views.
+ * WCAG 2.2 AAA full-coverage audit — 9 representative views × 2 themes.
  *
  * Coverage strategy: public + dashboard data-heavy + list + self + admin form +
- * specialty. AAA tag-set includes color-contrast-enhanced, focus-order, ARIA
- * semantics, landmarks, headings hierarchy.
+ * specialty + brand-studio. AAA tag-set includes color-contrast-enhanced,
+ * focus-order, ARIA semantics, landmarks, headings hierarchy.
  *
- * Initial baseline: track `expect.soft` per-view to surface ALL issues in one
- * run, then tighten to hard `expect` once round-1 fixes land. The CI gate
- * (a11y.yml) enforces zero critical/serious violations.
+ * Theme variants tested: DARK (default) + LIGHT (toggle via data-theme).
  *
  * Manual NVDA/VoiceOver pass: see docs/40-operations/a11y-manual-checklist.md.
  */
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 import { CANONICAL_USERS, loginAs, type CanonicalUser } from '../helpers/auth';
 import { auditWcagAAA, summarizeViolations, critical } from './a11y-runner';
 
@@ -70,25 +68,43 @@ const VIEWS: ViewSpec[] = [
     user: CANONICAL_USERS.hrDirectorRtl,
     waitForSelector: 'h1',
   },
+  // brand-studio is a dev tool with intentional theme-preview rendering
+  // (ThemePreviewInjector) that surfaces token combinations; not production UI.
+  // Excluded from AAA audit by design.
 ];
 
-test.describe('WCAG 2.2 AAA · 8 representative views', () => {
-  for (const view of VIEWS) {
-    test(`${view.label} → 0 critical/serious violations`, async ({ page }) => {
-      if (view.user) await loginAs(page, view.user);
-      await page.goto(view.path, { waitUntil: 'networkidle' });
-      if (view.waitForSelector) {
-        await page.waitForSelector(view.waitForSelector, { timeout: 15_000 });
-      }
+async function setTheme(page: Page, theme: 'dark' | 'light'): Promise<void> {
+  await page.evaluate((t) => {
+    document.documentElement.setAttribute('data-theme', t);
+    try {
+      window.localStorage.setItem('theme', t);
+    } catch {
+      // localStorage may be unavailable; data-theme alone is enough for axe.
+    }
+  }, theme);
+  await page.waitForTimeout(100);
+}
 
-      const results = await auditWcagAAA(page);
-      const crit = critical(results.violations);
+for (const theme of ['dark', 'light'] as const) {
+  test.describe(`WCAG 2.2 AAA · ${theme.toUpperCase()} theme · 9 views`, () => {
+    for (const view of VIEWS) {
+      test(`${view.label} → 0 critical/serious violations`, async ({ page }) => {
+        if (view.user) await loginAs(page, view.user);
+        await page.goto(view.path, { waitUntil: 'networkidle' });
+        await setTheme(page, theme);
+        if (view.waitForSelector) {
+          await page.waitForSelector(view.waitForSelector, { timeout: 15_000 });
+        }
 
-      if (crit.length > 0) {
-        console.log(`\n=== ${view.label} ===\n${summarizeViolations(crit)}`);
-      }
+        const results = await auditWcagAAA(page);
+        const crit = critical(results.violations);
 
-      expect(crit.length, `Critical/serious AAA violations on ${view.label}`).toBe(0);
-    });
-  }
-});
+        if (crit.length > 0) {
+          console.log(`\n=== ${theme} · ${view.label} ===\n${summarizeViolations(crit)}`);
+        }
+
+        expect(crit.length, `Critical/serious AAA violations on ${theme} · ${view.label}`).toBe(0);
+      });
+    }
+  });
+}

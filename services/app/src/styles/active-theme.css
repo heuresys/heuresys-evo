@@ -42,6 +42,13 @@
   --semantic-warning: #e8b835;
   --semantic-danger: #ef4444;
   --semantic-info: #5b9df7;
+  /* Role badge tones (theme-aware for AAA contrast over tinted backgrounds) */
+  --role-purple: #c890ff;
+  --role-indigo: #aab5f7;
+  --role-blue: #5b9df7;
+  --role-green: #8dd49e;
+  --role-amber: #e8b835;
+  --role-gray: #c8ccd6;
   /* Aurora gradient (auth) */
   --gradient-aurora: linear-gradient(135deg, var(--brand-blue) 0%, var(--brand-purple) 100%);
   /* Glass surfaces (auth, modals) */
@@ -81,23 +88,29 @@
   --surface-3: #e6e8f0;
   --ink: #0a0a10;
   --ink-soft: #2a2c34;
-  --ink-muted: #6a6c75;
-  --ink-tertiary: #9ea0a8;
+  --ink-muted: #4a4c54;
+  --ink-tertiary: #4a4c54;
   --rule: #d8dae0;
   --rule-strong: #b6b9c2;
-  --accent: #4954c4;
-  --accent-hover: #3d47b0;
+  --accent: #2d369a;
+  --accent-hover: #232b80;
   --accent-soft: #e8eaf8;
-  --accent-deep: #2c358a;
+  --accent-deep: #1a205e;
   --brand-blue: #2452c8;
   --brand-blue-deep: #1e3fa0;
   --brand-purple: #7e3fc8;
   --brand-purple-deep: #5e2898;
   --token-label: #1a8e3e;
   --semantic-success: #2da147;
-  --semantic-warning: #b8860b;
-  --semantic-danger: #c01818;
-  --semantic-info: #2452c8;
+  --semantic-warning: #7e5a07;
+  --semantic-danger: #9e1414;
+  --semantic-info: #1e3fa0;
+  --role-purple: #6a1fa0;
+  --role-indigo: #2d369a;
+  --role-blue: #1e3fa0;
+  --role-green: #2f7044;
+  --role-amber: #5e3f00;
+  --role-gray: #404249;
   --glass-bg: rgba(255, 255, 255, 0.55);
   --glass-border: rgba(10, 13, 24, 0.08);
 }

@@ -3,10 +3,10 @@
 @theme {
   --font-sans:
     ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --color-primary: oklch(0.45 0.18 250);
-  --color-primary-fg: oklch(1 0 0);
-  --color-destructive: oklch(0.8 0.16 25);
-  --color-destructive-fg: oklch(1 0 0);
+  /* --color-primary, --color-destructive: defined as theme-aware var() in
+     active-theme.css @theme inline (resolves to --accent / --semantic-danger
+     per data-theme attribute). Keeping a fallback declaration here would
+     fight the cascade and bypass theme switching. */
 }
 
 html,

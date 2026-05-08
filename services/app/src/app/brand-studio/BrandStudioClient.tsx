@@ -84,7 +84,7 @@ export function BrandStudioClient() {
   }
 
   if (initialState === null) {
-    return <div className="p-6 text-sm text-neutral-500">Loading draft…</div>;
+    return <div className="p-6 text-sm text-muted-foreground">Loading draft…</div>;
   }
 
   const statusColor =
@@ -94,14 +94,14 @@ export function BrandStudioClient() {
         ? 'text-red-700 bg-red-50 border-red-200'
         : status.kind === 'busy'
           ? 'text-blue-700 bg-blue-50 border-blue-200'
-          : 'text-neutral-500 bg-neutral-50 border-neutral-200';
+          : 'text-muted-foreground bg-neutral-50 border-neutral-200';
 
   return (
     <div className="flex flex-col gap-4 p-6">
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold">Brand Studio</h1>
-          <p className="text-sm text-neutral-600">
+          <p className="text-sm text-muted-foreground">
             Dev tool — draft autosaved to localStorage. Use Preview to test on the site, or Apply to
             write tokens into the project.
           </p>
