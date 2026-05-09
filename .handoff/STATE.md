@@ -1,37 +1,38 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-09T01:15Z · S19 closed (14 commit avanti S18)
+> Updated: 2026-05-09T05:15Z · S20 closed (7 commit avanti S19)
 
-## Last session brief (S19)
+## Last session brief (S20)
 
-Brand dashboard catalog completato end-to-end: drift D1-D6 risolti (L41+L42), G1 catalogo formale (`docs/30-developer/brand-dashboard-catalog.md`), G4 DB schema hierarchy (`parent_element_id`+`variant`), G3+G3-bis 14 BrandWidget registrati + 4 layout containers, G5 DashboardRenderer flat+ricorsivo (199 test verde), **G6 full + adoption shipped**: 7 preset `*_v2` con 77 element seedati, `role_default_dashboards` switched, `dashboard/page.tsx` dual-path. 7 *View.tsx preserved come fallback.
+S20 brand dashboard governance shift: catalog DB della webapp `09-asset-showcase` (Express+Prisma+SQLite locale, gitignored) diventa SoT operativa stable. **L46** (commit `15e9458`): chrome universal cross-role 18 asset + body org-systems IT_ADMIN + concetti `chromeStandard`/`dashboardCode`/`mockupSource`/`behaviorsJson`. **L47** (commit `08b2097`): body-only import 10 mockup rimanenti, **11 dashboardCode `*_v2` mappati**, ~50 nuove classi canonical CSS, 8 conflict resolutions. Inoltre S20 priorità storiche shipped pre-L46: G6 browser test 8 ruoli verde, prisma generate + refactor `dashboard/page.tsx` native, G3-bis-completion (5 widget). Webapp showcase live `localhost:5174` (346 assets · 138 promoted · 374 variants).
 
-## Top priorities (S20)
+## Top priorities (S21)
 
-1. **🚨 Browser test G6 adoption** (~30min-1h) — login 8 ruoli su `/dashboard`, verifica DashboardRenderer rende vs view bespoke. Rollback SQL pronto in `db/seeds/phase15g6_full_preset_layouts.sql` (commenti finali).
-2. **`prisma generate`** (~5min) — stop dev server (PID 1036+11716 lockano `query_engine-windows.dll.node`) → regen client G4 fields → refactor `dashboard/page.tsx` da `$queryRaw` a Prisma client native.
-3. **G3-bis-completion** (~6-10h) — 5 widget mancanti per layout pixel-perfect: `BrandTenantCard`, `BrandMetricCard`, `BrandSectionHead`, `BrandIntRow`, `BrandAuditRow`.
+1. **Production `/dashboard` refactor DB-driven** (~6-10h) — modificare `services/app/src/app/(app)/dashboard/page.tsx` + `services/app/src/app/(app)/_components/BrandShell.tsx` per consumare `chromeStandard` (universal chrome) e `dashboardCode='*_v2'` (body role-specific) dal catalog DB invece di hardcoded views. Out-of-scope L46/L47, primo step naturale.
+2. **Mapping role → 4 process dashboards** (~2-3h) — decisione: `process_recruiting_funnel_v2`/`process_onboarding_flow_v2`/`process_performance_cycle_v2`/`process_learning_paths_v2` come sub-views HR_MANAGER OR autonomous role con entries proprie in `role_default_dashboards`?
+3. **WCAG 2.2 AAA full audit** (~3-5h) — axe-core CI integration + manual NVDA/VoiceOver pass. Carry-forward S19 backlog.
 
 ## Open questions
 
-- Browser test G6 adoption passed? Se KO → rollback SQL immediato.
-- Delete 7 `_views/*View.tsx` ora (post-test ok) o batch con G3-bis-completion?
-- Mockup HTML drift sync `.ux-design/06-mockups/dashboards/*.html` ora o post v1.0?
+- Process dashboards: HR_MANAGER multi-view (drilldown) vs autonomous role mapping (impatta `role_default_dashboards` + RBP)?
+- Webapp showcase port 5174: confirm zero conflitti con altri tool locali?
+- Production refactor: full sweep DB-driven OR opt-in per dashboardCode (gradual migration)?
 
-## Stack snapshot (changed in S19)
+## Stack snapshot (changed in S20)
 
-- BrandWidget catalog: 9 (1 unregistered) → **14** + 4 layout containers
-- DB: 11 preset → **18** (+7 `*_v2` hierarchical) · 38 → **115** dashboard_elements · `role_default_dashboards` ora mappa a `*_v2`
-- DECISIONS-LOG: L40 → **L45** (5 entries new in S19: L41-L45)
-- Tests services/app: 186 → **199** (+13 dashboard-renderer + adapter)
-- Schema.prisma: G4 fields formalized (regen pending S20 — dev server lock)
+- Catalog DB webapp: NEW `.ux-design/09-asset-showcase/` (gitignored eccetto `_legacy/`) · 346 assets · 138 promoted · 374 variants · 11 dashboardCode mappati
+- `dashboard-brand.css`: ~2370 → **~2670 righe** (+300 L47 block: chart-wrap · gauge-wrap · table.dept · succession-row · kg-canvas · ontology · profile-hero · arc · bridge-grid · process viz · pill-cap-* · kpi-card.compact · gauge-card.large · wordmark-original)
+- Mockup HTML allineati canonical: `.status-pill`/`.theme-toggle`/`.bar-fill alias`/`.kpi-row alias` rimossi da 10 mockup
+- DECISIONS-LOG: L45 → **L47** (2 entries new: L46 chrome universal · L47 body 10 mockup)
+- BrandWidget services/app: 14 + 4 layout containers → **19 + 4** (+5 G3-bis: BrandTenantCard · BrandMetricCard · BrandSectionHead · BrandIntRow · BrandAuditRow)
+- Tests services/app: 199 → **214** (+15 G3-bis unit) · prisma client regenerated (G4 fields native)
 
 ## Verification
 
 ```bash
-git log --oneline -14   # S19 commits 3867c6a → c8548f4
-ssh oracle-vm-default "sudo -u postgres psql -d heuresys_platform -c \"SELECT role, preset_code FROM role_default_dashboards ORDER BY role;\""   # 8 ruoli → *_v2
-npm run typecheck --workspace=services/app && npm test --workspace=services/app -- --run   # PASS · 199/199
+git log --oneline -7    # S20 commits c94fde5 → b4da3d6
+cd .ux-design/09-asset-showcase && npm run dev    # webapp catalog → http://localhost:5174
+curl -s http://localhost:5174/api/stats           # 346 total · 138 promoted · 374 variants
 ```
 
-Riferimenti chiave: `docs/30-developer/brand-dashboard-catalog.md` (G1) · `.ux-design/DECISIONS-LOG.md` § L41-L45 · `db/seeds/phase15g6_full_preset_layouts.sql` (G6 + rollback) · `services/app/src/components/DashboardRenderer.tsx` (G5+G5-phase-2)
+Riferimenti chiave: `.ux-design/DECISIONS-LOG.md` § L46+L47 · `~/.claude/plans/flickering-painting-globe.md` · `09-asset-showcase/README.md` · CLAUDE.md § L46+L47 governance shift · BRAND-STATE.md § Phase 15.B
