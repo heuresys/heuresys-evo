@@ -18,29 +18,47 @@ export interface UserMenuProps {
 }
 
 /**
- * Extract user initials from `<tenant>.<first>.<last>` style usernames.
+ * Extract user initials. Post-L50 canonical username convention is
+ * `firstname.lastname@tenant.domain` (work email). Pre-L50 legacy form
+ * `<tenant>.<first>.<last>` is preserved as fallback.
+ *
  * Examples:
- *   "rtl-bank.maria.colombo"     → "MC"  (skip tenant, first+last)
- *   "rtl-bank.federica.marchetti" → "FM"
- *   "sysadmin"                    → "SY"
- *   "evo.dev"                     → "ED"
- *   "admin"                       → "AD"
+ *   "maria.colombo@rtl-bank.org"      → "MC"  (email: local part, first+last)
+ *   "federica.marchetti@rtl-bank.org" → "FM"
+ *   "rtl-bank.maria.colombo"          → "MC"  (legacy: skip tenant prefix)
+ *   "sysadmin"                        → "SY"
+ *   "evo.dev"                         → "ED"
+ *   "admin"                           → "AD"
  */
 export function computeInitials(username: string): string {
   const trimmed = username.trim();
   if (!trimmed) return 'U';
-  const parts = trimmed.split(/[.\s_@]+/).filter(Boolean);
-  // 3+ parts → assume <tenant>.<first>.<last…> pattern, take last 2
+
+  // Email-form (post-L50): take the local part before '@' and split on '.'
+  const atIdx = trimmed.indexOf('@');
+  if (atIdx > 0) {
+    const local = trimmed.slice(0, atIdx);
+    const localParts = local.split(/[.\s_]+/).filter(Boolean);
+    if (localParts.length >= 2) {
+      const first = localParts[0]?.[0] ?? '';
+      const last = localParts[localParts.length - 1]?.[0] ?? '';
+      return (first + last).toUpperCase() || 'U';
+    }
+    if (localParts.length === 1) {
+      return (localParts[0] ?? '').slice(0, 2).toUpperCase() || 'U';
+    }
+  }
+
+  // Legacy form: <tenant>.<first>.<last> or bare tokens
+  const parts = trimmed.split(/[.\s_]+/).filter(Boolean);
   if (parts.length >= 3) {
     const first = parts[parts.length - 2]?.[0] ?? '';
     const last = parts[parts.length - 1]?.[0] ?? '';
     return (first + last).toUpperCase() || 'U';
   }
-  // 2 parts → first letter of each
   if (parts.length === 2) {
     return ((parts[0]?.[0] ?? '') + (parts[1]?.[0] ?? '')).toUpperCase() || 'U';
   }
-  // 1 part → first 2 chars
   return trimmed.slice(0, 2).toUpperCase();
 }
 

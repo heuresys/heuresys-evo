@@ -40,17 +40,17 @@ const VIEWS = [
   {
     label: 'dashboard/tenant_owner_overview',
     path: '/dashboard/tenant_owner_overview',
-    user: 'rtl-bank.federica.marchetti',
+    user: 'federica.marchetti@rtl-bank.org',
   },
   {
     label: 'dashboard/hr_director_overview',
     path: '/dashboard/hr_director_overview',
-    user: 'rtl-bank.valentina.conti',
+    user: 'valentina.conti@rtl-bank.org',
   },
-  { label: 'employees', path: '/employees', user: 'rtl-bank.maria.colombo' },
-  { label: 'me/skills', path: '/me/skills', user: 'rtl-bank.francesca.gallo' },
-  { label: 'admin/users', path: '/admin/users', user: 'rtl-bank.federica.marchetti' },
-  { label: 'ontology', path: '/ontology', user: 'rtl-bank.valentina.conti' },
+  { label: 'employees', path: '/employees', user: 'maria.colombo@rtl-bank.org' },
+  { label: 'me/skills', path: '/me/skills', user: 'francesca.gallo@rtl-bank.org' },
+  { label: 'admin/users', path: '/admin/users', user: 'federica.marchetti@rtl-bank.org' },
+  { label: 'ontology', path: '/ontology', user: 'valentina.conti@rtl-bank.org' },
 ];
 
 async function getSessionCookie(username) {

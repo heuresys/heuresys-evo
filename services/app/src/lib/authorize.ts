@@ -59,7 +59,7 @@ export async function authorizeCredentials(
   prisma: AuthorizePrismaShape,
   env: AuthorizeEnv,
   credentials: AuthorizeCredentials | undefined,
-  bcryptCompare: (plaintext: string, hash: string) => Promise<boolean> = DEFAULT_BCRYPT_COMPARE,
+  bcryptCompare: (plaintext: string, hash: string) => Promise<boolean> = DEFAULT_BCRYPT_COMPARE
 ): Promise<AuthorizeUser | null> {
   const username = credentials?.username;
   const password = credentials?.password;
@@ -96,10 +96,15 @@ export async function authorizeCredentials(
     tenantId = env.DEFAULT_SUPERUSER_TENANT_ID ?? null;
   }
 
+  // Post-L50 canonical convention: tenant users have username == work email
+  // (firstname.lastname@tenant.domain). Platform users (e.g. sysadmin) keep a
+  // bare token; for those we still synth an `@heuresys.local` placeholder so
+  // NextAuth has a well-formed email field.
+  const email = user.username.includes('@') ? user.username : `${user.username}@heuresys.local`;
   return {
     id: user.id,
     name: user.username,
-    email: `${user.username}@heuresys.local`,
+    email,
     username: user.username,
     role: user.role ?? 'EMPLOYEE',
     tenantId: tenantId ?? '',

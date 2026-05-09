@@ -6,7 +6,7 @@
 // 500ms (target) or 600ms (acceptable upper bound — emits warning instead).
 //
 // Pre-req: `next build && next start` is running on http://127.0.0.1:3200
-// Pre-req: a session cookie for HR_DIRECTOR (rtl-bank.valentina.conti).
+// Pre-req: a session cookie for HR_DIRECTOR (valentina.conti@rtl-bank.org).
 //
 // Usage:
 //   COOKIE="<next-auth.session-token=...>" node scripts/perf/autocannon-prod.mjs

@@ -112,10 +112,10 @@ describe('authorizeCredentials', () => {
     expect(result).toBeNull();
   });
 
-  it('resolves tenantId from employee_id when present', async () => {
+  it('resolves tenantId from employee_id when present (canonical email username)', async () => {
     prisma.__users.findFirst.mockResolvedValue({
       id: 'u1',
-      username: 'laura.bertolini',
+      username: 'federica.marchetti@rtl-bank.org',
       password_hash: '$2b$12$h',
       role: 'TENANT_OWNER',
       employee_id: 'emp-1',
@@ -126,14 +126,14 @@ describe('authorizeCredentials', () => {
     const result = await authorizeCredentials(
       prisma,
       env,
-      { username: 'laura.bertolini', password: 'Heuresys2026!' },
+      { username: 'federica.marchetti@rtl-bank.org', password: 'Heuresys2026!' },
       bcryptCompare
     );
     expect(result).toEqual({
       id: 'u1',
-      name: 'laura.bertolini',
-      email: 'laura.bertolini@heuresys.local',
-      username: 'laura.bertolini',
+      name: 'federica.marchetti@rtl-bank.org',
+      email: 'federica.marchetti@rtl-bank.org',
+      username: 'federica.marchetti@rtl-bank.org',
       role: 'TENANT_OWNER',
       tenantId: ECONOVA_TENANT,
     });

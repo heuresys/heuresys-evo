@@ -24,23 +24,31 @@ const PASSWORD = 'Heuresys2026!';
 const COST = 12;
 
 const CANONICAL_RTL = [
-  'rtl-bank.federica.marchetti',
-  'rtl-bank.marco.desantis',
-  'rtl-bank.valentina.conti',
-  'rtl-bank.maria.colombo',
-  'rtl-bank.paolo.caputo',
-  'rtl-bank.giuseppe.ferri',
-  'rtl-bank.francesca.gallo',
+  'federica.marchetti@rtl-bank.org',
+  'marco.desantis@rtl-bank.org',
+  'valentina.conti@rtl-bank.org',
+  'maria.colombo@rtl-bank.org',
+  'paolo.caputo@rtl-bank.org',
+  'giuseppe.ferri@rtl-bank.org',
+  'francesca.gallo@rtl-bank.org',
 ];
 
 const SUPERUSER = 'sysadmin';
 
 const LEGACY_TO_DEACTIVATE = [
+  // Pre-L50 username forms (kept here so re-running apply on a stale DB
+  // converges by deactivating any leftover legacy alias).
   'rtl-bank.alice.esposito', // duplicate DEPT_HEAD ($2a$)
   'rtl-bank.alberto.colombo', // duplicate EMPLOYEE ($2a$)
+  'rtl-hr', // duplicate user for valentina.conti
   'admin', // Heuresys TENANT_OWNER — restricted out by S22 .test-env scope
   'smartfood-admin', // SmartFood TENANT_OWNER — restricted out by S22 .test-env scope
   'econova-admin', // EcoNova TENANT_OWNER — restricted out by S22 .test-env scope
+  'evo.dev', // platform SUPERUSER — out of test matrix
+  // L50: alice/alberto/laura post-rename forms (idempotent guard)
+  'alice.esposito@rtl-bank.org',
+  'alberto.colombo@rtl-bank.org',
+  'laura.bertolini@econova.org',
 ];
 
 async function main() {
@@ -93,13 +101,13 @@ async function main() {
   await prisma.$executeRaw`
     INSERT INTO canonical_demo_users(role, username) VALUES
       ('SUPERUSER',    ${SUPERUSER}),
-      ('TENANT_OWNER', ${'rtl-bank.federica.marchetti'}),
-      ('IT_ADMIN',     ${'rtl-bank.marco.desantis'}),
-      ('HR_DIRECTOR',  ${'rtl-bank.valentina.conti'}),
-      ('HR_MANAGER',   ${'rtl-bank.maria.colombo'}),
-      ('DEPT_HEAD',    ${'rtl-bank.paolo.caputo'}),
-      ('LINE_MANAGER', ${'rtl-bank.giuseppe.ferri'}),
-      ('EMPLOYEE',     ${'rtl-bank.francesca.gallo'})
+      ('TENANT_OWNER', ${'federica.marchetti@rtl-bank.org'}),
+      ('IT_ADMIN',     ${'marco.desantis@rtl-bank.org'}),
+      ('HR_DIRECTOR',  ${'valentina.conti@rtl-bank.org'}),
+      ('HR_MANAGER',   ${'maria.colombo@rtl-bank.org'}),
+      ('DEPT_HEAD',    ${'paolo.caputo@rtl-bank.org'}),
+      ('LINE_MANAGER', ${'giuseppe.ferri@rtl-bank.org'}),
+      ('EMPLOYEE',     ${'francesca.gallo@rtl-bank.org'})
   `;
   console.log('[apply-canonical-users] registry refreshed (8 roles)');
 

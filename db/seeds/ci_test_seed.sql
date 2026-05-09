@@ -97,12 +97,12 @@ SELECT
   FROM (VALUES
     ('a1b2c3d4-e5f6-7890-abcd-ef1234567890', 'sysadmin',                 'SUPERUSER',    ARRAY['VIEW_PLATFORM','MANAGE_TENANTS','MANAGE_USERS','EDIT_CONFIG','VIEW_SENSITIVE_DATA','DEBUG_TOOLS']::text[], NULL),
     ('00000001-0000-0000-0000-000000000001', 'admin',                    'TENANT_OWNER', ARRAY[]::text[], 'e1000001-0000-0000-0000-000000000001'),
-    ('00000002-0000-0000-0000-000000000002', 'rtl-bank.marco.desantis',  'IT_ADMIN',     ARRAY[]::text[], 'e2000002-0000-0000-0000-000000000002'),
-    ('00000003-0000-0000-0000-000000000003', 'rtl-hr',                   'HR_DIRECTOR',  ARRAY[]::text[], 'e2000003-0000-0000-0000-000000000003'),
-    ('00000004-0000-0000-0000-000000000004', 'rtl-bank.maria.colombo',   'HR_MANAGER',   ARRAY[]::text[], 'e2000004-0000-0000-0000-000000000004'),
-    ('00000005-0000-0000-0000-000000000005', 'rtl-bank.alice.esposito',  'DEPT_HEAD',    ARRAY[]::text[], 'e2000005-0000-0000-0000-000000000005'),
-    ('00000006-0000-0000-0000-000000000006', 'rtl-bank.giuseppe.ferri',  'LINE_MANAGER', ARRAY[]::text[], 'e2000006-0000-0000-0000-000000000006'),
-    ('00000007-0000-0000-0000-000000000007', 'rtl-bank.pietro.barbieri', 'EMPLOYEE',     ARRAY[]::text[], 'e2000007-0000-0000-0000-000000000007')
+    ('00000002-0000-0000-0000-000000000002', 'marco.desantis@rtl-bank.org',     'IT_ADMIN',     ARRAY[]::text[], 'e2000002-0000-0000-0000-000000000002'),
+    ('00000003-0000-0000-0000-000000000003', 'valentina.conti@rtl-bank.org',    'HR_DIRECTOR',  ARRAY[]::text[], 'e2000003-0000-0000-0000-000000000003'),
+    ('00000004-0000-0000-0000-000000000004', 'maria.colombo@rtl-bank.org',      'HR_MANAGER',   ARRAY[]::text[], 'e2000004-0000-0000-0000-000000000004'),
+    ('00000005-0000-0000-0000-000000000005', 'paolo.caputo@rtl-bank.org',       'DEPT_HEAD',    ARRAY[]::text[], 'e2000005-0000-0000-0000-000000000005'),
+    ('00000006-0000-0000-0000-000000000006', 'giuseppe.ferri@rtl-bank.org',     'LINE_MANAGER', ARRAY[]::text[], 'e2000006-0000-0000-0000-000000000006'),
+    ('00000007-0000-0000-0000-000000000007', 'francesca.gallo@rtl-bank.org',    'EMPLOYEE',     ARRAY[]::text[], 'e2000007-0000-0000-0000-000000000007')
   ) AS u(id, username, role, permissions, employee_id)
 ON CONFLICT (username) DO UPDATE
     SET password_hash = EXCLUDED.password_hash,

@@ -22,16 +22,16 @@
 
 ## 2 · 8 viste rappresentative (allineate al test automatico)
 
-| #   | Route                              | Ruolo test   | User canonico                 |
-| --- | ---------------------------------- | ------------ | ----------------------------- |
-| 1   | `/login`                           | (public)     | —                             |
-| 2   | `/dashboard/cross_tenant_overview` | SUPERUSER    | `sysadmin`                    |
-| 3   | `/dashboard/tenant_owner_overview` | TENANT_OWNER | `rtl-bank.federica.marchetti` |
-| 4   | `/dashboard/hr_director_overview`  | HR_DIRECTOR  | `rtl-bank.valentina.conti`    |
-| 5   | `/employees`                       | HR_MANAGER   | `rtl-bank.maria.colombo`      |
-| 6   | `/me/skills`                       | EMPLOYEE     | `rtl-bank.francesca.gallo`    |
-| 7   | `/admin/users`                     | TENANT_OWNER | `rtl-bank.federica.marchetti` |
-| 8   | `/ontology`                        | HR_DIRECTOR  | `rtl-bank.valentina.conti`    |
+| #   | Route                              | Ruolo test   | User canonico                     |
+| --- | ---------------------------------- | ------------ | --------------------------------- |
+| 1   | `/login`                           | (public)     | —                                 |
+| 2   | `/dashboard/cross_tenant_overview` | SUPERUSER    | `sysadmin`                        |
+| 3   | `/dashboard/tenant_owner_overview` | TENANT_OWNER | `federica.marchetti@rtl-bank.org` |
+| 4   | `/dashboard/hr_director_overview`  | HR_DIRECTOR  | `valentina.conti@rtl-bank.org`    |
+| 5   | `/employees`                       | HR_MANAGER   | `maria.colombo@rtl-bank.org`      |
+| 6   | `/me/skills`                       | EMPLOYEE     | `francesca.gallo@rtl-bank.org`    |
+| 7   | `/admin/users`                     | TENANT_OWNER | `federica.marchetti@rtl-bank.org` |
+| 8   | `/ontology`                        | HR_DIRECTOR  | `valentina.conti@rtl-bank.org`    |
 
 Pwd: `Heuresys2026!` per tutti.
 

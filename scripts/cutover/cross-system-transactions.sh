@@ -11,8 +11,8 @@
 #       --evo    http://127.0.0.1:8200 \
 #       --legacy-fe http://127.0.0.1:3012 \
 #       --evo-fe    http://127.0.0.1:3200 \
-#       --user-employee rtl-bank.francesca.gallo \
-#       --user-tenant-owner rtl-bank.federica.marchetti \
+#       --user-employee francesca.gallo@rtl-bank.org \
+#       --user-tenant-owner federica.marchetti@rtl-bank.org \
 #       --pass Heuresys2026!
 #
 # Defaults restricted to tests/.test-env canonical users (post-S22).
@@ -41,8 +41,8 @@ LEGACY_BASE="${LEGACY_BASE:-http://127.0.0.1:8012}"
 EVO_BASE="${EVO_BASE:-http://127.0.0.1:8200}"
 LEGACY_FE="${LEGACY_FE:-http://127.0.0.1:3012}"
 EVO_FE="${EVO_FE:-http://127.0.0.1:3200}"
-USER_EMPLOYEE="${USER_EMPLOYEE:-rtl-bank.francesca.gallo}"
-USER_TENANT_OWNER="${USER_TENANT_OWNER:-rtl-bank.federica.marchetti}"
+USER_EMPLOYEE="${USER_EMPLOYEE:-francesca.gallo@rtl-bank.org}"
+USER_TENANT_OWNER="${USER_TENANT_OWNER:-federica.marchetti@rtl-bank.org}"
 USER_PASS="${USER_PASS:-Heuresys2026!}"
 
 while [ $# -gt 0 ]; do
