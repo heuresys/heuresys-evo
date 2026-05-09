@@ -366,6 +366,78 @@ const ProfileHeroWidget: WidgetComponent = lazyWidget(() =>
     ),
   }))
 );
+
+const TenantCardWidget: WidgetComponent = lazyWidget(() =>
+  import('@/components/widgets/brand').then((m: any) => ({
+    default: liveWrapper(
+      'TenantCard',
+      {
+        name: 'RTL Bank',
+        tid: 'rtl-bank · 270 employees',
+        kind: 'tenant' as const,
+        rows: [
+          { label: 'INDUSTRY', value: 'Banking' },
+          { label: 'PLAN', value: 'Enterprise' },
+          { label: 'STATUS', value: 'active', success: true },
+        ],
+        health: { label: 'all systems healthy', strong: 'OK', tone: 'ok' as const },
+      },
+      (props) => <m.BrandTenantCard {...props} />
+    ),
+  }))
+);
+
+const MetricCardWidget: WidgetComponent = lazyWidget(() =>
+  import('@/components/widgets/brand').then((m: any) => ({
+    default: liveWrapper(
+      'MetricCard',
+      {
+        label: 'DB SIZE',
+        value: 24.6,
+        unit: 'GB',
+        sparkline: [38, 42, 45, 49, 52, 56, 58, 60, 63, 64],
+      },
+      (props) => <m.BrandMetricCard {...props} />
+    ),
+  }))
+);
+
+const SectionHeadWidget: WidgetComponent = lazyWidget(() =>
+  import('@/components/widgets/brand').then((m: any) => ({
+    default: liveWrapper('SectionHead', { title: 'Section header', meta: 'LIVE' }, (props) => (
+      <m.BrandSectionHead {...props} />
+    )),
+  }))
+);
+
+const IntRowWidget: WidgetComponent = lazyWidget(() =>
+  import('@/components/widgets/brand').then((m: any) => ({
+    default: liveWrapper(
+      'IntRow',
+      {
+        name: 'SAP HCM',
+        meta: 'last sync · 2 min ago',
+        tone: 'ok' as const,
+        status: 'OK',
+      },
+      (props) => <m.BrandIntRow {...props} />
+    ),
+  }))
+);
+
+const AuditRowWidget: WidgetComponent = lazyWidget(() =>
+  import('@/components/widgets/brand').then((m: any) => ({
+    default: liveWrapper(
+      'AuditRow',
+      {
+        ts: '14:32:08',
+        what: 'Role assignment updated',
+        actor: 'sysadmin',
+      },
+      (props) => <m.BrandAuditRow {...props} />
+    ),
+  }))
+);
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
 export const WIDGET_REGISTRY: Record<string, WidgetComponent> = {
@@ -383,6 +455,11 @@ export const WIDGET_REGISTRY: Record<string, WidgetComponent> = {
   CompCard: CompCardWidget,
   BridgeCard: BridgeCardWidget,
   ProfileHero: ProfileHeroWidget,
+  TenantCard: TenantCardWidget,
+  MetricCard: MetricCardWidget,
+  SectionHead: SectionHeadWidget,
+  IntRow: IntRowWidget,
+  AuditRow: AuditRowWidget,
 };
 
 export function resolveWidget(widget_code: string): WidgetComponent | null {
