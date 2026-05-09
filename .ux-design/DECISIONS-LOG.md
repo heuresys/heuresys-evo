@@ -1659,6 +1659,62 @@ In tutti questi casi: aggiungere quando serve, non in anticipo. Officina, non un
 
 ---
 
+## L53 — 2026-05-09 — Forensic DBMS audit baseline + legacy login data purge
+
+**Decisione**: post-S22 (L48-L52) eseguito audit qualitativo forense end-to-end del DBMS `heuresys_platform` via subagent `database-admin` (Claude Code SDK). Output: report 423 righe in `docs/_audit/2026-05-09-forensic-db-audit.md` con baseline schema/integrity/security e 22 issues prioritizzati per S23+. Plus cleanup completo dati di login legacy su file source (`evo.dev` / `admin123` / `@rtlbank.it` / `@heuresys.test` / `rtl-bank.<first>.<last>`) + wipe build cache (`.next/` + 4 `*.tsbuildinfo`).
+
+**Contesto**: dopo allineamento canonical L50/L51 e decisione architetturale L52, l'utente ha richiesto (a) verifica esaustiva che vecchi dati di login non fossero più presenti in nessun file/cache del repo, (b) audit forense completo qualitativo del DB con superpower (subagent specializzato).
+
+**Findings audit forense** (5 critical / 7 high / 12 lower):
+
+- **`[CRITICAL]`** ~30+ tabelle con dati sensibili employee-scoped (employee*certifications, employee_skill_assessments, employee_pay_stubs, merit_recommendations, whistleblowing*_, salary*band_assignments, succession_candidates, calibration*_, prediction*\*, tenant_job*\*, ecc.) **senza colonna `tenant_id` né RLS policy**. Cross-tenant leak prevented oggi solo dal join app-level via `employee_id → employees.tenant_id`. Viola defense-in-depth promessa di P5. Estimate fix: 4-6 FTE-day.
+- **`[CRITICAL]`** 13 RLS policies riferiscono GUC sbagliato `app.current_tenant` invece di `app.current_tenant_id` (analytics*aggregations, analytics_events, dashboards, dashboard_widgets, export*\_, report\_\_, model_predictions, performance_predictions, predictive_models, turnover_risk_scores, widget_templates). Effetto: `current_setting('app.current_tenant', true)` → NULL → comparison `tenant_id = NULL` → 0 rows. Fail-closed silente che maschera feature downstream. Estimate fix: 1 FTE-hour.
+- **`[HIGH]`** Audit logs sparse: solo 6 entries ultimi 30 giorni · 4/5 con NULL actor. P4 enforcement gap: writes bypassano `auditedTransaction()`. Estimate audit: 1-2 FTE-day.
+- **`[HIGH]`** Solo 6/36 route files api-gateway usano `requirePermission` middleware. P3 audit needed sui restanti 30. Estimate: 1 FTE-day.
+- **`[HIGH]`** `users.role` varchar unconstrained (no FK a `rbp_roles.code`, no CHECK). Estimate fix: 1 FTE-hour.
+- **`[HIGH]`** `widget_catalog_id` NULL su 100% dei `dashboard_elements` (115/115). Decommissiona FK o backfill. Estimate: 1-2 FTE-hour.
+- **`[HIGH]`** `rbac_role` enum drift: contiene `SYSADMIN` e `TENANT_ADMIN` inesistenti in `rbp_roles`. Estimate: 1-2 FTE-hour drop o allinea.
+- **`[HIGH]`** `rbp_role_permissions` count mismatch docs (179 actual vs 326 documentati in CLAUDE.md). Estimate: 30 min update doc.
+- **`[MEDIUM]`** App-level `tenant_id` filter inconsistente; query rely solo su RLS via `withTenant()` wrapper. Lint rule raccomandato. Estimate: 2-4 FTE-hour.
+- **`[MEDIUM]`** 256/265 active password con bcrypt cost <12 (project standard cost 12, applied solo ai canonical 8 + sysadmin). Schedule rotation. Estimate: 2-3 FTE-day o one-shot rehash al next login.
+- **`[MEDIUM]`** 310 FK senza `ON DELETE` esplicito · materialized views senza refresh schedule documentato · GUC convention drift su `user_workspaces`/`workspace_widgets` · 0 employees con `enrichment_consent=true` · 50 SAP shadow tables senza PK (intenzionale).
+
+**Findings positivi (baseline solida)**:
+
+- 570 base tables · 905 FK · 2297 indici · 330 RLS policies · 354 trigger
+- 100% RLS coverage sulle 291 tabelle che HANNO `tenant_id`
+- 12 tabelle Platform-default (P10) tutte usano correttamente l'idiom `tenant_id IS NULL OR tenant_id = current_setting(...)`
+- 8 ruoli canonical × 34 functional areas = 179 perm rows · tutti gli 8 ruoli popolati in `rbp_role_permissions`
+- 4 tenants ✓ · 18 dashboard presets · 115 elements · 16 role mappings · 8 canonical demo users — tutti coerenti L46-L52
+- Next.js: 24/24 page auth-gated · 6/7 API handlers chiamano `auth()`
+- Login canonical 8 verificato end-to-end via bcryptjs server-side: 8/8 PASS bcrypt match
+
+**Cleanup legacy login**:
+
+9 file source aggiornati (`tests/fixtures/tenants.ts`, `services/app/tests/e2e/auth.spec.ts`, `services/app/src/__tests__/login-form.test.tsx`, `services/app/scripts/perf-dashboard.mjs`, `packages/ui/src/components/data-table.stories.tsx`, 3 file `services/api-gateway/src/routes/__tests__/`, `services/app/.env.local.example`, `services/app/src/app/brand-studio/README.md`, `db/seeds/ci_test_seed.sql`) + 5 mockup HTML auth (placeholder `@rtl-bank.it` → `@rtl-bank.org`). Cache wipe: `services/app/.next/` + 4 `*.tsbuildinfo`. 15 match restanti tutti legitimati (audit trail DECISIONS-LOG, migration SQL phase15h/15i, soft-delete `LEGACY_TO_DEACTIVATE` list intenzionale per idempotenza, commenti backward-compat in `UserMenu.computeInitials`, mockup tenant-subdomain `rtl-bank.heuresys.com` URL routing).
+
+**Conseguenza**:
+
+- Nessun residuo di vecchi dati di login attivi nel codice runtime. Solo riferimenti audit storici (immutabili per principio) restano.
+- Baseline schema/integrity DBMS documentata e versionata. S23+ può lavorare su issues prioritizzate con tracciabilità.
+- DRY refactor `tests/parse-test-env.mjs` come parser ESM condiviso da `apply-canonical-users.mjs` + `auth.ts` e2e helpers (zero duplicazione username/password tra file).
+- Test coverage post-cleanup: 848/848 PASS (typecheck app + 4 vitest workspaces).
+
+**Out-of-scope L53** (entra in S23 roadmap):
+
+- Implementazione fix dei 22 issues identificati (totale stimato ~10-15 FTE-day cleanup)
+- Production `/dashboard` refactor DB-driven (carry-forward S20+S21+S22, ~6-10h)
+- WCAG 2.2 AAA full audit (carry-forward, ~3-5h)
+- Mockup migration `var(--brand-blue)` → `var(--primary)` su production CSS (alias attivo, optional)
+
+**Riferimenti**:
+
+- Report audit: `docs/_audit/2026-05-09-forensic-db-audit.md` (423 righe, 8 sezioni + top-10 + advisory)
+- Commit S22 close: `11df303` (L48) · `7cb25e8` (L49) · `1ee7b65` (S22 cleanup) · `a7f0a68` (USER\_\* rename) · `9f5569c` (L50) · `3f19a21` (L51) · `f14f63a` (L52) · `293e3eb` (DRY parser) · `074fe7d` (legacy purge + cache wipe) · `c5150c4` (audit doc).
+- Verifica login: `node scripts/db/apply-canonical-users.mjs` su VM, output `verification: 8/8 pass`.
+
+---
+
 ## Format per nuove entry
 
 Quando aggiungi una nuova decisione, segui questo template:

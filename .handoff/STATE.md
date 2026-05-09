@@ -1,56 +1,107 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-09T17:25Z · S22 closed (L49 process autonomous + theme-framework prod + canonical sweep)
+> Updated: 2026-05-09T20:45Z · S22 chiusa · L48-L53 shipped (theme/palette + canonical consistency + DBMS forensic audit baseline)
 
 ## Last session brief (S22)
 
-3 follow-up shipped come single commit, risolvendo le 3 open question lasciate da L48.
+**6 ADR-level decisions, 10 commit pushed direct main, 391 → 848 test verdi.**
 
-1. **Process autonomous role** (Q1): i 4 `process_*` (Phase 15.A) assegnati come dashboard secondary a HR_DIRECTOR + HR_MANAGER via `role_default_dashboards` (priority 10..40). Schema reshape: unique index ora su `(role, preset_code)` per consentire N preset per ruolo. Resolver helper `resolveAllPresetsForRole()` aggiunto. SIDEBAR_MAP estesa con `processSection` (4 nav links Process — Recruiting/Onboarding/Performance/Learning).
-2. **Theme-framework portato in `/brand-studio`** (Q2): 3 file framework copiati in `services/app/src/{styles,lib}/theme-framework/`. Root layout async ora legge `active-palette.json` + cookie preview e applica `data-palette` + `data-theme` su `<html>` SSR. `BrandStudioClient` refactored con tab navigation: `Palette Presets` (grid 17×2 mini-cards 4 family) + `Token Editor` (esistente). Server actions nuove `applyPaletteToProject` / `setPreviewPalette` / `clearPreviewPalette`. Default `mu-architect/dark`. SUPERUSER-only invariato.
-3. **Canonical sweep mockup** (Q3): rename completo `--brand-blue` → `--primary` su 17 file `.ux-design/06-mockups/` (12 dashboard + 5 auth, 98→0 occorrenze legacy). Production CSS sweep deferred (alias retrocompatibile `--primary: var(--brand-blue)` in `active-theme.css` copre il caso).
+| Step | Commit | Sintesi |
+|------|--------|---------|
+| L48 | `11df303` | Theme/palette framework v1 in `.ux-design/02-aesthetic/theme-framework/` (17 palette × 2 mode CSS framework + JS switcher zero deps + playground HTML). Wordmark body canonical `var(--primary)` palette-aware |
+| L49 | `7cb25e8` | (1) 4 process_* assegnati come secondary nav HR_DIRECTOR + HR_MANAGER via `role_default_dashboards` priority 10..40. (2) Theme-framework portato in `services/app/src/{styles,lib}/theme-framework/`. `BrandStudioClient` con tab `Palette Presets` + `Token Editor`. Root layout async legge `active-palette.json` SSR. (3) Mockup canonical sweep `--brand-blue` → `--primary` (17 file, 98→0) |
+| S22 cleanup | `1ee7b65` + `a7f0a68` | Restringimento canonical demo users a `tests/.test-env` matrix (8 active: 1 SUPERUSER `sysadmin` + 7 RTL Bank email-format). Soft-delete `admin`/`smartfood-admin`/`econova-admin`. Rinaming `USER_ECONOVA`/`USER_RTL` → `USER_EMPLOYEE`/`USER_TENANT_OWNER` |
+| L50 | `9f5569c` | DBMS canonical consistency alignment: `tenants.domain` SoT NOT NULL UNIQUE · `employees.email` canonical `lower(strip(first.last))@domain` · 264 username allineati a email · 5 orphan + 3 retired soft-deleted · 6 SQL asserts pre-commit |
+| L51 | `3f19a21` | `tests/.test-env` SoT formalization: regola operativa cronologica vincolante. Edit `.test-env` PRIMA → `apply-canonical-users.mjs` + SQL → DB → e2e helpers |
+| L52 | `f14f63a` | `users.tenant_id` resta derivata: NO denormalizzazione, legame via `users.employee_id → employees.tenant_id`. 3 trigger di rivisitazione futura documentati |
+| DRY refactor | `293e3eb` | `tests/parse-test-env.mjs` + `.d.ts` come parser ESM condiviso. Zero duplicazione username/password tra file |
+| Legacy purge | `074fe7d` | 9 file source legacy aggiornati + 5 mockup HTML + cache wipe (`.next/` + 4 `*.tsbuildinfo`). 15 match restanti tutti legitimati |
+| L53 audit | `c5150c4` | Forensic DBMS audit via subagent `database-admin`: 5 critical / 7 high / 12 lower issues. Report `docs/_audit/2026-05-09-forensic-db-audit.md` (423 righe) |
 
-## Top priorities (S23)
+## Top priorities (S23 — driven by L53 audit)
 
-1. **Production `/dashboard` refactor DB-driven** (~6-10h) — modificare `services/app/src/app/(app)/dashboard/page.tsx` + `_components/BrandShell.tsx` per consumare `chromeStandard` + `dashboardCode='*_v2'` dal catalog DB invece di hardcoded views. Carry-forward S20+S21+S22.
-2. **Smoke verifica visiva 17 palette × 2 mode** (~1-2h) — `/brand-studio` SUPERUSER, click ogni palette+mode, verifica wordmark bicolor visibile + nessun broken contrast in dashboard production.
-3. **Production CSS sweep `--brand-blue` → `--primary`** (~2-3h) — opzionale, ora alias attivo. Quando si decide canonical, rimuovere alias e migrare tutti gli `var(--brand-blue)` in `services/app/src/{styles,components,app}/`.
-4. **WCAG 2.2 AAA full audit** (~3-5h) — axe-core CI + manual NVDA/VoiceOver. Ora più importante perché il framework introduce 16 nuove combinazioni palette/theme.
+**`[CRITICAL]` (~6 FTE-day)**:
+
+1. **ADD COLUMN `tenant_id` + RLS policies** a ~30 tabelle employee/payroll/whistleblowing senza `tenant_id` (`employee_certifications`, `employee_skill_assessments`, `employee_pay_stubs`, `merit_recommendations`, `whistleblowing_*`, `salary_band_assignments`, `succession_candidates`, `bonus_allocations`, `tenant_job_*`, ecc.). Backfill da `employees.tenant_id` via `employee_id` join. RLS standard idiom `tenant_id = current_setting(...)`. Cross-tenant leak prevented oggi solo da app-level join. (4-6 FTE-day)
+2. **Fix 13 RLS policies GUC typo** `app.current_tenant` → `app.current_tenant_id` su `analytics_events`, `dashboards`, `dashboard_widgets`, `export_*`, `report_*`, `model_predictions`, `predictive_models`, `turnover_risk_scores`, `widget_templates`. Singolo migration ALTER POLICY × 13. (1 FTE-hour)
+
+**`[HIGH]` (~2-3 FTE-day)**:
+
+3. **P4 enforcement gap audit**: solo 6 audit_logs ultimi 30 giorni · 4/5 con NULL actor. Audit dei write path che bypassano `auditedTransaction()` / `auditedDashboardMutation()`. (1-2 FTE-day)
+4. **P3 audit api-gateway**: 30/36 route files NON usano `requirePermission` middleware. Verifica auth alternativa o gap. (1 FTE-day)
+5. **`users.role` FK constraint** a `rbp_roles(code)` dopo verifica dati esistenti. (1 FTE-hour)
+6. **`widget_catalog_id` cleanup**: NULL su 100% dei `dashboard_elements`. Decommissiona FK o backfill da `widget_code`. (1-2 FTE-hour)
+7. **`rbac_role` enum drift**: drop `SYSADMIN`/`TENANT_ADMIN` o allinea con `rbp_roles`. (1-2 FTE-hour)
+8. **Doc fix**: `rbp_role_permissions` actual 179 vs CLAUDE.md dichiarato 326. (30 min)
+
+**`[MEDIUM]` (~1 FTE-day)**:
+
+9. App-level `tenant_id` filter consistency: lint rule + pre-commit grep per ogni `prisma.X.findMany` non-platform. (2-4 FTE-hour)
+10. Bcrypt rotation: 256/265 active password con cost <12. One-shot rehash al next login o batch script. (2-3 FTE-day o on-demand)
+
+**Carry-forward S20-S21-S22 (non audit-driven)**:
+
+11. Production `/dashboard` refactor DB-driven (`chromeStandard` + `dashboardCode='*_v2'` da catalog DB invece di hardcoded views). ~6-10h
+12. WCAG 2.2 AAA full audit (axe-core CI + manual NVDA/VoiceOver). ~3-5h
+13. Mockup `var(--brand-blue)` → `var(--primary)` production CSS sweep (opzionale, alias attivo). ~2-3h
 
 ## Open questions
 
-- `process_*_v2` versioni in `dashboard_presets`: ora si usano i `process_*` Phase 15.A. Promotion in `*_v2` quando? (richiede mockup → dashboard_elements seed completo per i 4 process)
-- Default palette: `mu-architect` / `dark` è OK come SSR default, oppure preferiamo `legacy` (Set 5) per preservare look storico?
-- Token Editor (`/brand-studio`) e Palette Presets coesistono — qual è la SoT operativa? Editor scrive `active-theme.css`, Presets scrive `active-palette.json`. Non interferiscono ma definiscono due livelli diversi (tokens primitivi vs palette preset).
+- (S23) Strategia tenant_id backfill per ~30 tabelle: migration unica monolitica o batch per dominio (compensation/career/recruiting/learning/whistleblowing)?
+- (S23) Audit logs sparse: feature flag temporaneo `AUDIT_OFF=true` attivo in dev? O auditedTransaction() mancante systematicamente?
 
-## Stack snapshot (changed in S22)
+## Stack snapshot post-S22
 
-- NEW `services/app/src/styles/theme-framework/{palette-framework.css,active-palette.json}` (1646 lines CSS + JSON state)
-- NEW `services/app/src/lib/theme-framework/{palettes.ts,active-palette-store.ts}` (TS catalog + file persistence)
-- NEW `services/app/src/app/brand-studio/PalettePresetsTab.tsx` (client tab grid 17×2)
-- NEW `db/seeds/phase15h_process_role_assignments.sql` (applied bare-metal SoT, 16 rows in `role_default_dashboards`)
-- UPDATED `services/app/src/app/layout.tsx` (async + `data-palette`/`data-theme` SSR)
-- UPDATED `services/app/src/app/brand-studio/{actions.ts,BrandStudioClient.tsx,page.tsx}` (palette server actions + tab nav)
-- UPDATED `services/app/src/lib/dashboard-engine/role-preset-resolver.ts` (`resolveAllPresetsForRole` helper)
-- UPDATED `services/app/src/lib/navigation/role-nav-map.ts` (`processSection` for HR_DIRECTOR + HR_MANAGER)
-- UPDATED `services/app/src/styles/active-theme.css` (`--primary` + `--primary-deep` alias retrocompatibile)
-- UPDATED 17 mockup `.ux-design/06-mockups/` (rename `--brand-blue` → `--primary`)
-- UPDATED `.ux-design/{DECISIONS-LOG.md,BRAND-STATE.md}` (L49 entry + Phase 15.D row + decision row)
+**DBMS**:
+- 4 tenants con `domain` populated · 264 active employees · 265 active users (1 platform `sysadmin`)
+- 570 base tables · 905 FK · 2297 indici · 330 RLS policies (13 con GUC typo) · 354 trigger
+- 18 dashboard_presets (11 v1 + 7 v2) · 115 dashboard_elements · 16 role_default_dashboards
+- 8 canonical demo users + `canonical_demo_users` registry
+
+**Files chiave**:
+- NEW `db/seeds/phase15h_*.sql` + `phase15i_canonical_consistency_alignment.sql` (applied bare-metal SoT)
+- NEW `services/app/src/{styles,lib,app/brand-studio}/theme-framework/` (production framework)
+- NEW `tests/parse-test-env.mjs` + `.d.ts` (DRY parser)
+- NEW `docs/_audit/2026-05-09-forensic-db-audit.md` (baseline audit)
+- UPDATED `services/app/src/lib/{authorize,dashboard-engine/role-preset-resolver,navigation/role-nav-map}.ts`
+- UPDATED `services/app/src/app/{layout,brand-studio/{actions,BrandStudioClient,page,PalettePresetsTab}}.tsx`
+- UPDATED `services/app/src/styles/active-theme.css` (--primary alias)
+- UPDATED `services/app/src/app/(app)/_components/UserMenu.tsx` (computeInitials dual-pattern)
+- UPDATED 9 file source legacy login (test fixtures · scripts · docs · CI seed) + 5 mockup HTML auth
+- UPDATED `tests/.test-env` SoT formalization + `services/app/tests/e2e/{helpers/auth.ts,dashboard-rbp-matrix.spec.ts,auth.spec.ts}`
+- UPDATED docs globali: `CLAUDE.md` (Stato attuale + S22 close section + S23 priorities) · `.ux-design/{BRAND-STATE,DECISIONS-LOG}.md`
 
 ## Verification
 
 ```bash
-git log --oneline -3
-ssh oracle-vm-default "sudo -u postgres psql -d heuresys_platform -c 'SELECT role, preset_code, priority FROM role_default_dashboards ORDER BY role, priority'"
-# Expected: 16 rows (8 primary @ priority=0 + 8 process @ priority=10..40 for HR_DIRECTOR + HR_MANAGER)
+# Git state
+git log --oneline -10
+# Expected: c5150c4 (audit) ↑ 074fe7d (purge) ↑ 293e3eb (DRY) ↑ f14f63a (L52) ↑ 3f19a21 (L51) ↑ 9f5569c (L50) ↑ a7f0a68 (rename) ↑ 1ee7b65 (S22 cleanup) ↑ 7cb25e8 (L49) ↑ 11df303 (L48)
+
+# DB state
+ssh oracle-vm-default "sudo -u postgres psql -d heuresys_platform -c 'SELECT COUNT(*) FROM users WHERE is_active AND deleted_at IS NULL'"
+# Expected: 265
+
+# Login canonical 8 verification
+ssh oracle-vm-default "cd ~/heuresys-evo/services/app && DATABASE_URL='postgresql://heuresys:heuresys@127.0.0.1:5432/heuresys_platform?schema=public' node ../../scripts/db/apply-canonical-users.mjs"
+# Expected: "verification: 8/8 pass"
+
+# Tests
 cd services/app && npx tsc --noEmit && npm test --silent
-# Expected: typecheck PASS · 214/214 vitest PASS
+# Expected: 214/214 PASS
+npm test --workspace=services/api-gateway --silent
+# Expected: 457/457 PASS
+npm test --workspace=packages/shared --silent
+# Expected: 82/82 PASS
+npm test --workspace=packages/ui --silent
+# Expected: 95/95 PASS
 ```
 
-Smoke browser:
+## Riferimenti chiave
 
-- `/brand-studio` SUPERUSER → 2 tab visibili, palette grid 17×2 cliccabile, click cambia `<html data-palette>` live, "Apply" persiste in `active-palette.json`
-- Login HR_DIRECTOR → sidebar mostra gruppo `Process` con 4 link (Recruiting/Onboarding/Performance/Learning) sotto Workspace
-- `/dashboard/process_recruiting_funnel` carica view brand-fedele (presset Phase 15.A)
-
-Riferimenti chiave: `.ux-design/DECISIONS-LOG.md` § L49 · `services/app/src/lib/theme-framework/` · `db/seeds/phase15h_process_role_assignments.sql`
+- `docs/_audit/2026-05-09-forensic-db-audit.md` — audit baseline 22 issues
+- `.ux-design/DECISIONS-LOG.md` § L48-L53 — log decisioni S22
+- `tests/.test-env` — SoT canonical demo users (1 SUPERUSER + 7 RTL email-format)
+- `db/seeds/phase15i_canonical_consistency_alignment.sql` — migration consistency idempotente
+- `tests/parse-test-env.mjs` — parser DRY condiviso
+- `CLAUDE.md` § Stato attuale (S22 close + S23 priorities)

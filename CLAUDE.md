@@ -166,7 +166,7 @@ VM: `oracle-vm-default` (IP 80.225.82.207). nginx vhosts in `/etc/nginx/sites-av
 
 **Vincolo "estirpazione clean"**: ogni entry in `Test Stage`/`PreOp Stage` DEVE essere rimovibile dal repo evo SENZA conseguenze su stack/oggetti pre-import. Categorie removability tracciate nel CSV (`no-impact`, `embedded-in-existing-file`, `depends-on-X`, `not-yet-used`, `depends-on-DB-seed`).
 
-## Stato attuale (2026-05-09T05:10Z · L47 catalog DB governance shift shipped — body-only import 10 mockup)
+## Stato attuale (2026-05-09T20:30Z · S22 chiusa · L48-L53 shipped — theme/palette + canonical consistency + DBMS forensic audit)
 
 ### DBMS = SoT (certified 2026-05-07T14:30Z)
 
@@ -309,6 +309,42 @@ L47 (commit `08b2097`) — body-only import dei 10 mockup rimanenti (escluso `in
 - Mapping role → dashboardCode per i 4 process (decisione HR_MANAGER vs autonomous role)
 - Promote degli asset packages/ui non utilizzati nei 10 mockup (es. data-table, hero-sections) — restano `available` nel catalog
 
+### ✅ S22 close (2026-05-09) — L48 → L53 shipped
+
+**6 ADR-level decisions in singola sessione, 8 commit pushed direct main, 391→848 test verdi.**
+
+| Decisione                                                 | Commit                | Sintesi                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| --------------------------------------------------------- | --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **L48** Theme/palette framework v1                        | `11df303`             | 17 palette × 2 mode in `.ux-design/02-aesthetic/theme-framework/` (CSS framework 1638 lines + JS switcher zero deps + playground HTML). Wordmark body canonical `var(--primary)` palette-aware                                                                                                                                                                                                                                                                                         |
+| **L49** Process autonomous + theme prod + canonical sweep | `7cb25e8`             | (1) 4 `process_*` come secondary nav HR_DIRECTOR + HR_MANAGER via `role_default_dashboards` priority 10..40 (16 rows total) · `resolveAllPresetsForRole` helper · `processSection` SIDEBAR_MAP. (2) Theme-framework portato in `services/app/src/{styles,lib}/theme-framework/`. `BrandStudioClient` refactored con tab `Palette Presets` + `Token Editor`. Root layout async legge `active-palette.json` SSR. (3) Mockup canonical sweep `--brand-blue` → `--primary` (17 file, 98→0) |
+| **S22 cleanup canonical**                                 | `1ee7b65` + `a7f0a68` | Restringimento canonical demo users a `tests/.test-env` matrix (8 active: 1 SUPERUSER `sysadmin` + 7 RTL Bank email-format). Soft-delete `admin`/`smartfood-admin`/`econova-admin` (cross-tenant retired). Rinaming `USER_ECONOVA`/`USER_RTL` → `USER_EMPLOYEE`/`USER_TENANT_OWNER` per coerenza concettuale                                                                                                                                                                           |
+| **L50** DBMS canonical consistency alignment              | `9f5569c`             | `tenants.domain` SoT NOT NULL UNIQUE (econova.org · heuresys.com · rtl-bank.org · smartfood.org). `employees.email` canonical = `lower(strip(first.last))@domain`. Soft-delete 5 orphan + `rtl-hr` + `evo.dev` + `laura.bertolini`. 264 `users.username` allineati a `employees.email`. 6 SQL asserts pre-commit                                                                                                                                                                       |
+| **L51** `tests/.test-env` SoT formalization               | `3f19a21`             | Regola operativa cronologica: edit `.test-env` PRIMA → `apply-canonical-users.mjs` + SQL → DB → e2e helpers. Mai aggiungere user al DB senza prima averlo registrato qui                                                                                                                                                                                                                                                                                                               |
+| **L52** `users.tenant_id` resta derivata                  | `f14f63a`             | Decisione architetturale documentata: NO denormalizzazione, legame derivato via `users.employee_id → employees.tenant_id` (SUPERUSER usa `DEFAULT_SUPERUSER_TENANT_ID` env fallback). 3 trigger di rivisitazione futura                                                                                                                                                                                                                                                                |
+| **DRY refactor parser**                                   | `293e3eb`             | `tests/parse-test-env.mjs` + `.d.ts` come parser condiviso da `apply-canonical-users.mjs` + `auth.ts` e2e helper. Zero duplicazione username/password tra file                                                                                                                                                                                                                                                                                                                         |
+| **Legacy login purge + cache wipe**                       | `074fe7d`             | 9 file source legacy aggiornati (`evo.dev`/`admin123`/`@rtlbank.it`/`@heuresys.test`/`rtl-bank.<first>.<last>`). `.next/` cache + 4 `*.tsbuildinfo` wipe. 15 match restanti tutti legitimati (audit trail, soft-delete list, mockup subdomain)                                                                                                                                                                                                                                         |
+| **L53** Forensic DB audit                                 | `c5150c4`             | Audit qualitativo via subagent `database-admin`. **5 critical / 7 high / 12 lower** issues. Report 423 lines in `docs/_audit/2026-05-09-forensic-db-audit.md`. Top critical: ~30 tabelle senza `tenant_id`/RLS; 13 RLS policies con GUC sbagliato (`app.current_tenant`); 6 audit_logs ultimi 30d (P4 gap); 6/36 routes con `requirePermission` (P3 gap)                                                                                                                               |
+
+### Stato DBMS post-L50 alignment
+
+- 4 tenants con `domain` populated · 264 active employees · 265 active users (di cui 1 platform `sysadmin`)
+- Login canonical 8 verificato end-to-end via bcryptjs server-side: 8/8 PASS bcrypt match
+- DB SoT: `phase15h_*.sql` + `phase15i_canonical_consistency_alignment.sql` applicate
+- 6 verification asserts pre-commit invariati (zero orphan · zero email duplicates · zero username≠email)
+
+### 🚀 S23 priorities (carry-forward dall'audit forense)
+
+Top issues prioritizzate, totale stimato ~10-15 FTE-day cleanup:
+
+1. **`[CRITICAL]`** ADD COLUMN `tenant_id` + RLS a ~30 tabelle employee/payroll/whistleblowing (4-6 FTE-day)
+2. **`[CRITICAL]`** Fix 13 RLS policies GUC typo `app.current_tenant` → `app.current_tenant_id` (1 FTE-hour)
+3. **`[HIGH]`** P4 enforcement gap audit: writes bypassano `auditedTransaction()` (1-2 FTE-day)
+4. **`[HIGH]`** P3 audit api-gateway: 30/36 routes senza `requirePermission` (1 FTE-day)
+5. **`[HIGH]`** `users.role` varchar unconstrained → FK a `rbp_roles(code)` (1 FTE-hour)
+6. **`[HIGH]`** `widget_catalog_id` NULL su 100% `dashboard_elements` (1-2 FTE-hour)
+7. **`[HIGH]`** `rbac_role` enum drift drop o allinea (1-2 FTE-hour)
+8. Plus carry-forward S20+S21+S22: production `/dashboard` refactor DB-driven (~6-10h), WCAG 2.2 AAA full audit (~3-5h)
+
 ## Documenti strategici
 
 - `docs/_meta/operating-baseline.md` — **regole comportamentali complete (canonical SoT)**
@@ -318,7 +354,8 @@ L47 (commit `08b2097`) — body-only import dei 10 mockup rimanenti (escluso `in
 - `docs/20-architecture/role-views-matrix.md` — Phase 14.SH FASE 3.1 inventory (scaffolded)
 - `docs/40-operations/dbms-backup-restore.md` — Backup/restore governance policy (scaffolded)
 - `docs/50-reference/decisions/` — 26 ADR (3 superseded · ADR-0023 SoT promotion · ADR-0024 Phase 14.SH plan · ADR-0025 brand identity cycle sealed + v1.0 promotion plan · ADR-0026 Phase 15.A brand-fedele dashboard rendering)
-- `.ux-design/DECISIONS-LOG.md` — log brand identity, ultime entry **L46** (catalog DB governance shift · org-systems first import · chromeStandard concept) + **L47** (body-only 10 mockup · 11 dashboardCode mapping)
+- `.ux-design/DECISIONS-LOG.md` — log brand identity + governance, ultime entry **L48** (theme/palette framework v1) · **L49** (process autonomous + theme prod + canonical sweep) · **L52** (`users.tenant_id` resta derivata) · **L53** (forensic DB audit baseline)
+- `docs/_audit/2026-05-09-forensic-db-audit.md` — audit qualitativo forense DBMS post-S22 (570 tables · 905 FK · 330 RLS policies · 22 issues prioritizzati)
 - `.ux-design/09-asset-showcase/README.md` — webapp catalog locale (gitignored eccetto `_legacy/`). Tool localhost-only Express+Prisma+SQLite per gestione asset brand identity dashboard. Start: `cd .ux-design/09-asset-showcase && npm run dev` → `localhost:5174`
 - `docs/30-developer/security-baseline.md` — P1-P10 enforcement details
 - `~/.claude/plans/questo-quello-che-glittery-charm.md` — Plan canonical Phase 14.SH
