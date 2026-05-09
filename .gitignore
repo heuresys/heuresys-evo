@@ -93,3 +93,10 @@ playwright/.cache/
 
 # studio skill — usage logs (append-only, local only)
 .claude/skills/studio/.logs/
+
+# === Asset showcase webapp (local management tool, gitignored entirely) ===
+# Tutto lo stack della webapp di gestione catalogo brand è solo locale.
+# Eccezione: _legacy/ contiene snapshot storici committabili.
+.ux-design/09-asset-showcase/*
+!.ux-design/09-asset-showcase/_legacy/
+!.ux-design/09-asset-showcase/_legacy/**
