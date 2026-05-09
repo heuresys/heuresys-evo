@@ -11,8 +11,8 @@
 #       --evo    http://127.0.0.1:8200 \
 #       --legacy-fe http://127.0.0.1:3012 \
 #       --evo-fe    http://127.0.0.1:3200 \
-#       --user-a rtl-bank.francesca.gallo \
-#       --user-b rtl-bank.federica.marchetti \
+#       --user-employee rtl-bank.francesca.gallo \
+#       --user-tenant-owner rtl-bank.federica.marchetti \
 #       --pass Heuresys2026!
 #
 # Defaults restricted to tests/.test-env canonical users (post-S22).
@@ -24,8 +24,8 @@
 #   /tmp/cross-tx-data-<TS>.json
 #
 # The 10 transactions cover:
-#   1. Login user-a EMPLOYEE (cookie set on both)
-#   2. Login user-b TENANT_OWNER (cross-role, both)
+#   1. Login canonical EMPLOYEE (cookie set on both)
+#   2. Login canonical TENANT_OWNER (cross-role, both)
 #   3. Fetch /employees (evo) vs /api/v1/employees (legacy) — RLS isolation
 #   4. Fetch /leaves (evo) vs /api/v1/leaves (legacy)
 #   5. Submit leave (evo only — legacy may have different surface)
@@ -41,8 +41,8 @@ LEGACY_BASE="${LEGACY_BASE:-http://127.0.0.1:8012}"
 EVO_BASE="${EVO_BASE:-http://127.0.0.1:8200}"
 LEGACY_FE="${LEGACY_FE:-http://127.0.0.1:3012}"
 EVO_FE="${EVO_FE:-http://127.0.0.1:3200}"
-USER_ECONOVA="${USER_ECONOVA:-rtl-bank.francesca.gallo}"
-USER_RTL="${USER_RTL:-rtl-bank.federica.marchetti}"
+USER_EMPLOYEE="${USER_EMPLOYEE:-rtl-bank.francesca.gallo}"
+USER_TENANT_OWNER="${USER_TENANT_OWNER:-rtl-bank.federica.marchetti}"
 USER_PASS="${USER_PASS:-Heuresys2026!}"
 
 while [ $# -gt 0 ]; do
@@ -51,8 +51,8 @@ while [ $# -gt 0 ]; do
     --evo)            EVO_BASE="$2"; shift 2 ;;
     --legacy-fe)      LEGACY_FE="$2"; shift 2 ;;
     --evo-fe)         EVO_FE="$2"; shift 2 ;;
-    --user-econova)   USER_ECONOVA="$2"; shift 2 ;;
-    --user-rtl)       USER_RTL="$2"; shift 2 ;;
+    --user-employee)   USER_EMPLOYEE="$2"; shift 2 ;;
+    --user-tenant-owner)       USER_TENANT_OWNER="$2"; shift 2 ;;
     --pass)           USER_PASS="$2"; shift 2 ;;
     -h|--help)        sed -n '2,18p' "$0" | sed 's/^# //'; exit 0 ;;
     *) echo "unknown arg: $1" >&2; exit 2 ;;
@@ -64,11 +64,11 @@ OUT_DIR="${OUT_DIR:-/tmp}"
 DATA_FILE="$OUT_DIR/cross-tx-data-$TS.json"
 HTML_FILE="$OUT_DIR/cross-tx-report-$TS.html"
 
-LEGACY_COOKIE_ECONOVA=$(mktemp)
-LEGACY_COOKIE_RTL=$(mktemp)
-EVO_COOKIE_ECONOVA=$(mktemp)
-EVO_COOKIE_RTL=$(mktemp)
-trap 'rm -f "$LEGACY_COOKIE_ECONOVA" "$LEGACY_COOKIE_RTL" "$EVO_COOKIE_ECONOVA" "$EVO_COOKIE_RTL"' EXIT
+LEGACY_COOKIE_EMPLOYEE=$(mktemp)
+LEGACY_COOKIE_TENANT_OWNER=$(mktemp)
+EVO_COOKIE_EMPLOYEE=$(mktemp)
+EVO_COOKIE_TENANT_OWNER=$(mktemp)
+trap 'rm -f "$LEGACY_COOKIE_EMPLOYEE" "$LEGACY_COOKIE_TENANT_OWNER" "$EVO_COOKIE_EMPLOYEE" "$EVO_COOKIE_TENANT_OWNER"' EXIT
 
 echo "[cross-tx] $(date -u +%H:%M:%SZ) Starting 10-transaction cross-system test"
 echo "  legacy : $LEGACY_BASE / $LEGACY_FE"
@@ -98,47 +98,47 @@ run_tx() {
 declare -a tx_results=()
 
 # Tx 1-2: login (legacy via /auth, evo via /auth/credentials NextAuth pattern)
-echo "[tx 1] Login econova-admin on both stacks"
-tx_results+=("$(run_tx 'legacy_login_econova' "$LEGACY_BASE/auth/login" POST "$LEGACY_COOKIE_ECONOVA" "{\"username\":\"$USER_ECONOVA\",\"password\":\"$USER_PASS\"}")")
-tx_results+=("$(run_tx 'evo_login_econova' "$EVO_FE/auth/callback/credentials" POST "$EVO_COOKIE_ECONOVA" "username=$USER_ECONOVA&password=$USER_PASS")")
+echo "[tx 1] Login canonical EMPLOYEE on both stacks"
+tx_results+=("$(run_tx 'legacy_login_employee' "$LEGACY_BASE/auth/login" POST "$LEGACY_COOKIE_EMPLOYEE" "{\"username\":\"$USER_EMPLOYEE\",\"password\":\"$USER_PASS\"}")")
+tx_results+=("$(run_tx 'evo_login_employee' "$EVO_FE/auth/callback/credentials" POST "$EVO_COOKIE_EMPLOYEE" "username=$USER_EMPLOYEE&password=$USER_PASS")")
 
-echo "[tx 2] Login rtl-admin on both stacks (cross-tenant)"
-tx_results+=("$(run_tx 'legacy_login_rtl' "$LEGACY_BASE/auth/login" POST "$LEGACY_COOKIE_RTL" "{\"username\":\"$USER_RTL\",\"password\":\"$USER_PASS\"}")")
-tx_results+=("$(run_tx 'evo_login_rtl' "$EVO_FE/auth/callback/credentials" POST "$EVO_COOKIE_RTL" "username=$USER_RTL&password=$USER_PASS")")
+echo "[tx 2] Login canonical TENANT_OWNER on both stacks (cross-role)"
+tx_results+=("$(run_tx 'legacy_login_tenant_owner' "$LEGACY_BASE/auth/login" POST "$LEGACY_COOKIE_TENANT_OWNER" "{\"username\":\"$USER_TENANT_OWNER\",\"password\":\"$USER_PASS\"}")")
+tx_results+=("$(run_tx 'evo_login_tenant_owner' "$EVO_FE/auth/callback/credentials" POST "$EVO_COOKIE_TENANT_OWNER" "username=$USER_TENANT_OWNER&password=$USER_PASS")")
 
-# Tx 3: fetch /employees with EcoNova session
-echo "[tx 3] Fetch /employees (RLS isolation EcoNova)"
-tx_results+=("$(run_tx 'legacy_employees_econova' "$LEGACY_BASE/api/v1/employees?limit=5" GET "$LEGACY_COOKIE_ECONOVA")")
-tx_results+=("$(run_tx 'evo_employees_econova' "$EVO_BASE/employees?limit=5" GET "$EVO_COOKIE_ECONOVA")")
+# Tx 3: fetch /employees with EMPLOYEE session (RLS scoped to that user's tenant)
+echo "[tx 3] Fetch /employees (RLS isolation RTL Bank)"
+tx_results+=("$(run_tx 'legacy_employees_employee' "$LEGACY_BASE/api/v1/employees?limit=5" GET "$LEGACY_COOKIE_EMPLOYEE")")
+tx_results+=("$(run_tx 'evo_employees_employee' "$EVO_BASE/employees?limit=5" GET "$EVO_COOKIE_EMPLOYEE")")
 
 # Tx 4: fetch /leaves
 echo "[tx 4] Fetch /leaves (scope-aware)"
-tx_results+=("$(run_tx 'legacy_leaves_econova' "$LEGACY_BASE/api/v1/leaves?limit=5" GET "$LEGACY_COOKIE_ECONOVA")")
-tx_results+=("$(run_tx 'evo_leaves_econova' "$EVO_BASE/leaves?limit=5" GET "$EVO_COOKIE_ECONOVA")")
+tx_results+=("$(run_tx 'legacy_leaves_employee' "$LEGACY_BASE/api/v1/leaves?limit=5" GET "$LEGACY_COOKIE_EMPLOYEE")")
+tx_results+=("$(run_tx 'evo_leaves_employee' "$EVO_BASE/leaves?limit=5" GET "$EVO_COOKIE_EMPLOYEE")")
 
 # Tx 5: submit leave (evo only — legacy has different submit path)
 echo "[tx 5] Submit leave on evo"
 LEAVE_BODY='{"leave_type":"vacation","start_date":"2026-08-15","end_date":"2026-08-19","days_requested":5,"reason":"cross-tx test"}'
-tx_results+=("$(run_tx 'evo_leave_submit' "$EVO_BASE/leaves" POST "$EVO_COOKIE_ECONOVA" "$LEAVE_BODY")")
+tx_results+=("$(run_tx 'evo_leave_submit' "$EVO_BASE/leaves" POST "$EVO_COOKIE_EMPLOYEE" "$LEAVE_BODY")")
 
 # Tx 6: approve leave (manual: would need real leave id; this is a smoke 404 expected)
 echo "[tx 6] Approve leave smoke (404 expected on placeholder UUID)"
-tx_results+=("$(run_tx 'evo_leave_approve_smoke' "$EVO_BASE/leaves/00000000-0000-0000-0000-000000000000/approve" POST "$EVO_COOKIE_ECONOVA")")
+tx_results+=("$(run_tx 'evo_leave_approve_smoke' "$EVO_BASE/leaves/00000000-0000-0000-0000-000000000000/approve" POST "$EVO_COOKIE_EMPLOYEE")")
 
 # Tx 7-9: read-only fetches on evo
 echo "[tx 7] Fetch /performance-reviews"
-tx_results+=("$(run_tx 'evo_perf_reviews' "$EVO_BASE/performance-reviews?limit=5" GET "$EVO_COOKIE_ECONOVA")")
+tx_results+=("$(run_tx 'evo_perf_reviews' "$EVO_BASE/performance-reviews?limit=5" GET "$EVO_COOKIE_EMPLOYEE")")
 
 echo "[tx 8] Fetch /audit-logs"
-tx_results+=("$(run_tx 'evo_audit_logs' "$EVO_BASE/audit-logs?limit=10" GET "$EVO_COOKIE_ECONOVA")")
+tx_results+=("$(run_tx 'evo_audit_logs' "$EVO_BASE/audit-logs?limit=10" GET "$EVO_COOKIE_EMPLOYEE")")
 
 echo "[tx 9] ESCO search developer"
-tx_results+=("$(run_tx 'evo_esco_search' "$EVO_BASE/esco/occupations/search?q=developer&lang=en&limit=5" GET "$EVO_COOKIE_ECONOVA")")
+tx_results+=("$(run_tx 'evo_esco_search' "$EVO_BASE/esco/occupations/search?q=developer&lang=en&limit=5" GET "$EVO_COOKIE_EMPLOYEE")")
 
 # Tx 10: logout
 echo "[tx 10] Logout"
-tx_results+=("$(run_tx 'legacy_logout_econova' "$LEGACY_BASE/auth/logout" POST "$LEGACY_COOKIE_ECONOVA")")
-tx_results+=("$(run_tx 'evo_logout_econova' "$EVO_FE/auth/signout" POST "$EVO_COOKIE_ECONOVA")")
+tx_results+=("$(run_tx 'legacy_logout_employee' "$LEGACY_BASE/auth/logout" POST "$LEGACY_COOKIE_EMPLOYEE")")
+tx_results+=("$(run_tx 'evo_logout_employee' "$EVO_FE/auth/signout" POST "$EVO_COOKIE_EMPLOYEE")")
 
 # Compose JSON
 {
@@ -189,7 +189,7 @@ HTML_HEADER
   echo "</table>"
   echo "<h2>Cross-system isolation checks (manual review)</h2>"
   echo "<ul>"
-  echo "<li>tx_3 (legacy_employees_econova vs evo_employees_econova): both should return ONLY EcoNova employees, NEVER RTL Bank rows</li>"
+  echo "<li>tx_3 (legacy_employees_employee vs evo_employees_employee): both should return ONLY rows for the tenant of \$USER_EMPLOYEE (default: RTL Bank)</li>"
   echo "<li>tx_4 leaves: same RLS check — own tenant only</li>"
   echo "<li>tx_5 evo_leave_submit: 201 expected (created)</li>"
   echo "<li>tx_6 placeholder UUID approve: 404 expected (not_found_or_already_processed)</li>"
