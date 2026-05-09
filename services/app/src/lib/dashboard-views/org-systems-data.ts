@@ -64,6 +64,7 @@ export async function fetchOrgSystemsData(): Promise<OrgSystemsLiveData> {
         },
         orderBy: { created_at: 'asc' },
       }),
+      // SAFE: org-systems is SUPERUSER cross-tenant view (intentional)
       prisma.audit_logs.findMany({
         select: {
           created_at: true,
@@ -83,6 +84,7 @@ export async function fetchOrgSystemsData(): Promise<OrgSystemsLiveData> {
       prisma.$queryRaw<
         { c: bigint }[]
       >`SELECT count(*) as c FROM pg_policies WHERE schemaname = 'public'`,
+      // SAFE: org-systems is SUPERUSER cross-tenant view (intentional)
       prisma.employees.count({ where: { is_active: true } }),
     ]);
 

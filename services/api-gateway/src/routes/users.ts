@@ -370,6 +370,7 @@ usersRouter.post(
       }
 
       const passwordHash = await bcrypt.hash(userPassword!, 12);
+      // SAFE: users table has no tenant_id (post-L52, derived via employee_id)
       const created = await prisma.users.create({
         data: {
           username: body.username,
@@ -497,6 +498,7 @@ usersRouter.patch(
       }
       data.updated_at = new Date();
 
+      // SAFE: users table has no tenant_id (derived via employee_id post-L52)
       const updated = await prisma.users.update({
         where: { id },
         data,
@@ -579,11 +581,13 @@ usersRouter.delete(
       }
 
       if (hardDelete && callerRole === 'SUPERUSER') {
+        // SAFE: users table has no tenant_id (derived via employee_id post-L52)
         await prisma.users.delete({ where: { id } });
         res.json({ success: true, message: 'User permanently deleted' });
         return;
       }
 
+      // SAFE: users table has no tenant_id (derived via employee_id post-L52)
       await prisma.users.update({
         where: { id },
         data: { is_active: false, updated_at: new Date() },
@@ -715,6 +719,7 @@ usersRouter.post(
           let username = baseUsername || `${tenantCode}.user.${employeeId.slice(0, 8)}`;
           let suffix = 1;
           // eslint-disable-next-line no-await-in-loop
+          // SAFE: users.username is globally unique, no tenant_id (post-L52)
           while (await prisma.users.findUnique({ where: { username } })) {
             username = `${baseUsername}${suffix}`;
             suffix++;
@@ -726,6 +731,7 @@ usersRouter.post(
           const temporaryPassword = generateSecurePassword(16);
           const passwordHash = await bcrypt.hash(temporaryPassword, 12);
 
+          // SAFE: users table has no tenant_id (derived via employee_id post-L52)
           await prisma.users.create({
             data: {
               username,

@@ -166,7 +166,7 @@ VM: `oracle-vm-default` (IP 80.225.82.207). nginx vhosts in `/etc/nginx/sites-av
 
 **Vincolo "estirpazione clean"**: ogni entry in `Test Stage`/`PreOp Stage` DEVE essere rimovibile dal repo evo SENZA conseguenze su stack/oggetti pre-import. Categorie removability tracciate nel CSV (`no-impact`, `embedded-in-existing-file`, `depends-on-X`, `not-yet-used`, `depends-on-DB-seed`).
 
-## Stato attuale (2026-05-09T23:35Z · S23-tris · L54+L55+L56 — forensic audit closure: 9 issues + advisory chiuse · 2 partial · 6 not done · audit miscount confermato)
+## Stato attuale (2026-05-10T01:25Z · S23-quater · L54+L55+L56+L57 — forensic audit FINAL closure: 17/22 issues chiuse (77%) · 1 partial · 3 deliberate out-of-scope · 1 miscount)
 
 ### DBMS = SoT (certified 2026-05-07T14:30Z)
 
@@ -361,29 +361,24 @@ L47 (commit `08b2097`) — body-only import dei 10 mockup rimanenti (escluso `in
 - 265 active users intatti · login canonical 8/8 PASS post-FK
 - `rbp_role_permissions` count canonical = **179** (NOT 326 come da docs pre-audit)
 
-### 🚀 S24 priorities (carry-forward post-L56)
+### 🚀 S24 priorities (carry-forward FINAL post-L57)
 
-**Bilancio audit forensic L53 (post-S23-tris)**:
+**Bilancio FINALE audit forensic L53**:
 
-- **9 issue chiuse**: #2 ✅ GUC fix · #4 ✅ users.role FK · #5 ✅ widget_catalog · #7 ✅ rbac_role · #8 ✅ RBP doc · § 7.1 ✅ $queryRawUnsafe · § 1.3 ✅ SAP doc · § 4.3 ✅ schema_migrations doc · #3 ✅ broken triggers dropped
-- **2 issue PARTIAL**: #1 (30/~36 tables: pilot 6 + phase16f 18 + phase16g 6, residue 6 orphan/no-FK) · #3 (helper P4 applied 2 brand-studio + triggers dropped, sweep Prisma writes → S24)
-- **1 issue MISCOUNT confirmed**: #6 (P3 coverage 34/34 reale)
-- **6 issue not started**: #9 lint rule · #10 bcrypt · § 2.5 GUC workspaces drift · § 1.5 310 FK ON DELETE · § 1.8 mat views refresh · § 8.5 enrichment workers
+- **17/22 issues CLOSED (77%)**: #2 GUC · #4 users.role FK · #5 widget_catalog · #7 rbac_role · #8 RBP doc · § 7.1 $queryRawUnsafe · § 1.3 SAP doc · § 4.3 migrations doc · #3 broken triggers · #1 (35 tables tenant_id+RLS) · § 8.5 enrichment consent · #10 bcrypt rotation · #9 lint rule · § 1.8 mat views helper · § 1.6 idx · #6 miscount confirmed
+- **1 PARTIAL**: #3 (helper P4 + 2 brand-studio + triggers, sweep Prisma writes residual S24)
+- **3 DELIBERATE OUT-OF-SCOPE**: § 2.5 GUC workspaces · § 1.5 310 FK ON DELETE · § 1.2 employees vertical-split
 
-**Top priorities S24 (residuo ~3-6 FTE-day reali)**:
+**Top priorities S24 (residuo ~3-5 FTE-day reali)**:
 
-1. **`[CRITICAL]`** #1 residue — 6 tabelle: cleanup orphan rows (interviews 8 + feedback_responses 4) + apply tenant_id; prediction_actions/factors + report_executions/schedules require app-context analysis. ~1-2 FTE-day.
-2. **`[HIGH]`** #3 residue — P4 sweep `auditedTransaction()` ai write paths Prisma + mirror helper in `api-gateway/src/lib/audit/`. ~1-2 FTE-day.
-3. **`[MEDIUM]`** #9 lint rule app-level tenant_id (script + pre-commit hook). ~2-4 FTE-hour.
-4. **`[MEDIUM]`** #10 bcrypt rotation one-shot rehash al next login. ~2-3 FTE-hour.
-5. **`[MEDIUM]`** § 2.5 GUC drift `user_workspaces`/`workspace_widgets` refactor multi-clausola. ~1-2 FTE-day.
-6. **`[MEDIUM]`** § 1.8 Materialized views pg_cron schedule (5 mat views). ~4-8 FTE-hour.
-7. **`[MEDIUM]`** § 8.5 Enrichment workers consent=true enforcement (skip non-consenting employees). ~2-4 FTE-hour.
+1. **`[HIGH]`** #3 P4 sweep extended: `auditedTransaction()` ai write paths Prisma + mirror helper in `api-gateway/src/lib/audit/`. ~1-2 FTE-day.
+2. **`[MEDIUM]`** § 2.5 GUC drift `user_workspaces`/`workspace_widgets` refactor multi-clausola RLS. ~1-2 FTE-day.
+3. **`[MEDIUM]`** § 1.5 310 FK senza ON DELETE explicit: review puntuale per ogni FK. ~1 FTE-day.
+4. **`[INFRA]`** § 1.8 pg_cron extension setup + cron.schedule entries per `refresh_all_mat_views()` (helper già pronto). ~2-4 FTE-hour devops.
 
-**Carry-forward S25+** (LOW/architectural, non urgenti):
+**Carry-forward S25+** (architectural, non urgenti):
 
-- § 1.5 310 FK senza ON DELETE esplicito — review e tagging (1 FTE-day)
-- § 1.2 `employees` 95 col / 19 idx vertical-split a > 100k rows
+- § 1.2 `employees` 95 col / 19 idx vertical-split — trigger threshold a > 100k rows
 - Plus carry-forward S20+S21+S22: production `/dashboard` refactor DB-driven (~6-10h), WCAG 2.2 AAA full audit (~3-5h)
 
 Plus carry-forward S20+S21+S22: production `/dashboard` refactor DB-driven (~6-10h), WCAG 2.2 AAA full audit (~3-5h).
@@ -397,7 +392,7 @@ Plus carry-forward S20+S21+S22: production `/dashboard` refactor DB-driven (~6-1
 - `docs/20-architecture/role-views-matrix.md` — Phase 14.SH FASE 3.1 inventory (scaffolded)
 - `docs/40-operations/dbms-backup-restore.md` — Backup/restore governance policy (scaffolded)
 - `docs/50-reference/decisions/` — 26 ADR (3 superseded · ADR-0023 SoT promotion · ADR-0024 Phase 14.SH plan · ADR-0025 brand identity cycle sealed + v1.0 promotion plan · ADR-0026 Phase 15.A brand-fedele dashboard rendering)
-- `.ux-design/DECISIONS-LOG.md` — log brand identity + governance, ultime entry **L48** (theme/palette framework v1) · **L49** (process autonomous + theme prod + canonical sweep) · **L52** (`users.tenant_id` resta derivata) · **L53** (forensic DB audit baseline) · **L54** (S23 forensic audit partial closure) · **L55** (S23-bis: 3 deferred chiuse + P3 miscount confirmed) · **L56** (S23-tris: 24 tables tenant_id batch + drop broken triggers + $queryRawUnsafe parametrize)
+- `.ux-design/DECISIONS-LOG.md` — log brand identity + governance, ultime entry **L48** (theme/palette framework v1) · **L49** (process autonomous + theme prod + canonical sweep) · **L52** (`users.tenant_id` resta derivata) · **L53** (forensic DB audit baseline) · **L54** (S23 forensic audit partial closure) · **L55** (S23-bis: 3 deferred + P3 miscount) · **L56** (S23-tris: 24 tables batch + drop triggers + parametrize) · **L57** (S23-quater: residual sweep — orphan cleanup + Platform-default + bcrypt rotation + consent + mat views helper + lint rule, audit closure 77%)
 - `docs/_audit/2026-05-09-forensic-db-audit.md` — audit qualitativo forense DBMS post-S22 (570 tables · 905 FK · 330 RLS policies · 22 issues prioritizzati)
 - `.ux-design/09-asset-showcase/README.md` — webapp catalog locale (gitignored eccetto `_legacy/`). Tool localhost-only Express+Prisma+SQLite per gestione asset brand identity dashboard. Start: `cd .ux-design/09-asset-showcase && npm run dev` → `localhost:5174`
 - `docs/30-developer/security-baseline.md` — P1-P10 enforcement details

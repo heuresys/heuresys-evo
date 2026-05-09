@@ -23,7 +23,9 @@
     "db:reset:test": "DATABASE_URL_TEST=${DATABASE_URL_TEST:-postgresql://heuresys:heuresys@localhost:5433/heuresys_test} db/scripts/reset-test.sh",
     "test:e2e": "npm run test:e2e -w services/app --if-present",
     "test:coverage": "vitest run --coverage",
-    "brand:icons": "node scripts/brand/generate-icons.mjs"
+    "brand:icons": "node scripts/brand/generate-icons.mjs",
+    "lint:tenant-id": "bash scripts/hardening/lint-tenant-id.sh",
+    "lint:tenant-id:staged": "bash scripts/hardening/lint-tenant-id.sh --staged"
   },
   "engines": {
     "node": ">=20.0.0",

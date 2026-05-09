@@ -22,9 +22,9 @@ import {
 
 const ESCO_SMOKE_MAP: Record<string, { code: string; label: string }> = {
   'machine learning': { code: '2511.4', label: 'Software developer (ML)' },
-  'sql': { code: '2521.1', label: 'Database designer and administrator' },
-  'react': { code: '2512.1', label: 'Frontend web developer' },
-  'leadership': { code: '1213.0', label: 'Policy and planning manager' },
+  sql: { code: '2521.1', label: 'Database designer and administrator' },
+  react: { code: '2512.1', label: 'Frontend web developer' },
+  leadership: { code: '1213.0', label: 'Policy and planning manager' },
 };
 
 export interface EscoMatchDeps {
@@ -34,10 +34,29 @@ export interface EscoMatchDeps {
 
 export async function handleEscoMatch(
   rawInput: unknown,
-  deps: EscoMatchDeps,
+  deps: EscoMatchDeps
 ): Promise<EscoMatchJobOutput> {
   const start = deps.now();
   const input: EscoMatchJobInput = EscoMatchJobInputSchema.parse(rawInput);
+
+  // L57 (S23-quater): GDPR consent enforcement.
+  // If job is employee-scoped, refuse processing without explicit consent.
+  // Returns source='none' shortcircuit (caller can distinguish via durationMs ≈ 0).
+  if (input.employeeId && input.enrichmentConsent !== true) {
+    deps.log('esco-match skipped: enrichment_consent=false', {
+      tenantId: input.tenantId,
+      employeeId: input.employeeId,
+      reason: 'gdpr_consent',
+    });
+    return {
+      inputSkillName: input.skillName,
+      matchedOccupationCode: null,
+      matchedOccupationLabel: null,
+      confidence: 0,
+      source: 'none',
+      durationMs: deps.now() - start,
+    };
+  }
 
   const normalized = input.skillName.trim().toLowerCase();
   const hit = ESCO_SMOKE_MAP[normalized];

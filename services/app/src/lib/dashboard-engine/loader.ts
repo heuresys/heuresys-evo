@@ -71,6 +71,7 @@ export async function listPublishedPresets(): Promise<
     sort_order: number;
   }>
 > {
+  // SAFE: dashboard_presets is Platform-default (tenant_id NULLABLE, P10)
   return prisma.dashboard_presets.findMany({
     where: { is_published: true },
     select: {

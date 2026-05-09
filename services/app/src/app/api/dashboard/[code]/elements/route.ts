@@ -140,6 +140,7 @@ export async function PUT(req: Request, ctx: RouteContext) {
       },
       metadata: { source: 'dashboard-editor', presetCode: preset.code },
       mutate: (tx) =>
+        // SAFE: tx already inside auditedDashboardMutation withTenant wrapper
         tx.dashboard_elements.update({
           where: { id: before.id },
           data: {

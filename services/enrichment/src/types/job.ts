@@ -12,6 +12,16 @@ export const EscoMatchJobInputSchema = z.object({
   skillName: z.string().min(1).max(255),
   tenantId: z.string().uuid(),
   context: z.string().max(2000).optional(),
+  /**
+   * L57 (S23-quater) — employee scope + GDPR consent.
+   * If the enrichment is for a specific employee, the caller MUST pass
+   * `employeeId` AND `enrichmentConsent` (read from `employees.enrichment_consent`).
+   * The handler enforces consent: if `employeeId` is set and `enrichmentConsent`
+   * is false/missing, the job is short-circuited (no PII processed).
+   * For "abstract" skill matching (no employee link), both fields are omitted.
+   */
+  employeeId: z.string().uuid().optional(),
+  enrichmentConsent: z.boolean().optional(),
 });
 export type EscoMatchJobInput = z.infer<typeof EscoMatchJobInputSchema>;
 
