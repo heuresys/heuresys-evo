@@ -4,6 +4,7 @@ import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { cookies } from 'next/headers';
 import { auth } from '@/lib/auth';
+import { auditEvent } from '@/lib/audit/auditedTransaction';
 import {
   isValidPaletteId,
   isValidTheme,
@@ -18,14 +19,36 @@ const PREVIEW_COOKIE = 'heuresys-theme-preview';
 const PALETTE_PREVIEW_COOKIE = 'heuresys-palette-preview';
 const MAX_CSS_BYTES = 8 * 1024;
 const ALLOWED_ROLES = new Set(['SUPERUSER']);
+const PLATFORM_TENANT_FALLBACK_ENV = 'DEFAULT_SUPERUSER_TENANT_ID';
 
-async function assertSuperuser(): Promise<{ id: string; username: string }> {
+interface BrandActor {
+  id: string;
+  username: string;
+  email: string | null;
+  role: string;
+  tenantId: string;
+}
+
+async function assertSuperuser(): Promise<BrandActor> {
   const session = await auth();
-  const user = session?.user as { id?: string; username?: string; role?: string } | undefined;
+  const user = session?.user as
+    | { id?: string; username?: string; email?: string; role?: string; tenantId?: string }
+    | undefined;
   if (!user || !user.role || !ALLOWED_ROLES.has(user.role)) {
     throw new Error('Forbidden: SUPERUSER role required');
   }
-  return { id: user.id ?? 'unknown', username: user.username ?? 'unknown' };
+  // SUPERUSER may have employee_id=NULL (platform user) → fallback to env tenant.
+  const tenantId = user.tenantId ?? process.env[PLATFORM_TENANT_FALLBACK_ENV] ?? '';
+  if (!tenantId) {
+    throw new Error('Forbidden: tenant context unavailable');
+  }
+  return {
+    id: user.id ?? 'unknown',
+    username: user.username ?? 'unknown',
+    email: user.email ?? null,
+    role: user.role,
+    tenantId,
+  };
 }
 
 function assertSafeCss(css: string): string {
@@ -45,6 +68,24 @@ export async function applyThemeToProject(cssContent: string): Promise<{ ok: tru
   const safe = assertSafeCss(cssContent);
   const header = `/* Heuresys active theme — applied via Brand Studio at ${new Date().toISOString()} by ${actor.username} (id=${actor.id}).\n * Do not edit by hand: re-run /brand-studio to update.\n */\n`;
   await writeFile(ACTIVE_THEME_PATH, header + safe, 'utf8');
+  await auditEvent(
+    {
+      tenantId: actor.tenantId,
+      userId: actor.id,
+      userEmail: actor.email,
+      userRole: actor.role,
+    },
+    {
+      action: 'CONFIG_CHANGE',
+      category: 'CONFIG',
+      resourceType: 'active-theme.css',
+      resourceId: 'active-theme',
+      resourceName: 'active-theme.css',
+      description: `Brand Studio: applied theme (${Buffer.byteLength(safe, 'utf8')} bytes)`,
+      newValue: { bytes: Buffer.byteLength(safe, 'utf8') },
+      metadata: { source: 'brand-studio' },
+    }
+  );
   return { ok: true, path: 'services/app/src/styles/active-theme.css' };
 }
 
@@ -87,9 +128,27 @@ export async function applyPaletteToProject(
   palette: PaletteId,
   theme: ThemeMode
 ): Promise<{ ok: true; palette: PaletteId; theme: ThemeMode }> {
-  await assertSuperuser();
+  const actor = await assertSuperuser();
   const state = assertValidPaletteState(palette, theme);
   await writeActivePalette(state);
+  await auditEvent(
+    {
+      tenantId: actor.tenantId,
+      userId: actor.id,
+      userEmail: actor.email,
+      userRole: actor.role,
+    },
+    {
+      action: 'CONFIG_CHANGE',
+      category: 'CONFIG',
+      resourceType: 'active-palette.json',
+      resourceId: 'active-palette',
+      resourceName: `${palette}/${theme}`,
+      description: `Brand Studio: applied palette ${palette} (${theme})`,
+      newValue: state,
+      metadata: { source: 'brand-studio' },
+    }
+  );
   return { ok: true, ...state };
 }
 

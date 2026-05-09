@@ -1715,6 +1715,76 @@ In tutti questi casi: aggiungere quando serve, non in anticipo. Officina, non un
 
 ---
 
+## L54 — 2026-05-09 — S23 forensic audit partial closure (4 issues chiuse · 1 partial · 2 deferred)
+
+**Decisione**: aprire S23 come **Realistic Sprint** sul forensic DB audit L53. Scope onesto: chiudere i quick-win meccanici + pilot tenant_id su 6 tabelle small + helper P4 generalizzato (apply parziale). Refactor invasivi e issue ambigue → carry-forward S24+. NO over-engineering.
+
+**Contesto**: L53 audit ha identificato 22 issues con totale stimato ~10-15 FTE-day. Una sessione (8-10h focus) NON copre tutto. L'utente ha accettato lo scope realistic vs ambizioso/quick-only. Durante esecuzione sono emerse 2 ulteriori scoperte di audit miscount.
+
+**Issues chiuse / aperte / deferred**:
+
+| #   | Sev          | Titolo                               | Status S23                                                | File deliverable                                   |
+| --- | ------------ | ------------------------------------ | --------------------------------------------------------- | -------------------------------------------------- |
+| 2   | `[CRITICAL]` | 13 RLS policies GUC typo             | ✅ **CLOSED**                                             | `db/seeds/phase16a_audit_quick_wins.sql`           |
+| 1   | `[CRITICAL]` | ~30 tabelle senza tenant_id          | 🟡 **PILOT (6/24)**                                       | `db/seeds/phase16b_tenant_id_pilot.sql`            |
+| 4   | `[HIGH]`     | `users.role` varchar unconstrained   | ✅ **CLOSED**                                             | `db/seeds/phase16c_users_role_fk.sql`              |
+| 3   | `[HIGH]`     | P4 audit gap (NULL actor)            | 🟡 **HELPER + 2 brand-studio writes**                     | `services/app/src/lib/audit/auditedTransaction.ts` |
+| 6   | `[HIGH]`     | P3 routes gap (6/36)                 | ⚖️ **AUDIT MISCOUNT**: 28/34 enforced inline (vedi sotto) | doc only                                           |
+| 5   | `[HIGH]`     | `widget_catalog_id` NULL 100%        | 📅 **DEFERRED S24**                                       | (richiede Prisma schema sync)                      |
+| 7   | `[HIGH]`     | `rbac_role` enum drift               | 📅 **DEFERRED S24**                                       | (richiede ALTER TYPE multi-step rischioso)         |
+| 8   | `[HIGH]`     | RBP perm count mismatch (179 vs 326) | ✅ **CLOSED via doc**                                     | CLAUDE.md update                                   |
+| 9   | `[MEDIUM]`   | App-level tenant_id lint rule        | 📅 **DEFERRED S25**                                       | —                                                  |
+| 10  | `[MEDIUM]`   | bcrypt cost <12 rotation             | 📅 **DEFERRED S25**                                       | one-shot rehash al next login                      |
+
+**Audit corrections rilevate during execution**:
+
+1. **Issue #1 sovrastimato**: i 6 `tenant_job_*` tables (`tenant_job_kpis`, `tenant_job_skills`, `tenant_job_tasks`, `tenant_org_units`, `tenant_sap_mapping`, `tenant_skill_dimensions`) **HANNO già `tenant_id`**. Scope reale = ~24 tabelle (non 30). Audit § 2.3 da rivedere.
+2. **Issue #5 unbackfillable**: `widget_code` (17 distinct in `dashboard_elements`) NON matcha alcun `widget_catalog.code` (0/17 match). I due naming systems sono indipendenti. Backfill impossibile — scelta tra (a) drop FK constraint + Prisma schema update, (b) decommissionare la colonna, (c) accettare NULL by design. Decisione lasciata a S24 (richiede Prisma sync).
+3. **Issue #6 audit miscount**: l'audit § 6.1 ha contato solo `requirePermission` middleware esplicito (6/36). Verifica scope Step 5 ha mostrato che 22 routes "auth-only" hanno P3 enforcement INLINE via `cache.isAllowed(role, AREA, action)` — equivalente semanticamente, solo non standardizzato come middleware. Effettivi routes truly unprotected = ~4 (audit-logs, platform metadata, esco, nace). True P3 gap molto più piccolo.
+
+**Pilot tenant_id 6 tabelle (scope #1)**:
+
+- `whistleblowing_messages` (16 rows) · `whistleblowing_attachments` (7) · `whistleblowing_audit_log` (20) — backfill via `report_id → whistleblowing_reports.tenant_id`
+- `mentorship_sessions` (355 rows) — backfill via `mentorship_id → mentorships.tenant_id`
+- `survey_questions` (31 rows) · `survey_responses` (4482) — backfill via `survey_id → surveys.tenant_id`
+
+Ogni tabella: ALTER ADD COLUMN tenant_id UUID + UPDATE backfill + ALTER NOT NULL + FK + INDEX + ENABLE+FORCE RLS + CREATE POLICY tenant_isolation. Total 4911 rows backfilled in single TX. Verification asserts: 6/6 NOT NULL · 0 NULL rows · 6 RLS policies attive.
+
+**Helper P4 generalizzato (`auditedTransaction.ts`)**:
+
+- `auditedTransaction(actor, payload, mutate)` — DB write atomico in TX con audit_logs insert. Throws su missing actor.tenantId/userId.
+- `auditEvent(actor, payload)` — fire-and-error-tolerate per filesystem actions, cookie mutations. Ritorna null su fail (mai propaga upstream).
+- `AuditCategory` ristretto ai 12 valori canonical CHECK constraint (AUTH, USER, EMPLOYEE, TENANT, GOAL, REVIEW, FEEDBACK, COMPENSATION, DOCUMENT, REPORT, CONFIG, SYSTEM)
+- `AuditAction` ristretto agli 11 canonical (CREATE, READ, UPDATE, DELETE, LOGIN, LOGOUT, EXPORT, IMPORT, PERMISSION_CHANGE, CONFIG_CHANGE, DATA_ACCESS)
+- 5 vitest test verdi (P4 invariants + happy path)
+- Applicato a `services/app/src/app/brand-studio/actions.ts`: `applyThemeToProject` + `applyPaletteToProject` ora producono audit trail con actor canonical (CONFIG/CONFIG_CHANGE)
+
+**Out-of-scope esplicito S23 → carry-forward S24** (priorità):
+
+1. **CRITICAL** Tenant_id batch 24 tabelle restanti — 4 batch SQL: `employee_core` (13), `learning` (6), `recruiting` (3), `talent` (6). Estimate ~4-6 FTE-day.
+2. **HIGH** P4 sweep audit: applicare `auditedTransaction()` ai write paths Prisma (employees, candidates, performance_reviews, ecc.). Mirror helper in api-gateway/src/lib/audit/auditedTransaction.ts. Estimate ~1-2 FTE-day.
+3. **HIGH** P3 micro-sweep su 4 routes truly unprotected (audit-logs, platform, esco, nace, skill-taxonomy se non public). Plus refactor inline→middleware standard sugli altri 22 (estetico/auditability). Estimate ~1 FTE-day.
+4. **HIGH** `rbac_role` enum cleanup multi-step ALTER TYPE — separato da phase16. Estimate ~1-2 FTE-hour.
+5. **HIGH** `widget_catalog_id` decommission decisione (drop FK + Prisma schema update vs accept NULL by design). Estimate ~1-2 FTE-hour.
+6. **MEDIUM** bcrypt rotation cost 12 + lint rule app-level tenant_id → S25.
+
+**Conseguenza**:
+
+- DBMS state migliorato: 13 typo policies fixed + 6 tabelle tenant_id+RLS + FK users.role attiva. Forensic gap chiuso parzialmente.
+- Helper P4 generalizzato disponibile come single SoT in `services/app/src/lib/audit/auditedTransaction.ts` per future write paths Prisma + non-DB.
+- Audit miscount documentate (issue #1 scope ridotto · issue #5 unbackfillable · issue #6 inline P3 enforcement). S24 lavora su scope rivisto, non audit baseline.
+- Test coverage mantenuta: typecheck PASS · 848+5 vitest verdi · login canonical 8/8 PASS post-FK.
+
+**Riferimenti**:
+
+- Plan canonical: `~/.claude/plans/superpowers-per-eseguire-tutto-eventual-sunset.md`
+- SQL deliverables: `db/seeds/phase16a_audit_quick_wins.sql` · `phase16b_tenant_id_pilot.sql` · `phase16c_users_role_fk.sql`
+- Helper: `services/app/src/lib/audit/auditedTransaction.ts` + test in `__tests__/`
+- Audit doc updated: `docs/_audit/2026-05-09-forensic-db-audit.md` § "S23 partial closure annotations"
+- Verifica DB: `pg_policies` 0 typo · 6 new RLS policies · `pg_constraint` `fk_users_role` attiva · `apply-canonical-users.mjs` 8/8 PASS
+
+---
+
 ## Format per nuove entry
 
 Quando aggiungi una nuova decisione, segui questo template:

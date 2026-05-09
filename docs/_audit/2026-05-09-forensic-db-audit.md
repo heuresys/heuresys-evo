@@ -412,6 +412,37 @@ Audit categorie 30d: AUTH 1 · CONFIG 4 · USER 1. Mancano: DASHBOARD, ROLE, TEN
 
 ---
 
+## S23 partial closure annotations (2026-05-09 — added post-execution)
+
+> **L54 closure**: 4 issue chiuse · 1 partial (#1 pilot 6/24) · 2 deferred S24 · 3 audit miscount rilevate.
+
+| #   | Pre-S23                                    | Post-S23                                                                                                                         |
+| --- | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | ~30+ tabelle senza tenant_id               | **Scope reale = 24 tabelle** (i 6 `tenant_job_*` HANNO già tenant_id — audit § 2.3 da rivedere). Pilot chiuso su 6 small tables. |
+| 2   | 13 RLS GUC typo (fail-closed silente)      | ✅ Fixed via `db/seeds/phase16a_audit_quick_wins.sql`. 0 typo policies remaining.                                                |
+| 3   | P4 audit gap (6 entries / 30d, NULL actor) | 🟡 Helper `auditedTransaction()`+`auditEvent()` creato + applicato a 2 brand-studio actions. Sweep restanti writes → S24.        |
+| 4   | `users.role` varchar unconstrained         | ✅ FK `fk_users_role` REFERENCES `rbp_roles(code)` ON UPDATE CASCADE. 0 orphan, 265 active intatti.                              |
+| 5   | `widget_catalog_id` NULL 100%              | 📅 **DEFERRED**: backfill IMPOSSIBILE (0/17 widget_code matchano widget_catalog.code). Decisione (drop FK vs accept) → S24.      |
+| 6   | "30/36 routes senza requirePermission"     | ⚖️ **AUDIT MISCOUNT**: 22 dei 30 hanno P3 enforcement INLINE via `cache.isAllowed()`. Truly unprotected = ~4. Sweep → S24.       |
+| 7   | `rbac_role` enum drift                     | 📅 **DEFERRED**: drop richiede ALTER TYPE multi-step (4 rows `role_permissions` con SYSADMIN attive). Cleanup → S24.             |
+| 8   | RBP perm count 179 vs docs 326             | ✅ Fixed in CLAUDE.md (count canonical = 179).                                                                                   |
+
+**Audit corrections**:
+
+- § 2.3 Tabelle senza tenant_id: rimuovere `tenant_job_kpis · tenant_job_skills · tenant_job_tasks · tenant_org_units · tenant_sap_mapping · tenant_skill_dimensions` dalla lista (6 false positives).
+- § 6.1 P3 gap: la metrica "Files con `requirePermission` (P3) 6/36" misura solo middleware esplicito. Counting completo (middleware + inline `cache.isAllowed`) = ~28/34 routes (escludendo public-metadata `esco/nace/skill-taxonomy/platform/health`). True P3 gap molto più piccolo.
+
+**Files added/modified S23**:
+
+- `db/seeds/phase16a_audit_quick_wins.sql` (13 ALTER POLICY)
+- `db/seeds/phase16b_tenant_id_pilot.sql` (6 ALTER ADD tenant_id + RLS)
+- `db/seeds/phase16c_users_role_fk.sql` (FK + DROP CHECK)
+- `services/app/src/lib/audit/auditedTransaction.ts` (NEW helper)
+- `services/app/src/lib/audit/__tests__/auditedTransaction.test.ts` (NEW 5/5 verdi)
+- `services/app/src/app/brand-studio/actions.ts` (instrumented 2 actions)
+
+---
+
 ## Files referenced
 
 - `services/api-gateway/src/db/pool.ts` (RLS `withTenant` helper)
