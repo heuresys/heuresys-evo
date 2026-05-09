@@ -2,32 +2,34 @@
 
 > **Nome canonical**: dal 2026-05-06 il logo predefinito si chiama **"logo originale"** per distinguerlo da eventuali altri logo derivati o sperimentali futuri.
 >
-> **L27 (2026-05-06) — REGOLE PERMANENTI** che cumulano L25 e specificano due colori fissi + eccezione plain text:
+> **L27 (2026-05-06) + L48 (2026-05-09) — REGOLE PERMANENTI** che cumulano L25 e specificano due colori palette-aware + eccezione plain text:
 >
 > 1. **h** sempre minuscola → wordmark = `heuresys` (mai `Heuresys`)
 > 2. **Tutte le 8 lettere** stesso font (Exo 2), stesso peso (700), stessa grandezza, stesso style (no italic)
-> 3. **Due colori fissi** (theme-aware ma sempre blue + purple):
->    - Body lettere = `var(--brand-blue)` (#3b82f6 dark / #2452c8 light)
->    - `y` = `var(--accent)` (#a855f7 dark / #7e3fc8 light)
+> 3. **Due colori palette-aware** (L48 update — era hardcoded blu+purple):
+>    - Body lettere = `var(--primary)` — palette-aware: blue legacy/alpha, terracotta zeta, salmon beta, navy gamma, violet theta, ecc.
+>    - `y` = `var(--accent)` — palette-aware: secondo colore distinto da primary per bicolor effect garantito
 > 4. Letter-spacing naturale del font (no override custom)
 > 5. **In ogni ricorrenza** (header, footer, modal) si usa il logo embedded, non plain text
 > 6. **ECCEZIONE plain text**: se la ricorrenza è **indirizzo, link o dominio** → resta plain lowercase (no embed)
 >
-> Le regole L16 (weight gap moderato 700→500) e L18 (no italic per sans) sono **supersedute** dalla L25/L27. Le sezioni successive riflettono la spec L27 finale.
+> Le regole L16 (weight gap moderato 700→500) e L18 (no italic per sans) sono **supersedute** dalla L25/L27. Le sezioni successive riflettono la spec L27+L48 finale.
+>
+> **L48 update razionale**: `--primary` è semantico (prende il colore primary della palette attiva), mentre `--brand-blue` era hardcoded blu (token storico). In legacy/alpha non cambia visivamente (`--primary == #3b82f6 == --brand-blue`). In palette non-blue il body si adatta al character della palette (es. zeta terracotta + moss y; beta salmon + yellow y; gamma navy + amber y; theta violet + cyan y). Vincolo associato: ogni palette del framework `.ux-design/02-aesthetic/theme-framework/` garantisce `--primary ≠ --accent`.
 
 > **Stabilito**: 2026-05-05 (DECISIONS-LOG L16 → aggiornato L18 → finalizzato L25)
 > **Scopo**: standard di rendering del logo "heuresys" cross-direzione, indipendente dalla tipografia di ogni direction. Garantisce riconoscibilità visiva omogenea anche al variare di palette/typography/mood.
 
-## Principio fondante (L27 — "logo originale")
+## Principio fondante (L27 + L48 — "logo originale")
 
-Il **wordmark "heuresys"** ("logo originale") è composto da 8 lettere identiche per font, peso, grandezza e stile, con **due colori fissi**:
+Il **wordmark "heuresys"** ("logo originale") è composto da 8 lettere identiche per font, peso, grandezza e stile, con **due colori palette-aware**:
 
-- 7 lettere body in `var(--brand-blue)` (blu)
-- la **y** in `var(--accent)` (purple)
+- 7 lettere body in `var(--primary)` — colore primario della palette attiva (blue in legacy/alpha, terracotta in zeta, salmon in beta, navy in gamma, violet in theta, ecc.)
+- la **y** in `var(--accent)` — secondo colore della palette attiva (sempre distinto da primary per bicolor effect)
 
-La h è sempre minuscola. Nessun italic, nessun gap di weight, nessuna scale-down. La signature visiva è il pattern blue+purple, non più il body theme-aware (`--ink`).
+La h è sempre minuscola. Nessun italic, nessun gap di weight, nessuna scale-down. La signature visiva è il pattern primary+accent palette-aware, non più hardcoded blue+purple né body theme-aware (`--ink`).
 
-**Razionale**: pattern già consolidato in Phase 9 dashboard come `.wordmark-foot.legacy` (L23), promosso a default cross-surface dal 2026-05-06.
+**Razionale**: pattern già consolidato in Phase 9 dashboard come `.wordmark-foot.legacy` (L23), promosso a default cross-surface dal 2026-05-06 (L27). L48 (2026-05-09) canonicalizza il body color a `var(--primary)` invece di `var(--brand-blue)` per supportare palette non-blue del theme-framework v1.
 
 ## Regole canoniche (L25)
 
@@ -47,10 +49,10 @@ La h è sempre minuscola. Nessun italic, nessun gap di weight, nessuna scale-dow
 
 Dal 2026-05-06 esistono **due classi CSS** che condividono la **stessa struttura tipografica** (Exo 2 700 · h lowercase · 8 lettere identiche · no italic · letter-spacing naturale) e si differenziano solo nel **mapping dei due colori**:
 
-| Classe                             | Body color                                           | Y color                                   | Quando                                                                                                     |
-| ---------------------------------- | ---------------------------------------------------- | ----------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| `.wordmark-original` (L27 default) | `var(--brand-blue)` **fisso** (legacy heuresys.com)  | `var(--accent)` **fisso** (purple legacy) | Tema brand canonical · default cross-surface                                                               |
-| `.wordmark-relative` (L28)         | `var(--logo-body, var(--ink))` **derivato dal tema** | `var(--accent)` **derivato dal tema**     | Surface con tema CSS alternativo (direction estetica diversa, palette cliente custom, variante stagionale) |
+| Classe                                   | Body color                                           | Y color                               | Quando                                                                                                                                                     |
+| ---------------------------------------- | ---------------------------------------------------- | ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `.wordmark-original` (L27 default + L48) | `var(--primary)` **palette-aware**                   | `var(--accent)` **palette-aware**     | Tema brand canonical · default cross-surface · si adatta alla palette attiva (blue+purple in legacy, terracotta+moss in zeta, salmon+yellow in beta, ecc.) |
+| `.wordmark-relative` (L28)               | `var(--logo-body, var(--ink))` **derivato dal tema** | `var(--accent)` **derivato dal tema** | Surface con tema CSS alternativo (direction estetica diversa, palette cliente custom, variante stagionale)                                                 |
 
 Ogni tema CSS che vuole un logo "relativo" definisce il suo `--logo-body` (token canonico dedicato). Se non lo definisce, il fallback nativo CSS `var(--logo-body, var(--ink))` ricade su `--ink` (theme-aware neutro). `--accent` viene preso dalla palette del tema attivo.
 
@@ -58,26 +60,28 @@ Ogni tema CSS che vuole un logo "relativo" definisce il suo `--logo-body` (token
 
 ```css
 :root {
-  --brand-blue: #2452c8; /* light theme · logo originale body */
-  --accent: #7e3fc8; /* light theme · y color */
+  --primary: #2452c8; /* light theme · logo originale body (palette-aware) */
+  --accent: #7e3fc8; /* light theme · y color (palette-aware) */
+  --brand-blue: #2452c8; /* alias storico, kept per compatibilità */
   --ink: #0a0d18; /* light theme · fallback logo relativo body */
 }
 [data-theme='dark'] {
-  --brand-blue: #3b82f6;
+  --primary: #3b82f6;
   --accent: #a855f7;
+  --brand-blue: #3b82f6;
   --ink: #f4f5f7;
 }
 
-/* "Logo originale" (L27) — 2 colori fissi blue + purple */
+/* "Logo originale" (L27 + L48) — 2 colori palette-aware */
 .wordmark-original {
   font-family: 'Exo 2', sans-serif;
   font-weight: 700;
-  color: var(--brand-blue); /* COLORE FISSO 1 */
+  color: var(--primary); /* COLORE BODY · palette-aware (era --brand-blue pre-L48) */
   letter-spacing: normal; /* NO override */
   text-transform: lowercase; /* h sempre minuscola */
 }
 .wordmark-original .y {
-  color: var(--accent); /* COLORE FISSO 2 */
+  color: var(--accent); /* COLORE Y · palette-aware */
 }
 
 /* "Logo relativo" (L28) — 2 colori derivati dal tema CSS attivo */
@@ -93,13 +97,13 @@ Ogni tema CSS che vuole un logo "relativo" definisce il suo `--logo-body` (token
 }
 
 /* Utility per embed inline in contesti tipografici diversi (mono/Inter)
-   Default segue convenzione "logo originale" (2 colori fissi). */
+   Default segue convenzione "logo originale" (palette-aware). */
 .wm-inline {
   font-family: 'Exo 2', sans-serif;
   font-weight: 700;
   letter-spacing: normal;
   text-transform: lowercase;
-  color: var(--brand-blue);
+  color: var(--primary);
 }
 .wm-inline .y {
   color: var(--accent);
@@ -211,15 +215,16 @@ Alcune direction hanno constraint tipografici o concept signature che giustifica
 
 ## Storia delle decisioni
 
-| Data       | Cambiamento                                                                                                                                                                                                 | Reference         |
-| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------- |
-| 2026-05-04 | Logo legacy www.heuresys.com Exo 2 + "y" purple — dichiarato definitivo                                                                                                                                     | DECISIONS-LOG L6  |
-| 2026-05-05 | L6 sciolta — esplorazione libera logo                                                                                                                                                                       | DECISIONS-LOG L11 |
-| 2026-05-05 | Logo y-accent standard definito                                                                                                                                                                             | DECISIONS-LOG L16 |
-| 2026-05-05 | NO italic per sans-serif (descender invade adjacent s)                                                                                                                                                      | DECISIONS-LOG L18 |
-| 2026-05-05 | **L25 PERMANENT**: h lowercase · tutte lettere identiche peso/size/style · solo color diverso · embed ovunque (no plain text "heuresys")                                                                    | DECISIONS-LOG L25 |
-| 2026-05-06 | **L27 — "logo originale"**: nome canonical · due colori fissi (body `--brand-blue` + y `--accent`) · ECCEZIONE plain text per indirizzi/link/domini                                                         | DECISIONS-LOG L27 |
-| 2026-05-06 | **L28 — "logo relativo"**: convenzione richiamabile · stessa struttura del logo originale ma body `var(--logo-body, var(--ink))` + y `var(--accent)` derivati dal tema CSS attivo · per surface tematizzate | DECISIONS-LOG L28 |
+| Data       | Cambiamento                                                                                                                                                                                                                                                           | Reference         |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------- |
+| 2026-05-04 | Logo legacy www.heuresys.com Exo 2 + "y" purple — dichiarato definitivo                                                                                                                                                                                               | DECISIONS-LOG L6  |
+| 2026-05-05 | L6 sciolta — esplorazione libera logo                                                                                                                                                                                                                                 | DECISIONS-LOG L11 |
+| 2026-05-05 | Logo y-accent standard definito                                                                                                                                                                                                                                       | DECISIONS-LOG L16 |
+| 2026-05-05 | NO italic per sans-serif (descender invade adjacent s)                                                                                                                                                                                                                | DECISIONS-LOG L18 |
+| 2026-05-05 | **L25 PERMANENT**: h lowercase · tutte lettere identiche peso/size/style · solo color diverso · embed ovunque (no plain text "heuresys")                                                                                                                              | DECISIONS-LOG L25 |
+| 2026-05-06 | **L27 — "logo originale"**: nome canonical · due colori fissi (body `--brand-blue` + y `--accent`) · ECCEZIONE plain text per indirizzi/link/domini                                                                                                                   | DECISIONS-LOG L27 |
+| 2026-05-06 | **L28 — "logo relativo"**: convenzione richiamabile · stessa struttura del logo originale ma body `var(--logo-body, var(--ink))` + y `var(--accent)` derivati dal tema CSS attivo · per surface tematizzate                                                           | DECISIONS-LOG L28 |
+| 2026-05-09 | **L48 — body color canonical** = `var(--primary)` (era `var(--brand-blue)`) · palette-aware: in legacy/alpha resta blu, in zeta terracotta, in beta salmon, in gamma navy, ecc. · vincolo `--primary ≠ --accent` garantito in tutte le palette del theme-framework v1 | DECISIONS-LOG L48 |
 
 ## Vedi anche
 

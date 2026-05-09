@@ -1492,6 +1492,90 @@ dashboardCode='process_learning_paths_v2'    → (process role TBD)
 
 ---
 
+## L48 — 2026-05-09 — Theme/palette framework v1 + wordmark body canonicalizzato a `var(--primary)`
+
+**Decisione**:
+
+1. Nasce un framework runtime multi-palette in `.ux-design/02-aesthetic/theme-framework/`: 17 palette × 2 mode (dark + light) selezionabili in real-time via data-attributes (`data-palette` + `data-theme` su `<html>`), tipografia preservata.
+2. La regola del **logo originale** L27 è canonicalizzata: `body` color usa `var(--primary)`, NON più `var(--brand-blue)`. La `y` resta `var(--accent)`. In legacy/alpha non cambia visivamente (primary == brand-blue). In palette non-blue (zeta/beta/gamma/theta/...) il body si adatta al colore primario della palette attiva.
+3. Per ogni palette del framework, è garantito `--primary` ≠ `--accent` → bicolor wordmark sempre visibile.
+
+**Contesto**:
+
+Sessione 2026-05-09 night. Enzo richiede un framework che permetta a qualsiasi pagina di switchare palette/tema in real-time mantenendo la tipografia, mergiando i token direction-specific delle 8 esplorazioni α-θ + tempered (ι/κ/λ) + mu (5 variants) + Set 5 legacy.
+
+Iterazioni:
+
+- v1 playground "showcase scrollable" + switcher flottante → rifatto come dashboard con sidebar-embedded selector
+- Aggiunte 3 matrici (color matrix completa, palette overview cliccabile, button matrix 7 varianti × 3 stati)
+- Enzo corregge regola wordmark: "la scritta è in primary per tutte i caratteri ad esclusione di y che in accent"
+- Audit primary vs accent → 28 blocchi su 34 avevano primary == accent → fix sistematico (cambio primary o accent per garantire bicolor)
+- Enzo conferma update L27 a `var(--primary)`
+
+**Conseguenza**:
+
+**Asset creati** in `.ux-design/02-aesthetic/theme-framework/`:
+
+- `heuresys-palette-framework.css` (1638 lines) — 17 palette × dark+light = 34 blocchi token canonici (foundation + ink + borders + brand + capability + semantic + 18 direction-aliases). Definisce anche styling switcher flottante.
+- `heuresys-palette-switcher.js` (227 lines) — modulo drop-in per pannello flottante (zero deps). Espone API `window.HeuresysPaletteSwitcher.{setPalette, setTheme, toggle, getState, palettes}`. Supporta `window.HPS_DISABLED = true` per opt-out.
+- `palette-playground.html` (~1200 lines) — dashboard 280px sidebar + content. Sidebar contiene theme toggle (segmented dark/light) + 17 palette grouped per famiglia (Set 5 / Primary / Tempered / Mu) cliccabili. Content contiene 10 sezioni: Foundation swatches, Color matrix (~50 token con valori computed live), Palette overview matrix (17 mini-card cross-palette cliccabili scoped via `data-palette` locale), Brand widgets, Button matrix (7 varianti × 3 stati), Capability colors, Generative spectrum, Direction aliases, Tabular surface, Gradient & glow.
+
+**Inventario palette** (tutte garantiscono primary ≠ accent):
+
+| Palette         | dark body / y                                 | light body / y             |
+| --------------- | --------------------------------------------- | -------------------------- |
+| legacy          | `#3b82f6` blue / `#a855f7` purple             | `#2452c8` / `#7e3fc8`      |
+| alpha           | `#3b82f6` / `#a855f7`                         | `#2452c8` / `#7e3fc8`      |
+| beta            | `#e85a3f` salmon / `#fff200` highlight yellow | `#c4361b` / `#fff200`      |
+| gamma           | `#4d8fc8` blueprint / `#f0c14a` amber         | `#1a4d7a` navy / `#d8a213` |
+| delta           | `#d63068` FT magenta / `#ff6900` FT orange    | `#990f3d` / `#ff6900`      |
+| epsilon         | `#8b6dff` indigo / `#ffd4a8` peach            | `#2d1f6b` / `#c5b8ff`      |
+| zeta            | `#e87850` terracotta / `#7a8455` moss         | `#c5612d` / `#5a6442`      |
+| eta             | `#ffffff` swiss white / `#ef4444` red         | `#000000` / `#DC2626`      |
+| theta           | `#8b5cf6` violet / `#06b6d4` cyan             | `#5b21b6` / `#0891b2`      |
+| iota            | `#4d8fc8` / `#f0c14a`                         | `#1a4d7a` / `#d4a017`      |
+| kappa           | `#d8688a` rose / `#d8a878` clay               | `#b8395a` / `#5a6478`      |
+| lambda          | `#4d8fc8` / `#ef4444`                         | `#1a4d7a` / `#DC2626`      |
+| mu-architect    | `#5e69d1` indigo / `#a4ffba` token green      | `#4555b8` / `#2da147`      |
+| mu-art-director | `#8a48b8` deep purple / `#b370e0` lavender    | `#5e2c80` / `#8a48b8`      |
+| mu-pragmatic    | `#22c55e` green / `#3b82f6` info blue         | `#15803d` / `#3b82f6`      |
+| mu-synthesis    | `#5e69d1` / `#7a7fad`                         | `#4555b8` / `#5e69d1`      |
+| mu-data-dense   | `#5e69d1` / `#7a7fad`                         | `#4555b8` / `#5e69d1`      |
+
+**Logo originale L27 — regola aggiornata**:
+
+```css
+.wordmark-original {
+  color: var(--primary); /* era var(--brand-blue) */
+}
+.wordmark-original .y {
+  color: var(--accent);
+}
+```
+
+Aggiornata auto-memory `feedback_logo_originale_l27.md` con paragrafo razionale e nuova regola CSS canonical.
+
+**Cosa NON cambia**:
+
+- Mockup esistenti `.ux-design/06-mockups/` continuano a funzionare: usano `var(--brand-blue)` che resta definito in tutte le palette del framework (alias compatibilità) e nel `services/app/src/styles/active-theme.css` produzione.
+- Le pagine production `services/app/...` non sono toccate (il framework è opt-in solo per chi linka esplicitamente i 2 file CSS+JS).
+- Tipografia: Exo 2 + Inter + JetBrains Mono restano stack canonico, framework non override font.
+
+**Out-of-scope L48**:
+
+- Promote del framework in produzione: resta strumento di sperimentazione locale in `.ux-design/`. Adozione come switcher production è phase futura (eventuale).
+- Migrazione dei mockup esistenti da `var(--brand-blue)` a `var(--primary)`: solo se utente lo richiede esplicitamente. Per ora i 2 token sono coesistenti (alias).
+- Aggiunta palette nuove: il pattern è documentato (definire 1 blocco dark + 1 light con tutti i token canonici), espandibile on-demand.
+
+**Riferimenti**:
+
+- Asset: `.ux-design/02-aesthetic/theme-framework/{heuresys-palette-framework.css,heuresys-palette-switcher.js,palette-playground.html}`
+- Updated: `.ux-design/02-aesthetic/logo-standard.md` (body color → `--primary`)
+- Updated auto-memory: `~/.claude/projects/D--evo-heuresys-com/memory/feedback_logo_originale_l27.md`
+- Sessione: handoff post-L47 governance shift
+
+---
+
 ## Format per nuove entry
 
 Quando aggiungi una nuova decisione, segui questo template:

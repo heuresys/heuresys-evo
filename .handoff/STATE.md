@@ -1,38 +1,37 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-09T05:15Z · S20 closed (7 commit avanti S19)
+> Updated: 2026-05-09T05:55Z · S21 closed (theme/palette framework v1 + L48)
 
-## Last session brief (S20)
+## Last session brief (S21)
 
-S20 brand dashboard governance shift: catalog DB della webapp `09-asset-showcase` (Express+Prisma+SQLite locale, gitignored) diventa SoT operativa stable. **L46** (commit `15e9458`): chrome universal cross-role 18 asset + body org-systems IT_ADMIN + concetti `chromeStandard`/`dashboardCode`/`mockupSource`/`behaviorsJson`. **L47** (commit `08b2097`): body-only import 10 mockup rimanenti, **11 dashboardCode `*_v2` mappati**, ~50 nuove classi canonical CSS, 8 conflict resolutions. Inoltre S20 priorità storiche shipped pre-L46: G6 browser test 8 ruoli verde, prisma generate + refactor `dashboard/page.tsx` native, G3-bis-completion (5 widget). Webapp showcase live `localhost:5174` (346 assets · 138 promoted · 374 variants).
+S21 brand workstream sub-session: theme/palette framework v1 shipped in `.ux-design/02-aesthetic/theme-framework/`. **L48** decision: 17 palette × 2 mode (dark+light) selezionabili real-time via `data-palette` + `data-theme` su `<html>`, tipografia preservata. Tre file drop-in: `heuresys-palette-framework.css` (1638 lines, 34 blocchi token canonici), `heuresys-palette-switcher.js` (227 lines, zero deps), `palette-playground.html` (~1200 lines, dashboard sidebar 280px + 10 sezioni content tra cui 3 matrici: color matrix completa, palette overview cliccabile cross-palette, button matrix 7 varianti × 3 stati). Wordmark body color canonicalizzato da `var(--brand-blue)` a `var(--primary)` (palette-aware). Auto-memory L27 aggiornata. Per ogni palette `--primary ≠ --accent` garantito → bicolor wordmark sempre visibile.
 
-## Top priorities (S21)
+## Top priorities (S22)
 
-1. **Production `/dashboard` refactor DB-driven** (~6-10h) — modificare `services/app/src/app/(app)/dashboard/page.tsx` + `services/app/src/app/(app)/_components/BrandShell.tsx` per consumare `chromeStandard` (universal chrome) e `dashboardCode='*_v2'` (body role-specific) dal catalog DB invece di hardcoded views. Out-of-scope L46/L47, primo step naturale.
-2. **Mapping role → 4 process dashboards** (~2-3h) — decisione: `process_recruiting_funnel_v2`/`process_onboarding_flow_v2`/`process_performance_cycle_v2`/`process_learning_paths_v2` come sub-views HR_MANAGER OR autonomous role con entries proprie in `role_default_dashboards`?
-3. **WCAG 2.2 AAA full audit** (~3-5h) — axe-core CI integration + manual NVDA/VoiceOver pass. Carry-forward S19 backlog.
+1. **Production `/dashboard` refactor DB-driven** (~6-10h) — modificare `services/app/src/app/(app)/dashboard/page.tsx` + `_components/BrandShell.tsx` per consumare `chromeStandard` + `dashboardCode='*_v2'` dal catalog DB invece di hardcoded views. Carry-forward S20 #1.
+2. **Mapping role → 4 process dashboards** (~2-3h) — decisione: process_*_v2 come sub-views HR_MANAGER OR autonomous role con entries proprie in `role_default_dashboards`?
+3. **WCAG 2.2 AAA full audit** (~3-5h) — axe-core CI integration + manual NVDA/VoiceOver pass.
 
 ## Open questions
 
 - Process dashboards: HR_MANAGER multi-view (drilldown) vs autonomous role mapping (impatta `role_default_dashboards` + RBP)?
-- Webapp showcase port 5174: confirm zero conflitti con altri tool locali?
-- Production refactor: full sweep DB-driven OR opt-in per dashboardCode (gradual migration)?
+- Theme-framework adoption: resta strumento sperimentale `.ux-design/` only, OR portarlo in produzione come URL-route `/brand-studio` palette switcher? (out-of-scope L48)
+- Migrazione mockup esistenti `var(--brand-blue)` → `var(--primary)`: opzionale (alias retrocompatibile attivo) o canonical sweep?
 
-## Stack snapshot (changed in S20)
+## Stack snapshot (changed in S21)
 
-- Catalog DB webapp: NEW `.ux-design/09-asset-showcase/` (gitignored eccetto `_legacy/`) · 346 assets · 138 promoted · 374 variants · 11 dashboardCode mappati
-- `dashboard-brand.css`: ~2370 → **~2670 righe** (+300 L47 block: chart-wrap · gauge-wrap · table.dept · succession-row · kg-canvas · ontology · profile-hero · arc · bridge-grid · process viz · pill-cap-* · kpi-card.compact · gauge-card.large · wordmark-original)
-- Mockup HTML allineati canonical: `.status-pill`/`.theme-toggle`/`.bar-fill alias`/`.kpi-row alias` rimossi da 10 mockup
-- DECISIONS-LOG: L45 → **L47** (2 entries new: L46 chrome universal · L47 body 10 mockup)
-- BrandWidget services/app: 14 + 4 layout containers → **19 + 4** (+5 G3-bis: BrandTenantCard · BrandMetricCard · BrandSectionHead · BrandIntRow · BrandAuditRow)
-- Tests services/app: 199 → **214** (+15 G3-bis unit) · prisma client regenerated (G4 fields native)
+- NEW `.ux-design/02-aesthetic/theme-framework/` (3 file, ~3000 lines totali) — framework runtime palette switching multi-direction
+- `.ux-design/DECISIONS-LOG.md`: L47 → **L48** (theme framework + wordmark `--primary`)
+- `.ux-design/02-aesthetic/logo-standard.md`: body color canonical aggiornato → `var(--primary)` + history table entry L48
+- `.ux-design/BRAND-STATE.md`: phase 15.C aggiunta + asset inventory theme-framework + decision row L48
+- Auto-memory `feedback_logo_originale_l27.md`: regola CSS aggiornata + razionale palette-aware
 
 ## Verification
 
 ```bash
-git log --oneline -7    # S20 commits c94fde5 → b4da3d6
-cd .ux-design/09-asset-showcase && npm run dev    # webapp catalog → http://localhost:5174
-curl -s http://localhost:5174/api/stats           # 346 total · 138 promoted · 374 variants
+git log --oneline -3        # S21 commit + b4000aa S20 + b4da3d6 docs sync
+start "" "D:\evo.heuresys.com\.ux-design\02-aesthetic\theme-framework\palette-playground.html"
+# → dashboard sidebar + 17 palette cliccabili · bicolor wordmark visibile in ogni palette
 ```
 
-Riferimenti chiave: `.ux-design/DECISIONS-LOG.md` § L46+L47 · `~/.claude/plans/flickering-painting-globe.md` · `09-asset-showcase/README.md` · CLAUDE.md § L46+L47 governance shift · BRAND-STATE.md § Phase 15.B
+Riferimenti chiave: `.ux-design/DECISIONS-LOG.md` § L48 · `.ux-design/02-aesthetic/theme-framework/` · `.ux-design/02-aesthetic/logo-standard.md` § L27+L48 · BRAND-STATE.md § Phase 15.C
