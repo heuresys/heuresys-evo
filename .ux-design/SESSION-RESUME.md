@@ -55,6 +55,30 @@ Esegui in `run_in_background: true` con `Bash` tool. Verifica con `curl -s -o /d
 
 Server NON serve se la sessione è solo testuale/strategica. Avvialo solo quando devi mostrare mockup HTML in browser via `mcp__claude-in-chrome__*`.
 
+### Step 4-bis — Asset Showcase webapp (catalog DB · post-L46/L47)
+
+Per ispezione/gestione del catalog asset brand identity dashboard (la **SoT operativa** post-L46), avvia la webapp locale gitignored:
+
+```bash
+cd .ux-design/09-asset-showcase
+npm run dev   # http://localhost:5174
+```
+
+Express 5 + Prisma 5.22 + SQLite locale. UI Storybook-like con filtri `🛡 Chrome universal` e `📐 *_v2 body`, detail con tabs Preview/Variants/Sub-elements/Behavior/Color tokens. 346 assets · 138 promoted · 11 dashboardCode mappati post-L47.
+
+Quando consultare la webapp:
+
+- Quando devi sapere se un asset (es. `.tenant-card`, `.gauge-wrap`, `.bridge-card`) è promoted/canonical
+- Quando devi vedere variants graphical disponibili per un wrapper
+- Quando devi cross-referenziare un mockup → asset → dashboardCode (mockupSource field)
+
+Quando NON è strettamente necessaria:
+
+- Sessioni puramente strategiche o di brainstorming
+- Sessioni focalizzate su Phase 1-12 (foundations) chiuse pre-L46
+
+Avvio: vedi `09-asset-showcase/README.md`. Re-bootstrap: `npm run bootstrap` (idempotent, preserva flag manuali).
+
 ### Step 5 — Carica skills rilevanti
 
 Invoca via `Skill` tool (loading non-distruttivo, ti posiziona):

@@ -166,7 +166,7 @@ VM: `oracle-vm-default` (IP 80.225.82.207). nginx vhosts in `/etc/nginx/sites-av
 
 **Vincolo "estirpazione clean"**: ogni entry in `Test Stage`/`PreOp Stage` DEVE essere rimovibile dal repo evo SENZA conseguenze su stack/oggetti pre-import. Categorie removability tracciate nel CSV (`no-impact`, `embedded-in-existing-file`, `depends-on-X`, `not-yet-used`, `depends-on-DB-seed`).
 
-## Stato attuale (2026-05-08T17:18Z · Phase 15.A brand-fedele dashboard rendering shipped to main)
+## Stato attuale (2026-05-09T05:10Z · L47 catalog DB governance shift shipped — body-only import 10 mockup)
 
 ### DBMS = SoT (certified 2026-05-07T14:30Z)
 
@@ -279,6 +279,36 @@ Phase 1 → Phase 12 ufficialmente chiuso senza loose ends. 5 pre-promotion gap 
 
 Backup track parallel: cron daily/weekly/monthly · off-site Oracle bucket · restore drill mensile · `docs/40-operations/dbms-backup-restore.md` (scaffolded).
 
+### ✅ L46 + L47 governance shift shipped (2026-05-09)
+
+**Catalog DB della webapp `09-asset-showcase` è ora la SoT operativa stable per il dashboard brand identity system.**
+
+L46 (commit `15e9458`) — primo import: chrome universal cross-role (18 asset header/footer/sidebar standardizzati per TUTTE le dashboard di ruolo, `chromeStandard=true`) + body org-systems IT_ADMIN. Concetti introdotti: `chromeStandard`, `dashboardCode='*_v2'`, `mockupSource`, `behaviorsJson`/`colorTokensJson`/`subElementsJson`. 4 conflict resolutions (`.status-pill` → `.pill` canonical post-L41 · `.theme-toggle` → `.theme-toggle-btn` · `.wordmark-original` mockup wins · scaffolding mockup-only ignorato).
+
+L47 (commit `08b2097`) — body-only import dei 10 mockup rimanenti (escluso `index.html`). 4 conflict resolutions strategiche (`.status-pill` recurrent canonical wins · `.succession-row` + `.succession-card` entrambi · `.gauge-wrap` + `.gauge-grid` entrambi · 4 process full-import autonomi). Scope:
+
+- **11 dashboardCode mappati** `*_v2`:
+  - `org_systems_v2` (IT_ADMIN · org-systems.html · 17 body)
+  - `cross_tenant_overview_v2` (SUPERUSER · 4 new)
+  - `tenant_owner_overview_v2` (TENANT_OWNER · 6 new)
+  - `hr_director_overview_v2` (HR_DIRECTOR · 8 — 100% canonical match)
+  - `skills_heatmap_v2` (HR_MANAGER · 9 + .kpi-card.compact variant)
+  - `capability_graph_v2` (DEPT_HEAD · 10 new + 5 pill capability tones)
+  - `employee_journey_v2` (LINE_MANAGER+EMPLOYEE · 13 new — profile-hero · arc · bridge)
+  - 4 process dashboard autonomi (`process_recruiting_funnel_v2` · `process_onboarding_flow_v2` · `process_performance_cycle_v2` · `process_learning_paths_v2`) — role mapping TBD
+
+- **DB stato post-L47**: 346 total assets (138 promoted · 208 available) · 18 chrome universal · 81 body distribuiti su 11 dashboardCode · 374 variants · 5 tags
+
+- **File committable modificati**: 10 mockup HTML allineati canonical (`.status-pill`/`.theme-toggle`/`.bar-fill alias`/`.kpi-row alias` rimossi) · `dashboard-brand.css` esteso (~300 lines L47 block: chart-wrap · gauge-wrap · table.dept · succession-row · kg-canvas · ontology · profile-hero · arc · bridge-grid · process viz · pill-cap-\* · kpi-card.compact) · DECISIONS-LOG L46+L47 entries
+
+- **Webapp showcase locale gitignored**: `.ux-design/09-asset-showcase/` (Express 5 + Prisma 5.22 SQLite + vanilla JS · localhost:5174 · no auth). Avvio: `cd .ux-design/09-asset-showcase && npm run dev`
+
+**Out-of-scope L46+L47** (pronto come prossima phase):
+
+- Production `/dashboard` refactor per consumare `chromeStandard` + `dashboardCode` dal DB → richiede modifiche `services/app/src/app/(app)/dashboard/page.tsx` + `services/app/src/app/(app)/_components/BrandShell.tsx` per dynamic chrome/body rendering DB-driven
+- Mapping role → dashboardCode per i 4 process (decisione HR_MANAGER vs autonomous role)
+- Promote degli asset packages/ui non utilizzati nei 10 mockup (es. data-table, hero-sections) — restano `available` nel catalog
+
 ## Documenti strategici
 
 - `docs/_meta/operating-baseline.md` — **regole comportamentali complete (canonical SoT)**
@@ -288,6 +318,8 @@ Backup track parallel: cron daily/weekly/monthly · off-site Oracle bucket · re
 - `docs/20-architecture/role-views-matrix.md` — Phase 14.SH FASE 3.1 inventory (scaffolded)
 - `docs/40-operations/dbms-backup-restore.md` — Backup/restore governance policy (scaffolded)
 - `docs/50-reference/decisions/` — 26 ADR (3 superseded · ADR-0023 SoT promotion · ADR-0024 Phase 14.SH plan · ADR-0025 brand identity cycle sealed + v1.0 promotion plan · ADR-0026 Phase 15.A brand-fedele dashboard rendering)
+- `.ux-design/DECISIONS-LOG.md` — log brand identity, ultime entry **L46** (catalog DB governance shift · org-systems first import · chromeStandard concept) + **L47** (body-only 10 mockup · 11 dashboardCode mapping)
+- `.ux-design/09-asset-showcase/README.md` — webapp catalog locale (gitignored eccetto `_legacy/`). Tool localhost-only Express+Prisma+SQLite per gestione asset brand identity dashboard. Start: `cd .ux-design/09-asset-showcase && npm run dev` → `localhost:5174`
 - `docs/30-developer/security-baseline.md` — P1-P10 enforcement details
 - `~/.claude/plans/questo-quello-che-glittery-charm.md` — Plan canonical Phase 14.SH
 - `.handoff/HANDOFF.md` — Fresh session input (next sprint trigger)
