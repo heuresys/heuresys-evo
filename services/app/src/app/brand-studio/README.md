@@ -15,7 +15,7 @@ chosen theme to the running app. Same code in dev and prod — gating is on
 
 ## Workflow
 
-1. Sign in as a `SUPERUSER` account (`sysadmin`, `evo.dev`, …) and open
+1. Sign in as a `SUPERUSER` account (`sysadmin`) and open
    `/brand-studio`.
 2. Configure the wizard across the 10 steps (brand, colors, modes, typography,
    spacing, motion, effects, density, iconography, export).

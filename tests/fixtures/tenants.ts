@@ -16,7 +16,7 @@ export type FixtureTenant = keyof typeof FIXTURE_TENANTS;
 export const FIXTURE_USERS = {
   superuser_admin: {
     id: 'a0000000-0000-0000-0000-000000000001',
-    username: 'evo.dev',
+    username: 'sysadmin',
     role: 'SUPERUSER',
     tenantId: FIXTURE_TENANTS.superuser,
   },

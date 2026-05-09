@@ -34,7 +34,7 @@ const rtlBankEmployees: FixtureEmployee[] = Array.from({ length: 4 }, (_, i) => 
   tenantId: RTL_BANK_TENANT,
   firstName: `Banker${i}`,
   lastName: 'Surname',
-  email: `b${i}@rtlbank.it`,
+  email: `b${i}@rtl-bank.org`,
 }));
 
 vi.mock('../../db/pool.js', () => ({

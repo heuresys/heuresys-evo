@@ -155,7 +155,7 @@ vi.mock('../../db/pool.js', () => ({
           id: NEW_EMP,
           first_name: 'Erika',
           last_name: 'Bianchi',
-          email: 'erika@rtlbank.it',
+          email: 'erika@rtl-bank.org',
           tenant_id: RTL_TENANT,
         },
       ]),
@@ -196,7 +196,7 @@ beforeEach(() => {
       employees: {
         first_name: 'Alice',
         last_name: 'Verdi',
-        email: 'alice@rtlbank.it',
+        email: 'alice@rtl-bank.org',
         job_title: 'CHRO',
         tenant_id: RTL_TENANT,
         tenants: { id: RTL_TENANT, code: 'rtl-bank', name: 'RTL Bank' },
@@ -210,7 +210,7 @@ beforeEach(() => {
       employees: {
         first_name: 'Bob',
         last_name: 'Rossi',
-        email: 'bob@rtlbank.it',
+        email: 'bob@rtl-bank.org',
         job_title: 'Analyst',
         tenant_id: RTL_TENANT,
         tenants: { id: RTL_TENANT, code: 'rtl-bank', name: 'RTL Bank' },

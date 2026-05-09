@@ -18,7 +18,7 @@ const seed: Employee[] = [
     id: '1',
     name: 'Mario Rossi',
     role: 'Engineer',
-    email: 'mario@heuresys.test',
+    email: 'mario@heuresys.com',
     tenant: 'Heuresys',
   },
   { id: '2', name: 'Lucia Bianchi', role: 'Designer', email: 'lucia@rtl.test', tenant: 'RTL Bank' },
@@ -34,7 +34,7 @@ const seed: Employee[] = [
     id: '5',
     name: 'Sofia Russo',
     role: 'Engineer',
-    email: 'sofia@heuresys.test',
+    email: 'sofia@heuresys.com',
     tenant: 'Heuresys',
   },
 ];

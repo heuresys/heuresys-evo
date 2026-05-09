@@ -25,12 +25,12 @@ describe('LoginForm', () => {
     const { signIn } = await import('next-auth/react');
     const user = userEvent.setup();
     render(<LoginForm />);
-    await user.type(screen.getByLabelText(/email aziendale/i), 'evo.dev');
-    await user.type(screen.getByLabelText(/password/i), 'admin123');
+    await user.type(screen.getByLabelText(/email aziendale/i), 'sysadmin');
+    await user.type(screen.getByLabelText(/password/i), 'Heuresys2026!');
     await user.click(screen.getByRole('button', { name: /accedi/i }));
     expect(signIn).toHaveBeenCalledWith('credentials', {
-      username: 'evo.dev',
-      password: 'admin123',
+      username: 'sysadmin',
+      password: 'Heuresys2026!',
       redirect: false,
       callbackUrl: '/dashboard',
     });

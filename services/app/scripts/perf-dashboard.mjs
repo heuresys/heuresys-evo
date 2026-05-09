@@ -13,7 +13,7 @@
  *
  * Env:
  *   HEURESYS_BASE_URL   default http://localhost:3200
- *   HEURESYS_USERNAME   default rtl-bank.valentina.conti
+ *   HEURESYS_USERNAME   default valentina.conti@rtl-bank.org
  *   HEURESYS_PASSWORD   default Heuresys2026!
  *
  * Note: dev mode (turbopack) has overhead. For binding numbers, run after
@@ -23,7 +23,7 @@
 import autocannon from 'autocannon';
 
 const BASE = process.env.HEURESYS_BASE_URL ?? 'http://localhost:3200';
-const USER = process.env.HEURESYS_USERNAME ?? 'rtl-bank.valentina.conti';
+const USER = process.env.HEURESYS_USERNAME ?? 'valentina.conti@rtl-bank.org';
 const PASS = process.env.HEURESYS_PASSWORD ?? 'Heuresys2026!';
 const TARGET_PATH = process.argv[2] ?? '/dashboard/hr_director_overview';
 const DURATION = Number(process.argv[3] ?? 10);

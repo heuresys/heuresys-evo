@@ -57,7 +57,7 @@ ON CONFLICT (code) DO UPDATE
 INSERT INTO employees (id, tenant_id, first_name, last_name, email, department, job_title, is_active, hire_date, created_at, updated_at)
 SELECT e.id::uuid, t.id, e.first_name, e.last_name, e.email, e.department, e.job_title, true, e.hire_date::date, NOW(), NOW()
   FROM (VALUES
-    ('e1000001-0000-0000-0000-000000000001', 'heuresys', 'Platform',  'Admin',    'platform.admin@heuresys.test', 'Platform',  'Tenant Owner',       '2024-01-01'),
+    ('e1000001-0000-0000-0000-000000000001', 'heuresys', 'Platform',  'Admin',    'platform.admin@heuresys.com', 'Platform',  'Tenant Owner',       '2024-01-01'),
     ('e2000002-0000-0000-0000-000000000002', 'rtl-bank', 'Marco',     'De Santis','marco.desantis@rtlbank.test',  'IT',        'IT Administrator',   '2022-03-01'),
     ('e2000003-0000-0000-0000-000000000003', 'rtl-bank', 'Valentina', 'Conti',    'valentina.conti@rtlbank.test', 'HR',        'HR Director',        '2021-06-15'),
     ('e2000004-0000-0000-0000-000000000004', 'rtl-bank', 'Maria',     'Colombo',  'maria.colombo@rtlbank.test',   'HR',        'HR Manager',         '2023-02-10'),

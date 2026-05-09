@@ -164,14 +164,14 @@ beforeEach(() => {
   employees = [
     makeEmployee({
       id: ALICE_ID,
-      email: 'alice@rtlbank.it',
+      email: 'alice@rtl-bank.org',
       first_name: 'Alice',
       last_name: 'Verdi',
       job_title: 'CHRO',
     }),
     makeEmployee({
       id: BOB_ID,
-      email: 'bob@rtlbank.it',
+      email: 'bob@rtl-bank.org',
       first_name: 'Bob',
       last_name: 'Rossi',
       job_title: 'Analyst',
@@ -231,7 +231,7 @@ describe('GET /employees/me', () => {
     };
     const res = await request(buildApp()).get('/employees/me');
     expect(res.status).toBe(200);
-    expect(res.body.data.email).toBe('alice@rtlbank.it');
+    expect(res.body.data.email).toBe('alice@rtl-bank.org');
   });
 
   it('returns own skills', async () => {
@@ -273,7 +273,7 @@ describe('GET /employees/:id', () => {
     };
     const res = await request(buildApp()).get(`/employees/${BOB_ID}`);
     expect(res.status).toBe(200);
-    expect(res.body.data.email).toBe('bob@rtlbank.it');
+    expect(res.body.data.email).toBe('bob@rtl-bank.org');
   });
 
   it('returns 403 when role not allowed', async () => {
@@ -305,9 +305,9 @@ describe('POST /employees', () => {
     };
     const res = await request(buildApp())
       .post('/employees')
-      .send({ first_name: 'Erika', last_name: 'Bianchi', email: 'erika@rtlbank.it' });
+      .send({ first_name: 'Erika', last_name: 'Bianchi', email: 'erika@rtl-bank.org' });
     expect(res.status).toBe(201);
-    expect(res.body.data.email).toBe('erika@rtlbank.it');
+    expect(res.body.data.email).toBe('erika@rtl-bank.org');
   });
 
   it('rejects 409 on duplicate email', async () => {
@@ -317,7 +317,7 @@ describe('POST /employees', () => {
     };
     const res = await request(buildApp())
       .post('/employees')
-      .send({ first_name: 'Alice', last_name: 'X', email: 'alice@rtlbank.it' });
+      .send({ first_name: 'Alice', last_name: 'X', email: 'alice@rtl-bank.org' });
     expect(res.status).toBe(409);
   });
 
