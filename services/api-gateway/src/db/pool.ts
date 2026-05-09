@@ -51,12 +51,12 @@ export async function withTenant<T>(
   ) => Promise<T>
 ): Promise<T> {
   return prisma.$transaction(async (tx) => {
-    // The GUC name is mandated by the existing RLS function
-    // public.current_tenant_id() (see baseline migration). Do not change
-    // unless the SQL function is also updated.
-    await tx.$executeRawUnsafe(
-      `SET LOCAL app.current_tenant_id = '${tenantId.replace(/'/g, "''")}'`
-    );
+    // L56 (S23-tris): set_config() parametrizzato (audit § 7.1
+    // defense-in-depth): Postgres non supporta param in SET LOCAL,
+    // ma set_config(name, value, is_local=true) accetta param via $queryRaw
+    // tagged template (parametrized binding nativa). Sostituisce
+    // $executeRawUnsafe + string-concat escape.
+    await tx.$queryRaw`SELECT set_config('app.current_tenant_id', ${tenantId}, true)`;
     return fn(tx);
   });
 }

@@ -40,9 +40,10 @@ export async function withTenant<T>(
 ): Promise<T> {
   return prisma.$transaction(async (tx) => {
     if (tenantId) {
-      await tx.$executeRawUnsafe(
-        `SET LOCAL app.current_tenant_id = '${tenantId.replace(/'/g, "''")}'`
-      );
+      // L56 (S23-tris): set_config() parametrizzato (audit § 7.1):
+      // Postgres SET LOCAL non accetta param, ma set_config(name, value, is_local)
+      // sì via $queryRaw tagged template (binding nativa Prisma).
+      await tx.$queryRaw`SELECT set_config('app.current_tenant_id', ${tenantId}, true)`;
     }
     return fn(tx);
   });

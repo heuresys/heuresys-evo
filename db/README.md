@@ -21,6 +21,12 @@ Il progetto adotta un approccio **baseline-squash** invece di replay incremental
 
 Le 201 migrations storiche del v1 (versioni 1-220) NON vengono replayed: sono già materializzate nel dump. Restano consultabili nel repo v1 (`D:\enzospenuso\Documents\GitHub\heuresys.com.evo\`) per audit/storia.
 
+> **Cutoff date (audit L53 § 4.3)**: la tabella `schema_migrations` contiene 215+ entries (1-220 storiche v1 + N16 nuove post-cutoff S22/S23/S23-bis/S23-tris come `phase16a/b/c/d/e/f/g/h`). I file `.sql` in `db/migrations/` (8 file) + `db/seeds/` (35+ file dopo S23-tris) sono il SoT replicabile post-cutoff `2026-04-27`. Tutte le migration applicate **prima** del 2026-04-27 sono materializzate nel baseline dump (single source). Tutte le migration applicate **dopo** sono file separati nel repo (forward-only delta). Il drift "215 entries vs 8 files" è atteso e documentato qui.
+
+## SAP shadow tables (audit L53 § 1.3)
+
+50 tabelle senza primary key sono tutti **mirror cluster SAP HCM** (pa0000…pa2013, pb0001…pb4005, hrp1000…hrp5002, t001p…t771q, pcl1, pcl2, ext_pa\*, ext_pb\*). Read-mostly via composite key SAP (PERNR + INFOTYP + ENDDA). **Intentional design** — non aggiungere synthetic PK perché il cluster SAP non ne ha. Operazioni write avvengono solo via SAP delta-import job, mai dall'applicazione runtime.
+
 ## Struttura
 
 ```
@@ -105,7 +111,7 @@ Lessons learned from the first VM restore:
   The script bumps `maintenance_work_mem` to 256MB for the restore session
   (override via `MAINTENANCE_WORK_MEM` env).
 - **`could not execute query: ERROR: query would be affected by row-level security
-  policy`** — the dump is being restored as a non-superuser role with FORCE RLS
+policy`** — the dump is being restored as a non-superuser role with FORCE RLS
   active. Use `restore-baseline.sh` (which runs as postgres super), don't invoke
   `pg_restore` directly with the application role.
 - **Dump file not readable by postgres user** (e.g., it's in `/home/<user>/`) — the
@@ -142,6 +148,7 @@ db/migrations/0004_drop_legacy_audit_trail.sql
 ```
 
 Rules (industry standard, never compromised):
+
 - Migrations sequentially numbered, **never modified after application**
 - Each migration is a single SQL file, idempotent where possible
 - For schema changes that need data backfill: split into two migrations (DDL first, DML second)
@@ -190,10 +197,12 @@ Backups in `backups/local/` and `backups/from-vm/` are gitignored.
 ## Operational SQL
 
 `db/scripts/sql/` contains one-off operational SQL imported from v1:
+
 - `apply_canonical_users.sql` — apply canonical users seed against an existing DB (idempotent)
 - `reassign_rtl_bank_ccnl.sql` — RTL bank CCNL reassignment (one-shot fix)
 
 These are NOT migrations. Run them manually when needed:
+
 ```bash
 psql -h localhost -U heuresys -d heuresys_platform -f db/scripts/sql/apply_canonical_users.sql
 ```
@@ -217,12 +226,12 @@ Decisione architetturale 2026-04-29 (Enzo): il **PC Windows è il SoT primario**
 
 ### Mappa working dir → DBMS → permessi bucket
 
-| # | Working dir | DBMS | Bucket |
-|---|---|---|---|
-| 1 | `D:\enzospenuso\Documents\GitHub\heuresys.com.evo` (PC) | `pc-docker-evo` (Docker, 5432, condiviso con #2) | read+write |
-| 2 | `D:\heuresys.com.evo` (PC) | stesso DBMS di #1 | read+write |
-| 3 | `/home/ubuntu/heuresys.com.evo` (VM) | `vm-docker-v1` (Docker, 5433) | read+write |
-| 4 | `/home/ubuntu/heuresys-evo` (VM) | `vm-baremetal-evo` (bare-metal, 5432) | **read-only** |
+| #   | Working dir                                             | DBMS                                             | Bucket        |
+| --- | ------------------------------------------------------- | ------------------------------------------------ | ------------- |
+| 1   | `D:\enzospenuso\Documents\GitHub\heuresys.com.evo` (PC) | `pc-docker-evo` (Docker, 5432, condiviso con #2) | read+write    |
+| 2   | `D:\heuresys.com.evo` (PC)                              | stesso DBMS di #1                                | read+write    |
+| 3   | `/home/ubuntu/heuresys.com.evo` (VM)                    | `vm-docker-v1` (Docker, 5433)                    | read+write    |
+| 4   | `/home/ubuntu/heuresys-evo` (VM)                        | `vm-baremetal-evo` (bare-metal, 5432)            | **read-only** |
 
 Working dir #4 è read-only by design: `db-push.sh` rifiuta esecuzione da quel path. Le scritture sulla VM bare-metal sono throwaway (verranno sovrascritte al prossimo `evo-db pull`).
 
@@ -243,11 +252,11 @@ evo-db history             # lista tutti i dump nel bucket
 
 ### Naming objects nel bucket
 
-| Object name | Significato | Da chi |
-|---|---|---|
-| `latest.dump` | mutabile, "HEAD" — dump più recente promosso | `evo-db push` (interactive) |
-| `dump_<source>_<UTC-TS>.dump` | timestamped storico | `evo-db push` (interactive) |
-| `dump_vm_baremetal_cron_<UTC-TS>.dump` | safety snapshot notturno (NON tocca latest.dump) | cron VM 03:00 UTC |
+| Object name                            | Significato                                      | Da chi                      |
+| -------------------------------------- | ------------------------------------------------ | --------------------------- |
+| `latest.dump`                          | mutabile, "HEAD" — dump più recente promosso     | `evo-db push` (interactive) |
+| `dump_<source>_<UTC-TS>.dump`          | timestamped storico                              | `evo-db push` (interactive) |
+| `dump_vm_baremetal_cron_<UTC-TS>.dump` | safety snapshot notturno (NON tocca latest.dump) | cron VM 03:00 UTC           |
 
 ### Retention
 
@@ -257,28 +266,29 @@ evo-db history             # lista tutti i dump nel bucket
 
 ### Ruolo dei script `db/scripts/db-*.sh`
 
-| Script | Cosa fa |
-|---|---|
-| `db-push.sh` | pg_dump locale + upload + promote `latest.dump` (con soft-lock) |
-| `db-pull.sh` | download `latest.dump` + safety dump + drop/create + restore |
-| `db-status.sh` | read-only: stato locale vs bucket + suggerimento |
-| `db-history.sh` | read-only: lista oggetti bucket sorted by date |
+| Script          | Cosa fa                                                                |
+| --------------- | ---------------------------------------------------------------------- |
+| `db-push.sh`    | pg_dump locale + upload + promote `latest.dump` (con soft-lock)        |
+| `db-pull.sh`    | download `latest.dump` + safety dump + drop/create + restore           |
+| `db-status.sh`  | read-only: stato locale vs bucket + suggerimento                       |
+| `db-history.sh` | read-only: lista oggetti bucket sorted by date                         |
 | `oci-config.sh` | sourceable: helpers OCI + autodetect DBMS + adapter pg_dump/pg_restore |
-| `evo-db` | wrapper user-friendly: `evo-db {pull\|push\|status\|history}` |
+| `evo-db`        | wrapper user-friendly: `evo-db {pull\|push\|status\|history}`          |
 
 ### Convenzione porte (post-2026-04-29)
 
-| Endpoint | Cosa | Schema | Bucket |
-|---|---|---|---|
-| PC `localhost:5432` | container Docker `heuresys_evo_db` (SoT primario) | `.evo` unificato | rw |
-| VM `localhost:5432` | bare-metal Postgres | `.evo` unificato | r |
-| VM `localhost:5433` | container Docker `heuresys_evo_platform_db` | `.evo` unificato (era legacy v1, riallineato 2026-04-29) | rw |
+| Endpoint            | Cosa                                              | Schema                                                   | Bucket |
+| ------------------- | ------------------------------------------------- | -------------------------------------------------------- | ------ |
+| PC `localhost:5432` | container Docker `heuresys_evo_db` (SoT primario) | `.evo` unificato                                         | rw     |
+| VM `localhost:5432` | bare-metal Postgres                               | `.evo` unificato                                         | r      |
+| VM `localhost:5433` | container Docker `heuresys_evo_platform_db`       | `.evo` unificato (era legacy v1, riallineato 2026-04-29) | rw     |
 
 PC port 5433 (vecchio container v1 PC) è stato **eliminato** il 2026-04-29 (ridondante post-unificazione).
 
 ### DR rehearsal
 
 Il cron VM `Mon 04:00 UTC` esegue `db/scripts/test-restore.sh` che:
+
 - Scarica l'ultimo dump dal bucket (incluso safety snapshot notturno)
 - Lo restaura su un DB scratch
 - Esegue 9 smoke check (mig, tenants, employees, esco_skills, pgvector, vector indices, RLS, NextAuth)
@@ -290,6 +300,7 @@ Indipendente dal workflow `evo-db`. Garantisce che il bucket contenga sempre dum
 ### Backup safety-net VM notturno
 
 Cron VM `0 3 * * *` esegue `db/scripts/backup-and-rotate.sh` che:
+
 - Fa pg_dump del bare-metal VM (versione "fotografata" del SoT, allineata via `evo-db pull` dell'utente)
 - Local retention 7 in `~/heuresys-evo/backups/local/`
 - Upload OCI come `dump_vm_baremetal_cron_<UTC-TS>.dump` (NON aggiorna `latest.dump`)

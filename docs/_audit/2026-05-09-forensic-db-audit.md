@@ -448,22 +448,26 @@ Audit categorie 30d: AUTH 1 · CONFIG 4 · USER 1. Mancano: DASHBOARD, ROLE, TEN
 - `services/{app,api-gateway}/prisma/schema.prisma` (rbac_role 8 canonical + widget_catalog @relation cleanup)
 - `idx_tenant_schema_version_applied_by` index added (audit § 1.6 quick win)
 
-**S24 carry-forward residual (~6-10 FTE-day reali)**:
+**S23-tris additional closures (2026-05-09 23:35Z)**:
 
-| Issue                                                                                          | Severity     | Estimate     | Note                                                 |
-| ---------------------------------------------------------------------------------------------- | ------------ | ------------ | ---------------------------------------------------- |
-| #1 batch 18 tabelle (employee_core 13 + learning 6 + recruiting 3 + talent 6 minus pilot done) | CRITICAL     | 4-6 FTE-day  | Split 4 batch SQL                                    |
-| #3 P4 sweep extended + drop trigger broken                                                     | HIGH         | 1-2 FTE-day  | Mirror helper in api-gateway                         |
-| #9 lint rule app-level tenant_id                                                               | MEDIUM       | 2-4 FTE-hour | ESLint custom rule + pre-commit                      |
-| #10 bcrypt rotation                                                                            | MEDIUM       | 2-3 FTE-hour | One-shot rehash al next login (NextAuth credentials) |
-| § 2.5 GUC drift `user_workspaces`/`workspace_widgets`                                          | MEDIUM       | 1-2 FTE-day  | Multi-clausola policy refactor                       |
-| § 7.1 `$queryRawUnsafe` in 4 file                                                              | MEDIUM       | 2 FTE-hour   | Replace string concat → `$1` parameter               |
-| 310 FK senza ON DELETE explicit                                                                | MEDIUM       | 1 FTE-day    | Review e tagging                                     |
-| Materialized views refresh schedule                                                            | MEDIUM       | 4-8 FTE-hour | pg_cron setup                                        |
-| `enrichment_consent` 0/270 verify                                                              | MEDIUM       | 2-4 FTE-hour | Verifica enrichment workers skip                     |
-| `employees` 95 col / 19 idx vertical-split                                                     | LOW (ad-hoc) | TBD          | A > 100k rows                                        |
-| `schema_migrations` 215 vs 8 .sql README                                                       | LOW          | 30 min       | Cutoff date doc                                      |
-| 50 SAP shadow tables senza PK intent doc                                                       | LOW          | 30 min       | `db/README.md` tag                                   |
+- ✅ **#1 batch 24 tables done**: phase16f (18 EMP/recruiting/talent) + phase16g (6 learning/indirect). 30 totali post-pilot. ~9000 rows backfilled.
+- ✅ **#3 trigger drop**: phase16h `audit_permission_changes()` + 2 trigger associati droppati (writes invalid audit_logs)
+- ✅ **§ 7.1**: `$queryRawUnsafe` → `set_config()` parametrized via `$queryRaw` (pool.ts + db.ts)
+- ✅ **§ 1.3 + § 4.3**: SAP shadow tables intent + schema_migrations cutoff doc'd in `db/README.md`
+
+**S24 carry-forward residual (~3-6 FTE-day reali post-S23-tris)**:
+
+| Issue                                                 | Severity     | Estimate     | Note                                                                                                                                        |
+| ----------------------------------------------------- | ------------ | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| #1 residue: 6 tables orphan/no-FK                     | CRITICAL     | 1-2 FTE-day  | interviews+interview_feedback (8 orphan) · feedback_responses (4 orphan) · prediction_actions/factors · report_executions/schedules (no FK) |
+| #3 P4 sweep extended Prisma writes                    | HIGH         | 1-2 FTE-day  | Mirror helper in api-gateway/src/lib/audit/                                                                                                 |
+| #9 lint rule app-level tenant_id                      | MEDIUM       | 2-4 FTE-hour | ESLint custom rule + pre-commit                                                                                                             |
+| #10 bcrypt rotation                                   | MEDIUM       | 2-3 FTE-hour | One-shot rehash al next login (NextAuth credentials)                                                                                        |
+| § 2.5 GUC drift `user_workspaces`/`workspace_widgets` | MEDIUM       | 1-2 FTE-day  | Multi-clausola policy refactor                                                                                                              |
+| § 1.5 310 FK senza ON DELETE explicit                 | MEDIUM       | 1 FTE-day    | Review e tagging                                                                                                                            |
+| § 1.8 Materialized views refresh schedule             | MEDIUM       | 4-8 FTE-hour | pg_cron setup                                                                                                                               |
+| § 8.5 `enrichment_consent` workers enforcement        | MEDIUM       | 2-4 FTE-hour | Edit enrichment workers skip non-consenting                                                                                                 |
+| § 1.2 `employees` 95 col / 19 idx vertical-split      | LOW (ad-hoc) | TBD          | A > 100k rows                                                                                                                               |
 
 ---
 

@@ -1840,6 +1840,56 @@ Ogni tabella: ALTER ADD COLUMN tenant_id UUID + UPDATE backfill + ALTER NOT NULL
 
 ---
 
+## L56 — 2026-05-09 — S23-tris: tenant_id batch 24 tables + drop broken triggers + $queryRawUnsafe parametrize
+
+**Decisione**: dopo L55, utente richiesto "fai tutto in questa sessione". Onestamente impossibile chiudere ALL audit forensic L53 in single session (~6-10 FTE-day residui). Eseguito MAX realistico: tenant_id batch grande, drop trigger broken, parametrize defense-in-depth, advisory docs. Skip esplicito issue a complessità refactor architetturale.
+
+**Issues addizionali chiuse/avanzate**:
+
+| #             | Sev      | Titolo                                                   | Status                                                         | Deliverable                                                          |
+| ------------- | -------- | -------------------------------------------------------- | -------------------------------------------------------------- | -------------------------------------------------------------------- |
+| 1 (extension) | CRITICAL | tenant_id batch 24 tables EMP/learning/recruiting/talent | 🟡 **24 ADDITIONAL CLOSED** (+pilot 6 = 30 totali, ~9000 rows) | `phase16f` (18 tables) + `phase16g` (6 tables)                       |
+| 3 (partial)   | HIGH     | P4 trigger broken `audit_permission_changes`             | ✅ **CLOSED L56** drop trigger + drop function                 | `db/seeds/phase16h_drop_broken_audit_triggers.sql`                   |
+| § 7.1         | MEDIUM   | $queryRawUnsafe defense-in-depth `withTenant()`          | ✅ **CLOSED L56** parametrized via `set_config()`              | `services/api-gateway/src/db/pool.ts` + `services/app/src/lib/db.ts` |
+| § 1.3         | LOW      | 50 SAP shadow tables senza PK intent doc                 | ✅ **CLOSED L56** doc                                          | `db/README.md` SAP shadow tables section                             |
+| § 4.3         | LOW      | schema_migrations 215 vs 8 .sql cutoff                   | ✅ **CLOSED L56** doc                                          | `db/README.md` Cutoff date section                                   |
+
+**phase16f (18 tables EMP+talent+recruiting)**: 14 EMP via `employee_id → employees.tenant_id` (employee_certifications/skill_assessments/pay_stubs/merit_recommendations/bonus_allocations/salary_band_assignments/kpi_targets/career_paths/occupations/job_assignments/benefit_enrollments/requests + internal_applications + signature_recipients + calibration_discussions); succession_candidates via candidate_employee_id; applications via candidate_id; employee_skill_history via profile_id. Pattern uniformato `DO $$ FOREACH` loop. 18/18 tables tenant_id NOT NULL · 18 RLS policies · ~3920 rows backfilled.
+
+**phase16g (6 tables learning + indirect)**: course_modules via course_id; learning_path_courses via learning_path_id; learning_bookmarks/ratings/recommendations via employee_id; module_completions via module_id (chained post-step1). 6/6 tables NOT NULL · 6 RLS policies · ~5070 rows backfilled. **Skipped (orphan dirty data → S24)**: interviews (8/128 application_id orphan) · interview_feedback (depends on interviews) · feedback_responses (4/4 request_id orphan).
+
+**phase16h (drop broken P4 triggers)**: trigger `trg_audit_role_permissions` + `trg_audit_employee_permission_overrides` chiamavano `audit_permission_changes()` che scrive audit_logs invalidi (tenant_id NULL + action='PERMISSION_UPDATED' + category='RBAC' — entrambi NOT IN CHECK). Drop entrambi + DROP FUNCTION. Sostituiti da helper `auditedTransaction()` che enforce P4 + valori canonical.
+
+**$queryRawUnsafe → set_config() parametrize**: pool.ts e db.ts ora usano `tx.$queryRaw\`SELECT set_config('app.current_tenant_id', ${tenantId}, true)\`` (Prisma binding nativa). Defense-in-depth: zero injection surface anche con UUID malformata.
+
+**Bilancio post-S23-tris audit forensic L53**:
+
+| Status      | Count | Issues                                                                                                                                                                                                    |
+| ----------- | ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ✅ CLOSED   | 9     | #2 GUC fix · #4 users.role FK · #5 widget_catalog · #7 rbac_role · #8 RBP doc · § 7.1 · § 1.3 · § 4.3 · #3 triggers                                                                                       |
+| 🟡 PARTIAL  | 2     | #1 (30 tables done, residue ~6: interviews/interview_feedback/feedback_responses orphan + prediction\_\*/report\_\*) · #3 helper applied 2 brand-studio + triggers dropped (P4 sweep Prisma writes → S24) |
+| ⚖️ MISCOUNT | 1     | #6 P3 coverage 34/34 confirmed L55                                                                                                                                                                        |
+| ❌ NOT DONE | 6     | #9 lint rule · #10 bcrypt · § 2.5 GUC drift workspaces · § 1.5 310 FK ON DELETE · § 1.8 mat views refresh · § 8.5 enrichment consent enforcement                                                          |
+
+**Out-of-scope esplicito S23-tris (~3-6 FTE-day residual S24+)**:
+
+- **CRITICAL #1 residual**: cleanup orphan rows (interviews 8 + feedback_responses 4) + apply tenant_id (1-2h). Plus prediction_actions/factors + report_executions/schedules (no FK chiari, app-context analysis required) (1-2 FTE-day)
+- **HIGH #3 residual**: P4 sweep Prisma writes + mirror helper api-gateway (1-2 FTE-day)
+- **MEDIUM #9 + #10**: lint rule + bcrypt rotation (4-7h combined)
+- **MEDIUM § 2.5**: GUC drift workspaces refactor multi-clausola (1-2 FTE-day)
+- **MEDIUM § 1.5**: 310 FK ON DELETE tagging (1 FTE-day)
+- **MEDIUM § 1.8**: pg_cron schedule materialized views (4-8h)
+- **MEDIUM § 8.5**: enrichment workers consent enforcement (2-4h)
+- **LOW**: employees vertical-split (S26+ a >100k rows)
+
+**Riferimenti**:
+
+- SQL deliverables S23-tris: `phase16f_tenant_id_batch_employee.sql` · `phase16g_tenant_id_batch_learning_recruiting.sql` · `phase16h_drop_broken_audit_triggers.sql`
+- Code: `services/api-gateway/src/db/pool.ts` · `services/app/src/lib/db.ts` · `db/README.md` advisory sections
+- Verifica: 30 tabelle pilot+batch tenant_id NOT NULL · 0 trigger broken · 0 funzione `audit_permission_changes` · login canonical 8/8 PASS · 853 test verdi
+
+---
+
 ## Format per nuove entry
 
 Quando aggiungi una nuova decisione, segui questo template:
