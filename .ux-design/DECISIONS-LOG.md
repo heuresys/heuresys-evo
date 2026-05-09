@@ -1416,6 +1416,82 @@ subElementsJson String?                  // [".tag",".tid",".row .lbl",...]
 
 ---
 
+## L47 — 2026-05-09 — Body-only import dei 10 mockup rimanenti · 11 dashboardCode mappati
+
+**Decisione**: dopo L46 (chrome universal cross-role + body org-systems), estendo l'import del catalog DB ai restanti 10 mockup dashboard (escluso `index.html`), limitato al **body** (chrome già promosso e standardizzato in L46). Ogni mockup è mappato al suo `dashboardCode` role-specific. Il body diventa data-driven role-specific, lo chrome resta stabile cross-role. Catalog DB consolidato come SoT operativa per l'intero dashboard system.
+
+**Contesto**: Enzo ha confermato la strategia: "abbiamo stabilito header, footer e sidebar delle dashboard standard. Ripetiamo il processo di importazione per tutti gli altri mockup". Vincolo: analisi limitata alla finestra di contenuto (body), conflitti da segnalare.
+
+**4 conflitti strategici risolti**:
+
+| #   | Conflitto                                                                                               | Decisione                                                                                                                                                                                           |
+| --- | ------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | `.status-pill` ricorrente (cross-tenant-overview, ecc.)                                                 | **Same as L46 — canonical wins**: scan tutti i mockup, replace `.status-pill .status-{ok,warn,down}` → `.pill .pill-{ok,warn,critical}`                                                             |
+| 2   | `.succession-row` (tenant-owner) vs `.succession-card` (canonical/hr-director)                          | **Entrambi i pattern**: `.succession-row` aggiunto come asset autonomo nel canonical CSS (3-col grid 36/1fr/80). `.succession-card` 4-col card-based resta. Coesistono come use case distinti.      |
+| 3   | `.gauge-wrap`+`.gauge-ring` (single, tenant-owner) vs `.gauge-grid`+`.gauge-card` (multi, cross-tenant) | **Entrambi i pattern**: `.gauge-wrap` + `.gauge-ring` (160px) aggiunti al canonical. Multi-gauge e single-gauge coesistono.                                                                         |
+| 4   | Process dashboards (4 mockup `process_*.html`)                                                          | **Full import**: 4 dashboardCode autonomi (`process_recruiting_funnel_v2`, `process_onboarding_flow_v2`, `process_performance_cycle_v2`, `process_learning_paths_v2`). Tutti i body asset promoted. |
+
+**4 conflitti minori (L46 default rule applicata)**:
+
+| #   | Conflitto                                                                          | Decisione (canonical wins)                  | Effetto                                    |
+| --- | ---------------------------------------------------------------------------------- | ------------------------------------------- | ------------------------------------------ |
+| 5   | `.bar-fill.success/.warn` (tenant-owner) vs `.bar-fill.fill-{ok,warn}` (canonical) | Mockup tenant-owner aggiornato              | Naming `.fill-*` mantenuto                 |
+| 6   | `.kpi-row` (4 process) vs `.kpi-ring` (canonical)                                  | 4 process mockup aggiornati                 | Naming canonical per KPI grid              |
+| 7   | `.kpi-card` compact (skills-heatmap 16/20 padding, 28px font)                      | Accept come **variant `.kpi-card.compact`** | Variant deliberato per layout heatmap      |
+| 8   | `.bridge-card` lieve drift (employee-journey vs learning-paths)                    | Accept entrambi DOM senza modifier          | Differenze interne ma stesso wrapper class |
+
+**11 dashboardCode mappati** (post-L47):
+
+```
+chromeStandard=true → applicabile a TUTTI gli 11 dashboardCode (universal chrome L46)
+
+dashboardCode='org_systems_v2'              → IT_ADMIN          (mockup org-systems.html, L46)
+dashboardCode='cross_tenant_overview_v2'    → SUPERUSER         (cross-tenant-overview.html)
+dashboardCode='tenant_owner_overview_v2'    → TENANT_OWNER      (tenant-owner-overview.html)
+dashboardCode='hr_director_overview_v2'     → HR_DIRECTOR       (hr-director-overview.html)
+dashboardCode='skills_heatmap_v2'           → HR_MANAGER        (skills-heatmap.html)
+dashboardCode='capability_graph_v2'         → DEPT_HEAD         (capability-graph.html)
+dashboardCode='employee_journey_v2'         → LINE_MANAGER + EMPLOYEE (employee-journey.html)
+dashboardCode='process_recruiting_funnel_v2' → (process role TBD)
+dashboardCode='process_onboarding_flow_v2'   → (process role TBD)
+dashboardCode='process_performance_cycle_v2' → (process role TBD)
+dashboardCode='process_learning_paths_v2'    → (process role TBD)
+```
+
+**Asset import counts**:
+
+- **NEW canonical CSS classes**: ~50 (charts, gauge-wrap pattern, table.dept, succession-row, kg-_, profile-hero, arc-_, bridge-grid, process viz, pill capability tones, kpi-card.compact, gauge-card.large)
+- **NEW MOCKUP_DRIVEN_VARIANTS**: 13 (kpi-card.compact, gauge-card.large, 5 pill capability, 3 pbadge, 2 arc-event, 2 milestone)
+- **Mockup HTML modificati**: 10 (drift fixes + scaffolding cleanup)
+
+**Conseguenza**:
+
+- Catalog DB ora ha 11 dashboardCode mappati con i loro body asset wrapper, ognuno promoted=true e con metadata complete (mockupSource, behaviors, colorTokens, subElements)
+- `dashboard-brand.css` esteso (~300 lines) con classi canonical che prima vivevano solo come inline `<style>` nei mockup
+- 6 mockup aggiornati per allineamento canonical (status-pill, theme-toggle, bar-fill alias, kpi-row alias)
+- BODY_BY_DASHBOARD record sostituisce ORG_SYSTEMS_BODY set semplice; `dashboardCodeFor(name)` lookup determina l'assegnazione del body asset al suo dashboardCode di provenienza
+- Webapp showcase ha filtri per ognuno degli 11 dashboardCode (`📐 *_v2 body`)
+- Coerenza brand: ogni dashboard di ruolo, quando renderizzata in produzione, ha visiva fedele al mockup di provenienza, sia chrome (L46) sia body (L47)
+
+**Drift L41 finale**: `.status-pill` rimosso da TUTTI i mockup. Catalog è coerente post-L41. Nessun rollback futuro previsto.
+
+**Out-of-scope L47** (esplicito):
+
+- Production `/dashboard` refactor per consumare `dashboardCode` dal DB (richiede modifiche `dashboard/page.tsx` + `BrandShell.tsx`) — phase successiva
+- Promote degli asset packages/ui non utilizzati nei 10 mockup (es. data-table generico, hero-sections marketing) — restano `available`
+- Mapping role → dashboardCode per i 4 process — phase futura (decision HR_MANAGER vs autonomous role)
+- Render React inline degli asset packages/ui (resta link Storybook)
+
+**Riferimenti**:
+
+- Plan d'esecuzione: `~/.claude/plans/flickering-painting-globe.md` (L47 section)
+- 10 mockup updated: `.ux-design/06-mockups/dashboards/{cross-tenant-overview,tenant-owner-overview,hr-director-overview,skills-heatmap,capability-graph,employee-journey,process-*}.html`
+- Canonical CSS extended: `services/app/src/styles/dashboard-brand.css` § L47 block (~300 lines)
+- Showcase webapp (gitignored): `09-asset-showcase/{bootstrap.js,templates.mjs}` updates
+- L46 (org-systems first import + chromeStandard concept) · L41 (status-pill drift)
+
+---
+
 ## Format per nuove entry
 
 Quando aggiungi una nuova decisione, segui questo template:

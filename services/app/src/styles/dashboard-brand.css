@@ -2316,3 +2316,763 @@ table.rbac td.lvl-5 {
     transition: none !important;
   }
 }
+
+/* ============================================================
+ * L47 (2026-05-09) — Body-only imports da 10 mockup dashboard
+ * Mockup source files in .ux-design/06-mockups/dashboards/*.html
+ * Vedi DECISIONS-LOG L47 per dashboardCode mapping.
+ * ============================================================ */
+
+/* L47 from cross-tenant-overview.html — Charts (SUPERUSER) */
+.chart-wrap {
+  padding: 20px;
+}
+.chart-wrap svg {
+  width: 100%;
+  height: 220px;
+}
+.chart-legend {
+  padding: 12px 20px 18px;
+  display: flex;
+  gap: 18px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-soft);
+  letter-spacing: 0.5px;
+  flex-wrap: wrap;
+}
+.chart-legend .lg {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.chart-legend .lg .swatch {
+  width: 12px;
+  height: 3px;
+  border-radius: 2px;
+}
+
+/* L47 from tenant-owner-overview.html — Single gauge pattern (TENANT_OWNER) */
+.gauge-wrap {
+  padding: 20px;
+  text-align: center;
+}
+.gauge-wrap .gauge-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--ink-muted);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.gauge-wrap .gauge-sub {
+  font-size: 12px;
+  color: var(--ink-soft);
+  margin-top: 8px;
+}
+.gauge-ring {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  margin: 0 auto 12px;
+}
+.gauge-ring svg {
+  width: 100%;
+  height: 100%;
+}
+.gauge-ring .gauge-num {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 32px;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* L47 from tenant-owner-overview.html — Department table */
+table.dept {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+}
+table.dept th {
+  padding: 10px 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  font-weight: 600;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--rule);
+  text-align: right;
+}
+table.dept th:first-child {
+  text-align: left;
+  padding-left: 18px;
+}
+table.dept td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--rule);
+  text-align: right;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--ink);
+  vertical-align: middle;
+}
+table.dept td:first-child {
+  text-align: left;
+  padding-left: 18px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  color: var(--accent);
+}
+table.dept tr:last-child td {
+  border-bottom: 0;
+}
+table.dept .bar-cell {
+  padding: 10px 14px;
+  min-width: 100px;
+}
+
+/* L47 from tenant-owner-overview.html — Succession row pattern (alongside .succession-card) */
+.succession-row {
+  display: grid;
+  grid-template-columns: 36px 1fr 80px;
+  gap: 12px;
+  padding: 10px 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  align-items: center;
+}
+.succession-row .pic {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.succession-row .who .name {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--ink);
+}
+.succession-row .who .meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--ink-muted);
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+}
+.succession-row .rating {
+  text-align: right;
+}
+.succession-row .rating .num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+}
+.succession-row .rating .lbl {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--ink-muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+/* L47 from capability-graph.html — Knowledge graph + ontology (DEPT_HEAD) */
+.kg-split {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+@media (max-width: 1100px) {
+  .kg-split {
+    grid-template-columns: 1fr;
+  }
+}
+.kg-canvas {
+  background: var(--surface-1);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+}
+.kg-canvas-head {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--rule);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.ontology-list {
+  background: var(--surface-1);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.ont-row {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--rule);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.ont-row:last-child {
+  border-bottom: 0;
+}
+.ont-row:hover {
+  background: var(--surface-2);
+  cursor: pointer;
+}
+.ont-row .glyph-box {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.ont-row .info {
+  flex: 1;
+  min-width: 0;
+}
+.ont-row .info .name {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--ink);
+}
+.ont-row .info .desc {
+  font-size: 11px;
+  color: var(--ink-muted);
+  margin-top: 2px;
+}
+.ont-row .stat {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+.ont-row .stat .pct {
+  font-size: 10px;
+  color: var(--ink-muted);
+  display: block;
+  margin-top: 2px;
+  letter-spacing: 0.5px;
+}
+.top-entities {
+  background: var(--surface-1);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  margin-bottom: 24px;
+  overflow: hidden;
+}
+.density-bar {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+}
+.density-bar .bar {
+  width: 60px;
+  height: 6px;
+  background: var(--surface-3);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.density-bar .bar-fill {
+  height: 100%;
+  background: var(--accent);
+}
+.esco-sync {
+  background: var(--surface-1);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 18px 20px;
+}
+.sync-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+.sync-stat {
+  padding: 14px;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--surface-2);
+}
+.sync-stat .lbl {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--ink-muted);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.sync-stat .val {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  color: var(--ink);
+  letter-spacing: -0.5px;
+  line-height: 1;
+}
+.sync-stat .sub {
+  font-size: 11px;
+  color: var(--ink-muted);
+  margin-top: 6px;
+}
+.sync-stat .sub strong {
+  color: var(--semantic-success);
+  font-weight: 600;
+}
+
+/* L47 from capability-graph.html — Pill capability tones (5 variants) */
+.pill-process {
+  background: rgba(59, 130, 246, 0.15);
+  color: var(--cap-process);
+}
+.pill-structure {
+  background: rgba(108, 92, 231, 0.15);
+  color: var(--cap-structure);
+}
+.pill-role {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.pill-competence {
+  background: rgba(95, 184, 122, 0.15);
+  color: var(--cap-competence);
+}
+.pill-performance {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--cap-performance);
+}
+
+/* L47 from employee-journey.html — Profile hero + career arc + bridge cards (LINE_MANAGER+EMPLOYEE) */
+.profile-hero {
+  background: var(--surface-1);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 24px;
+  display: grid;
+  grid-template-columns: 96px 1fr auto;
+  gap: 24px;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+.profile-hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 240px;
+  height: 100%;
+  background: var(--accent);
+  opacity: 0.06;
+  pointer-events: none;
+}
+.profile-hero .pic {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 36px;
+  color: #ffffff;
+  box-shadow: 0 0 40px rgba(168, 85, 247, 0.3);
+}
+.pbadge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  padding: 3px 9px;
+  border-radius: 3px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.pbadge.role {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+}
+.pbadge.dept {
+  background: var(--surface-2);
+  color: var(--ink);
+  border: 1px solid var(--rule-strong);
+}
+.pbadge.tenure {
+  background: rgba(95, 184, 122, 0.15);
+  color: var(--semantic-success);
+  border: 1px solid var(--semantic-success);
+}
+.arc {
+  position: relative;
+  padding: 32px 0 16px;
+}
+.arc-line {
+  position: absolute;
+  top: 60px;
+  left: 4%;
+  right: 4%;
+  height: 2px;
+  background: var(--rule-strong);
+  border-radius: 1px;
+}
+.arc-line::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: -1px;
+  height: 4px;
+  width: 65%;
+  background: var(--accent);
+  border-radius: 2px;
+}
+.arc-grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+  padding: 0 4%;
+}
+.arc-event {
+  text-align: center;
+  position: relative;
+}
+.arc-event .when {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--ink-muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.arc-event .dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--surface-1);
+  border: 3px solid var(--rule-strong);
+  margin: 0 auto 12px;
+  position: relative;
+  z-index: 2;
+}
+.arc-event.done .dot {
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 16px rgba(168, 85, 247, 0.4);
+}
+.arc-event.current .dot {
+  background: var(--surface-1);
+  border: 3px solid var(--accent);
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.5);
+}
+.arc-event.current .dot::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 6px;
+  height: 6px;
+  background: var(--accent);
+  border-radius: 50%;
+}
+.split-panels {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+@media (max-width: 1100px) {
+  .split-panels {
+    grid-template-columns: 1fr;
+  }
+}
+.skill-chart-svg {
+  width: 100%;
+  height: 280px;
+}
+.legend-row {
+  display: flex;
+  gap: 18px;
+  padding: 12px 24px 0;
+  border-top: 1px solid var(--rule);
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+.legend-row .item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-soft);
+  letter-spacing: 0.5px;
+}
+.legend-row .swatch {
+  width: 14px;
+  height: 4px;
+  border-radius: 2px;
+}
+.radar-table {
+  padding: 0 24px 16px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+.radar-table .cell {
+  text-align: center;
+  padding: 8px 4px;
+}
+.radar-table .cell .lbl {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--ink-muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.radar-table .cell .val {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--ink);
+  letter-spacing: -0.3px;
+}
+.bridge-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+.bridge-card {
+  background: var(--surface-2);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 18px;
+  transition: border-color 0.15s;
+  cursor: pointer;
+}
+.bridge-card:hover {
+  border-color: var(--accent);
+}
+.score-bar {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+}
+.score-bar .bar {
+  width: 60px;
+  height: 6px;
+  background: var(--surface-3);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.score-bar .bar-fill {
+  height: 100%;
+  background: var(--accent);
+}
+
+/* L47 from process-recruiting-funnel.html — Funnel viz */
+.funnel {
+  padding: 24px;
+}
+.funnel-stage {
+  display: grid;
+  grid-template-columns: 180px 1fr 100px 120px;
+  gap: 14px;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.funnel-stage:last-child {
+  border-bottom: 0;
+}
+.funnel-stage .bar-bg {
+  height: 18px;
+  background: var(--surface-2);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.funnel-stage .bar-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+.funnel-stage .count {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--accent);
+  text-align: right;
+}
+.bottleneck {
+  background: rgba(245, 158, 11, 0.08);
+  border-left: 3px solid var(--semantic-warning);
+  padding: 14px 18px;
+  margin-top: 12px;
+}
+.bottleneck strong {
+  color: var(--semantic-warning);
+  font-weight: 600;
+}
+.bottleneck p {
+  font-size: 12px;
+  color: var(--ink-soft);
+  margin-top: 4px;
+}
+
+/* L47 from process-onboarding-flow.html — Kanban + milestones */
+.kanban {
+  padding: 18px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.kanban-col {
+  background: var(--surface-2);
+  border-radius: 6px;
+  padding: 12px;
+  min-height: 180px;
+}
+.kanban-card {
+  background: var(--surface-1);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+.milestone-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 18px;
+}
+.milestone {
+  padding: 14px;
+  background: var(--surface-2);
+  border-radius: 6px;
+  border-left: 3px solid var(--brand-blue);
+}
+.milestone.done {
+  border-left-color: var(--semantic-success);
+}
+.milestone.due {
+  border-left-color: var(--semantic-warning);
+}
+
+/* L47 from process-performance-cycle.html — OKR rows + reviews */
+.okr-row {
+  display: grid;
+  grid-template-columns: 200px 1fr 80px;
+  gap: 14px;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--rule);
+  align-items: center;
+  font-size: 12px;
+}
+.okr-row:last-child {
+  border-bottom: 0;
+}
+.okr-row .bar-bg {
+  height: 14px;
+  background: var(--surface-2);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.okr-row .bar-fill {
+  height: 100%;
+  background: var(--accent);
+}
+.review-grid {
+  padding: 18px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+.review-card {
+  padding: 14px;
+  background: var(--surface-2);
+  border-radius: 6px;
+}
+.review-stat {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  font-size: 11px;
+}
+
+/* L47 from process-learning-paths.html — Path rows + bridge container */
+.path-row {
+  display: grid;
+  grid-template-columns: 200px 1fr 100px 100px;
+  gap: 12px;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--rule);
+  align-items: center;
+  font-size: 12px;
+}
+.path-row:last-child {
+  border-bottom: 0;
+}
+.path-row .bar-bg {
+  height: 14px;
+  background: var(--surface-2);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.path-row .bar-fill {
+  height: 100%;
+  background: var(--accent);
+}
+.bridge {
+  padding: 18px;
+}
+
+/* L47 — KPI compact variant (skills-heatmap focus) */
+.kpi-card.compact {
+  padding: 16px 20px;
+}
+.kpi-card.compact .kpi-num {
+  font-size: 28px;
+}
+
+/* L47 — Gauge card large variant (cross-tenant single-context use) */
+.gauge-card.large {
+  padding: 18px;
+}
+.gauge-card.large .gauge-ring {
+  width: 160px;
+  height: 160px;
+}
