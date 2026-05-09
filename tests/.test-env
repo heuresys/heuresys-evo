@@ -1,8 +1,27 @@
-Source of Truth — canonical demo users restricted to test matrix (post-L50 alignment 2026-05-09).
-Total: 8 active (1 SUPERUSER + 7 RTL Bank roles). Password unica: Heuresys2026!.
-Username convention (post-L50): SUPERUSER = sysadmin (platform, no tenant); altri = work email canonical
-  ([nome].[cognome]@[tenant.domain]). Tenants.domain è SoT esplicita.
-Sync DB: node scripts/db/apply-canonical-users.mjs (idempotent).
+==============================================================================
+SoT (Source of Truth) — Test environment user matrix · post-L51 (2026-05-09)
+==============================================================================
+
+REGOLA OPERATIVA (S22 close, formalizzata L51):
+
+Questo file `tests/.test-env` è la SoT autoritativa per gli utenti del test
+environment. La regola di ordine cronologico è:
+
+  (1) PRIMA si edita questo file (aggiungi/rimuovi righe della matrix).
+  (2) POI si aggiorna `scripts/db/apply-canonical-users.mjs` (CANONICAL_RTL +
+      registry INSERT) e/o `db/scripts/sql/apply_canonical_users.sql`.
+  (3) POI si applica al DB SoT con `node scripts/db/apply-canonical-users.mjs`.
+  (4) POI si aggiornano le costanti hardcoded in
+      `services/app/tests/e2e/helpers/auth.ts` (CANONICAL_USERS · RTL_MATRIX_USERS).
+
+Mai aggiungere un utente al DB senza prima averlo registrato qui.
+Mai hardcodare credenziali test in altri file senza averle prima qui.
+
+Total attuale: 8 active (1 SUPERUSER + 7 RTL Bank roles).
+Password unica: Heuresys2026!.
+Username convention: SUPERUSER = sysadmin (platform, no tenant); altri = work
+  email canonical ([nome].[cognome]@[tenant.domain]).
+Tenant domain SoT: tenants.domain (NOT NULL UNIQUE post-L50).
 
 Ruolo		Username				Password	Tenant
 SUPERUSER	sysadmin				Heuresys2026!	Heuresys
