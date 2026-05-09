@@ -1342,6 +1342,80 @@ Errore intermedio evitato: tentazione di allargare scope a redirect `dashboard/p
 
 ---
 
+## L46 — 2026-05-09 — Catalog DB diventa SoT operativa · org-systems.html primo import promoted · governance shift
+
+**Decisione**: il catalog DB della webapp `09-asset-showcase` diventa la **Source of Truth operativa stable** del brand identity dashboard system. Il `brand-dashboard-catalog.md` resta documentazione narrativa ma non è più la fonte autoritativa: lo è il DB.
+
+L'import del mockup `06-mockups/dashboards/org-systems.html` come primo SoT promosso introduce 4 conflict resolutions e il concetto di **universal chrome cross-role** (`chromeStandard=true` su asset header/footer/sidebar) che diventa lo shell stabile per TUTTE le dashboard di ruolo.
+
+**Contesto**: durante S20 il browser test G6 ha mostrato che il rendering DashboardRenderer per IT_ADMIN su `/dashboard` non corrispondeva fedelmente al mockup `org-systems.html` (variants, behaviors, colors, transitions, animations non erano catturati nel catalog). Enzo ha richiesto un governance shift: il catalog DB deve essere stable e gestibile via UI, così non si interviene continuamente sul "modello definitivo di dashboard dinamica".
+
+**4 conflitti risolti** (cross-reference mockup ↔ canonical CSS ↔ DB):
+
+| #   | Conflitto                                                                                                       | Decisione                                                                                                           | Effetto                                                                                                                          |
+| --- | --------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | `.status-pill` + `.status-{ok,warn,down}` (mockup) vs `.pill` + `.pill-{ok,warn,critical}` post-L41 (canonical) | **Canonical wins** — mockup aggiornato a `.pill.pill-*`, regole `.status-*` rimosse dal mockup `<style>` inline     | Rispetto L41 mantenuto, integrazione status badges ora consistent                                                                |
+| 2   | `.theme-toggle` (mockup) vs `.theme-toggle-btn` (canonical)                                                     | **Canonical wins** — mockup rinominato in `.theme-toggle-btn`                                                       | Naming canonical `-btn` suffix mantenuto per distinguere da `[data-theme]` attribute                                             |
+| 3   | `.wordmark-original` (mockup) vs `.wordmark-sm.legacy` (canonical post-L28)                                     | **Mockup wins** — `.wordmark-original` aggiunto come asset autonomo a `dashboard-brand.css` (post `.wordmark-foot`) | Deviation deliberata dal modifier-pattern L28: il logo "originale" diventa asset standalone per surface tematizzate cross-tenant |
+| 4   | `.header-back` + `.label-ph9` (solo mockup)                                                                     | **Scaffolding mockup-only** — non promossi, non aggiunti al catalog                                                 | Helper d'anteprima del mockup, esclusi dall'import                                                                               |
+
+**Concetto introdotto — Universal chrome cross-role**:
+
+Aggiunto al modello `Asset` del catalog DB (Prisma schema in `09-asset-showcase/prisma/schema.prisma`) il flag `chromeStandard: Boolean`. Asset con `chromeStandard=true` sono **lo shell standardizzato per TUTTE le dashboard di ruolo** (cross-role). Il body resta data-driven role-specific.
+
+18 asset chrome universali promossi:
+
+```
+.nav-bar · .wordmark · .wordmark-sm · .wordmark-foot · .wordmark-original ·
+.theme-toggle-btn · .sidebar · .sidebar-top · .sidebar-toggle · .tenant-mini ·
+.sidebar-section · .sidebar-link · .user-card · .app-footer · .workspace ·
+.ws-header · .scope-pill · .label-pill
+```
+
+18 asset body org-systems_v2 promossi (con `dashboardCode='org_systems_v2'`):
+
+```
+.kpi-ring · .kpi-card · .section-head · .tenant-grid · .tenant-card · .tag ·
+.double-split · .panel · .panel-head · .matrix-wrap · .int-row · .metrics-grid ·
+.metric-card · .audit-list · .audit-row · .ws-footer · .tenant-pill · .bar-track
+```
+
+**Schema esteso** (Prisma `Asset` model · `09-asset-showcase/prisma/schema.prisma`):
+
+```prisma
+chromeStandard  Boolean @default(false)  // chrome universal cross-role
+dashboardCode   String?                  // body asset → "org_systems_v2"
+mockupSource    String?                  // audit trail "06-mockups/dashboards/org-systems.html"
+behaviorsJson   String?                  // hover/active/animations/transitions JSON
+colorTokensJson String?                  // ["--accent","--surface-1",...]
+subElementsJson String?                  // [".tag",".tid",".row .lbl",...]
+```
+
+**Conseguenza**:
+
+- Catalog DB autoritativo: ~36 asset promoted (18 chrome + 18 body org-systems) + ~7 mockup-driven variants nel `Variant` table (`.tenant-card.platform`, `.sidebar-link.active`, `.sidebar-section.collapsed`, `.wordmark-sm.legacy`, `.tenant-mini .t-avatar.bordered`, `.user-card .avatar.bordered-inverse`, `.tenant-card .health .dot.warn`)
+- Frontend webapp: nuovi tab Sub-elements / Behavior / Color tokens nel detail view + filter pill `🛡 Chrome` e `📐 IT_ADMIN body` nella topbar
+- Mockup `org-systems.html` allineato a canonical naming post-L41 (zero `.status-pill` residui)
+- Canonical `dashboard-brand.css` esteso con `.wordmark-original` standalone (~12 lines added)
+- Re-bootstrap idempotente: re-run preserva flag manuali utente, ma riapplica deterministicamente `chromeStandard` e `dashboardCode` dai set CHROME_UNIVERSAL_NAMES + ORG_SYSTEMS_BODY in `bootstrap.js`
+- Ogni wrapper asset ora ha 3 metadata blocchi JSON inline: behaviors (hover/active/animations/transitions), colorTokens (CSS variables usati), subElements (nested selectors documentati)
+
+**Out-of-scope da L46** (esplicito):
+
+- Import degli altri 6 mockup dashboard (cross-tenant-overview, tenant-owner, hr-director, skills-heatmap, capability-graph, employee-journey) — phases successive, stesso pattern
+- Production `/dashboard` refactor per consumare il flag `chromeStandard` dal DB (richiede modifiche a `BrandShell.tsx` per dynamic chrome rendering)
+- Promote degli asset packages/ui non utilizzati nel mockup org-systems (es. data-table, hero-sections, etc.) — restano `available`
+
+**Riferimenti**:
+
+- Plan d'esecuzione: `~/.claude/plans/flickering-painting-globe.md`
+- Mockup updated: `.ux-design/06-mockups/dashboards/org-systems.html`
+- Canonical CSS extended: `services/app/src/styles/dashboard-brand.css` § wordmark-original
+- Showcase webapp (gitignored): `.ux-design/09-asset-showcase/{prisma/schema.prisma,bootstrap.js,templates.mjs,public/}`
+- L41 (drift D1 status-pill → pill canonical) · L28 (logo wordmark color rules)
+
+---
+
 ## Format per nuove entry
 
 Quando aggiungi una nuova decisione, segui questo template:

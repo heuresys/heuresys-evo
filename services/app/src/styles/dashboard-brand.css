@@ -116,6 +116,22 @@
   color: var(--accent);
 }
 
+/* L46 (2026-05-09) — wordmark-original: variant brand-blue body + accent y
+ * Importato da org-systems.html mockup. Deviation deliberata dal modifier-pattern
+ * .legacy (post-L28) per compatibilità con surface tematizzate cross-tenant
+ * dove serve il logo "originale" come asset autonomo (non modifier). */
+.wordmark-original {
+  font-family: 'Exo 2', sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: -0.5px;
+  color: var(--brand-blue);
+  text-transform: lowercase;
+}
+.wordmark-original .y {
+  color: var(--accent);
+}
+
 .theme-toggle-btn {
   background: transparent;
   border: 1px solid var(--ink);

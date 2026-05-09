@@ -69,8 +69,8 @@
   .header-back { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink); text-decoration: none; }
   .label { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink); font-weight: 600; }
   .label-ph9 { background: var(--accent); color: #ffffff; padding: 2px 10px; border-radius: 3px; }
-  .theme-toggle { background: transparent; border: 1px solid var(--ink); color: var(--ink); padding: 6px 12px; font-family: 'JetBrains Mono', monospace; font-size: 11px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; border-radius: 4px; }
-  .theme-toggle:hover { background: var(--ink); color: var(--bg); }
+  .theme-toggle-btn { background: transparent; border: 1px solid var(--ink); color: var(--ink); padding: 6px 12px; font-family: 'JetBrains Mono', monospace; font-size: 11px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; border-radius: 4px; }
+  .theme-toggle-btn:hover { background: var(--ink); color: var(--bg); }
 
   .wordmark { font-family: 'Exo 2', sans-serif; font-weight: 700; font-size: 22px; letter-spacing: -0.5px; color: var(--ink); line-height: 1; filter: drop-shadow(var(--glow)); }
   .wordmark .y { color: var(--accent); }
@@ -169,10 +169,7 @@
   .int-row .info { flex: 1; min-width: 0; }
   .int-row .info .name { font-family: 'Inter'; font-weight: 600; font-size: 13px; color: var(--ink); }
   .int-row .info .meta { font-size: 11px; color: var(--ink-muted); margin-top: 2px; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.5px; }
-  .status-pill { font-family: 'JetBrains Mono', monospace; font-size: 9px; padding: 3px 8px; border-radius: 3px; letter-spacing: 0.8px; text-transform: uppercase; font-weight: 600; }
-  .status-ok { background: rgba(95,184,122,0.15); color: var(--semantic-success); border: 1px solid var(--semantic-success); }
-  .status-warn { background: rgba(245,158,11,0.15); color: var(--semantic-warning); border: 1px solid var(--semantic-warning); }
-  .status-down { background: rgba(255,107,107,0.15); color: var(--semantic-danger); border: 1px solid var(--semantic-danger); }
+  /* L46 (post-L41) — .status-pill rimosso, sostituito da .pill canonical (vedi DECISIONS-LOG) */
 
   /* Audit log */
   .audit-list { max-height: 380px; overflow-y: auto; }
@@ -345,7 +342,7 @@
     <div class="wordmark-sm legacy">heures<span class="y">y</span>s</div>
   </div>
   <span class="label">PHASE 9 · DASHBOARD MOCKUP · <span class="label-ph9">ORG &amp; SYSTEMS</span></span>
-  <button class="theme-toggle" onclick="toggleTheme()">◐ Light/Dark</button>
+  <button class="theme-toggle-btn" onclick="toggleTheme()">◐ Light/Dark</button>
 </nav>
 
 <div class="app">
@@ -593,7 +590,7 @@
             <div class="name">ESCO ontology feed</div>
             <div class="meta">v1.2.0 · sync 2h ago · 312 skill</div>
           </div>
-          <span class="status-pill status-ok">OK</span>
+          <span class="pill pill-ok">OK</span>
         </div>
         <div class="int-row">
           <div class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="var(--brand-blue)" stroke-width="1.5"><circle cx="8" cy="5" r="2.5"/><path d="M 3,14 Q 8,9 13,14"/></svg></div>
@@ -601,7 +598,7 @@
             <div class="name">Azure AD · SSO</div>
             <div class="meta">SAML 2.0 · 1.524 users provisioned</div>
           </div>
-          <span class="status-pill status-ok">OK</span>
+          <span class="pill pill-ok">OK</span>
         </div>
         <div class="int-row">
           <div class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="var(--brand-blue)" stroke-width="1.5"><rect x="2" y="3" width="12" height="10"/><line x1="2" y1="6" x2="14" y2="6"/></svg></div>
@@ -609,7 +606,7 @@
             <div class="name">Workday · payroll sync</div>
             <div class="meta">REST · 3× daily · last 06:42</div>
           </div>
-          <span class="status-pill status-ok">OK</span>
+          <span class="pill pill-ok">OK</span>
         </div>
         <div class="int-row">
           <div class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="var(--semantic-warning)" stroke-width="1.5"><path d="M 8,2 L 14,13 L 2,13 Z"/><line x1="8" y1="6" x2="8" y2="10"/><circle cx="8" cy="11.5" r="0.5" fill="var(--semantic-warning)"/></svg></div>
@@ -617,7 +614,7 @@
             <div class="name">SmartFood · ATECO sync</div>
             <div class="meta">14h lag · last attempt 02:14</div>
           </div>
-          <span class="status-pill status-warn">WARN</span>
+          <span class="pill pill-warn">WARN</span>
         </div>
         <div class="int-row">
           <div class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="var(--semantic-success)" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><line x1="8" y1="2" x2="8" y2="14"/><line x1="2" y1="8" x2="14" y2="8"/></svg></div>
@@ -625,7 +622,7 @@
             <div class="name">SAP HCM · org sync</div>
             <div class="meta">Hourly · last 14:32</div>
           </div>
-          <span class="status-pill status-ok">OK</span>
+          <span class="pill pill-ok">OK</span>
         </div>
         <div class="int-row">
           <div class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="var(--accent)" stroke-width="1.5"><path d="M 4,12 L 4,4 L 12,4 L 12,8" stroke-linecap="round"/><circle cx="12" cy="12" r="2"/></svg></div>
@@ -633,7 +630,7 @@
             <div class="name">Slack · notifications</div>
             <div class="meta">webhook · 142 events today</div>
           </div>
-          <span class="status-pill status-ok">OK</span>
+          <span class="pill pill-ok">OK</span>
         </div>
         <div class="int-row">
           <div class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="var(--ink-soft)" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M 5,8 L 11,8" stroke-linecap="round"/></svg></div>
@@ -641,7 +638,7 @@
             <div class="name">SCIM 2.0 · provisioning</div>
             <div class="meta">enabled per tenant · last reconcile 22:00</div>
           </div>
-          <span class="status-pill status-ok">OK</span>
+          <span class="pill pill-ok">OK</span>
         </div>
       </div>
     </div>
