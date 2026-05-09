@@ -1624,6 +1624,41 @@ Sequencing scelto: 3 → 1 → 2 (mockup canonical = SoT pulita prima delle modi
 
 ---
 
+## L52 — 2026-05-09 — `users.tenant_id` resta derivata (no denormalizzazione)
+
+**Decisione**: la tabella `users` NON aggiunge una colonna `tenant_id`. Il legame user → tenant resta derivato via `users.employee_id → employees.tenant_id`. I platform user (`employee_id IS NULL`, es. `sysadmin` SUPERUSER) usano il fallback `DEFAULT_SUPERUSER_TENANT_ID` env var risolto in `services/app/src/lib/authorize.ts`.
+
+**Contesto**: emersa durante il check di consistency L50 (S22). Verifica utente: "users non ha un campo che riferisce del tenant di apparteneza?". Confermato schema: 16 colonne canoniche su `users`, nessuna `tenant_id`. Discusse 2 opzioni (derivata vs denormalizzata).
+
+**Razionale (3 motivi)**:
+
+1. **Zero drift** — Single Source of Truth. Aggiungere `users.tenant_id` introduce un'invariante (`users.tenant_id == employees.tenant_id` per ogni user con employee_id non-null) che il DB non enforcia. Servirebbe trigger `AFTER UPDATE ON employees` o disciplina app-level. Più componenti = più cose da sbagliare.
+2. **Status quo funziona** — il resolver in `authorize.ts:87-97` già fa il lookup; le 605 RLS policies attive scopano via `current_setting('app.current_tenant_id')` settato per sessione; 391 test verdi; P1-P10 enforced. Nessun problema misurato.
+3. **Semantica coerente** — `users` è "credenziale di accesso", `employees` è "persona nell'organizzazione". Il tenant è proprietà della persona, non della credenziale. La decomposizione attuale è semanticamente corretta.
+
+**Conseguenza**:
+
+- Schema `users` invariato. Migration zero. Codice client non cambia.
+- RLS policies su `users` table che scopino per tenant continuano a richiedere join via `employees` (es. `EXISTS (SELECT 1 FROM employees WHERE id = users.employee_id AND tenant_id = current_setting('app.current_tenant_id'))`).
+- Login resolver continua a fare 1 query users + 1 lookup employees (PK lookup, ~ms — non un bottleneck misurato).
+
+**Trigger di rivisitazione** (decisione da riaprire SE emerge):
+
+- Requisito multi-tenant su singolo user (cross-tenant identity). NB: in tal caso non basta `users.tenant_id`, servirebbe tabella N:M `user_tenant_assignments` — ridesign più radicale.
+- Bottleneck RLS misurato su `users` (es. `/admin/users` page con `EXPLAIN ANALYZE` che mostra il join a employees come hot-spot reale e non risolvibile via index).
+- Requisito audit/analytics cross-tenant che richieda `users` snapshot indipendente da `employees` lifecycle.
+
+In tutti questi casi: aggiungere quando serve, non in anticipo. Officina, non università.
+
+**Riferimenti**:
+
+- Schema verificato 2026-05-09 (16 colonne `users`, no `tenant_id`).
+- Resolver: `services/app/src/lib/authorize.ts` linee 87-97.
+- Env fallback: `DEFAULT_SUPERUSER_TENANT_ID` in `services/app/.env`.
+- Sessione S22 / L50 / L51 (catalog consistency alignment + .test-env SoT formalization).
+
+---
+
 ## Format per nuove entry
 
 Quando aggiungi una nuova decisione, segui questo template:
