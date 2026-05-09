@@ -4,9 +4,18 @@ import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { cookies } from 'next/headers';
 import { auth } from '@/lib/auth';
+import {
+  isValidPaletteId,
+  isValidTheme,
+  type ActivePaletteState,
+  type PaletteId,
+  type ThemeMode,
+} from '@/lib/theme-framework/palettes';
+import { writeActivePalette } from '@/lib/theme-framework/active-palette-store';
 
 const ACTIVE_THEME_PATH = join(process.cwd(), 'src', 'styles', 'active-theme.css');
 const PREVIEW_COOKIE = 'heuresys-theme-preview';
+const PALETTE_PREVIEW_COOKIE = 'heuresys-palette-preview';
 const MAX_CSS_BYTES = 8 * 1024;
 const ALLOWED_ROLES = new Set(['SUPERUSER']);
 
@@ -56,5 +65,54 @@ export async function clearPreviewTheme(): Promise<{ ok: true }> {
   await assertSuperuser();
   const store = await cookies();
   store.delete(PREVIEW_COOKIE);
+  return { ok: true };
+}
+
+// ============================================================================
+// Phase 15.H · L49 — Palette preset actions
+// ============================================================================
+
+function assertValidPaletteState(palette: unknown, theme: unknown): ActivePaletteState {
+  if (!isValidPaletteId(palette)) {
+    throw new Error(`Invalid palette id: ${String(palette)}`);
+  }
+  if (!isValidTheme(theme)) {
+    throw new Error(`Invalid theme mode: ${String(theme)}`);
+  }
+  return { palette, theme };
+}
+
+/** Persist palette+theme choice to active-palette.json (committed to repo). */
+export async function applyPaletteToProject(
+  palette: PaletteId,
+  theme: ThemeMode
+): Promise<{ ok: true; palette: PaletteId; theme: ThemeMode }> {
+  await assertSuperuser();
+  const state = assertValidPaletteState(palette, theme);
+  await writeActivePalette(state);
+  return { ok: true, ...state };
+}
+
+/** Stage palette+theme as a session-cookie preview (does not write file). */
+export async function setPreviewPalette(
+  palette: PaletteId,
+  theme: ThemeMode
+): Promise<{ ok: true }> {
+  await assertSuperuser();
+  const state = assertValidPaletteState(palette, theme);
+  const store = await cookies();
+  store.set(PALETTE_PREVIEW_COOKIE, JSON.stringify(state), {
+    httpOnly: false,
+    sameSite: 'lax',
+    path: '/',
+    maxAge: 60 * 60 * 24,
+  });
+  return { ok: true };
+}
+
+export async function clearPreviewPalette(): Promise<{ ok: true }> {
+  await assertSuperuser();
+  const store = await cookies();
+  store.delete(PALETTE_PREVIEW_COOKIE);
   return { ok: true };
 }

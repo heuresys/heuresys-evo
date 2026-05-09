@@ -7,9 +7,13 @@ import {
   exportTokensCss,
   type ThemeBuilderState,
 } from '@heuresys/ui';
+import type { ActivePaletteState } from '@/lib/theme-framework/palettes';
 import { applyThemeToProject, setPreviewTheme, clearPreviewTheme } from './actions';
+import { PalettePresetsTab } from './PalettePresetsTab';
 
 const DRAFT_KEY = 'heuresys.theme-studio.draft';
+
+type StudioTab = 'palette' | 'editor';
 
 type Status =
   | { kind: 'idle' }
@@ -17,7 +21,75 @@ type Status =
   | { kind: 'ok'; label: string }
   | { kind: 'err'; label: string };
 
-export function BrandStudioClient() {
+interface BrandStudioClientProps {
+  initialPalette: ActivePaletteState;
+}
+
+export function BrandStudioClient({ initialPalette }: BrandStudioClientProps) {
+  const [tab, setTab] = React.useState<StudioTab>('palette');
+
+  return (
+    <div className="flex flex-col gap-4 p-6">
+      <header>
+        <h1 className="text-2xl font-semibold">Brand Studio</h1>
+        <p className="text-sm text-muted-foreground">
+          Brand-identity dev tool — palette presets (project-wide) + token editor (custom theme).
+        </p>
+      </header>
+
+      <nav
+        role="tablist"
+        aria-label="Brand Studio sections"
+        className="flex gap-1 border-b border-neutral-200"
+      >
+        <TabButton
+          label="Palette Presets"
+          active={tab === 'palette'}
+          onSelect={() => setTab('palette')}
+        />
+        <TabButton
+          label="Token Editor"
+          active={tab === 'editor'}
+          onSelect={() => setTab('editor')}
+        />
+      </nav>
+
+      <section role="tabpanel" hidden={tab !== 'palette'}>
+        {tab === 'palette' ? <PalettePresetsTab initial={initialPalette} /> : null}
+      </section>
+
+      <section role="tabpanel" hidden={tab !== 'editor'}>
+        {tab === 'editor' ? <TokenEditorTab /> : null}
+      </section>
+    </div>
+  );
+}
+
+interface TabButtonProps {
+  label: string;
+  active: boolean;
+  onSelect: () => void;
+}
+
+function TabButton({ label, active, onSelect }: TabButtonProps) {
+  return (
+    <button
+      type="button"
+      role="tab"
+      aria-selected={active}
+      onClick={onSelect}
+      className={
+        active
+          ? 'border-b-2 border-neutral-900 bg-white px-4 py-2 text-sm font-semibold text-neutral-900'
+          : 'border-b-2 border-transparent bg-transparent px-4 py-2 text-sm font-medium text-neutral-500 hover:text-neutral-900'
+      }
+    >
+      {label}
+    </button>
+  );
+}
+
+function TokenEditorTab() {
   const [initialState, setInitialState] = React.useState<ThemeBuilderState | null>(null);
   const [currentState, setCurrentState] = React.useState<ThemeBuilderState>(DEFAULT_THEME_STATE);
   const [status, setStatus] = React.useState<Status>({ kind: 'idle' });
@@ -84,7 +156,7 @@ export function BrandStudioClient() {
   }
 
   if (initialState === null) {
-    return <div className="p-6 text-sm text-muted-foreground">Loading draft…</div>;
+    return <div className="p-2 text-sm text-muted-foreground">Loading draft…</div>;
   }
 
   const statusColor =
@@ -97,13 +169,13 @@ export function BrandStudioClient() {
           : 'text-muted-foreground bg-neutral-50 border-neutral-200';
 
   return (
-    <div className="flex flex-col gap-4 p-6">
+    <div className="flex flex-col gap-4">
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold">Brand Studio</h1>
+          <h2 className="text-lg font-semibold">Token Editor</h2>
           <p className="text-sm text-muted-foreground">
-            Dev tool — draft autosaved to localStorage. Use Preview to test on the site, or Apply to
-            write tokens into the project.
+            Hand-tune individual CSS tokens — draft autosaved to localStorage. Preview on site or
+            Apply to write tokens into the project (active-theme.css).
           </p>
         </div>
         <div className="flex flex-wrap gap-2">

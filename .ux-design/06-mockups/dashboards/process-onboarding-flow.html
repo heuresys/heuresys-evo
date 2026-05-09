@@ -16,7 +16,7 @@
 :root {
   --bg: #0a0d18; --paper: #14182a; --surface-1: #14182a; --surface-2: #1c2138;
   --ink: #f4f5f7; --ink-soft: #c8cad2; --ink-muted: #8b8e99; --rule: #232838;
-  --brand-blue: #3b82f6; --accent: #a855f7; --semantic-success: #5fb87a;
+  --primary: #3b82f6; --accent: #a855f7; --semantic-success: #5fb87a;
   --semantic-warning: #f59e0b; --semantic-danger: #ff6b6b;
   --gradient: linear-gradient(135deg, #3b82f6 0%, #a855f7 100%);
 }
@@ -24,7 +24,7 @@
 body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--ink); display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
 .sidebar { background: var(--surface-1); border-right: 1px solid var(--rule); padding: 16px; overflow-y: auto; }
 .brand { padding: 8px 0 24px 0; border-bottom: 1px solid var(--rule); margin-bottom: 16px; }
-.wordmark-original { font-family: 'Exo 2', sans-serif; font-weight: 700; font-size: 22px; color: var(--brand-blue); letter-spacing: -0.02em; }
+.wordmark-original { font-family: 'Exo 2', sans-serif; font-weight: 700; font-size: 22px; color: var(--primary); letter-spacing: -0.02em; }
 .wordmark-original .y { color: var(--accent); }
 .brand .label { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--ink-muted); letter-spacing: 1.5px; text-transform: uppercase; margin-top: 2px; }
 .tenant-mini { background: var(--surface-2); border-radius: 6px; padding: 10px 12px; margin: 12px 0; }
@@ -64,7 +64,7 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--ink
 .kanban-card .progress-fill { height: 100%; background: var(--gradient); }
 
 .milestone-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 18px; }
-.milestone { padding: 14px; background: var(--surface-2); border-radius: 6px; border-left: 3px solid var(--brand-blue); }
+.milestone { padding: 14px; background: var(--surface-2); border-radius: 6px; border-left: 3px solid var(--primary); }
 .milestone h4 { font-size: 12px; font-weight: 600; margin-bottom: 4px; }
 .milestone .day { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--accent); letter-spacing: 1px; text-transform: uppercase; }
 .milestone p { font-size: 11px; color: var(--ink-muted); margin-top: 6px; }

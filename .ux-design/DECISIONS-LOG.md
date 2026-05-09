@@ -1576,6 +1576,54 @@ Aggiornata auto-memory `feedback_logo_originale_l27.md` con paragrafo razionale 
 
 ---
 
+## L49 — 2026-05-09 — Process autonomous role · theme-framework promoto in `/brand-studio` · canonical sweep mockup
+
+**Decisione**: 3 follow-up shipped come single commit S22.1, risolvendo le 3 open question lasciate aperte da L48.
+
+1. **Process dashboards = autonomous role** (override): i 4 `process_*` (Phase 15.A) sono assegnati come dashboard secondary a `HR_DIRECTOR` + `HR_MANAGER` via `role_default_dashboards` con `priority=10..40`. Il primary `@ priority=0` resta invariato (`hr_director_overview_v2` / `skills_heatmap_v2`). Schema cambiato: unique index ora su `(role, preset_code)` per consentire N preset per ruolo. Resolver helper nuovo `resolveAllPresetsForRole()` ritorna lista ordinata. SIDEBAR_MAP estesa con `processSection` (4 nav links) per HR_DIRECTOR + HR_MANAGER. Future-extension: associare a nuovi ruoli (RECRUITER, ONBOARDING_SPECIALIST, …) richiede solo INSERT in seed, no schema change.
+
+2. **Theme-framework portato in `/brand-studio`** come **tab affiancata** vs Token Editor:
+   - 3 file framework copiati: `services/app/src/styles/theme-framework/palette-framework.css` (1646 lines, 17×2 selectors `[data-palette][data-theme]`), `services/app/src/lib/theme-framework/{palettes.ts,active-palette-store.ts}`, `active-palette.json` default `{palette:"mu-architect",theme:"dark"}`
+   - Root layout `services/app/src/app/layout.tsx` ora async: legge `active-palette.json` + cookie preview `heuresys-palette-preview` → applica `data-palette` + `data-theme` su `<html>` SSR
+   - `BrandStudioClient` refactored con tab navigation: `Palette Presets` (nuovo, grid 17×2 mini-cards 4 family) + `Token Editor` (esistente)
+   - Server actions nuove: `applyPaletteToProject(palette, theme)` scrive `active-palette.json`; `setPreviewPalette/clearPreviewPalette` cookie session-scoped
+   - SUPERUSER-only (RBAC invariato)
+   - Cascade: `palette-framework.css` importato DOPO `active-theme.css` → `[data-palette]` selector (specificità 0,1,0,0) override `:root` (0,0,1,0). Senza `data-palette` settato, active-theme.css fornisce fallback μ-architect-legacy
+   - active-theme.css esteso con `--primary: var(--brand-blue)` + `--primary-deep: var(--brand-blue-deep)` come alias retrocompatibile
+
+3. **Canonical sweep mockup**: rename completo `--brand-blue` → `--primary` (definizioni `:root` + usi `var()`) su 17 file `.ux-design/06-mockups/` (12 dashboard + 5 auth, 98→0 occorrenze legacy, 143 finali post-rename inclusi `--primary-deep`). Sweep production CSS deferred (alias attivo via active-theme.css → tutto il codice production che usa `var(--brand-blue)` continua a funzionare invariato).
+
+**Contesto**: post-L48 erano rimaste 3 open question esplicite; Enzo ha risposto:
+
+- Q1 process role → "override: vanno aggiunti ai 2 ruoli HR ma in futuro potranno essere associati anche ad altri (eventualmente creati nel corso dello sviluppo)"
+- Q2 theme adoption → "Tab affiancata: Palette Presets vs Token Editor"
+- Q3 mockup migration → "canonical"
+
+Sequencing scelto: 3 → 1 → 2 (mockup canonical = SoT pulita prima delle modifiche DB e UI).
+
+**Conseguenza**:
+
+- HR*DIRECTOR + HR_MANAGER vedono 4 nuovi link nav `Process` in sidebar (URL diretti `/dashboard/process*\*`). Pagine già implementate da Phase 15.A/SH (no nuovo lavoro UI per queste route).
+- `/brand-studio` da editor token mono-tab → strumento bivalente: switch palette runtime (project-wide via JSON file) + editor token granulare (custom theme via active-theme.css). I 2 workflow sono indipendenti, l'editor lavora SUI token che il framework definisce ma non è obbligato.
+- `data-palette="mu-architect" data-theme="dark"` SSR su `<html>` come default → identico look produzione attuale (mu-architect-legacy ≈ mu-architect framework).
+- 17 mockup ora canonical token-name (`--primary` ovunque). Aprendoli con palette-framework.css linkato (palette-playground.html), ogni palette switcher impatta sul wordmark + brand colors automaticamente.
+
+**Out-of-scope L49**:
+
+- Production CSS sweep `--brand-blue` → `--primary` (alias retrocompatibile copre il caso). Decisione carry-forward S23 se serve.
+- `process_*_v2` versioni nel `dashboard_presets` production (ora si usano i `process_*` Phase 15.A). Promotion in `*_v2` quando mockup canonical body verrà tradotto in dashboard_elements seeded layout.
+- Brand audit visual per ogni palette (17×2=34 combinazioni): manca smoke test esaustivo, l'utente verificherà durante uso.
+
+**Riferimenti**:
+
+- Migration: `db/seeds/phase15h_process_role_assignments.sql`
+- New files: `services/app/src/lib/theme-framework/{palettes,active-palette-store}.ts`, `services/app/src/styles/theme-framework/{palette-framework.css,active-palette.json}`, `services/app/src/app/brand-studio/PalettePresetsTab.tsx`
+- Updated: `services/app/src/app/layout.tsx` (async + data-palette/-theme), `services/app/src/app/brand-studio/{actions.ts,BrandStudioClient.tsx,page.tsx}`, `services/app/src/lib/dashboard-engine/role-preset-resolver.ts` (`resolveAllPresetsForRole`), `services/app/src/lib/navigation/role-nav-map.ts` (processSection), `services/app/src/styles/active-theme.css` (--primary alias)
+- Mockup: 17 file in `.ux-design/06-mockups/` rinominati `--brand-blue` → `--primary`
+- Verifica: typecheck PASS · vitest 214/214 PASS · migration applied (16 rows total)
+
+---
+
 ## Format per nuove entry
 
 Quando aggiungi una nuova decisione, segui questo template:

@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { notFound } from 'next/navigation';
 import { auth } from '@/lib/auth';
+import { readActivePalette } from '@/lib/theme-framework/active-palette-store';
 import { BrandStudioClient } from './BrandStudioClient';
 
 export const metadata = {
@@ -20,9 +21,10 @@ export default async function BrandStudioPage() {
   if (!role || !ALLOWED_ROLES.has(role)) {
     notFound();
   }
+  const initialPalette = await readActivePalette();
   return (
     <main className="min-h-screen bg-neutral-50">
-      <BrandStudioClient />
+      <BrandStudioClient initialPalette={initialPalette} />
     </main>
   );
 }

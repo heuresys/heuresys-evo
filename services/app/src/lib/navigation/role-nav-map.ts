@@ -17,6 +17,43 @@
 
 import type { NavSection, UserRole } from './types';
 
+/**
+ * Phase 15.H — Process dashboards (autonomous role).
+ * Surfaced as secondary navigation under HR_DIRECTOR and HR_MANAGER. Backed
+ * by `role_default_dashboards` rows with priority>0 (see seed
+ * db/seeds/phase15h_process_role_assignments.sql).
+ */
+const processSection: NavSection = {
+  id: 'process',
+  title: 'Process',
+  items: [
+    {
+      id: 'process-recruiting',
+      label: 'Recruiting funnel',
+      href: '/dashboard/process_recruiting_funnel',
+      icon: 'analytics',
+    },
+    {
+      id: 'process-onboarding',
+      label: 'Onboarding flow',
+      href: '/dashboard/process_onboarding_flow',
+      icon: 'analytics',
+    },
+    {
+      id: 'process-performance',
+      label: 'Performance cycle',
+      href: '/dashboard/process_performance_cycle',
+      icon: 'analytics',
+    },
+    {
+      id: 'process-learning',
+      label: 'Learning paths',
+      href: '/dashboard/process_learning_paths',
+      icon: 'learning',
+    },
+  ],
+};
+
 const onto: NavSection = {
   id: 'ontology',
   title: 'Ontology',
@@ -197,6 +234,7 @@ export const SIDEBAR_MAP: Record<UserRole, NavSection[]> = {
         },
       ],
     },
+    processSection,
     onto,
     {
       id: 'system',
@@ -225,6 +263,7 @@ export const SIDEBAR_MAP: Record<UserRole, NavSection[]> = {
         { id: 'learning', label: 'Learning paths', href: '/learning', icon: 'learning' },
       ],
     },
+    processSection,
     onto,
   ],
 

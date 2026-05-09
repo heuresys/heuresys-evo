@@ -28,11 +28,14 @@
   --accent-hover: #c0c8fa;
   --accent-soft: #1e1f3a;
   --accent-deep: #4954c4;
-  /* Logo brand-blue (L27 wordmark legacy two-color) */
+  /* Logo brand-blue (L27 wordmark legacy two-color) — alias --primary L48 */
   --brand-blue: #3b82f6;
   --brand-blue-deep: #2452c8;
   --brand-purple: #a855f7;
   --brand-purple-deep: #7e3fc8;
+  /* L48 canonical wordmark body token (palette-aware via theme-framework) */
+  --primary: var(--brand-blue);
+  --primary-deep: var(--brand-blue-deep);
   /* Wordmark relative (L28) — body inherits ink in default theme */
   --logo-body: var(--ink);
   /* Token meta */
@@ -108,6 +111,8 @@
   --brand-blue-deep: #1e3fa0;
   --brand-purple: #7e3fc8;
   --brand-purple-deep: #5e2898;
+  --primary: var(--brand-blue);
+  --primary-deep: var(--brand-blue-deep);
   --token-label: #1a8e3e;
   --semantic-success: #2da147;
   --semantic-warning: #7e5a07;

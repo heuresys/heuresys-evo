@@ -1,10 +1,43 @@
 import type { Metadata } from 'next';
 import { Inter, Exo_2, JetBrains_Mono } from 'next/font/google';
+import { cookies } from 'next/headers';
 import './globals.css';
 import '../styles/active-theme.css';
+import '../styles/theme-framework/palette-framework.css';
 import '../styles/dashboard-brand.css';
 import { ThemePreviewInjector } from './_components/ThemePreviewInjector';
 import { LocaleProvider } from '@/lib/i18n';
+import { readActivePalette } from '@/lib/theme-framework/active-palette-store';
+import {
+  isValidPaletteId,
+  isValidTheme,
+  type ActivePaletteState,
+} from '@/lib/theme-framework/palettes';
+
+const PALETTE_PREVIEW_COOKIE = 'heuresys-palette-preview';
+
+async function resolveActivePalette(): Promise<ActivePaletteState> {
+  const cookieStore = await cookies();
+  const previewRaw = cookieStore.get(PALETTE_PREVIEW_COOKIE)?.value;
+  if (previewRaw) {
+    try {
+      const parsed = JSON.parse(previewRaw) as unknown;
+      if (
+        typeof parsed === 'object' &&
+        parsed !== null &&
+        'palette' in parsed &&
+        'theme' in parsed &&
+        isValidPaletteId((parsed as { palette: unknown }).palette) &&
+        isValidTheme((parsed as { theme: unknown }).theme)
+      ) {
+        return parsed as ActivePaletteState;
+      }
+    } catch {
+      // Fall through to file-backed default.
+    }
+  }
+  return readActivePalette();
+}
 
 const inter = Inter({
   subsets: ['latin'],
@@ -50,11 +83,13 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const { palette, theme } = await resolveActivePalette();
   return (
     <html
       lang="it"
-      data-theme="dark"
+      data-theme={theme}
+      data-palette={palette}
       className={`${inter.variable} ${exo2.variable} ${jetbrainsMono.variable}`}
       suppressHydrationWarning
     >

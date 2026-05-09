@@ -24,8 +24,8 @@
     --ink-tertiary: #9ea0a8;
     --rule: #e2e0e8;
     --rule-strong: #c8c5d0;
-    --brand-blue: #2452c8;
-    --brand-blue-deep: #1e3fa0;
+    --primary: #2452c8;
+    --primary-deep: #1e3fa0;
     --accent: #7e3fc8;
     --accent-deep: #5e2898;
     --accent-soft: #f1e7fa;
@@ -41,8 +41,8 @@
     --ink-tertiary: #5e6168;
     --rule: #232838;
     --rule-strong: #3a4055;
-    --brand-blue: #3b82f6;
-    --brand-blue-deep: #2452c8;
+    --primary: #3b82f6;
+    --primary-deep: #2452c8;
     --accent: #a855f7;
     --accent-deep: #7e3fc8;
     --accent-soft: #2a1a44;
@@ -60,9 +60,9 @@
   }
 
   /* L27 logo originale (logo canonico Heuresys) — body fisso brand-blue + y accent */
-  .wordmark-original { font-family: 'Exo 2', sans-serif; font-weight: 700; color: var(--brand-blue); letter-spacing: normal; text-transform: lowercase; }
+  .wordmark-original { font-family: 'Exo 2', sans-serif; font-weight: 700; color: var(--primary); letter-spacing: normal; text-transform: lowercase; }
   .wordmark-original .y { color: var(--accent); }
-  .wm-inline { font-family: 'Exo 2', sans-serif; font-weight: 700; letter-spacing: normal; text-transform: lowercase; color: var(--brand-blue); }
+  .wm-inline { font-family: 'Exo 2', sans-serif; font-weight: 700; letter-spacing: normal; text-transform: lowercase; color: var(--primary); }
   .wm-inline .y { color: var(--accent); }
 
   /* Background shapes — 8 small in brand-blue + accent purple only */
@@ -74,7 +74,7 @@
   .shape.circle { border-radius: 50%; }
   .shape.square { border-radius: 14px; }
   .shape.pill   { border-radius: 999px; }
-  .shape.blue   { background: var(--brand-blue); opacity: 0.18; }
+  .shape.blue   { background: var(--primary); opacity: 0.18; }
   .shape.acc    { background: var(--accent);     opacity: 0.18; }
   [data-theme="dark"] .shape.blue { opacity: 0.22; }
   [data-theme="dark"] .shape.acc  { opacity: 0.22; }
@@ -163,7 +163,7 @@
     font-weight: 700; font-size: 60px;
     letter-spacing: -2.5px; line-height: 1;
     text-align: center; margin-bottom: 14px;
-    color: var(--brand-blue);
+    color: var(--primary);
     text-transform: lowercase;
     transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
     will-change: transform;
@@ -198,7 +198,7 @@
   .field-underline {
     position: absolute; bottom: 0; left: 0;
     height: 2px; width: 0%;
-    background: linear-gradient(90deg, var(--brand-blue), var(--accent));
+    background: linear-gradient(90deg, var(--primary), var(--accent));
     transition: width 0.35s cubic-bezier(0.22, 1, 0.36, 1);
     pointer-events: none;
   }
@@ -211,7 +211,7 @@
   .checkbox-label { display: flex; align-items: center; gap: 8px; color: var(--ink-soft); cursor: pointer; }
   .checkbox-label input { accent-color: var(--accent); cursor: pointer; }
   .forgot-link {
-    color: var(--brand-blue); text-decoration: none; font-weight: 500;
+    color: var(--primary); text-decoration: none; font-weight: 500;
     transition: color 0.15s, transform 0.18s;
   }
   .forgot-link:hover { color: var(--accent); transform: translateX(2px); }
@@ -259,7 +259,7 @@
     font-size: 12px; color: var(--ink-muted); text-align: center;
     margin-top: 28px; padding-top: 22px; border-top: 1px dashed var(--rule);
   }
-  .auth-footnote a { color: var(--brand-blue); text-decoration: none; transition: color 0.15s; }
+  .auth-footnote a { color: var(--primary); text-decoration: none; transition: color 0.15s; }
   .auth-footnote a:hover { color: var(--accent); }
 
   /* Footer */
