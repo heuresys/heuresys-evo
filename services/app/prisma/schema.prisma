@@ -14391,7 +14391,6 @@ model widget_catalog {
   rbp_functional_areas rbp_functional_areas? @relation(fields: [functional_area_code], references: [code], onDelete: NoAction, onUpdate: NoAction)
   rbp_perspectives     rbp_perspectives?     @relation(fields: [perspective_code], references: [code], onDelete: NoAction, onUpdate: NoAction)
   workspace_widgets    workspace_widgets[]
-  dashboard_elements   dashboard_elements[]
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -14606,7 +14605,8 @@ model dashboard_elements {
   dashboard_presets   dashboard_presets    @relation(fields: [dashboard_preset_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   rbp_perspectives    rbp_perspectives?    @relation(fields: [perspective_code], references: [code], onDelete: Restrict)
   tenants             tenants?             @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  widget_catalog      widget_catalog?      @relation(fields: [widget_catalog_id], references: [id], onDelete: Restrict)
+  // L54 (S24): widget_catalog FK decommissioned — widget_catalog_id resta Int? unconstrained.
+  // Naming convention diversa da widget_code (0/17 backfill match). Vedi DECISIONS-LOG L54.
   parent              dashboard_elements?  @relation("dashboard_elements_hierarchy", fields: [parent_element_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   children            dashboard_elements[] @relation("dashboard_elements_hierarchy")
 
@@ -14648,8 +14648,7 @@ enum permission_scope {
 
 enum rbac_role {
   SUPERUSER
-  SYSADMIN
-  TENANT_ADMIN
+  TENANT_OWNER
   IT_ADMIN
   HR_DIRECTOR
   HR_MANAGER

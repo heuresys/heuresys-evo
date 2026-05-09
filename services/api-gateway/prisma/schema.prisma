@@ -3235,8 +3235,7 @@ enum permission_scope {
 
 enum rbac_role {
   SUPERUSER
-  SYSADMIN
-  TENANT_ADMIN
+  TENANT_OWNER
   IT_ADMIN
   HR_DIRECTOR
   HR_MANAGER

@@ -415,31 +415,55 @@ Audit categorie 30d: AUTH 1 · CONFIG 4 · USER 1. Mancano: DASHBOARD, ROLE, TEN
 ## S23 partial closure annotations (2026-05-09 — added post-execution)
 
 > **L54 closure**: 4 issue chiuse · 1 partial (#1 pilot 6/24) · 2 deferred S24 · 3 audit miscount rilevate.
+> **L55 closure (S23-bis)**: 6 issue chiuse · 1 partial · 1 audit miscount confermato · 2 not started.
 
-| #   | Pre-S23                                    | Post-S23                                                                                                                         |
-| --- | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | ~30+ tabelle senza tenant_id               | **Scope reale = 24 tabelle** (i 6 `tenant_job_*` HANNO già tenant_id — audit § 2.3 da rivedere). Pilot chiuso su 6 small tables. |
-| 2   | 13 RLS GUC typo (fail-closed silente)      | ✅ Fixed via `db/seeds/phase16a_audit_quick_wins.sql`. 0 typo policies remaining.                                                |
-| 3   | P4 audit gap (6 entries / 30d, NULL actor) | 🟡 Helper `auditedTransaction()`+`auditEvent()` creato + applicato a 2 brand-studio actions. Sweep restanti writes → S24.        |
-| 4   | `users.role` varchar unconstrained         | ✅ FK `fk_users_role` REFERENCES `rbp_roles(code)` ON UPDATE CASCADE. 0 orphan, 265 active intatti.                              |
-| 5   | `widget_catalog_id` NULL 100%              | 📅 **DEFERRED**: backfill IMPOSSIBILE (0/17 widget_code matchano widget_catalog.code). Decisione (drop FK vs accept) → S24.      |
-| 6   | "30/36 routes senza requirePermission"     | ⚖️ **AUDIT MISCOUNT**: 22 dei 30 hanno P3 enforcement INLINE via `cache.isAllowed()`. Truly unprotected = ~4. Sweep → S24.       |
-| 7   | `rbac_role` enum drift                     | 📅 **DEFERRED**: drop richiede ALTER TYPE multi-step (4 rows `role_permissions` con SYSADMIN attive). Cleanup → S24.             |
-| 8   | RBP perm count 179 vs docs 326             | ✅ Fixed in CLAUDE.md (count canonical = 179).                                                                                   |
+| #   | Pre-S23                                    | Post-S23+S23-bis                                                                                                                                    |
+| --- | ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | ~30+ tabelle senza tenant_id               | 🟡 **PARTIAL** Scope reale = 24 (audit § 2.3 false positives 6 `tenant_job_*`). Pilot 6/24 closed. → S24 batch 18 restanti                          |
+| 2   | 13 RLS GUC typo (fail-closed silente)      | ✅ **CLOSED** via `db/seeds/phase16a_audit_quick_wins.sql`. 0 typo policies remaining.                                                              |
+| 3   | P4 audit gap (6 entries / 30d, NULL actor) | 🟡 **PARTIAL** Helper `auditedTransaction()`+`auditEvent()` + 2 brand-studio writes. Trigger `audit_permission_changes()` flagged broken → S24      |
+| 4   | `users.role` varchar unconstrained         | ✅ **CLOSED** FK `fk_users_role` REFERENCES `rbp_roles(code)` ON UPDATE CASCADE. 0 orphan, 265 active intatti.                                      |
+| 5   | `widget_catalog_id` NULL 100%              | ✅ **CLOSED L55** FK `dashboard_elements_widget_catalog_id_fkey` dropped. Colonna `Int?` retained per backward compat. Prisma schema cleaned.       |
+| 6   | "30/36 routes senza requirePermission"     | ⚖️ **AUDIT MISCOUNT CONFIRMED L55**: 28 routes hanno middleware/inline + 2 intentionally public (`health.ts`/`auth.ts`). True P3 = 34/34 non-public |
+| 7   | `rbac_role` enum drift                     | ✅ **CLOSED L55** ALTER TYPE multi-step: SYSADMIN→SUPERUSER remap + 8 canonical enum + Prisma sync (services/app + services/api-gateway).           |
+| 8   | RBP perm count 179 vs docs 326             | ✅ **CLOSED** Fixed in CLAUDE.md (count canonical = 179).                                                                                           |
+| 9   | App-level tenant_id lint rule              | ❌ **NOT STARTED** → S24 (~2-4 FTE-hour script + pre-commit hook).                                                                                  |
+| 10  | Bcrypt cost <12 (256/265 users)            | ❌ **NOT STARTED** → S24 (one-shot rehash al next login, ~2-3 FTE-hour).                                                                            |
 
 **Audit corrections**:
 
 - § 2.3 Tabelle senza tenant_id: rimuovere `tenant_job_kpis · tenant_job_skills · tenant_job_tasks · tenant_org_units · tenant_sap_mapping · tenant_skill_dimensions` dalla lista (6 false positives).
 - § 6.1 P3 gap: la metrica "Files con `requirePermission` (P3) 6/36" misura solo middleware esplicito. Counting completo (middleware + inline `cache.isAllowed`) = ~28/34 routes (escludendo public-metadata `esco/nace/skill-taxonomy/platform/health`). True P3 gap molto più piccolo.
 
-**Files added/modified S23**:
+**Files added/modified S23 + S23-bis**:
 
-- `db/seeds/phase16a_audit_quick_wins.sql` (13 ALTER POLICY)
-- `db/seeds/phase16b_tenant_id_pilot.sql` (6 ALTER ADD tenant_id + RLS)
+- `db/seeds/phase16a_audit_quick_wins.sql` (13 ALTER POLICY GUC fix)
+- `db/seeds/phase16b_tenant_id_pilot.sql` (6 ALTER ADD tenant_id + RLS, 4911 rows backfilled)
 - `db/seeds/phase16c_users_role_fk.sql` (FK + DROP CHECK)
+- `db/seeds/phase16d_rbac_role_cleanup.sql` (ALTER TYPE multi-step, S23-bis)
+- `db/seeds/phase16e_widget_catalog_id_decommission.sql` (DROP FK, S23-bis)
 - `services/app/src/lib/audit/auditedTransaction.ts` (NEW helper)
 - `services/app/src/lib/audit/__tests__/auditedTransaction.test.ts` (NEW 5/5 verdi)
 - `services/app/src/app/brand-studio/actions.ts` (instrumented 2 actions)
+- `services/{app,api-gateway}/prisma/schema.prisma` (rbac_role 8 canonical + widget_catalog @relation cleanup)
+- `idx_tenant_schema_version_applied_by` index added (audit § 1.6 quick win)
+
+**S24 carry-forward residual (~6-10 FTE-day reali)**:
+
+| Issue                                                                                          | Severity     | Estimate     | Note                                                 |
+| ---------------------------------------------------------------------------------------------- | ------------ | ------------ | ---------------------------------------------------- |
+| #1 batch 18 tabelle (employee_core 13 + learning 6 + recruiting 3 + talent 6 minus pilot done) | CRITICAL     | 4-6 FTE-day  | Split 4 batch SQL                                    |
+| #3 P4 sweep extended + drop trigger broken                                                     | HIGH         | 1-2 FTE-day  | Mirror helper in api-gateway                         |
+| #9 lint rule app-level tenant_id                                                               | MEDIUM       | 2-4 FTE-hour | ESLint custom rule + pre-commit                      |
+| #10 bcrypt rotation                                                                            | MEDIUM       | 2-3 FTE-hour | One-shot rehash al next login (NextAuth credentials) |
+| § 2.5 GUC drift `user_workspaces`/`workspace_widgets`                                          | MEDIUM       | 1-2 FTE-day  | Multi-clausola policy refactor                       |
+| § 7.1 `$queryRawUnsafe` in 4 file                                                              | MEDIUM       | 2 FTE-hour   | Replace string concat → `$1` parameter               |
+| 310 FK senza ON DELETE explicit                                                                | MEDIUM       | 1 FTE-day    | Review e tagging                                     |
+| Materialized views refresh schedule                                                            | MEDIUM       | 4-8 FTE-hour | pg_cron setup                                        |
+| `enrichment_consent` 0/270 verify                                                              | MEDIUM       | 2-4 FTE-hour | Verifica enrichment workers skip                     |
+| `employees` 95 col / 19 idx vertical-split                                                     | LOW (ad-hoc) | TBD          | A > 100k rows                                        |
+| `schema_migrations` 215 vs 8 .sql README                                                       | LOW          | 30 min       | Cutoff date doc                                      |
+| 50 SAP shadow tables senza PK intent doc                                                       | LOW          | 30 min       | `db/README.md` tag                                   |
 
 ---
 

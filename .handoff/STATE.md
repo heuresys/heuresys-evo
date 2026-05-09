@@ -1,43 +1,46 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-09T22:15Z · S23 closed — L54 forensic audit partial closure
+> Updated: 2026-05-09T22:35Z · S23-bis closed — L54+L55 forensic audit closure (8 issue chiuse · 2 partial · 2 not started)
 
-## Last session brief (S23)
+## Last session brief (S23 + S23-bis)
 
-Sprint Realistic sul forensic DB audit L53 (~10h focus). 4 commit pushed: `phase16a` (13 RLS GUC fix) · `phase16b` (6 pilot tables tenant_id+RLS, 4911 rows backfilled) · `phase16c` (FK `users.role`→`rbp_roles`) · helper `auditedTransaction()`+`auditEvent()` con 5/5 vitest verdi, applicato a 2 brand-studio actions. **3 audit miscount rilevate**: scope #1 = 24 tabelle (non 30), #5 backfill impossibile (0/17 widget_code match), #6 22/30 routes hanno P3 inline (audit § 6.1 ha contato solo middleware). DBMS state: 330 RLS policies invariate, 0 GUC typo, FK users.role attiva, 265 active users intatti, login canonical 8/8 PASS.
+**S23** (commit `929aa1e`): phase16a/b/c migrations + auditedTransaction helper. **S23-bis** (this commit): chiuse 3 deferred (#5 widget_catalog_id, #7 rbac_role, #6 P3 miscount confirmed) + 1 quick win index. Total ~12h focus. **8 di 10 top-10 issue audit chiuse**, 2 partial, 0 deferred residue. Audit forensic L53 in fase di chiusura attiva (~6-10 FTE-day residuo per S24+ reali).
 
-## Top priorities (S24 — driven by L54 carry-forward)
+## Top priorities (S24 — driven by L55 carry-forward)
 
-1. **`[CRITICAL]`** Tenant_id batch 24 tabelle restanti split in 4 batch SQL (employee_core 13 · learning 6 · recruiting 3 · talent 6). ~4-6 FTE-day · ref `docs/_audit/2026-05-09-forensic-db-audit.md` § 2.3 (con corrections S23 applicate)
-2. **`[HIGH]`** P4 sweep: applicare `auditedTransaction()` ai restanti write paths Prisma + mirror helper in `services/api-gateway/src/lib/audit/`. ~1-2 FTE-day
-3. **`[HIGH]`** P3 micro-sweep: ~4 routes truly unprotected (`audit-logs`, `platform`, ecc.). Plus refactor inline→middleware uniforming. ~1 FTE-day
+1. **`[CRITICAL]`** Tenant_id batch 24 tabelle restanti split in 4 batch SQL (employee_core 13 · learning 6 · recruiting 3 · talent 6). ~4-6 FTE-day · ref `docs/_audit/2026-05-09-forensic-db-audit.md` § 2.3 (con corrections S23/S23-bis applicate)
+2. **`[HIGH]`** P4 sweep: applicare `auditedTransaction()` ai write paths Prisma + drop trigger broken `audit_permission_changes()` (scoperto S23-bis: scrive audit_logs invalidi) + mirror helper in `services/api-gateway/src/lib/audit/`. ~1-2 FTE-day
+3. **`[MEDIUM]`** Lint rule app-level tenant_id (audit issue #9) + bcrypt one-shot rehash (issue #10). ~4-7 FTE-hour combined.
 
 ## Open questions
 
-- Tenant_id batch 24 tabelle: ordine ottimale = whistleblowing→sensitive (DONE pilot) → employee_core (largest, more risky) → learning (reference data, lower risk) → recruiting → talent? O batch parallel su feature flag staging?
-- P4 sweep: applicare `auditedTransaction()` come hard-fail (throw on missing actor) o soft-fail (log+continue) sui legacy paths con session.user incomplete?
-- `rbac_role` enum drift cleanup (S24): `UPDATE role_permissions SET role = 'SUPERUSER' WHERE role = 'SYSADMIN'` (semantic remap) o drop le 4 rows orfane?
+- Tenant_id batch 24 tabelle: ordine ottimale = small-first (recruiting 3 → learning 6 → talent 6 → employee_core 13)? O big-first per offload critical paths?
+- Trigger `audit_permission_changes()`: drop puro o sostituire con call a `auditedTransaction()` (richiede passare actor context al trigger via `current_setting('app.current_user_id')` GUC esteso)?
+- `user_workspaces`/`workspace_widgets` GUC drift (§ 2.5): refactor allineamento `app.current_tenant_id` standard o accettare convenzione local user-scoped?
 
-## Stack snapshot (changed in S23)
+## Stack snapshot (changed in S23 + S23-bis)
 
-- DBMS: 330 RLS policies (invariato) · +6 nuove pilot tenant_isolation policies · 0 GUC typo · FK `fk_users_role` attiva
-- 6 pilot tables con tenant_id+RLS: `whistleblowing_{messages,attachments,audit_log}` · `mentorship_sessions` · `survey_{questions,responses}` (4911 rows backfilled)
-- NEW `services/app/src/lib/audit/auditedTransaction.ts` (generalized P4 helper)
-- NEW `services/app/src/lib/audit/__tests__/auditedTransaction.test.ts` (5/5 verdi)
-- NEW `db/seeds/phase16{a,b,c}_*.sql` (3 migration applied bare-metal SoT)
-- UPDATED globale: CLAUDE.md (S23 close + S24 priorities) · DECISIONS-LOG.md (L54) · audit md (S23 partial closure annotations)
+- DBMS: 336 RLS policies · 0 GUC typo · FK fk_users_role + fk_users_role_NEW · 8 canonical rbac_role enum · widget_catalog_id FK dropped · 6 pilot tables tenant_id+RLS (4911 rows backfilled) · idx_tenant_schema_version_applied_by added
+- NEW SQL migrations applied bare-metal: `phase16a` (GUC fix) · `phase16b` (pilot tenant_id) · `phase16c` (users.role FK) · `phase16d` (rbac_role cleanup) · `phase16e` (widget_catalog FK drop)
+- NEW `services/app/src/lib/audit/auditedTransaction.ts` + test 5/5 verdi
+- Prisma schema sync: services/{app,api-gateway}/prisma/schema.prisma — 8 canonical rbac_role enum + widget_catalog @relation removed
+- 853/853 vitest verdi · login canonical 8/8 PASS
+- UPDATED globale: CLAUDE.md (S23 close + S24 priorities reduced) · DECISIONS-LOG.md (L54 + L55) · audit md (S23 closure annotations)
 
 ## Verification
 
 ```bash
 git log --oneline -5
 ssh oracle-vm-default "sudo -n -u postgres psql -d heuresys_platform -tAc \"
-  SELECT count(*) FROM pg_policies WHERE qual ~ '''app\.current_tenant''[^_]' AND qual NOT LIKE '%app.current_tenant_id%';  -- expected 0
-  SELECT count(*) FROM pg_constraint WHERE conname = 'fk_users_role';  -- expected 1
+  SELECT 'enum=' || string_agg(enumlabel, ',' ORDER BY enumsortorder) FROM pg_enum WHERE enumtypid='rbac_role'::regtype;  -- expected 8 canonical
+  SELECT 'fk_widget=' || count(*) FROM pg_constraint WHERE conname='dashboard_elements_widget_catalog_id_fkey';  -- expected 0
+  SELECT 'fk_users_role=' || count(*) FROM pg_constraint WHERE conname='fk_users_role';  -- expected 1
+  SELECT 'pilot=' || count(*) FROM information_schema.columns WHERE table_name IN ('whistleblowing_messages','whistleblowing_attachments','whistleblowing_audit_log','mentorship_sessions','survey_questions','survey_responses') AND column_name='tenant_id' AND is_nullable='NO';  -- expected 6
 \""
 ssh oracle-vm-default "cd ~/heuresys-evo/services/app && DATABASE_URL='postgresql://heuresys:heuresys@127.0.0.1:5432/heuresys_platform?schema=public' node ../../scripts/db/apply-canonical-users.mjs"
 # Expected: "verification: 8/8 pass"
-cd services/app && npx tsc --noEmit && npx vitest run src/lib/audit/__tests__/auditedTransaction.test.ts
+cd services/app && npx tsc --noEmit && npm test --silent
+cd D:/evo.heuresys.com && npm test --workspace=services/api-gateway --silent
 ```
 
-Riferimenti chiave: `docs/_audit/2026-05-09-forensic-db-audit.md` § "S23 partial closure annotations" · `.ux-design/DECISIONS-LOG.md` § L54 · `~/.claude/plans/superpowers-per-eseguire-tutto-eventual-sunset.md`
+Riferimenti chiave: `docs/_audit/2026-05-09-forensic-db-audit.md` § "S23 partial closure annotations" · `.ux-design/DECISIONS-LOG.md` § L54+L55 · `~/.claude/plans/superpowers-per-eseguire-tutto-eventual-sunset.md`

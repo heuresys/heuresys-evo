@@ -1785,6 +1785,61 @@ Ogni tabella: ALTER ADD COLUMN tenant_id UUID + UPDATE backfill + ALTER NOT NULL
 
 ---
 
+## L55 — 2026-05-09 — S23-bis extension: 3 deferred chiuse + P3 audit miscount confermato
+
+**Decisione**: post-commit S23 (`929aa1e`), proseguito stesso session per chiudere i 2 deferred (#7 rbac_role enum drift + #5 widget_catalog_id) + verifica completa P3 (#6) → concluso che P3 gap = ZERO. Effort aggiuntivo ~1.5h.
+
+**Contesto**: utente ha richiesto "continua con attività non iniziate o da completare" dopo L54. Disponibili in budget: 3 issue HIGH ancora aperte + verifica P3 dettagliata. Rischio basso, valore alto.
+
+**Issues addizionali chiuse**:
+
+| #   | Sev      | Titolo                        | Status                                                      | Deliverable                                            |
+| --- | -------- | ----------------------------- | ----------------------------------------------------------- | ------------------------------------------------------ |
+| 7   | `[HIGH]` | `rbac_role` enum drift        | ✅ **CLOSED**                                               | `db/seeds/phase16d_rbac_role_cleanup.sql`              |
+| 5   | `[HIGH]` | `widget_catalog_id` NULL 100% | ✅ **CLOSED**                                               | `db/seeds/phase16e_widget_catalog_id_decommission.sql` |
+| 6   | `[HIGH]` | "30/36 routes senza P3"       | ⚖️ **MISCOUNT CONFIRMED**: 34/34 non-public routes hanno P3 | doc-only update                                        |
+
+**phase16d (rbac_role cleanup)**:
+
+- Verificata legacy table: `role_permissions` (20 rows, NON usata da app code) usa enum `rbac_role` con 4 SYSADMIN orphan + 0 TENANT_ADMIN.
+- Strategy multi-step (Postgres NON supporta `REMOVE VALUE` su enum): UPDATE remap SYSADMIN→SUPERUSER (4 permission_id distinct dai 4 SUPERUSER esistenti, no UNIQUE collision) + CREATE rbac_role_v2 (8 canonical) + ALTER COLUMN TYPE + DROP TYPE rbac_role + RENAME v2→rbac_role.
+- Discovery secondaria: trigger `audit_permission_changes()` sulla `role_permissions` blocca UPDATE per CHECK constraint violation (writes audit_logs con tenant_id NULL + action='PERMISSION_UPDATED' + category='RBAC' — entrambi non in CHECK list audit_logs.action/category). È il P4 gap dell'audit § 8.4. Workaround: `SET LOCAL session_replication_role = replica` durante migration. Trigger sostituito da `auditedTransaction()` in S24+ sweep.
+- Prisma schema aggiornato (services/app + services/api-gateway): rbac_role enum ora 8 canonical (matches `rbp_roles.code`).
+- Verification: 8 enum values · 20 rows invariate · 0 drift · typecheck PASS · 853 test verdi.
+
+**phase16e (widget_catalog_id decommission)**:
+
+- Strategy conservativa: drop FK constraint, mantieni colonna `Int?` per backward compat (referenced in 6 punti: 4 test fixtures + DashboardElement type interface + dashboard/page.tsx — passano `widget_catalog_id: null` ovunque).
+- Prisma schema cleanup: rimosso `@relation widget_catalog?` da `dashboard_elements` + back-reference `dashboard_elements[]` da `widget_catalog`. Colonna `widget_catalog_id Int?` retained come campo unconstrained.
+- Verifica: FK dropped · column retained · 115 rows widget_catalog_id NULL invariate · typecheck PASS.
+
+**P3 audit miscount confirmation (#6)**:
+
+- Verificati i 7 routes "potenzialmente unprotected": `audit-logs.ts` · `platform.ts` · `esco.ts` · `nace.ts` · `skill-taxonomy.ts` · `health.ts` · `auth.ts`.
+- 5/7 hanno P3 inline via `cache.isAllowed(role, AREA, 'view')`: `audit-logs` (AUDIT) · `platform` (EMPLOYEES) · `esco`/`nace`/`skill-taxonomy` (ESCO_KG OR EMPLOYEES).
+- 2/7 sono **intentionally public**: `health.ts` (liveness/readiness probe per nginx) · `auth.ts` (login/logout handler — NextAuth needs to be reachable pre-auth).
+- **P3 enforcement coverage REALE = 34/34 routes non-public** (28 inline + 6 middleware). True P3 gap = 0. Audit § 6.1 metric "6/36 con requirePermission" misurava solo middleware ESPLICITO ed è un naming-mismatch con la realtà operativa.
+
+**Conseguenza**:
+
+- DBMS state ulteriormente armonizzato: enum `rbac_role` allineato a `rbp_roles.code` canonical · widget_catalog FK orphaned dropped.
+- Issue audit chiuse post-S23: **6 of 8 issues HIGH/CRITICAL** completate (#2 ✅ #4 ✅ #7 ✅ #5 ✅ #8 ✅ #6 ⚖️ chiuso come miscount). Restano partial #1 (pilot 6/24) + partial #3 (helper + 2 brand-studio).
+- Trigger `audit_permission_changes()` flagged come technical debt: scrive audit_logs invalidi (CHECK violations + NULL actor) e va sostituito da `auditedTransaction()` in S24+ sweep.
+
+**Out-of-scope esplicito → S24** (priorità rimaste):
+
+1. **`[CRITICAL]`** Tenant_id batch 24 tabelle restanti (employee_core 13 + learning 6 + recruiting 3 + talent 6) — main residual workload (~4-6 FTE-day).
+2. **`[HIGH]`** P4 sweep: extend `auditedTransaction()` ai write paths Prisma + drop/replace trigger `audit_permission_changes()` con helper. Mirror in api-gateway. ~1-2 FTE-day.
+3. **`[MEDIUM]`** bcrypt rotation cost 12 + lint rule app-level tenant_id → S25.
+
+**Riferimenti**:
+
+- SQL deliverables S23-bis: `db/seeds/phase16d_rbac_role_cleanup.sql` · `db/seeds/phase16e_widget_catalog_id_decommission.sql`
+- Schema Prisma updated: `services/{app,api-gateway}/prisma/schema.prisma` (enum rbac_role + widget_catalog @relation cleanup)
+- Verifica DB: enum `rbac_role` 8 valori canonical · 0 role_permissions drift · 0 FK widget_catalog · login canonical 8/8 PASS
+
+---
+
 ## Format per nuove entry
 
 Quando aggiungi una nuova decisione, segui questo template:

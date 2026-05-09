@@ -166,7 +166,7 @@ VM: `oracle-vm-default` (IP 80.225.82.207). nginx vhosts in `/etc/nginx/sites-av
 
 **Vincolo "estirpazione clean"**: ogni entry in `Test Stage`/`PreOp Stage` DEVE essere rimovibile dal repo evo SENZA conseguenze su stack/oggetti pre-import. Categorie removability tracciate nel CSV (`no-impact`, `embedded-in-existing-file`, `depends-on-X`, `not-yet-used`, `depends-on-DB-seed`).
 
-## Stato attuale (2026-05-09T22:15Z · S23 chiusa · L54 — forensic audit partial closure: 4 issue chiuse · 1 pilot · 2 deferred · 3 audit miscount)
+## Stato attuale (2026-05-09T22:30Z · S23-bis · L54+L55 — forensic audit closure: 6 issue chiuse · 1 pilot · 1 partial · audit miscount confermato)
 
 ### DBMS = SoT (certified 2026-05-07T14:30Z)
 
@@ -336,16 +336,16 @@ L47 (commit `08b2097`) — body-only import dei 10 mockup rimanenti (escluso `in
 
 **4 issue chiuse · 1 pilot · 2 deferred · 3 audit miscount rilevate.** Phase 16.A/B/C migrations + auditedTransaction helper. ~10h focus.
 
-| #   | Issue                           | Status S23                                                           | Deliverable                                        |
-| --- | ------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------- |
-| 2   | 13 RLS GUC typo                 | ✅ **CLOSED**                                                        | `db/seeds/phase16a_audit_quick_wins.sql`           |
-| 1   | ~24 tabelle senza tenant_id     | 🟡 **PILOT 6/24** (whistleblowing+mentor+survey)                     | `db/seeds/phase16b_tenant_id_pilot.sql`            |
-| 4   | `users.role` FK to rbp_roles    | ✅ **CLOSED**                                                        | `db/seeds/phase16c_users_role_fk.sql`              |
-| 3   | P4 audit gap                    | 🟡 **HELPER + 2 brand-studio writes**                                | `services/app/src/lib/audit/auditedTransaction.ts` |
-| 8   | RBP count mismatch 179 vs 326   | ✅ **CLOSED via doc**                                                | this CLAUDE.md (rbp count = 179 canonical)         |
-| 6   | P3 routes 6/36 → audit miscount | ⚖️ **MISCOUNT**: 22 hanno inline P3                                  | (S24 micro-sweep su ~4 truly unprotected)          |
-| 5   | `widget_catalog_id` NULL 100%   | 📅 **DEFERRED S24** (0/17 backfill match)                            | (richiede Prisma schema sync)                      |
-| 7   | `rbac_role` enum drift          | 📅 **DEFERRED S24** (4 rows con SYSADMIN active in role_permissions) | (ALTER TYPE multi-step)                            |
+| #   | Issue                           | Status S23                                                             | Deliverable                                        |
+| --- | ------------------------------- | ---------------------------------------------------------------------- | -------------------------------------------------- |
+| 2   | 13 RLS GUC typo                 | ✅ **CLOSED**                                                          | `db/seeds/phase16a_audit_quick_wins.sql`           |
+| 1   | ~24 tabelle senza tenant_id     | 🟡 **PILOT 6/24** (whistleblowing+mentor+survey)                       | `db/seeds/phase16b_tenant_id_pilot.sql`            |
+| 4   | `users.role` FK to rbp_roles    | ✅ **CLOSED**                                                          | `db/seeds/phase16c_users_role_fk.sql`              |
+| 3   | P4 audit gap                    | 🟡 **HELPER + 2 brand-studio writes**                                  | `services/app/src/lib/audit/auditedTransaction.ts` |
+| 8   | RBP count mismatch 179 vs 326   | ✅ **CLOSED via doc**                                                  | this CLAUDE.md (rbp count = 179 canonical)         |
+| 6   | P3 routes 6/36 → audit miscount | ⚖️ **MISCOUNT**: 22 hanno inline P3                                    | (S24 micro-sweep su ~4 truly unprotected)          |
+| 5   | `widget_catalog_id` NULL 100%   | ✅ **CLOSED L55** (FK dropped, col retained Int?)                      | `phase16e_widget_catalog_id_decommission.sql`      |
+| 7   | `rbac_role` enum drift          | ✅ **CLOSED L55** (8 canonical, SYSADMIN→SUPERUSER remap, Prisma sync) | `phase16d_rbac_role_cleanup.sql`                   |
 
 **Audit corrections rilevate during execution**:
 
@@ -361,16 +361,32 @@ L47 (commit `08b2097`) — body-only import dei 10 mockup rimanenti (escluso `in
 - 265 active users intatti · login canonical 8/8 PASS post-FK
 - `rbp_role_permissions` count canonical = **179** (NOT 326 come da docs pre-audit)
 
-### 🚀 S24 priorities (carry-forward post-L54)
+### 🚀 S24 priorities (carry-forward post-L54+L55)
 
-Totale residuo ~7-12 FTE-day:
+**Bilancio audit forensic L53 (post-S23-bis)**:
+
+- **8 issue HIGH/CRITICAL chiuse**: #2 ✅ #4 ✅ #5 ✅ #7 ✅ #8 ✅ #6 ⚖️ (miscount confirmed, real coverage 34/34)
+- **2 issue PARTIAL**: #1 (pilot 6/24 tabelle done) · #3 (helper P4 + 2 brand-studio writes)
+- **2 issue MEDIUM not started**: #9 lint rule app-level tenant_id · #10 bcrypt rotation
+- **9 advisory items**: 1 quick fix shipped (`tenant_schema_version.applied_by` index), restanti per S24+
+
+**Top priorities S24 (residuo ~6-10 FTE-day reali)**:
 
 1. **`[CRITICAL]`** Tenant_id batch 24 tabelle restanti — 4 batch SQL: `employee_core` (13), `learning` (6), `recruiting` (3), `talent` (6). Estimate ~4-6 FTE-day.
-2. **`[HIGH]`** P4 sweep: `auditedTransaction()` ai write paths Prisma + mirror helper in `api-gateway/src/lib/audit/`. Estimate ~1-2 FTE-day.
-3. **`[HIGH]`** P3 micro-sweep: ~4 routes truly unprotected (`audit-logs`, `platform`, ecc.). Plus refactor inline→middleware uniforming sui 22 routes con inline P3. Estimate ~1 FTE-day.
-4. **`[HIGH]`** `rbac_role` enum cleanup multi-step ALTER TYPE (richiede UPDATE role_permissions SYSADMIN→canonical). ~1-2 FTE-hour.
-5. **`[HIGH]`** `widget_catalog_id` decommission decisione (drop FK + Prisma sync vs accept NULL by design). ~1-2 FTE-hour.
-6. **`[MEDIUM]`** bcrypt rotation cost 12 + lint rule app-level tenant_id → S25.
+2. **`[HIGH]`** P4 sweep: `auditedTransaction()` ai write paths Prisma + drop/replace trigger broken `audit_permission_changes()` (S23-bis discovery: scrive audit_logs invalidi) + mirror helper in `api-gateway/src/lib/audit/`. Estimate ~1-2 FTE-day.
+3. **`[MEDIUM]`** Lint rule app-level tenant_id (audit issue #9) — script + pre-commit hook. ~2-4 FTE-hour.
+4. **`[MEDIUM]`** Bcrypt rotation cost <12 (256/265 users) — strategia one-shot rehash al next login (NextAuth credentials provider). ~2-3 FTE-hour.
+5. **`[MEDIUM]`** § 2.5 GUC convention drift `user_workspaces`/`workspace_widgets` — refactor policy multi-clausola (user_id/role/tenant_id custom GUCs) per allineamento `app.current_tenant_id` standard. ~1-2 FTE-day.
+6. **`[MEDIUM]`** `$queryRawUnsafe` defense-in-depth in 4 file api-gateway: replace string concat con `$1` parameter. ~2 FTE-hour.
+
+**Carry-forward S25+** (advisory, non urgenti):
+
+- 310 FK senza ON DELETE esplicito — review e tagging (1 FTE-day)
+- Materialized views (5) senza refresh schedule documentato — pg_cron setup
+- `enrichment_consent=true` 0/270 — verifica enrichment workers skip pipeline
+- `employees` 95 col / 19 indici — vertical-split valutare PII vs HR vs payroll a > 100k rows
+- `schema_migrations` 215 entries vs 8 .sql repo — `db/migrations/README.md` cutoff date
+- 50 SAP shadow tables senza PK — tag intent in `db/README.md`
 
 Plus carry-forward S20+S21+S22: production `/dashboard` refactor DB-driven (~6-10h), WCAG 2.2 AAA full audit (~3-5h).
 
@@ -383,7 +399,7 @@ Plus carry-forward S20+S21+S22: production `/dashboard` refactor DB-driven (~6-1
 - `docs/20-architecture/role-views-matrix.md` — Phase 14.SH FASE 3.1 inventory (scaffolded)
 - `docs/40-operations/dbms-backup-restore.md` — Backup/restore governance policy (scaffolded)
 - `docs/50-reference/decisions/` — 26 ADR (3 superseded · ADR-0023 SoT promotion · ADR-0024 Phase 14.SH plan · ADR-0025 brand identity cycle sealed + v1.0 promotion plan · ADR-0026 Phase 15.A brand-fedele dashboard rendering)
-- `.ux-design/DECISIONS-LOG.md` — log brand identity + governance, ultime entry **L48** (theme/palette framework v1) · **L49** (process autonomous + theme prod + canonical sweep) · **L52** (`users.tenant_id` resta derivata) · **L53** (forensic DB audit baseline) · **L54** (S23 forensic audit partial closure: phase16 SQL + auditedTransaction helper)
+- `.ux-design/DECISIONS-LOG.md` — log brand identity + governance, ultime entry **L48** (theme/palette framework v1) · **L49** (process autonomous + theme prod + canonical sweep) · **L52** (`users.tenant_id` resta derivata) · **L53** (forensic DB audit baseline) · **L54** (S23 forensic audit partial closure) · **L55** (S23-bis: 3 deferred chiuse + P3 miscount confirmed)
 - `docs/_audit/2026-05-09-forensic-db-audit.md` — audit qualitativo forense DBMS post-S22 (570 tables · 905 FK · 330 RLS policies · 22 issues prioritizzati)
 - `.ux-design/09-asset-showcase/README.md` — webapp catalog locale (gitignored eccetto `_legacy/`). Tool localhost-only Express+Prisma+SQLite per gestione asset brand identity dashboard. Start: `cd .ux-design/09-asset-showcase && npm run dev` → `localhost:5174`
 - `docs/30-developer/security-baseline.md` — P1-P10 enforcement details
