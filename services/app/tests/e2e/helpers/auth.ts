@@ -3,10 +3,16 @@
  *
  * Performs a NextAuth Credentials login through the public form (so the test
  * exercises the same path as a real user) and returns the resulting Page
- * already authenticated. All canonical demo users share the unified password
- * `Heuresys2026!` (re-seeded via scripts/db/apply-canonical-users.mjs on
- * 2026-05-07; legacy $2a$ duplicates alice.esposito + alberto.colombo were
- * soft-deleted in the same pass).
+ * already authenticated.
+ *
+ * SoT: tests/.test-env (8 entries: 1 SUPERUSER + 7 RTL Bank roles). Post-S22
+ * cleanup the test environment is restricted to that matrix; the previous
+ * cross-tenant TENANT_OWNER smoke set (admin / smartfood-admin / econova-admin)
+ * has been retired and those accounts are soft-deactivated by
+ * scripts/db/apply-canonical-users.mjs together with the legacy $2a$
+ * duplicates (alice.esposito, alberto.colombo).
+ *
+ * All canonical demo users share the unified password `Heuresys2026!`.
  */
 import type { Page } from '@playwright/test';
 
@@ -20,7 +26,7 @@ export interface CanonicalUser {
 const PASSWORD = 'Heuresys2026!';
 
 export const CANONICAL_USERS = {
-  // 8 RTL Bank canonical roles (primary RBP matrix)
+  // 8 canonical demo users — restricted to tests/.test-env matrix (post-S22).
   superuser: {
     username: 'sysadmin',
     password: PASSWORD,
@@ -69,29 +75,9 @@ export const CANONICAL_USERS = {
     role: 'EMPLOYEE',
     tenant: 'RTL Bank',
   } satisfies CanonicalUser,
-
-  // Cross-tenant TENANT_OWNERs (smoke matrix)
-  tenantOwnerHeuresys: {
-    username: 'admin',
-    password: PASSWORD,
-    role: 'TENANT_OWNER',
-    tenant: 'Heuresys System',
-  } satisfies CanonicalUser,
-  tenantOwnerSmartfood: {
-    username: 'smartfood-admin',
-    password: PASSWORD,
-    role: 'TENANT_OWNER',
-    tenant: 'SmartFood',
-  } satisfies CanonicalUser,
-  tenantOwnerEconova: {
-    username: 'econova-admin',
-    password: PASSWORD,
-    role: 'TENANT_OWNER',
-    tenant: 'EcoNova',
-  } satisfies CanonicalUser,
 };
 
-/** All RTL Bank canonical roles (8) — primary RBP matrix (8 × 9 = 72). */
+/** Full canonical RBP matrix (8 users × 9 dashboards = 72 cases). */
 export const RTL_MATRIX_USERS: CanonicalUser[] = [
   CANONICAL_USERS.superuser,
   CANONICAL_USERS.tenantOwnerRtl,
@@ -101,13 +87,6 @@ export const RTL_MATRIX_USERS: CanonicalUser[] = [
   CANONICAL_USERS.deptHeadRtl,
   CANONICAL_USERS.lineManagerRtl,
   CANONICAL_USERS.employeeRtl,
-];
-
-/** Cross-tenant TENANT_OWNER smoke users (3 × 9 = 27). */
-export const CROSS_TENANT_OWNERS: CanonicalUser[] = [
-  CANONICAL_USERS.tenantOwnerHeuresys,
-  CANONICAL_USERS.tenantOwnerSmartfood,
-  CANONICAL_USERS.tenantOwnerEconova,
 ];
 
 /** All 9 published dashboard preset codes (Phase 13). */

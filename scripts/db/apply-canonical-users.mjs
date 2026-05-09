@@ -1,12 +1,18 @@
 #!/usr/bin/env node
-// Apply canonical demo users — unified Heuresys2026! across 4 tenants × roles.
+// Apply canonical demo users — unified Heuresys2026! restricted to tests/.test-env matrix.
 // Idempotent: re-running converges to the same target state.
 //
-// Targets:
-//   - 8 RTL Bank canonical roles (TENANT_OWNER..EMPLOYEE)
+// SoT: tests/.test-env (8 entries · 1 SUPERUSER + 7 RTL Bank roles).
+//
+// Targets (8 active):
+//   - 7 RTL Bank canonical roles (TENANT_OWNER..EMPLOYEE)
 //   - 1 platform SUPERUSER (sysadmin)
-//   - 3 cross-tenant TENANT_OWNER (heuresys, smartfood, econova)
-//   - Soft-delete legacy $2a$ duplicates that conflict with canonical (alice.esposito, alberto.colombo)
+// Soft-deactivated (5 legacy):
+//   - rtl-bank.alice.esposito   (duplicate DEPT_HEAD legacy bcrypt $2a$)
+//   - rtl-bank.alberto.colombo  (duplicate EMPLOYEE legacy bcrypt $2a$)
+//   - admin                     (Heuresys TENANT_OWNER — out-of-test-matrix S22)
+//   - smartfood-admin           (SmartFood TENANT_OWNER — out-of-test-matrix S22)
+//   - econova-admin             (EcoNova TENANT_OWNER — out-of-test-matrix S22)
 //
 // Run: node scripts/db/apply-canonical-users.mjs
 // Requires: services/app/.env or .env.local with DATABASE_URL.
@@ -29,15 +35,12 @@ const CANONICAL_RTL = [
 
 const SUPERUSER = 'sysadmin';
 
-const CROSS_TENANT_OWNERS = [
-  'admin', // heuresys
-  'smartfood-admin',
-  'econova-admin',
-];
-
 const LEGACY_TO_DEACTIVATE = [
   'rtl-bank.alice.esposito', // duplicate DEPT_HEAD ($2a$)
   'rtl-bank.alberto.colombo', // duplicate EMPLOYEE ($2a$)
+  'admin', // Heuresys TENANT_OWNER — restricted out by S22 .test-env scope
+  'smartfood-admin', // SmartFood TENANT_OWNER — restricted out by S22 .test-env scope
+  'econova-admin', // EcoNova TENANT_OWNER — restricted out by S22 .test-env scope
 ];
 
 async function main() {
@@ -45,7 +48,7 @@ async function main() {
   const hash = bcrypt.hashSync(PASSWORD, COST);
   console.log(`[apply-canonical-users] hash generated ($2b$${COST}$, len=${hash.length})`);
 
-  const all = [...CANONICAL_RTL, SUPERUSER, ...CROSS_TENANT_OWNERS];
+  const all = [...CANONICAL_RTL, SUPERUSER];
 
   // 1. UPDATE password_hash + is_active for all canonical users (idempotent)
   let updated = 0;
@@ -82,7 +85,7 @@ async function main() {
     }
   }
   console.log(
-    `[apply-canonical-users] legacy duplicates soft-deleted: ${deactivated}/${LEGACY_TO_DEACTIVATE.length}`
+    `[apply-canonical-users] legacy/restricted soft-deleted: ${deactivated}/${LEGACY_TO_DEACTIVATE.length}`
   );
 
   // 3. Refresh canonical_demo_users registry

@@ -1,0 +1,13 @@
+Source of Truth — canonical demo users restricted to test matrix (post-S22 cleanup 2026-05-09).
+Total: 8 active (1 SUPERUSER + 7 RTL Bank roles). Password unica: Heuresys2026!.
+Sync DB: node scripts/db/apply-canonical-users.mjs (idempotent · also soft-deletes legacy + 3 ex-cross-tenant TO).
+
+Ruolo		Username			Password	Tenant
+SUPERUSER	sysadmin			Heuresys2026!	Heuresys
+TENANT_OWNER	rtl-bank.federica.marchetti	Heuresys2026!	RTL Bank
+IT_ADMIN	rtl-bank.marco.desantis 	Heuresys2026!	RTL Bank
+HR_DIRECTOR	rtl-bank.valentina.conti	Heuresys2026!	RTL Bank
+HR_MANAGER	rtl-bank.maria.colombo        	Heuresys2026!	RTL Bank
+DEPT_HEAD	rtl-bank.paolo.caputo		Heuresys2026!	RTL Bank
+LINE_MANAGER	rtl-bank.giuseppe.ferri		Heuresys2026!	RTL Bank
+EMPLOYEE	rtl-bank.francesca.gallo	Heuresys2026!	RTL Bank

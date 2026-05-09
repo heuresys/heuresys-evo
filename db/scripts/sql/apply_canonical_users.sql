@@ -5,9 +5,12 @@
 -- the Node script `scripts/db/apply-canonical-users.mjs` (uses Prisma + bcryptjs;
 -- generates hash at runtime from a unified password and applies idempotent UPDATEs).
 --
+-- SoT (post-S22): tests/.test-env (8 entries — 1 SUPERUSER + 7 RTL Bank roles).
+--
 -- The .mjs script extends this SoT with:
---   * cross-tenant TENANT_OWNER updates (heuresys/admin, smartfood/smartfood-admin, econova/econova-admin)
 --   * legacy $2a$ duplicate soft-delete (rtl-bank.alice.esposito, rtl-bank.alberto.colombo)
+--   * post-S22 cross-tenant TENANT_OWNER soft-delete (admin, smartfood-admin, econova-admin)
+--     — restricted out of the test matrix; were canonical until S22 cleanup.
 --   * runtime bcrypt verification for every canonical
 --
 -- This .sql file is preserved for psql/CI-driven flows that pre-date the .mjs
@@ -66,11 +69,19 @@ WHERE username IN (SELECT username FROM canonical_demo_users)
     OR deleted_at IS NOT NULL
   );
 
--- 4. Soft-delete legacy duplicates (added 2026-05-07: alice.esposito + alberto.colombo
---    were $2a$ duplicates of the canonical paolo.caputo + francesca.gallo).
+-- 4. Soft-delete legacy duplicates and post-S22 retired cross-tenant TENANT_OWNERs.
+--    2026-05-07: alice.esposito + alberto.colombo ($2a$ legacy duplicates of paolo.caputo + francesca.gallo).
+--    2026-05-09 (S22): admin / smartfood-admin / econova-admin retired from canonical when test matrix
+--    was restricted to tests/.test-env (8 entries).
 UPDATE users
 SET is_active = false, deleted_at = NOW()
-WHERE username IN ('rtl-bank.alice.esposito', 'rtl-bank.alberto.colombo')
+WHERE username IN (
+    'rtl-bank.alice.esposito',
+    'rtl-bank.alberto.colombo',
+    'admin',
+    'smartfood-admin',
+    'econova-admin'
+  )
   AND is_active = true
   AND deleted_at IS NULL;
 

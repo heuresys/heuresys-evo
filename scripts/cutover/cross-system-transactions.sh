@@ -11,17 +11,21 @@
 #       --evo    http://127.0.0.1:8200 \
 #       --legacy-fe http://127.0.0.1:3012 \
 #       --evo-fe    http://127.0.0.1:3200 \
-#       --user-econova econova-admin \
-#       --user-rtl rtl-admin \
+#       --user-a rtl-bank.francesca.gallo \
+#       --user-b rtl-bank.federica.marchetti \
 #       --pass Heuresys2026!
+#
+# Defaults restricted to tests/.test-env canonical users (post-S22).
+# For legacy-only scenarios that need the retired econova-admin / rtl-admin,
+# pass them explicitly via the override flags (legacy stack still has those).
 #
 # Output:
 #   /tmp/cross-tx-report-<TS>.html
 #   /tmp/cross-tx-data-<TS>.json
 #
 # The 10 transactions cover:
-#   1. Login econova-admin (cookie set on both)
-#   2. Login rtl-admin (cross-tenant, both)
+#   1. Login user-a EMPLOYEE (cookie set on both)
+#   2. Login user-b TENANT_OWNER (cross-role, both)
 #   3. Fetch /employees (evo) vs /api/v1/employees (legacy) — RLS isolation
 #   4. Fetch /leaves (evo) vs /api/v1/leaves (legacy)
 #   5. Submit leave (evo only — legacy may have different surface)
@@ -37,8 +41,8 @@ LEGACY_BASE="${LEGACY_BASE:-http://127.0.0.1:8012}"
 EVO_BASE="${EVO_BASE:-http://127.0.0.1:8200}"
 LEGACY_FE="${LEGACY_FE:-http://127.0.0.1:3012}"
 EVO_FE="${EVO_FE:-http://127.0.0.1:3200}"
-USER_ECONOVA="${USER_ECONOVA:-econova-admin}"
-USER_RTL="${USER_RTL:-rtl-admin}"
+USER_ECONOVA="${USER_ECONOVA:-rtl-bank.francesca.gallo}"
+USER_RTL="${USER_RTL:-rtl-bank.federica.marchetti}"
 USER_PASS="${USER_PASS:-Heuresys2026!}"
 
 while [ $# -gt 0 ]; do

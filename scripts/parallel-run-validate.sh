@@ -129,7 +129,7 @@ cat > "$DATA_FILE" <<JSON
     $PROBE_LEG_AUDIT, $PROBE_EVO_AUDIT
   ],
   "manual_checklist": [
-    "Login as employee.test (econova-employee/Heuresys2026!) on both stacks → both should reach /portal or /dashboard",
+    "Login as canonical EMPLOYEE (rtl-bank.francesca.gallo/Heuresys2026!) on both stacks → both should reach /portal or /dashboard",
     "Submit a leave request on evo /portal/leaves and observe legacy /admin/leaves does NOT show it (cross-system isolation)",
     "Approve a leave on evo as manager and observe employee's view updates",
     "Search ESCO occupation 'developer' on evo and observe results returned",
@@ -233,7 +233,7 @@ cat >> "$HTML_FILE" <<HTML_PROBES
 <p>The script can't replace human visual review. Walk through these one by one
 on both stacks. Mark each pass/fail and note any divergence.</p>
 <ul class="checklist">
-  <li>[ ] Login as <code>econova-admin/Heuresys2026!</code> on both stacks — both should reach the dashboard</li>
+  <li>[ ] Login as canonical TENANT_OWNER <code>rtl-bank.federica.marchetti/Heuresys2026!</code> on both stacks — both should reach the dashboard</li>
   <li>[ ] Submit a leave request on evo <code>/portal/leaves</code> and observe legacy <code>/admin/leaves</code> does NOT show it (cross-system isolation expected)</li>
   <li>[ ] Approve a leave on evo as manager and observe employee's view updates (live data flow within evo)</li>
   <li>[ ] Search ESCO occupation 'developer' on evo (<code>/admin/skill-search</code> or via API <code>/esco/occupations/search?q=developer</code>) and observe results</li>
