@@ -19,21 +19,18 @@
 
 import { PrismaClient } from '../../services/app/prisma/generated/client/index.js';
 import bcrypt from 'bcryptjs';
+import { parseTestEnv, getCanonicalUsersByRole } from '../../tests/parse-test-env.mjs';
 
-const PASSWORD = 'Heuresys2026!';
+// SoT: tests/.test-env (post-L51). Mai duplicare gli username qui — parsiamo
+// direttamente la matrix.
+const TEST_USERS = parseTestEnv();
+const BY_ROLE = getCanonicalUsersByRole();
+
+const PASSWORD = BY_ROLE.SUPERUSER.password; // unica condivisa da matrix
 const COST = 12;
 
-const CANONICAL_RTL = [
-  'federica.marchetti@rtl-bank.org',
-  'marco.desantis@rtl-bank.org',
-  'valentina.conti@rtl-bank.org',
-  'maria.colombo@rtl-bank.org',
-  'paolo.caputo@rtl-bank.org',
-  'giuseppe.ferri@rtl-bank.org',
-  'francesca.gallo@rtl-bank.org',
-];
-
-const SUPERUSER = 'sysadmin';
+const CANONICAL_RTL = TEST_USERS.filter((u) => u.role !== 'SUPERUSER').map((u) => u.username);
+const SUPERUSER = BY_ROLE.SUPERUSER.username;
 
 const LEGACY_TO_DEACTIVATE = [
   // Pre-L50 username forms (kept here so re-running apply on a stale DB
@@ -96,20 +93,14 @@ async function main() {
     `[apply-canonical-users] legacy/restricted soft-deleted: ${deactivated}/${LEGACY_TO_DEACTIVATE.length}`
   );
 
-  // 3. Refresh canonical_demo_users registry
+  // 3. Refresh canonical_demo_users registry — driven by .test-env SoT
   await prisma.$executeRaw`TRUNCATE canonical_demo_users`;
-  await prisma.$executeRaw`
-    INSERT INTO canonical_demo_users(role, username) VALUES
-      ('SUPERUSER',    ${SUPERUSER}),
-      ('TENANT_OWNER', ${'federica.marchetti@rtl-bank.org'}),
-      ('IT_ADMIN',     ${'marco.desantis@rtl-bank.org'}),
-      ('HR_DIRECTOR',  ${'valentina.conti@rtl-bank.org'}),
-      ('HR_MANAGER',   ${'maria.colombo@rtl-bank.org'}),
-      ('DEPT_HEAD',    ${'paolo.caputo@rtl-bank.org'}),
-      ('LINE_MANAGER', ${'giuseppe.ferri@rtl-bank.org'}),
-      ('EMPLOYEE',     ${'francesca.gallo@rtl-bank.org'})
-  `;
-  console.log('[apply-canonical-users] registry refreshed (8 roles)');
+  for (const u of TEST_USERS) {
+    await prisma.$executeRaw`
+      INSERT INTO canonical_demo_users(role, username) VALUES (${u.role}, ${u.username})
+    `;
+  }
+  console.log(`[apply-canonical-users] registry refreshed (${TEST_USERS.length} roles)`);
 
   // 4. Verification: all canonical accept the password
   const verified = await prisma.$queryRaw`

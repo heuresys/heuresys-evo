@@ -15,6 +15,7 @@
  * All canonical demo users share the unified password `Heuresys2026!`.
  */
 import type { Page } from '@playwright/test';
+import { getCanonicalUsersByRole, parseTestEnv } from '../../../../../tests/parse-test-env.mjs';
 
 export interface CanonicalUser {
   username: string;
@@ -23,71 +24,39 @@ export interface CanonicalUser {
   tenant: string;
 }
 
-const PASSWORD = 'Heuresys2026!';
+// SoT: tests/.test-env (post-L51). Tutti gli username/password sono letti da
+// quel file via parser; nessuna duplicazione qui.
+const BY_ROLE = getCanonicalUsersByRole();
+
+function fromRole(role: string, tenantOverride?: string): CanonicalUser {
+  const u = BY_ROLE[role];
+  if (!u) throw new Error(`tests/.test-env missing canonical user for role ${role}`);
+  return {
+    username: u.username,
+    password: u.password,
+    role: u.role,
+    tenant: tenantOverride ?? u.tenant,
+  };
+}
 
 export const CANONICAL_USERS = {
-  // 8 canonical demo users — restricted to tests/.test-env matrix (post-S22).
-  superuser: {
-    username: 'sysadmin',
-    password: PASSWORD,
-    role: 'SUPERUSER',
-    tenant: 'platform',
-  } satisfies CanonicalUser,
-  tenantOwnerRtl: {
-    username: 'federica.marchetti@rtl-bank.org',
-    password: PASSWORD,
-    role: 'TENANT_OWNER',
-    tenant: 'RTL Bank',
-  } satisfies CanonicalUser,
-  itAdminRtl: {
-    username: 'marco.desantis@rtl-bank.org',
-    password: PASSWORD,
-    role: 'IT_ADMIN',
-    tenant: 'RTL Bank',
-  } satisfies CanonicalUser,
-  hrDirectorRtl: {
-    username: 'valentina.conti@rtl-bank.org',
-    password: PASSWORD,
-    role: 'HR_DIRECTOR',
-    tenant: 'RTL Bank',
-  } satisfies CanonicalUser,
-  hrManagerRtl: {
-    username: 'maria.colombo@rtl-bank.org',
-    password: PASSWORD,
-    role: 'HR_MANAGER',
-    tenant: 'RTL Bank',
-  } satisfies CanonicalUser,
-  deptHeadRtl: {
-    username: 'paolo.caputo@rtl-bank.org',
-    password: PASSWORD,
-    role: 'DEPT_HEAD',
-    tenant: 'RTL Bank',
-  } satisfies CanonicalUser,
-  lineManagerRtl: {
-    username: 'giuseppe.ferri@rtl-bank.org',
-    password: PASSWORD,
-    role: 'LINE_MANAGER',
-    tenant: 'RTL Bank',
-  } satisfies CanonicalUser,
-  employeeRtl: {
-    username: 'francesca.gallo@rtl-bank.org',
-    password: PASSWORD,
-    role: 'EMPLOYEE',
-    tenant: 'RTL Bank',
-  } satisfies CanonicalUser,
-};
+  superuser: fromRole('SUPERUSER', 'platform'),
+  tenantOwnerRtl: fromRole('TENANT_OWNER'),
+  itAdminRtl: fromRole('IT_ADMIN'),
+  hrDirectorRtl: fromRole('HR_DIRECTOR'),
+  hrManagerRtl: fromRole('HR_MANAGER'),
+  deptHeadRtl: fromRole('DEPT_HEAD'),
+  lineManagerRtl: fromRole('LINE_MANAGER'),
+  employeeRtl: fromRole('EMPLOYEE'),
+} as const;
 
-/** Full canonical RBP matrix (8 users × 9 dashboards = 72 cases). */
-export const RTL_MATRIX_USERS: CanonicalUser[] = [
-  CANONICAL_USERS.superuser,
-  CANONICAL_USERS.tenantOwnerRtl,
-  CANONICAL_USERS.itAdminRtl,
-  CANONICAL_USERS.hrDirectorRtl,
-  CANONICAL_USERS.hrManagerRtl,
-  CANONICAL_USERS.deptHeadRtl,
-  CANONICAL_USERS.lineManagerRtl,
-  CANONICAL_USERS.employeeRtl,
-];
+/** Full canonical RBP matrix (driven by .test-env). */
+export const RTL_MATRIX_USERS: CanonicalUser[] = parseTestEnv().map((u) => ({
+  username: u.username,
+  password: u.password,
+  role: u.role,
+  tenant: u.role === 'SUPERUSER' ? 'platform' : u.tenant,
+}));
 
 /** All 9 published dashboard preset codes (Phase 13). */
 export const DASHBOARD_CODES = [
