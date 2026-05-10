@@ -22,10 +22,10 @@ PostgreSQL gira **bare-metal** su VM OCI (e su host locale durante lo sviluppo),
 
 Implicazioni concrete:
 
-- `infra/docker-compose*.yml` non contiene un servizio Postgres
+- Niente `docker-compose.yml` / `Dockerfile` per Postgres (né per altri servizi runtime — vedi ADR-0023)
 - Le applicazioni si connettono via env `DATABASE_URL=postgresql://user:pass@host:port/db`
-- Backup, restore, role management gestiti via script bash in `db/scripts/` (non via `docker exec`)
-- Migrations applicate via `psql` o tool nativo (es. `node-pg-migrate`), non via container ephemeral
+- Backup, restore, role management gestiti via script bash in `db/scripts/` (`backup.sh`, `restore-baseline.sh`, `setup-local.sh`, `setup-vm.sh`)
+- Migrations applicate via `psql` o Prisma Migrate (`npx prisma migrate deploy`), niente container ephemeral
 - Estensioni (pgvector, eventuali altre) installate sull'host con `apt`/`pgxn`
 
 ## Alternatives considered

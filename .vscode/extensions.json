@@ -6,7 +6,6 @@
     "bradlc.vscode-tailwindcss",
     "vitest.explorer",
     "ms-playwright.playwright",
-    "ms-azuretools.vscode-docker",
     "EditorConfig.EditorConfig",
     "streetsidesoftware.code-spell-checker"
   ],

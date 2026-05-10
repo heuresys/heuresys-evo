@@ -12,15 +12,15 @@ Il greenfield evo è organizzato come npm workspaces:
 ```
 heuresys-evo/
 ├── services/
-│   ├── api-gateway/     # Express 5 backend
-│   ├── app/             # Next.js 16 (auth + dashboard)
-│   ├── enrichment/      # placeholder per ESCO/Firecrawl pipeline
-│   ├── marketing/       # Next.js 16 (sito pubblico)
-│   └── playground/      # placeholder demo (archived in B9)
+│   ├── api-gateway/     # Express 5 backend (systemd bare-metal port 8200)
+│   ├── app/             # Next.js 16 (auth + dashboard, port 3200)
+│   └── enrichment/      # BullMQ workers (port 8220)
 └── packages/
-    ├── shared/          # tipi + schemi Zod condivisi
-    └── ui/              # design system (Phase B7 espande)
+    ├── shared/          # tipi + schemi Zod condivisi + RBP constants
+    └── ui/              # design system (~180 components Cantiere B v2)
 ```
+
+> **Update reality check 2026-05-10**: versioni precedenti di questo ADR menzionavano `services/marketing` e `services/playground` come parte del monorepo. Reality check con `ls services/`: **non esistono**. Erano placeholder/visions mai implementati. Il monorepo reale ha 3 services + 2 packages = 5 workspace totali.
 
 Forces:
 
@@ -54,7 +54,7 @@ Cross-service comunicazione: **HTTP only**, no shared mutable state, no shared i
 ## Alternatives considered
 
 - **Single Next.js app (no api-gateway)**: rejected — separa boundary auth/data layer è valore (testabilità, performance tuning indipendente, futuro horizontal scaling).
-- **Turborepo / Nx**: rejected come ADR-0006 strict scope; npm workspaces native sono sufficienti per la scala attuale (2-5 services). Possibile reconsider se il tempo build cumulativo supera 60s.
+- **Turborepo / Nx**: rejected come ADR-0006 strict scope; npm workspaces native sono sufficienti per la scala attuale (3 services). Possibile reconsider se il tempo build cumulativo supera 60s.
 - **PNPM workspaces**: rejected — npm 10+ è installato di default sulla VM, switch a pnpm aggiunge una dipendenza tooling senza ROI immediato.
 
 ## Consequences
@@ -62,7 +62,7 @@ Cross-service comunicazione: **HTTP only**, no shared mutable state, no shared i
 Positive:
 
 - Code sharing senza duplicazione (tipi DTO Zod riusati cross-service).
-- Build isolation: un break in `services/marketing` non impatta `services/app`.
+- Build isolation: un break in `services/api-gateway` non impatta `services/app`.
 - Dep hoisting riduce footprint disco di `node_modules/` (~40% vs separate trees).
 
 Negative:

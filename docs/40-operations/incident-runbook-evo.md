@@ -1,6 +1,8 @@
-# Incident Runbook — evo
+# Incident Runbook — evo (bare-metal)
 
 VM target: `oracle-vm-default` (80.225.82.207). On-call: **Enzo Spenuso** (founder, primary). Backup contact: **TBD** (placeholder).
+
+> **Runtime**: bare-metal systemd-managed. **Niente Docker, niente container.** Vedi [`deploy-evo.md`](deploy-evo.md) per topologia.
 
 ## Severity matrix
 
@@ -12,25 +14,26 @@ VM target: `oracle-vm-default` (80.225.82.207). On-call: **Enzo Spenuso** (found
 
 ## Diagnostic — comandi stack-specific
 
-### Status containers (Docker mode)
+### Status servizi systemd
 
 ```bash
-docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
-docker compose -f /home/ubuntu/heuresys-evo/docker-compose.yml ps
-docker stats --no-stream                              # CPU/MEM live
+sudo systemctl status heuresys-evo-api heuresys-evo-app heuresys-evo-enrich --no-pager
+sudo systemctl status postgresql redis-server nginx --no-pager
+ps aux --sort=-%cpu | head -10                        # CPU live
+free -h && df -h /                                    # MEM + disk
 ```
 
 ### Logs applicativi
 
 ```bash
-docker logs heuresys_evo_api_gateway --tail 100 -f
-docker logs heuresys_evo_frontend    --tail 100
-docker logs heuresys_evo_enrichment  --tail 100       # BullMQ workers
-docker logs heuresys_evo_redis       --tail 50
-docker logs heuresys_evo_platform_db --tail 50        # legacy data container
+sudo journalctl -u heuresys-evo-api    -n 100 -f
+sudo journalctl -u heuresys-evo-app    -n 100
+sudo journalctl -u heuresys-evo-enrich -n 100         # BullMQ workers
+sudo journalctl -u redis-server        -n 50
+sudo journalctl -u postgresql          -n 50
 ```
 
-Filtro JSON pino: `docker logs heuresys_evo_api_gateway --tail 500 | jq -r 'select(.level=="error") | "\(.time) \(.correlationId) \(.msg)"'`.
+Filtro JSON pino: `sudo journalctl -u heuresys-evo-api -n 500 --output=cat | jq -r 'select(.level=="error") | "\(.time) \(.correlationId) \(.msg)"'`.
 
 ### Database (bare-metal Postgres)
 
@@ -48,7 +51,7 @@ sudo -nu postgres psql -d heuresys_platform -c \
   "SELECT pid, usename, state, query_start, left(query,80) FROM pg_stat_activity WHERE state != 'idle' ORDER BY query_start"
 
 # Inspect via Prisma Studio (read-only browse)
-cd /home/ubuntu/heuresys-evo/services/api-gateway && npx prisma studio --browser none --port 5555
+cd /home/ubuntu/heuresys-evo/services/app && npx prisma studio --browser none --port 5555
 ```
 
 ### Nginx + SSL
@@ -65,11 +68,11 @@ sudo tail -50 /var/log/nginx/evo.heuresys.com.error.log
 ### Redis + BullMQ
 
 ```bash
-docker exec heuresys_evo_redis redis-cli INFO server | head -20
-docker exec heuresys_evo_redis redis-cli DBSIZE
-docker exec heuresys_evo_redis redis-cli LLEN bull:enrichment:wait    # job pending
-docker exec heuresys_evo_redis redis-cli LLEN bull:enrichment:active  # job in-flight
-docker exec heuresys_evo_redis redis-cli LLEN bull:enrichment:failed  # job failed
+redis-cli -h 127.0.0.1 -p 6380 INFO server | head -20
+redis-cli -h 127.0.0.1 -p 6380 DBSIZE
+redis-cli -h 127.0.0.1 -p 6380 LLEN bull:enrichment:wait    # job pending
+redis-cli -h 127.0.0.1 -p 6380 LLEN bull:enrichment:active  # job in-flight
+redis-cli -h 127.0.0.1 -p 6380 LLEN bull:enrichment:failed  # job failed
 ```
 
 ### Health endpoints
@@ -77,44 +80,50 @@ docker exec heuresys_evo_redis redis-cli LLEN bull:enrichment:failed  # job fail
 ```bash
 curl -fsS https://evo.heuresys.com/api/health         # 200 = liveness OK
 curl -fsS https://evo.heuresys.com/api/health/ready   # 200 = DB+Redis+ESCO ready
-curl -fsS http://127.0.0.1:8012/metrics | head -30    # Prometheus metrics (interno)
+curl -fsS http://127.0.0.1:8200/metrics | head -30    # Prometheus metrics (interno)
 ```
 
 ## Procedure base
 
-### Container restart (P1 ridotto)
+### Service restart (P1 ridotto)
 
 ```bash
-docker restart heuresys_evo_api_gateway               # safe, no rebuild
-docker logs -f heuresys_evo_api_gateway --tail 20
+sudo systemctl restart heuresys-evo-api               # safe, no rebuild
+sudo journalctl -u heuresys-evo-api -n 20 -f
 curl -fsS https://evo.heuresys.com/api/health         # verify
 ```
 
-### Container rebuild (P1 — codice rotto)
+### Service rebuild (P1 — codice rotto)
 
 ```bash
 cd /home/ubuntu/heuresys-evo
 git pull origin main                                   # pulla fix
-docker compose build api_gateway                       # rebuild solo servizio
-docker compose up -d --no-deps --force-recreate api_gateway
-docker compose logs -f api_gateway --tail 50
+npm ci --workspaces --include-workspace-root
+npm run build --workspace=services/api-gateway         # rebuild solo servizio
+sudo systemctl restart heuresys-evo-api
+sudo journalctl -u heuresys-evo-api -n 50 -f
 ```
 
 ### DB restore from bucket OCI (P1 critico — corruzione/data loss)
 
 ```bash
 # 1. Stop scrittura (blocca ingress)
-docker compose stop api_gateway enrichment
+sudo systemctl stop heuresys-evo-api heuresys-evo-enrich
 
-# 2. Lista snapshot recenti
+# 2. Lista snapshot recenti (bucket OCI quando provisioned, vedi C4 carry-forward)
 oci os object list --bucket-name heuresys-evo-backups --prefix evo- \
   --query "data[*].{name:name,size:size,modified:\"time-modified\"}" --output table
 
-# 3. Download snapshot target
+# Alternativa locale (backup chain locale corrente):
+ls -lt /var/backups/heuresys-evo/*.dump | head -10
+
+# 3. Download snapshot target (se bucket) o pick local:
 oci os object get --bucket-name heuresys-evo-backups \
   --name "evo-20260501.dump" --file /tmp/restore.dump
+# OR
+cp /var/backups/heuresys-evo/heuresys_platform-2026-05-01T030000Z.dump /tmp/restore.dump
 
-# 4. Restore (vedi db-management-evo.md §Restore per flag completi)
+# 4. Restore (vedi dbms-backup-restore.md §Restore per flag completi)
 sudo -nu postgres dropdb --if-exists heuresys_platform_restore
 sudo -nu postgres createdb heuresys_platform_restore
 sudo -nu postgres pg_restore -d heuresys_platform_restore \
@@ -128,7 +137,7 @@ sudo -nu postgres psql -c "ALTER DATABASE heuresys_platform RENAME TO heuresys_p
 sudo -nu postgres psql -c "ALTER DATABASE heuresys_platform_restore RENAME TO heuresys_platform"
 
 # 7. Riavvio
-docker compose start api_gateway enrichment
+sudo systemctl start heuresys-evo-api heuresys-evo-enrich
 ```
 
 ### Nginx reload (config update)
@@ -197,7 +206,8 @@ Comando/PR/configurazione applicata. Link al commit/PR.
 
 ## Riferimenti
 
-- `docs/40-operations/deploy-evo.md` — procedure deploy/rollback
-- `docs/40-operations/db-management-evo.md` — backup/restore DBMS
+- `docs/40-operations/deploy-evo.md` — procedure deploy/rollback (bare-metal systemd)
+- `docs/40-operations/dbms-backup-restore.md` — backup/restore DBMS
 - `docs/40-operations/observability-nestjs.md` — health endpoints, metrics, correlationId
 - `infra/nginx/evo.heuresys.com.deployed.conf` — vhost canonical
+- ADR-0001 PostgreSQL bare-metal · ADR-0023 DBMS SoT bare-metal

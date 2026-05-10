@@ -1,6 +1,6 @@
 # Final Decision Brief — heuresys-evo Acquisition
 
-> **Mandato**: ACQ-AUDIT-2026-05 · **Data**: 2026-05-10 · **Status**: **SIGNED FINAL** post-rebuttal
+> **Mandato**: ACQ-AUDIT-2026-05 · **Data**: 2026-05-10 · **Status**: **SIGNED FINAL** post-rebuttal · **Update post-S28 Wave 1 docker-eradication**: vedi `19-remediation-execution-report.md`. C3 (Doc-runtime drift) era false-positive parziale — runtime ATTUALE è bare-metal puro (zero Docker container/compose nel repo, ADR-0023 già canonical). Wave 1 ha pulito doc + 13 script docker-legacy + ADR sweep (0002 superseded → 0027, 0004 superseded, 0023 annotated, 0006 fictional services puliti). Acquirer può scontare meno per C3 nel deal value.
 > **Owner audit**: M&A Tech Due Diligence Team (12 subagent specialisti + 2 Devil's Advocate + main thread synthesis)
 > **Audience**: Senior Partners (M&A committee acquirente)
 > **Lingua**: italiano

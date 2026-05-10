@@ -2,6 +2,7 @@
 
 > **Mandato**: ACQ-AUDIT-2026-05 · **Data**: 2026-05-10 · **Status**: **DRAFT PRELIMINARY (post-Sessione 1, pre-Devil's Advocate)** — **SUPERSEDED**
 > **Decisione preliminary**: **NEGOTIATE** con condizioni precedenti — confermata ma riformulata in `16-final-decision-brief.md` post-rebuttal
+> **Update post-S28 Wave 1 docker-eradication (2026-05-10 19:00Z)**: C3 era false-positive parziale del D5. Vedi `19-remediation-execution-report.md`.
 >
 > ⚠️ **QUESTO DOCUMENTO È PRELIMINARY E SUPERSEDED**. Per la decision firmata signed-off post-Devil's Advocate + rebuttal, vedi: [`16-final-decision-brief.md`](./16-final-decision-brief.md)
 >

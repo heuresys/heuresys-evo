@@ -3,30 +3,30 @@
 > **Decisione**: npm workspaces puri. Niente Turborepo, niente Nx.
 > **Motivazione**: founder solo, KISS, build sequenziale ≤2 min accettabile, tooling extra non ripaga la complessità.
 
-## Struttura
+## Struttura (reality check 2026-05-10)
 
 ```
 heuresys-evo/
 ├── package.json              # workspaces: ["services/*", "packages/*"]
 ├── services/
-│   ├── api-gateway/          # NestJS, port 8012
-│   ├── app/                  # Next.js 16, port 3012, contiene prisma/
-│   ├── enrichment/           # BullMQ workers
-│   └── playground/           # demo/sandbox UI
+│   ├── api-gateway/          # Express 5, port 8200 (systemd bare-metal)
+│   ├── app/                  # Next.js 16, port 3200, contiene prisma/
+│   └── enrichment/           # BullMQ workers, port 8220
 └── packages/
-    ├── ui/                   # design system (Shadcn + Cantiere B v2, 180 components)
-    ├── shared/               # zod schemas, type utils, RBP constants
-    └── types/                # tipi Prisma re-exported + custom domain types
+    ├── ui/                   # design system (Shadcn + Cantiere B v2, ~180 components)
+    └── shared/               # zod schemas, type utils, RBP constants
 ```
 
 Regola d'oro: `packages/*` non dipendono da nessun altro workspace. `services/*` dipendono da `packages/*` (mai da altro service).
 
-## Shared types (`packages/types`)
+> **Nota canonical** (post-2026-05-10): `services/marketing`, `services/playground`, `packages/types` documentati in versioni precedenti di questo file e in ADR-0006 **non esistono nel codebase**. Erano placeholder/visions mai implementati. Il monorepo reale ha 3 services + 2 packages = 5 workspace totali. Niente Docker (vedi ADR-0001 + ADR-0023): tutti i servizi runtime girano bare-metal via systemd.
 
-Single source of truth per i tipi cross-workspace. Re-export da Prisma + brand types.
+## Type sharing cross-workspace
+
+I tipi condivisi vivono in `packages/shared/src/` (zod schemas, RBP constants, brand types). Niente `packages/types` separato — fuso dentro `packages/shared`.
 
 ```typescript
-// packages/types/src/index.ts
+// packages/shared/src/types/index.ts (esempio)
 export type { Tenant, User, Role, EmployeeRecord, AuditLog } from '@prisma/client';
 
 // Brand types per evitare mix di ID
@@ -52,23 +52,10 @@ export const RBP_ROLES = [
 export type RbpRole = (typeof RBP_ROLES)[number];
 ```
 
-Consumo da api-gateway:
+Consumo da api-gateway o app:
 
 ```typescript
-import type { TenantId, RbpRole } from '@heuresys/types';
-```
-
-`package.json` di `packages/types`:
-
-```json
-{
-  "name": "@heuresys/types",
-  "version": "0.0.0",
-  "private": true,
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "scripts": { "build": "tsc -p tsconfig.json" }
-}
+import type { TenantId, RbpRole } from '@heuresys/shared';
 ```
 
 ## Build orchestration
@@ -81,7 +68,7 @@ npm run build --workspaces --if-present
 npm run build --workspace=services/api-gateway
 
 # Catena dipendente: ricompila packages/* prima di services/*
-npm run build --workspace=@heuresys/types \
+npm run build --workspace=@heuresys/shared \
   && npm run build --workspace=@heuresys/ui \
   && npm run build --workspaces --if-present --workspace=services
 ```
@@ -96,7 +83,7 @@ In CI usiamo lo script `scripts/build-all.sh` che ordina workspace topologicamen
 | `services/*` | semver `0.x.y`    | No (deploy diretto) |
 | Repo root    | `0.x.0`           | No                  |
 
-Le `packages/*` restano `0.0.0` perché linkate via workspace protocol — il version field è inerte. Cambiamenti breaking in `@heuresys/types` si propagano via TypeScript compile error nei consumer, non via semver.
+Le `packages/*` restano `0.0.0` perché linkate via workspace protocol — il version field è inerte. Cambiamenti breaking in `@heuresys/shared` si propagano via TypeScript compile error nei consumer, non via semver.
 
 ## npm install hoist
 

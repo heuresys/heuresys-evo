@@ -3,6 +3,8 @@
 > **Mandato**: ACQ-AUDIT-2026-05 · **Data**: 2026-05-10 · **Fase**: B Synthesis Pass 1 · **Status**: PRELIMINARY (pre-Devil's Advocate)
 > **Source**: merge cross-domain di 10 audit deliverable (D1, D2, D3, D4 ui, D4 a11y, D5, D6, D8, D9 competitor, D9 context)
 > **Ordering**: severity discendente; entro stessa severity, ordinato per impatto acquirer (compliance > scaling > qualità di vita)
+>
+> **Update post-S28 Wave 1 docker-eradication (2026-05-10 19:00Z)**: vedi `19-remediation-execution-report.md` per status post-fix di ogni finding. Reality-check ha rivelato che **C3 era false-positive parziale**: il runtime ATTUALE è bare-metal (zero Dockerfile/docker-compose.yml nel repo); il drift era nei doc che descrivevano una modalità Docker mai shipped. Doc sweep 2026-05-10 ha eliminato ogni riferimento Docker (52 file → puliti i critical, archive lasciata storica; 13 script docker-legacy in db/scripts/ rimossi; ADR-0002 superseded da ADR-0027 bare-metal test strategy; ADR-0004 superseded; ADR-0023 annotated; nuovo ADR-0027 shipped). H1 doc-only ADR-0006 fictional services puliti. H2 NestJS doc fixed. M8 confirmed RESOLVED. Effort residuo per CRITICAL/HIGH non-doc: invariato (vedi report).
 
 ---
 

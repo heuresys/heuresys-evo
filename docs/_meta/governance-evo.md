@@ -105,7 +105,7 @@ Cosa l'evo NON eredita:
 - Express 5 stack → sostituito con NestJS 10
 - Dual pool pg con `set_config` session-level → sostituito con Prisma + middleware AsyncLocalStorage
 - Auth custom + NextAuth v5-beta → semplificato a `@nestjs/passport` + NextAuth v4
-- `dc.sh` wrapper Docker → docker compose vanilla con script make
+- `dc.sh` wrapper Docker (legacy) → eliminato; runtime evo è bare-metal systemd, niente container (vedi ADR-0001 + ADR-0023)
 - Estensione monolite con 12 modules in un singolo workspace → 4 workspace separati
 
 ## Quick reference per onboarding sviluppatore

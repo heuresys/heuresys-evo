@@ -25,26 +25,26 @@ Popolare richieste di ferie/permessi (`leave_requests`) demo per gli **8 utenti 
 
 Inserisce **21 richieste di ferie/permessi** distribuite tra gli 8 utenti canonical (2-4 per utente), con mix realistico di:
 
-| Campo | Valori |
-|-------|--------|
-| `leave_type` | `annual`, `sick`, `personal`, `parental` |
-| `status` | `approved` (~60%), `pending` (~40%) |
-| `reason` | Testo EN neutro (`Annual leave`, `Flu`, `Medical appointment`, ecc.) |
-| `start_date` | Date relative calcolate a runtime (passate e future) |
-| `days_requested` | 1-8 giorni |
+| Campo            | Valori                                                               |
+| ---------------- | -------------------------------------------------------------------- |
+| `leave_type`     | `annual`, `sick`, `personal`, `parental`                             |
+| `status`         | `approved` (~60%), `pending` (~40%)                                  |
+| `reason`         | Testo EN neutro (`Annual leave`, `Flu`, `Medical appointment`, ecc.) |
+| `start_date`     | Date relative calcolate a runtime (passate e future)                 |
+| `days_requested` | 1-8 giorni                                                           |
 
 ### Distribuzione per utente
 
-| Canonical user | Ruolo | # richieste | Tipi |
-|----------------|-------|-------------|------|
-| Federica Marchetti | TENANT_OWNER | 2 | annual, personal |
-| Marco De Santis | IT_ADMIN | 3 | annual, sick, personal |
-| Valentina Conti | HR_DIRECTOR | 3 | annual, sick, parental |
-| Maria Colombo | HR_MANAGER | 2 | annual, personal |
-| Paolo Caputo | DEPT_HEAD | 2 | annual, sick |
-| Giuseppe Ferri | LINE_MANAGER | 3 | annual, sick, personal |
-| Francesca Gallo | EMPLOYEE | 3 | annual, sick, personal |
-| Pietro Barbieri | (non-canonical) | 3 | annual, sick, parental |
+| Canonical user     | Ruolo           | # richieste | Tipi                   |
+| ------------------ | --------------- | ----------- | ---------------------- |
+| Federica Marchetti | TENANT_OWNER    | 2           | annual, personal       |
+| Marco De Santis    | IT_ADMIN        | 3           | annual, sick, personal |
+| Valentina Conti    | HR_DIRECTOR     | 3           | annual, sick, parental |
+| Maria Colombo      | HR_MANAGER      | 2           | annual, personal       |
+| Paolo Caputo       | DEPT_HEAD       | 2           | annual, sick           |
+| Giuseppe Ferri     | LINE_MANAGER    | 3           | annual, sick, personal |
+| Francesca Gallo    | EMPLOYEE        | 3           | annual, sick, personal |
+| Pietro Barbieri    | (non-canonical) | 3           | annual, sick, parental |
 
 ---
 
@@ -73,11 +73,11 @@ Prima di ogni INSERT, la query verifica se esiste già una riga con la stessa co
 
 ### Comportamento in scenari tipici
 
-| Scenario | Risultato |
-|----------|-----------|
-| Prima esecuzione su DB pulito | INSERT 21 righe |
-| Seconda esecuzione consecutiva | INSERT 0 righe |
-| Dopo `DELETE` di 5 righe + riesecuzione | INSERT 5 righe (solo le mancanti) |
+| Scenario                                         | Risultato                                                  |
+| ------------------------------------------------ | ---------------------------------------------------------- |
+| Prima esecuzione su DB pulito                    | INSERT 21 righe                                            |
+| Seconda esecuzione consecutiva                   | INSERT 0 righe                                             |
+| Dopo `DELETE` di 5 righe + riesecuzione          | INSERT 5 righe (solo le mancanti)                          |
 | Esecuzione su DB con INSERT manuali preesistenti | Conserva le righe esistenti, aggiunge solo quelle mancanti |
 
 ---
@@ -87,6 +87,7 @@ Prima di ogni INSERT, la query verifica se esiste già una riga con la stessa co
 I campi `reason` contengono **testo libero utente**. L'audit forense (`scripts/e2e-forensic-audit-francesca.mjs`) scansiona il DOM cercando "stringhe italiane visibili in modalità EN". Se inserissi `reason='Ferie estive'` (IT), l'audit produrrebbe un **falso positivo** quando l'utente vede il portale in EN — pur essendo dato utente reale, non bug i18n.
 
 Soluzione: uso stringhe EN neutre (`Annual leave`, `Flu`, `Medical appointment`, `Short illness`, `Parental leave`, `Personal day`, `Annual holiday`) che:
+
 - Leggono bene in UI EN
 - Non sono parsabili come "leftover IT" dall'audit
 - Sono accettabili visualmente anche in UI IT (molti HRMS italiani usano termini inglesi)
@@ -95,24 +96,25 @@ Soluzione: uso stringhe EN neutre (`Annual leave`, `Flu`, `Medical appointment`,
 
 ## Come eseguirlo
 
-### Manualmente in locale
+### Manualmente in locale (bare-metal Postgres — vedi ADR-0001/ADR-0023)
+
 ```bash
-docker exec -i heuresys_evo_platform_db \
-  psql -U heuresys -d heuresys_platform -v ON_ERROR_STOP=1 \
-  < db/seeds/canonical_users_leave_fixtures.sql
+psql -h 127.0.0.1 -p 5432 -U heuresys -d heuresys_platform -v ON_ERROR_STOP=1 \
+  -f db/seeds/canonical_users_leave_fixtures.sql
 ```
 
 ### Da script composito (raccomandato)
+
 ```bash
 # Flusso completo di bootstrap demo:
 bash scripts/apply-canonical-users.sh        # 1. Canonical users da .env
-docker exec -i heuresys_evo_platform_db \
-  psql -U heuresys -d heuresys_platform \
-  < db/seeds/canonical_users_leave_fixtures.sql   # 2. Leave requests
+psql -h 127.0.0.1 -p 5432 -U heuresys -d heuresys_platform \
+  -f db/seeds/canonical_users_leave_fixtures.sql   # 2. Leave requests
 bash scripts/verify-canonical-users.sh       # 3. Smoke-test login
 ```
 
 ### In CI/CD
+
 Potenzialmente integrabile in `.github/workflows/governance.yml` dopo `apply_canonical_users.sql`. **NOTA**: gli UUID nel seed sono quelli di produzione (OLD records post-dedupe 2026-04-15). In CI il DB è fresco e NON contiene questi UUID, quindi il seed NON farebbe INSERT (WHERE NOT EXISTS matcha nulla perché `employee_id` non esiste → constraint foreign key fallirebbe). **Non eseguire in CI senza prima mappare gli UUID ai record CI `e2000xxx`.**
 
 ---
@@ -120,7 +122,7 @@ Potenzialmente integrabile in `.github/workflows/governance.yml` dopo `apply_can
 ## Come verificare il risultato
 
 ```bash
-docker exec heuresys_evo_platform_db psql -U heuresys -d heuresys_platform -c "
+psql -h 127.0.0.1 -p 5432 -U heuresys -d heuresys_platform -c "
 SELECT
   (SELECT first_name || ' ' || last_name FROM employees WHERE id = employee_id) AS emp,
   COUNT(*) AS total_requests,
@@ -164,8 +166,8 @@ Atteso: ogni canonical con almeno 2 richieste, mix pending/approved.
 
 ## Quando rieseguirlo
 
-- ✅ Dopo `docker compose down -v` (perdita volume DB) + restore da dump vecchio
-- ✅ Dopo reset manuale del DB in dev
+- ✅ Dopo restore da dump (es. `bash db/scripts/restore-baseline.sh`)
+- ✅ Dopo reset manuale del DB in dev (`npm run db:reset:test`)
 - ✅ Quando aggiungi nuovi ruoli canonical e vuoi dati demo (→ estendere il VALUES clause)
 - ❌ NON eseguire ripetutamente senza motivo — il guard previene duplicati ma è uno spreco di cicli DB
 - ❌ NON eseguire in CI senza prima adattare UUID ai seed `e2000xxx`
@@ -174,12 +176,12 @@ Atteso: ogni canonical con almeno 2 richieste, mix pending/approved.
 
 ## Relazioni con altri seed
 
-| File | Scopo | Relazione con questo seed |
-|------|-------|---------------------------|
-| `db/seeds/ci_test_seed.sql` | Seed CI/CD (GitHub Actions) | Complementare — questo seed NON gira in CI |
-| `db/scripts/apply_canonical_users.sql` | Canonical users da .env | **Prerequisito**: deve girare PRIMA |
-| `scripts/apply-canonical-users.sh` | Wrapper bash per quanto sopra | Stesso prerequisito |
-| `scripts/verify-canonical-users.sh` | Smoke-test 8 canonical login | Complementare — verifica dopo questo seed |
+| File                                   | Scopo                         | Relazione con questo seed                  |
+| -------------------------------------- | ----------------------------- | ------------------------------------------ |
+| `db/seeds/ci_test_seed.sql`            | Seed CI/CD (GitHub Actions)   | Complementare — questo seed NON gira in CI |
+| `db/scripts/apply_canonical_users.sql` | Canonical users da .env       | **Prerequisito**: deve girare PRIMA        |
+| `scripts/apply-canonical-users.sh`     | Wrapper bash per quanto sopra | Stesso prerequisito                        |
+| `scripts/verify-canonical-users.sh`    | Smoke-test 8 canonical login  | Complementare — verifica dopo questo seed  |
 
 ---
 
@@ -203,6 +205,7 @@ WHERE NOT EXISTS (
 ```
 
 Pattern comune:
+
 1. CTE `e` con mappa nomi → UUID
 2. `VALUES` con tuple dati
 3. `LATERAL CASE` per risolvere `emp_key` → UUID
@@ -221,4 +224,4 @@ Pattern comune:
 
 ---
 
-*Documento 2026-04-15 — aggiornare se si modifica il seed.*
+_Documento 2026-04-15 — aggiornare se si modifica il seed._

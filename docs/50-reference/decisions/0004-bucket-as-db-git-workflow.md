@@ -1,6 +1,6 @@
 # ADR-0004: Bucket-as-DB-git workflow + schema unification
 
-**Status**: Accepted
+**Status**: Superseded by ADR-0023 (2026-05-07) e direttiva docker-eradication (2026-05-10). Workflow basato su 3 DBMS docker (PC docker 5432 + VM docker 5433 + VM bare-metal 5432) abbandonato. SoT è bare-metal singolo (oracle-vm-default:5432). Backup off-site bucket OCI è carry-forward C4 indipendente da questo workflow.
 **Date**: 2026-04-29
 **Authors**: Enzo Spenuso
 

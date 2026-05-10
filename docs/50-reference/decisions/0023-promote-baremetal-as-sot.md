@@ -103,7 +103,7 @@ npx playwright test --project=chromium --workers=2            # 100/100 RBP matr
 - ADR-0024 Phase 14.SH plan (brand-driven role-based shell) referenced for next sprint
 - Backup chain automation in `docs/40-operations/dbms-backup-restore.md`
 - Composite real aggregations in FASE 3.6 phase14e migration
-- Eventual docker legacy decommissioning post Phase 14.SH closure
+- ✅ Docker legacy decommissionato definitivamente 2026-05-10 (S28 Wave 1 docker-eradication). 13 script bucket-as-DB-git eliminati (db/scripts/db-pull/push/status/history/etc + bootstrap-pc-docker-evo + sync-replicas + check-freshness + install-cron/freshness-task/pull-cron + oci-config). bare-metal SoT consolidato: `oracle-vm-default:5432` single source. Backup off-site bucket OCI rimane carry-forward C4.
 
 ## References
 

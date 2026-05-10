@@ -110,8 +110,9 @@ CONN_CHECK=$(psql_query -c "SELECT 1;" 2>&1) || true
 if [ "$CONN_CHECK" != "1" ]; then
   echo "  FAIL  Cannot connect to database. Aborting."
   echo ""
-  echo "  Ensure PostgreSQL is running:"
-  echo "    docker compose -f infra/docker-compose.dev.yml up -d"
+  echo "  Ensure PostgreSQL is running (bare-metal — vedi ADR-0001 + ADR-0023):"
+  echo "    bash db/scripts/setup-local.sh   # one-shot install Postgres + pgvector + role + DB"
+  echo "  oppure:  sudo systemctl start postgresql"
   exit 1
 fi
 pass "Database connection"

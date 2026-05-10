@@ -12,7 +12,7 @@ Benvenuto nel progetto `heuresys-evo`. Questa guida ti porta da zero a primo com
 | git                        | 2.40+           | `git --version`                        |
 | jq                         | 1.6+            | `jq --version` (per scripts/hardening) |
 
-PostgreSQL **server** non deve essere installato sulla tua macchina di sviluppo se preferisci usare quello sulla VM o un'istanza Docker temporanea — basta che sia raggiungibile via `DATABASE_URL`.
+PostgreSQL **server** può essere installato bare-metal locale (raccomandato per dev offline) oppure raggiunto via `DATABASE_URL` puntando alla VM bare-metal (`oracle-vm-default:5432`) tramite tunnel SSH. Niente container Docker (vedi ADR-0001 + ADR-0023).
 
 ## 2. Clone e install
 
