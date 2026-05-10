@@ -184,7 +184,7 @@ VM: `oracle-vm-default` (IP 80.225.82.207). nginx vhosts in `/etc/nginx/sites-av
 - 7 view brand-fedeli `/dashboard` role-driven via `role_default_dashboards` (Phase 15.A) — preset_code → view component switch
 - Login = `login-aurora` mockup promosso production · AppShell topbar con LocaleSwitcher globale + ThemeToggle + UserMenu
 - API Next.js route handlers: `/api/dashboard/data/[elementId]`, `/api/dashboard/[code]/elements` (PUT), `/api/ontology/advisor`, `/api/explorer/{esco/tree,sap/status,kg/expand}`
-- Endpoint Express: 30 endpoint Pack 1-8 mounted (bypassed in (app)/ via Prisma direct, JWT cross-service fix pending — `services/api-gateway/src/auth.ts`)
+- Endpoint Express: 30 endpoint Pack 1-8 mounted (bypassed in (app)/ via Prisma direct). Cross-service JWT decode shipped (`9f7a283`): `services/api-gateway/src/lib/jwt-v4-decoder.ts` (jose `jwtDecrypt` + HKDF NextAuth v4 info string) + `middleware/auth.ts` bifurcation v4-cookie → fallback Auth.js v5 `getSession()`. 11/11 test green
 
 **Auth canonical**:
 
@@ -212,21 +212,21 @@ VM: `oracle-vm-default` (IP 80.225.82.207). nginx vhosts in `/etc/nginx/sites-av
 ## Roadmap successiva
 
 1. **Data binding live full** (~3-5h) — sostituisci dati hardcoded mockup-fedeli nelle 6 view non-org_systems con query Prisma reali (employees per tenant + skill_assessments + review_cycles + succession_pipeline)
-2. **Production `/dashboard` refactor DB-driven** (~6-10h, carry-forward S20+S21+S22) — refactor `dashboard/page.tsx` + `BrandShell.tsx` per consumare `chromeStandard` + `dashboardCode` dal catalog DB asset showcase
+2. ~~**Production `/dashboard` refactor DB-driven**~~ — ✅ già shipped: 7 preset `*_v2` popolati (10-12 elements/ruolo), 8 ruoli mappati in `role_default_dashboards`, `dashboard/page.tsx` branch `_v2` → `loadG6Elements` → `DashboardRenderer` (commit `35ba6bb` G6 Adoption + `d59ae3e` Phase 15.A). Residuo minore (~2-3h, non-blocking): 4 process\_\* secondary nav HR_DIRECTOR/HR_MANAGER mancano suffix `_v2` + elements seed. Catalog asset showcase resta SQLite localhost (no sync con postgres = scope architetturale separato, mai approvato)
 3. **Estensione preset minori** (~2-3h) — view brand-fedeli per `process_recruiting_funnel` · `process_onboarding_flow` · `process_performance_cycle` · `process_learning_paths`
 4. **WCAG 2.2 AAA full audit** (~3-5h) — axe-core CI integration + manual NVDA/VoiceOver pass · ref: `docs/_meta/operating-baseline.md` §a11y
 5. **Production build perf bench** (~1-2h) — `next build && next start` + autocannon su 8 viste auth-required, target P95 ≤ 500ms · ref: `scripts/perf/results/`
-6. **API gateway cross-service JWT fix** (~2-3h) — `jose` library NextAuth v4 ↔ Auth.js v5 JWE decode · ref: `services/api-gateway/src/auth.ts`
+6. ~~**API gateway cross-service JWT fix**~~ — ✅ già shipped commit `9f7a283` (decode v4 cookies via jose+HKDF, bifurcation in `middleware/auth.ts`, 11/11 test green). Lo "pending" pre-S25 era documentazione obsoleta
 7. **Brand v1.0 promotion** (~16-25h, 2-3 sessioni) — pre-flight checks per 8 categorie asset · ref: `.ux-design/08-promotion/v1.0-checklist.md`
 
 Backup track parallel: cron daily/weekly/monthly · off-site Oracle bucket · restore drill mensile · `docs/40-operations/dbms-backup-restore.md` (scaffolded).
 
-## Carry-forward S25+ (architectural)
+## Carry-forward S27+ (architectural)
 
-- **§ 1.2 employees vertical-split Phase 2** (DROP COLUMN da employees + Prisma schema refactor + app query migration to satellites) — Phase 1 shipped L59, satellite tables `employees_pii`/`employees_hr`/`employees_payroll` populated 270 row + sync trigger + view `employees_full`. Phase 2 stima ~3-5 FTE-day refactor + 2-3 FTE-day test
-- **pg_cron migration future**: se installato, sostituire systemd timer con `cron.schedule()` row + disable unit
-- **Mapping role → dashboardCode** per i 4 process autonomi (`process_recruiting_funnel_v2` etc.) — decisione HR_MANAGER vs autonomous role
-- **Promote asset packages/ui** non utilizzati nei 10 mockup (es. data-table, hero-sections) — restano `available` nel catalog
+- **§ 1.2 employees vertical-split Phase 2 + view audit** (revised S26 evidence-based, L60) — Phase 1 shipped L59 (3 satellite tables + sync trigger + view `employees_full`). Phase 2 attempt S26 (`phase16o_employees_to_view.DRAFT-DEFERRED.sql`) ha rivelato **65 view + 4 mat view dipendenti da `employees` cols** che il plan canonical NON menzionava. Effort revised: 15-25h FTE (vs 9-14h originale). Sequenza attesa S27+: (1) audit 65 view (purpose/usage/droppable), (2) salva definitions via `pg_get_viewdef`, (3) DROP CASCADE, (4) apply phase16o (rinomina employees→employees_core + DROP COLUMN x77 + CREATE VIEW + INSTEAD OF triggers), (5) ricreare 65 view refactorate per puntare a nuova VIEW employees, (6) verify mat view refresh (systemd timer) + 12 hot view shape integrity. Backup pre-attempt: `heuresys_platform-pre-phase16o-20260510T044105Z.dump` (sha256 `dba5a08b…`).
+- **`/dashboard` 4 process\_\* secondary nav** (HR_DIRECTOR/HR_MANAGER) — mancano suffix `_v2` + elements seedati. Refactor incrementale ~2-3h, non-blocking.
+- **pg_cron migration future**: se installato, sostituire systemd timer con `cron.schedule()` row + disable unit.
+- **Promote asset packages/ui** non utilizzati nei 10 mockup (es. data-table, hero-sections) — restano `available` nel catalog.
 
 ## Documenti strategici
 

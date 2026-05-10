@@ -2047,11 +2047,11 @@ Ogni tabella: ALTER ADD COLUMN tenant_id UUID + UPDATE backfill + ALTER NOT NULL
 
 **Column groups** (95 col → 12 core + 38 PII + 30 HR + 13 Payroll):
 
-| Satellite               | Col count | Esempi key                                                                                                                                                                                                                                                                                    |
-| ----------------------- | --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **`employees_pii`**     | 38        | first*name, last_name, middle_name, email, personal_email, birth*_, gender, nationality, marital*status, address*_, temp*address*_, phone\__, tax*id, national_id\*, passport*_, driver_license_, emergency*contact*_, family*members (jsonb), education_history (jsonb), highest_education*_ |
-| **`employees_hr`**      | 30        | job*title, department, location, manager_id, hire_date, performance_rating, potential, cost_center\*, org_unit_id, location_id, position_id, employee*_group, company*code, personnel*_, probation/seniority/contract*end_date, work_schedule_percentage, auth*\*                             |
-| **`employees_payroll`** | 13        | salary, currency, pay*scale*\*, pay_periods_per_year, iban, swift_bic, bank_name, bank_account_number                                                                                                                                                                                         |
+| Satellite               | Col count | Esempi key                                                                                                                                                                                                                                                                                     |
+| ----------------------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`employees_pii`**     | 38        | first*name, last_name, middle_name, email, personal_email, birth*_, gender, nationality, marital*status, address*_, temp*address*\_, phone\__, tax*id, national_id\*, passport*_, driver*license*, emergency*contact*_, family*members (jsonb), education_history (jsonb), highest_education*_ |
+| **`employees_hr`**      | 30        | job*title, department, location, manager_id, hire_date, performance_rating, potential, cost_center\*, org_unit_id, location_id, position_id, employee*_group, company*code, personnel*_, probation/seniority/contract*end_date, work_schedule_percentage, auth*\*                              |
+| **`employees_payroll`** | 13        | salary, currency, pay*scale*\*, pay_periods_per_year, iban, swift_bic, bank_name, bank_account_number                                                                                                                                                                                          |
 
 **Master `employees` resta** con: id, tenant*id, employment_status, is_active, deleted_at, pernr, created_at, updated_at, termination_date, termination_reason, profile_embedding, embedding*_, enrichment_consent_, skills (array) → core lifecycle + AI/ML hot-path columns.
 
@@ -2086,6 +2086,47 @@ Ogni tabella: ALTER ADD COLUMN tenant_id UUID + UPDATE backfill + ALTER NOT NULL
 7. Stima: ~3-5 FTE-day refactor + 2-3 FTE-day test/integration
 
 **Audit closure update**: 22/22 (100% Phase 1) — § 1.2 employees vertical-split chiuso Phase 1 additive. Note: la chiusura "completa" full split richiede Phase 2 in S26+, ma il rischio architetturale dell'audit (95-col fat table) è mitigato dalla presenza delle satellite tables popolate e in sync via trigger.
+
+---
+
+## L60 — 2026-05-10 — S26: § 1.2 Phase 2 vertical-split DEFERRED a S27+ (65 view dipendenti scoperte evidence-based)
+
+**Decisione**: Phase 2 vertical-split (DROP COLUMN x77 da `employees` + conversione a VIEW + INSTEAD OF triggers) è **rinviato a sessione dedicata S27+**. Phase 1 (additive scaffold L59: satellite tables + sync trigger + view `employees_full`) resta canonical e operativa.
+
+**Contesto**: utente ha chiesto in S26 di "fare tutto adesso" (3 priorità STATE.md), ignorando il defer pre-esistente. Step 1 (JWT cross-service fix) e Step 2 (`/dashboard` refactor DB-driven) sono risultati **già shipped** (commit `9f7a283` e `35ba6bb`+`d59ae3e` rispettivamente) — solo doc obsoleta nel STATE.md/CLAUDE.md. Step 3 (Phase 2) è stato avviato evidence-based:
+
+1. **Pre-flight verify**: zero drift tra employees e satellites (270/270 PASS) ✅
+2. **Backup pg_dump**: `heuresys_platform-pre-phase16o-20260510T044105Z.dump` 380MB sha256 `dba5a08b…` ✅
+3. **Strategia scelta** (utente): Option B — `employees` TABLE → VIEW + INSTEAD OF triggers, zero refactor ORM (Prisma vede VIEW come table normale)
+4. **SQL phase16o scritto**: 600+ righe (Pre-flight asserts + DROP sync trigger + RENAME → employees_core + DROP COLUMN x77 + CREATE VIEW + 3 INSTEAD OF triggers + verification asserts)
+5. **Apply attempt**: `psql -v ON_ERROR_STOP=1 -f phase16o`. **FAIL Stage 4 (DROP COLUMN)**:
+   ```
+   ERROR: cannot drop column first_name of table employees_core because other objects depend on it
+   DETAIL: 65 views + 4 mat views depend on column first_name (and other migrated cols)
+   HINT:   Use DROP ... CASCADE to drop the dependent objects too.
+   ```
+   Transaction rollback (BEGIN/COMMIT) → DB integrity preserved.
+6. **Evidence raccolta post-fail**: 65 view + 4 mat view dipendono da `employees` cols (auditate via `pg_depend` + `pg_rewrite`). Di queste, **12 sono usate da app code** (services/app + services/api-gateway, 2-4 file ognuna). Le altre 53 sono legacy/reporting/non chiaramente attribuibili senza audit dedicato. 4 mat views (`mv_cross_tenant_rollup`, `mv_employee_performance_context`, `mv_talent_signals`, `mv_tenant_owner_rollup`) sono refreshate dal systemd timer S24.
+7. **Effort revised**: 15-25h FTE (vs 9-14h stima Option B originale). Plan canonical `~/.claude/plans/parti-dall-inizio-e-esegui-peppy-dream.md` § Phase 2 NON menzionava le 65 view dipendenti — assumeva employees "isolata".
+8. **Decisione utente**: Defer Phase 2 + apri ticket dedicato "view audit + refactor" per S27+.
+
+**Conseguenza**:
+
+- File `db/seeds/phase16o_employees_to_view.sql` rinominato in `phase16o_employees_to_view.DRAFT-DEFERRED.sql` con header esplicito di stato (NON applicato, prerequisiti, riferimenti).
+- Backup pre-attempt resta su VM come reference per future sessioni S27+.
+- Carry-forward CLAUDE.md aggiornato: "S25+" → **"S27+"** + dettaglio scope reale (audit + refactor 65 view).
+- Sequenza richiesta S27+ documentata:
+  1. Audit ognuna delle 65 view dipendenti (purpose · usage · droppable status)
+  2. Salva definitions via `pg_get_viewdef`
+  3. DROP CASCADE le 65 view
+  4. Apply phase16o (RENAME + DROP COLUMN x77 + CREATE VIEW + INSTEAD OF triggers)
+  5. Ricreare le 65 view refactorate per puntare a nuova VIEW `employees` (non più `employees_core`)
+  6. Verify mat view refresh (systemd timer S24) + 12 hot view shape integrity
+  7. npm test --workspaces (target 865+ green) + login canonical 8/8 PASS
+- Doc Sweep CLAUDE.md: priorità #1 (Phase 2) e #2 (`/dashboard` refactor) rimosse dalla "Roadmap successiva" perché completate o deferred. Solo carry-forward S27+ resta esplicito.
+- Lezione operativa: il plan canonical `~/.claude/plans/parti-dall-inizio-e-esegui-peppy-dream.md` § Phase 2 era **incompleto** sui prerequisiti — la mia stima evidence-based era basata SOLO su grep app code (352 occorrenze) senza audit DB-side dependencies. R20 va esteso: il criterio "Grep concreto del volume coinvolto" deve includere **anche `pg_depend` audit per migrazioni schema**.
+
+**⚠️ STATUS**: NON superseduta — l'audit pre-flight resta valido e il file SQL DRAFT è la base per S27+.
 
 ---
 

@@ -10,6 +10,36 @@
 
 ---
 
+## ✅ S26 close (2026-05-10) — L60 Phase 2 vertical-split DEFERRED S27+ (65 view dipendenti scoperte)
+
+**Sessione "fai tutto" su 3 priorità STATE.md. 2/3 risultate già shipped (doc obsoleta), 1/3 deferred evidence-based.**
+
+| Priorità                                            | Status reale                                                  | Azione                                                                                                                |
+| --------------------------------------------------- | ------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `[INFRA]` JWT cross-service fix                     | ✅ già shipped commit `9f7a283`                               | doc-only fix in CLAUDE.md (rimosso "pending")                                                                         |
+| `[ARCH]` Production `/dashboard` refactor DB-driven | ✅ già shipped commit `35ba6bb` (G6) + `d59ae3e` (Phase 15.A) | doc-only fix in CLAUDE.md (rimosso da roadmap, residuo minore: 4 process\_\* secondary nav non `_v2`)                 |
+| `[ARCH-S26]` Phase 2 vertical-split                 | 🟡 DEFERRED S27+ (L60)                                        | SQL phase16o scritto + apply attempt FAIL al DROP COLUMN, transaction rollback, file rinominato `.DRAFT-DEFERRED.sql` |
+
+**Phase 2 attempt details**:
+
+1. Pre-flight verify: 0 drift employees↔satellites (270/270 PASS)
+2. Backup pg_dump 380MB (`heuresys_platform-pre-phase16o-20260510T044105Z.dump` sha256 `dba5a08b…`)
+3. Strategia Option B (utente): `employees` TABLE → VIEW + INSTEAD OF triggers, zero refactor ORM
+4. SQL phase16o scritto 600+ righe (Pre-flight asserts + DROP sync trigger + RENAME + DROP COLUMN x77 + CREATE VIEW + 3 INSTEAD OF triggers + verification)
+5. Apply via `psql -v ON_ERROR_STOP=1` → **FAIL Stage 4** per 65 view + 4 mat view dipendenti non documentate nel plan canonical
+6. Transaction rollback automatico → DB integrity preserved (270 employees, satellites OK, sync trigger ancora presente)
+7. Effort revised: 15-25h FTE (vs 9-14h stima originale Option B)
+
+**Lezione R20 estesa**: il criterio "Grep concreto del volume coinvolto" deve includere **anche `pg_depend` audit DB-side** per migrazioni schema. La sola misurazione app code (352 occorrenze) non cattura le dipendenze DB-internal (view + mat view + funzioni).
+
+**DBMS state post-S26**: invariato vs S24 close (transaction rollback). 312 tenant_id NOT NULL · 367 RLS · 0 FK NO ACTION default · 5 mat views systemd timer · 270 employees · satellites in sync.
+
+**Test/lint state post-S26**: invariato (nessuna modifica codice o DB applicata). 865 test verdi · login canonical 8/8 PASS.
+
+**Carry-forward S27+ formalizzato**: § 1.2 Phase 2 + view audit (15-25h dedicati) · 4 process\_\* secondary nav `_v2` (~2-3h) · pg_cron migration future · promote asset packages/ui non utilizzati.
+
+---
+
 ## ✅ S24 close (2026-05-10) — L58 forensic audit FINAL closure 95% (21/22)
 
 **4 priorità S23-quater carry-forward tutte chiuse in singola sessione**. Phase 16.L+16.M migrations + auditedTransaction api-gateway mirror + systemd timer mat views.
