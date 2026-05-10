@@ -4,6 +4,8 @@ import { withTenant } from '../db/pool.js';
 import { requireAuth } from '../middleware/auth.js';
 import { resolveTenant } from '../middleware/tenant.js';
 import { getRBPCache } from '../services/rbp-cache.js';
+import { auditedTransaction } from '../lib/audit/auditedTransaction.js';
+import { buildActor } from '../lib/audit/buildActor.js';
 
 /**
  * Tenant Onboarding routes — Pack 7.
@@ -102,13 +104,34 @@ tenantOnboardingRouter.patch(
       }
       updates.push('updated_at = NOW()');
 
-      const rows = (await withTenant(req.tenantId!, async (tx) => {
+      const existing = (await withTenant(req.tenantId!, async (tx) => {
         return tx.$queryRawUnsafe(
-          `UPDATE tenant_onboarding_profiles SET ${updates.join(', ')} WHERE tenant_id = $${idx}::uuid RETURNING *`,
-          ...values,
+          `SELECT * FROM tenant_onboarding_profiles WHERE tenant_id = $1::uuid LIMIT 1`,
           req.tenantId!
         );
-      })) as unknown[];
+      })) as Array<Record<string, unknown>>;
+
+      const actor = buildActor(req, req.tenantId!);
+      const { result: rows } = await auditedTransaction(
+        actor,
+        {
+          action: 'UPDATE',
+          category: 'TENANT',
+          resourceType: 'tenant_onboarding_profiles',
+          resourceId: req.tenantId!,
+          resourceName: `tenant-onboarding:${req.tenantId!}`,
+          oldValue: existing[0] ?? null,
+          newValue: parsed.data,
+          metadata: { source: 'api-gateway:tenant-onboarding.PATCH_profile' },
+        },
+        async (tx) => {
+          return (await tx.$queryRawUnsafe(
+            `UPDATE tenant_onboarding_profiles SET ${updates.join(', ')} WHERE tenant_id = $${idx}::uuid RETURNING *`,
+            ...values,
+            req.tenantId!
+          )) as unknown[];
+        }
+      );
 
       res.json({ data: rows[0] ?? null });
     } catch (err) {

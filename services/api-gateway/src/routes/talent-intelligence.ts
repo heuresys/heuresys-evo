@@ -4,6 +4,8 @@ import { requireAuth } from '../middleware/auth.js';
 import { resolveTenant } from '../middleware/tenant.js';
 import { getRBPCache } from '../services/rbp-cache.js';
 import { safeParseInt, isUUID } from '../utils/pagination.js';
+import { auditedTransaction } from '../lib/audit/auditedTransaction.js';
+import { buildActor } from '../lib/audit/buildActor.js';
 
 /**
  * Talent Intelligence routes — Pack 3 (legacy import).
@@ -209,13 +211,26 @@ talentIntelligenceRouter.post(
     try {
       if (!(await checkAdmin(req, res))) return;
 
-      const result = await withTenant(req.tenantId!, async (tx) => {
-        await tx.$queryRawUnsafe(`REFRESH MATERIALIZED VIEW CONCURRENTLY mv_talent_signals`);
-        const rows = (await tx.$queryRawUnsafe(
-          `SELECT COUNT(*)::int AS count FROM mv_talent_signals`
-        )) as Array<{ count: number }>;
-        return { refreshed: true, rows: rows[0]?.count ?? 0 };
-      });
+      const actor = buildActor(req, req.tenantId!);
+      const { result } = await auditedTransaction(
+        actor,
+        {
+          action: 'UPDATE',
+          category: 'REPORT',
+          resourceType: 'mv_talent_signals',
+          resourceId: 'mv_talent_signals',
+          resourceName: 'mv_talent_signals',
+          newValue: { refreshed: true },
+          metadata: { source: 'api-gateway:talent-intelligence.POST_signals_refresh' },
+        },
+        async (tx) => {
+          await tx.$queryRawUnsafe(`REFRESH MATERIALIZED VIEW CONCURRENTLY mv_talent_signals`);
+          const rows = (await tx.$queryRawUnsafe(
+            `SELECT COUNT(*)::int AS count FROM mv_talent_signals`
+          )) as Array<{ count: number }>;
+          return { refreshed: true, rows: rows[0]?.count ?? 0 };
+        }
+      );
 
       res.json({ data: result });
     } catch (err) {

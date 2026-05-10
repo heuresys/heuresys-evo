@@ -5,6 +5,8 @@ import { requireAuth } from '../middleware/auth.js';
 import { resolveTenant } from '../middleware/tenant.js';
 import { getRBPCache } from '../services/rbp-cache.js';
 import { safeParseInt, isUUID } from '../utils/pagination.js';
+import { auditedTransaction } from '../lib/audit/auditedTransaction.js';
+import { buildActor } from '../lib/audit/buildActor.js';
 
 /** Time-off requests routes — Pack 7. Tenant-scoped CRUD. */
 
@@ -161,21 +163,34 @@ timeOffRouter.post(
         return;
       }
       const d = parsed.data;
-      const rows = (await withTenant(req.tenantId!, async (tx) => {
-        return tx.$queryRawUnsafe(
-          `INSERT INTO employee_time_off_requests
-             (tenant_id, employee_id, request_type, start_date, end_date, reason, status, created_at, updated_at)
-           VALUES ($1::uuid, $2::uuid, $3, $4::date, $5::date, $6, $7, NOW(), NOW())
-           RETURNING *`,
-          req.tenantId!,
-          d.employee_id,
-          d.request_type,
-          d.start_date,
-          d.end_date,
-          d.reason ?? null,
-          d.status
-        );
-      })) as unknown[];
+      const actor = buildActor(req, req.tenantId!);
+      const { result: rows } = await auditedTransaction(
+        actor,
+        {
+          action: 'CREATE',
+          category: 'SYSTEM',
+          resourceType: 'employee_time_off_requests',
+          resourceId: 'pending',
+          resourceName: `${d.request_type} ${d.start_date}→${d.end_date}`,
+          newValue: d,
+          metadata: { source: 'api-gateway:time-off.POST' },
+        },
+        async (tx) => {
+          return (await tx.$queryRawUnsafe(
+            `INSERT INTO employee_time_off_requests
+               (tenant_id, employee_id, request_type, start_date, end_date, reason, status, created_at, updated_at)
+             VALUES ($1::uuid, $2::uuid, $3, $4::date, $5::date, $6, $7, NOW(), NOW())
+             RETURNING *`,
+            req.tenantId!,
+            d.employee_id,
+            d.request_type,
+            d.start_date,
+            d.end_date,
+            d.reason ?? null,
+            d.status
+          )) as unknown[];
+        }
+      );
       res.status(201).json({ data: rows[0] ?? null });
     } catch (err) {
       next(err);
@@ -221,25 +236,41 @@ timeOffRouter.patch(
       }
       updates.push('updated_at = NOW()');
 
-      const result = await withTenant(req.tenantId!, async (tx) => {
-        const existing = (await tx.$queryRawUnsafe(
-          `SELECT id FROM employee_time_off_requests WHERE id = $1::uuid AND tenant_id = $2::uuid`,
+      const existing = (await withTenant(req.tenantId!, async (tx) => {
+        return tx.$queryRawUnsafe(
+          `SELECT * FROM employee_time_off_requests WHERE id = $1::uuid AND tenant_id = $2::uuid`,
           id,
           req.tenantId!
-        )) as Array<{ id: string }>;
-        if (existing.length === 0) return null;
-        const updated = (await tx.$queryRawUnsafe(
-          `UPDATE employee_time_off_requests SET ${updates.join(', ')} WHERE id = $${idx}::uuid AND tenant_id = $${idx + 1}::uuid RETURNING *`,
-          ...values,
-          id,
-          req.tenantId!
-        )) as unknown[];
-        return updated[0] ?? null;
-      });
-      if (result === null) {
+        );
+      })) as Array<Record<string, unknown>>;
+      if (existing.length === 0) {
         res.status(404).json({ error: 'not_found', message: 'Time-off request not found' });
         return;
       }
+
+      const actor = buildActor(req, req.tenantId!);
+      const { result } = await auditedTransaction(
+        actor,
+        {
+          action: 'UPDATE',
+          category: 'SYSTEM',
+          resourceType: 'employee_time_off_requests',
+          resourceId: id,
+          resourceName: `time-off:${id}`,
+          oldValue: existing[0],
+          newValue: parsed.data,
+          metadata: { source: 'api-gateway:time-off.PATCH' },
+        },
+        async (tx) => {
+          const updated = (await tx.$queryRawUnsafe(
+            `UPDATE employee_time_off_requests SET ${updates.join(', ')} WHERE id = $${idx}::uuid AND tenant_id = $${idx + 1}::uuid RETURNING *`,
+            ...values,
+            id,
+            req.tenantId!
+          )) as unknown[];
+          return updated[0] ?? null;
+        }
+      );
       res.json({ data: result });
     } catch (err) {
       next(err);
@@ -259,17 +290,39 @@ timeOffRouter.delete(
         res.status(400).json({ error: 'invalid_input', message: 'Invalid request ID format' });
         return;
       }
-      const rows = (await withTenant(req.tenantId!, async (tx) => {
+      const existing = (await withTenant(req.tenantId!, async (tx) => {
         return tx.$queryRawUnsafe(
-          `DELETE FROM employee_time_off_requests WHERE id = $1::uuid AND tenant_id = $2::uuid RETURNING id`,
+          `SELECT * FROM employee_time_off_requests WHERE id = $1::uuid AND tenant_id = $2::uuid`,
           id,
           req.tenantId!
         );
-      })) as Array<{ id: string }>;
-      if (rows.length === 0) {
+      })) as Array<Record<string, unknown>>;
+      if (existing.length === 0) {
         res.status(404).json({ error: 'not_found', message: 'Time-off request not found' });
         return;
       }
+
+      const actor = buildActor(req, req.tenantId!);
+      await auditedTransaction(
+        actor,
+        {
+          action: 'DELETE',
+          category: 'SYSTEM',
+          resourceType: 'employee_time_off_requests',
+          resourceId: id,
+          resourceName: `time-off:${id}`,
+          oldValue: existing[0],
+          newValue: null,
+          metadata: { source: 'api-gateway:time-off.DELETE' },
+        },
+        async (tx) => {
+          return tx.$queryRawUnsafe(
+            `DELETE FROM employee_time_off_requests WHERE id = $1::uuid AND tenant_id = $2::uuid RETURNING id`,
+            id,
+            req.tenantId!
+          );
+        }
+      );
       res.status(204).end();
     } catch (err) {
       next(err);

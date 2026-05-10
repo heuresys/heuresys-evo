@@ -10,7 +10,13 @@ const queryRawUnsafeMock = vi.fn();
 
 vi.mock('../../db/pool.js', () => ({
   withTenant: vi.fn(async (_t: string, fn: (tx: unknown) => Promise<unknown>) => {
-    const tx = { $queryRawUnsafe: queryRawUnsafeMock };
+    const tx = {
+      $queryRawUnsafe: queryRawUnsafeMock,
+      // F2 H4: auditedTransaction wraps writes in tx.audit_logs.create
+      audit_logs: {
+        create: vi.fn(async () => ({ id: 'audit-mock-id' })),
+      },
+    };
     return fn(tx);
   }),
   mergeScopedWhere: vi.fn(),
@@ -173,7 +179,8 @@ for (const ep of endpoints) {
 
     it('DELETE 204', async () => {
       asAdmin();
-      queryRawUnsafeMock.mockResolvedValueOnce([{ id: ID }]);
+      // F2 H4: SELECT existing (for audit oldValue) + DELETE
+      queryRawUnsafeMock.mockResolvedValueOnce([{ id: ID }]).mockResolvedValueOnce([{ id: ID }]);
       const res = await request(buildApp()).delete(`${ep.base}/${ID}`);
       expect(res.status).toBe(204);
     });

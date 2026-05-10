@@ -5,6 +5,8 @@ import { requireAuth } from '../middleware/auth.js';
 import { resolveTenant } from '../middleware/tenant.js';
 import { getRBPCache } from '../services/rbp-cache.js';
 import { safeParseInt, isUUID } from '../utils/pagination.js';
+import { auditedTransaction } from '../lib/audit/auditedTransaction.js';
+import { buildActor } from '../lib/audit/buildActor.js';
 
 /**
  * Succession Planning routes — Pack 3 (legacy import).
@@ -259,24 +261,36 @@ successionRouter.post(
         return;
       }
       const d = parsed.data;
-
-      const rows = (await withTenant(req.tenantId!, async (tx) => {
-        return tx.$queryRawUnsafe(
-          `INSERT INTO critical_roles
-             (tenant_id, role_name, department, current_incumbent_id, criticality_level,
-              impact_if_vacant, time_to_fill_estimate, succession_status, created_at, updated_at)
-           VALUES ($1::uuid, $2, $3, $4::uuid, $5, $6, $7, $8, NOW(), NOW())
-           RETURNING *`,
-          req.tenantId!,
-          d.role_name,
-          d.department ?? null,
-          d.current_incumbent_id ?? null,
-          d.criticality_level,
-          d.impact_if_vacant ?? null,
-          d.time_to_fill_estimate ?? null,
-          d.succession_status
-        );
-      })) as unknown[];
+      const actor = buildActor(req, req.tenantId!);
+      const { result: rows } = await auditedTransaction(
+        actor,
+        {
+          action: 'CREATE',
+          category: 'USER',
+          resourceType: 'critical_roles',
+          resourceId: 'pending',
+          resourceName: `critical-role:${d.role_name}`,
+          newValue: d,
+          metadata: { source: 'api-gateway:succession.POST_critical-roles' },
+        },
+        async (tx) => {
+          return (await tx.$queryRawUnsafe(
+            `INSERT INTO critical_roles
+               (tenant_id, role_name, department, current_incumbent_id, criticality_level,
+                impact_if_vacant, time_to_fill_estimate, succession_status, created_at, updated_at)
+             VALUES ($1::uuid, $2, $3, $4::uuid, $5, $6, $7, $8, NOW(), NOW())
+             RETURNING *`,
+            req.tenantId!,
+            d.role_name,
+            d.department ?? null,
+            d.current_incumbent_id ?? null,
+            d.criticality_level,
+            d.impact_if_vacant ?? null,
+            d.time_to_fill_estimate ?? null,
+            d.succession_status
+          )) as unknown[];
+        }
+      );
 
       res.status(201).json({ data: rows[0] ?? null });
     } catch (err) {
@@ -325,25 +339,40 @@ successionRouter.patch(
       }
       updates.push('updated_at = NOW()');
 
-      const result = await withTenant(req.tenantId!, async (tx) => {
-        const existing = (await tx.$queryRawUnsafe(
-          `SELECT id FROM critical_roles WHERE id = $1::uuid AND tenant_id = $2::uuid`,
+      const existing = (await withTenant(req.tenantId!, async (tx) => {
+        return tx.$queryRawUnsafe(
+          `SELECT * FROM critical_roles WHERE id = $1::uuid AND tenant_id = $2::uuid`,
           id,
           req.tenantId!
-        )) as Array<{ id: string }>;
-        if (existing.length === 0) return null;
-        const updated = (await tx.$queryRawUnsafe(
-          `UPDATE critical_roles SET ${updates.join(', ')} WHERE id = $${idx}::uuid RETURNING *`,
-          ...values,
-          id
-        )) as unknown[];
-        return updated[0] ?? null;
-      });
-
-      if (result === null) {
+        );
+      })) as Array<Record<string, unknown>>;
+      if (existing.length === 0) {
         res.status(404).json({ error: 'not_found', message: 'Critical role not found' });
         return;
       }
+
+      const actor = buildActor(req, req.tenantId!);
+      const { result } = await auditedTransaction(
+        actor,
+        {
+          action: 'UPDATE',
+          category: 'USER',
+          resourceType: 'critical_roles',
+          resourceId: id,
+          resourceName: `critical-role:${id}`,
+          oldValue: existing[0],
+          newValue: parsed.data,
+          metadata: { source: 'api-gateway:succession.PATCH_critical-roles' },
+        },
+        async (tx) => {
+          const updated = (await tx.$queryRawUnsafe(
+            `UPDATE critical_roles SET ${updates.join(', ')} WHERE id = $${idx}::uuid RETURNING *`,
+            ...values,
+            id
+          )) as unknown[];
+          return updated[0] ?? null;
+        }
+      );
       res.json({ data: result });
     } catch (err) {
       next(err);
@@ -364,18 +393,39 @@ successionRouter.delete(
         return;
       }
 
-      const rows = (await withTenant(req.tenantId!, async (tx) => {
+      const existing = (await withTenant(req.tenantId!, async (tx) => {
         return tx.$queryRawUnsafe(
-          `DELETE FROM critical_roles WHERE id = $1::uuid AND tenant_id = $2::uuid RETURNING id`,
+          `SELECT * FROM critical_roles WHERE id = $1::uuid AND tenant_id = $2::uuid`,
           id,
           req.tenantId!
         );
-      })) as Array<{ id: string }>;
-
-      if (rows.length === 0) {
+      })) as Array<Record<string, unknown>>;
+      if (existing.length === 0) {
         res.status(404).json({ error: 'not_found', message: 'Critical role not found' });
         return;
       }
+
+      const actor = buildActor(req, req.tenantId!);
+      await auditedTransaction(
+        actor,
+        {
+          action: 'DELETE',
+          category: 'USER',
+          resourceType: 'critical_roles',
+          resourceId: id,
+          resourceName: `critical-role:${id}`,
+          oldValue: existing[0],
+          newValue: null,
+          metadata: { source: 'api-gateway:succession.DELETE_critical-roles' },
+        },
+        async (tx) => {
+          return tx.$queryRawUnsafe(
+            `DELETE FROM critical_roles WHERE id = $1::uuid AND tenant_id = $2::uuid RETURNING id`,
+            id,
+            req.tenantId!
+          );
+        }
+      );
       res.status(204).end();
     } catch (err) {
       next(err);
@@ -437,32 +487,45 @@ successionRouter.post(
       }
       const d = parsed.data;
 
-      const result = await withTenant(req.tenantId!, async (tx) => {
-        const roleRows = (await tx.$queryRawUnsafe(
+      const roleRows = (await withTenant(req.tenantId!, async (tx) => {
+        return tx.$queryRawUnsafe(
           `SELECT id FROM critical_roles WHERE id = $1::uuid AND tenant_id = $2::uuid`,
           roleId,
           req.tenantId!
-        )) as Array<{ id: string }>;
-        if (roleRows.length === 0) return null;
-
-        const created = (await tx.$queryRawUnsafe(
-          `INSERT INTO succession_candidates
-             (critical_role_id, candidate_employee_id, readiness_level, rank_order, development_plan, created_at, updated_at)
-           VALUES ($1::uuid, $2::uuid, $3, $4, $5, NOW(), NOW())
-           RETURNING *`,
-          roleId,
-          d.candidate_employee_id,
-          d.readiness_level,
-          d.rank_order ?? null,
-          d.development_plan ?? null
-        )) as unknown[];
-        return created[0] ?? null;
-      });
-
-      if (result === null) {
+        );
+      })) as Array<{ id: string }>;
+      if (roleRows.length === 0) {
         res.status(404).json({ error: 'not_found', message: 'Critical role not found' });
         return;
       }
+
+      const actor = buildActor(req, req.tenantId!);
+      const { result } = await auditedTransaction(
+        actor,
+        {
+          action: 'CREATE',
+          category: 'USER',
+          resourceType: 'succession_candidates',
+          resourceId: 'pending',
+          resourceName: `candidate:${roleId}:${d.candidate_employee_id}`,
+          newValue: { critical_role_id: roleId, ...d },
+          metadata: { source: 'api-gateway:succession.POST_candidates' },
+        },
+        async (tx) => {
+          const created = (await tx.$queryRawUnsafe(
+            `INSERT INTO succession_candidates
+               (critical_role_id, candidate_employee_id, readiness_level, rank_order, development_plan, created_at, updated_at)
+             VALUES ($1::uuid, $2::uuid, $3, $4, $5, NOW(), NOW())
+             RETURNING *`,
+            roleId,
+            d.candidate_employee_id,
+            d.readiness_level,
+            d.rank_order ?? null,
+            d.development_plan ?? null
+          )) as unknown[];
+          return created[0] ?? null;
+        }
+      );
       res.status(201).json({ data: result });
     } catch (err) {
       next(err);
@@ -502,27 +565,42 @@ successionRouter.patch(
       }
       updates.push('updated_at = NOW()');
 
-      const result = await withTenant(req.tenantId!, async (tx) => {
-        const existing = (await tx.$queryRawUnsafe(
-          `SELECT sc.id FROM succession_candidates sc
+      const existing = (await withTenant(req.tenantId!, async (tx) => {
+        return tx.$queryRawUnsafe(
+          `SELECT sc.* FROM succession_candidates sc
            JOIN critical_roles cr ON sc.critical_role_id = cr.id
            WHERE sc.id = $1::uuid AND cr.tenant_id = $2::uuid`,
           id,
           req.tenantId!
-        )) as Array<{ id: string }>;
-        if (existing.length === 0) return null;
-        const updated = (await tx.$queryRawUnsafe(
-          `UPDATE succession_candidates SET ${updates.join(', ')} WHERE id = $${idx}::uuid RETURNING *`,
-          ...values,
-          id
-        )) as unknown[];
-        return updated[0] ?? null;
-      });
-
-      if (result === null) {
+        );
+      })) as Array<Record<string, unknown>>;
+      if (existing.length === 0) {
         res.status(404).json({ error: 'not_found', message: 'Candidate not found' });
         return;
       }
+
+      const actor = buildActor(req, req.tenantId!);
+      const { result } = await auditedTransaction(
+        actor,
+        {
+          action: 'UPDATE',
+          category: 'USER',
+          resourceType: 'succession_candidates',
+          resourceId: id,
+          resourceName: `candidate:${id}`,
+          oldValue: existing[0],
+          newValue: parsed.data,
+          metadata: { source: 'api-gateway:succession.PATCH_candidates' },
+        },
+        async (tx) => {
+          const updated = (await tx.$queryRawUnsafe(
+            `UPDATE succession_candidates SET ${updates.join(', ')} WHERE id = $${idx}::uuid RETURNING *`,
+            ...values,
+            id
+          )) as unknown[];
+          return updated[0] ?? null;
+        }
+      );
       res.json({ data: result });
     } catch (err) {
       next(err);
@@ -543,22 +621,45 @@ successionRouter.delete(
         return;
       }
 
-      const rows = (await withTenant(req.tenantId!, async (tx) => {
+      const existing = (await withTenant(req.tenantId!, async (tx) => {
         return tx.$queryRawUnsafe(
-          `DELETE FROM succession_candidates sc
-           USING critical_roles cr
-           WHERE sc.critical_role_id = cr.id
-             AND sc.id = $1::uuid AND cr.tenant_id = $2::uuid
-           RETURNING sc.id`,
+          `SELECT sc.* FROM succession_candidates sc
+           JOIN critical_roles cr ON sc.critical_role_id = cr.id
+           WHERE sc.id = $1::uuid AND cr.tenant_id = $2::uuid`,
           id,
           req.tenantId!
         );
-      })) as Array<{ id: string }>;
-
-      if (rows.length === 0) {
+      })) as Array<Record<string, unknown>>;
+      if (existing.length === 0) {
         res.status(404).json({ error: 'not_found', message: 'Candidate not found' });
         return;
       }
+
+      const actor = buildActor(req, req.tenantId!);
+      await auditedTransaction(
+        actor,
+        {
+          action: 'DELETE',
+          category: 'USER',
+          resourceType: 'succession_candidates',
+          resourceId: id,
+          resourceName: `candidate:${id}`,
+          oldValue: existing[0],
+          newValue: null,
+          metadata: { source: 'api-gateway:succession.DELETE_candidates' },
+        },
+        async (tx) => {
+          return tx.$queryRawUnsafe(
+            `DELETE FROM succession_candidates sc
+             USING critical_roles cr
+             WHERE sc.critical_role_id = cr.id
+               AND sc.id = $1::uuid AND cr.tenant_id = $2::uuid
+             RETURNING sc.id`,
+            id,
+            req.tenantId!
+          );
+        }
+      );
       res.status(204).end();
     } catch (err) {
       next(err);

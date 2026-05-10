@@ -5,6 +5,8 @@ import { requireAuth } from '../middleware/auth.js';
 import { resolveTenant } from '../middleware/tenant.js';
 import { getRBPCache } from '../services/rbp-cache.js';
 import { safeParseInt, isUUID } from '../utils/pagination.js';
+import { auditedTransaction } from '../lib/audit/auditedTransaction.js';
+import { buildActor } from '../lib/audit/buildActor.js';
 
 /**
  * Requisitions routes — Pack 5 (legacy import).
@@ -169,25 +171,38 @@ requisitionsRouter.post(
         return;
       }
       const d = parsed.data;
-      const rows = (await withTenant(req.tenantId!, async (tx) => {
-        return tx.$queryRawUnsafe(
-          `INSERT INTO requisitions
-             (tenant_id, position_title, department, description, justification,
-              status, priority, target_start_date, budget, hiring_manager_id, created_at, updated_at)
-           VALUES ($1::uuid, $2, $3, $4, $5, $6, $7, $8::date, $9, $10::uuid, NOW(), NOW())
-           RETURNING *`,
-          req.tenantId!,
-          d.position_title,
-          d.department ?? null,
-          d.description ?? null,
-          d.justification ?? null,
-          d.status,
-          d.priority,
-          d.target_start_date ?? null,
-          d.budget ?? null,
-          d.hiring_manager_id ?? null
-        );
-      })) as unknown[];
+      const actor = buildActor(req, req.tenantId!);
+      const { result: rows } = await auditedTransaction(
+        actor,
+        {
+          action: 'CREATE',
+          category: 'USER',
+          resourceType: 'requisitions',
+          resourceId: 'pending',
+          resourceName: `requisition:${d.position_title}`,
+          newValue: d,
+          metadata: { source: 'api-gateway:requisitions.POST' },
+        },
+        async (tx) => {
+          return (await tx.$queryRawUnsafe(
+            `INSERT INTO requisitions
+               (tenant_id, position_title, department, description, justification,
+                status, priority, target_start_date, budget, hiring_manager_id, created_at, updated_at)
+             VALUES ($1::uuid, $2, $3, $4, $5, $6, $7, $8::date, $9, $10::uuid, NOW(), NOW())
+             RETURNING *`,
+            req.tenantId!,
+            d.position_title,
+            d.department ?? null,
+            d.description ?? null,
+            d.justification ?? null,
+            d.status,
+            d.priority,
+            d.target_start_date ?? null,
+            d.budget ?? null,
+            d.hiring_manager_id ?? null
+          )) as unknown[];
+        }
+      );
       res.status(201).json({ data: rows[0] ?? null });
     } catch (err) {
       next(err);
@@ -236,26 +251,41 @@ requisitionsRouter.patch(
       }
       updates.push('updated_at = NOW()');
 
-      const result = await withTenant(req.tenantId!, async (tx) => {
-        const existing = (await tx.$queryRawUnsafe(
-          `SELECT id FROM requisitions WHERE id = $1::uuid AND tenant_id = $2::uuid`,
+      const existing = (await withTenant(req.tenantId!, async (tx) => {
+        return tx.$queryRawUnsafe(
+          `SELECT * FROM requisitions WHERE id = $1::uuid AND tenant_id = $2::uuid`,
           id,
           req.tenantId!
-        )) as Array<{ id: string }>;
-        if (existing.length === 0) return null;
-        const updated = (await tx.$queryRawUnsafe(
-          `UPDATE requisitions SET ${updates.join(', ')} WHERE id = $${idx}::uuid AND tenant_id = $${idx + 1}::uuid RETURNING *`,
-          ...values,
-          id,
-          req.tenantId!
-        )) as unknown[];
-        return updated[0] ?? null;
-      });
-
-      if (result === null) {
+        );
+      })) as Array<Record<string, unknown>>;
+      if (existing.length === 0) {
         res.status(404).json({ error: 'not_found', message: 'Requisition not found' });
         return;
       }
+
+      const actor = buildActor(req, req.tenantId!);
+      const { result } = await auditedTransaction(
+        actor,
+        {
+          action: 'UPDATE',
+          category: 'USER',
+          resourceType: 'requisitions',
+          resourceId: id,
+          resourceName: `requisition:${id}`,
+          oldValue: existing[0],
+          newValue: parsed.data,
+          metadata: { source: 'api-gateway:requisitions.PATCH' },
+        },
+        async (tx) => {
+          const updated = (await tx.$queryRawUnsafe(
+            `UPDATE requisitions SET ${updates.join(', ')} WHERE id = $${idx}::uuid AND tenant_id = $${idx + 1}::uuid RETURNING *`,
+            ...values,
+            id,
+            req.tenantId!
+          )) as unknown[];
+          return updated[0] ?? null;
+        }
+      );
       res.json({ data: result });
     } catch (err) {
       next(err);
@@ -275,17 +305,39 @@ requisitionsRouter.delete(
         res.status(400).json({ error: 'invalid_input', message: 'Invalid requisition ID format' });
         return;
       }
-      const rows = (await withTenant(req.tenantId!, async (tx) => {
+      const existing = (await withTenant(req.tenantId!, async (tx) => {
         return tx.$queryRawUnsafe(
-          `DELETE FROM requisitions WHERE id = $1::uuid AND tenant_id = $2::uuid RETURNING id`,
+          `SELECT * FROM requisitions WHERE id = $1::uuid AND tenant_id = $2::uuid`,
           id,
           req.tenantId!
         );
-      })) as Array<{ id: string }>;
-      if (rows.length === 0) {
+      })) as Array<Record<string, unknown>>;
+      if (existing.length === 0) {
         res.status(404).json({ error: 'not_found', message: 'Requisition not found' });
         return;
       }
+
+      const actor = buildActor(req, req.tenantId!);
+      await auditedTransaction(
+        actor,
+        {
+          action: 'DELETE',
+          category: 'USER',
+          resourceType: 'requisitions',
+          resourceId: id,
+          resourceName: `requisition:${id}`,
+          oldValue: existing[0],
+          newValue: null,
+          metadata: { source: 'api-gateway:requisitions.DELETE' },
+        },
+        async (tx) => {
+          return tx.$queryRawUnsafe(
+            `DELETE FROM requisitions WHERE id = $1::uuid AND tenant_id = $2::uuid RETURNING id`,
+            id,
+            req.tenantId!
+          );
+        }
+      );
       res.status(204).end();
     } catch (err) {
       next(err);

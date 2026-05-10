@@ -6,6 +6,8 @@ import { resolveTenant } from '../middleware/tenant.js';
 import { getRBPCache } from '../services/rbp-cache.js';
 import { escapeILIKE } from '../utils/sql-safety.js';
 import { safeParseInt, isUUID } from '../utils/pagination.js';
+import { auditedTransaction } from '../lib/audit/auditedTransaction.js';
+import { buildActor } from '../lib/audit/buildActor.js';
 
 /**
  * ESCO Skills routes — Pack 2.2 (legacy import).
@@ -365,21 +367,34 @@ skillsRouter.post(
         is_green,
       } = parsed.data;
 
-      const rows = (await withTenant(req.tenantId!, async (tx) => {
-        return tx.$queryRawUnsafe(
-          `INSERT INTO esco_skills
-             (uri, preferred_label_en, description_en, skill_type, reuse_level, is_digital, is_green, created_at)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
-           RETURNING *`,
-          uri,
-          preferred_label_en,
-          description_en ?? null,
-          skill_type,
-          reuse_level ?? null,
-          is_digital ?? false,
-          is_green ?? false
-        );
-      })) as unknown[];
+      const actor = buildActor(req, req.tenantId!);
+      const { result: rows } = await auditedTransaction(
+        actor,
+        {
+          action: 'CREATE',
+          category: 'SYSTEM',
+          resourceType: 'esco_skills',
+          resourceId: 'pending',
+          resourceName: `skill:${preferred_label_en}`,
+          newValue: parsed.data,
+          metadata: { source: 'api-gateway:skills.POST' },
+        },
+        async (tx) => {
+          return (await tx.$queryRawUnsafe(
+            `INSERT INTO esco_skills
+               (uri, preferred_label_en, description_en, skill_type, reuse_level, is_digital, is_green, created_at)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+             RETURNING *`,
+            uri,
+            preferred_label_en,
+            description_en ?? null,
+            skill_type,
+            reuse_level ?? null,
+            is_digital ?? false,
+            is_green ?? false
+          )) as unknown[];
+        }
+      );
 
       res.status(201).json({ data: Array.isArray(rows) ? rows[0] : null });
     } catch (err) {
@@ -431,23 +446,35 @@ skillsRouter.patch(
         return;
       }
 
-      const rows = (await withTenant(req.tenantId!, async (tx) => {
-        const existing = (await tx.$queryRawUnsafe(
-          `SELECT id FROM esco_skills WHERE id = $1`,
-          id
-        )) as Array<{ id: string }>;
-        if (!Array.isArray(existing) || existing.length === 0) return null;
-        return tx.$queryRawUnsafe(
-          `UPDATE esco_skills SET ${updates.join(', ')} WHERE id = $${idx} RETURNING *`,
-          ...values,
-          id
-        );
-      })) as unknown;
-
-      if (rows === null) {
+      const existing = (await withTenant(req.tenantId!, async (tx) => {
+        return tx.$queryRawUnsafe(`SELECT * FROM esco_skills WHERE id = $1`, id);
+      })) as Array<Record<string, unknown>>;
+      if (!Array.isArray(existing) || existing.length === 0) {
         res.status(404).json({ error: 'not_found', message: 'Skill not found' });
         return;
       }
+
+      const actor = buildActor(req, req.tenantId!);
+      const { result: rows } = await auditedTransaction(
+        actor,
+        {
+          action: 'UPDATE',
+          category: 'SYSTEM',
+          resourceType: 'esco_skills',
+          resourceId: id,
+          resourceName: `skill:${id}`,
+          oldValue: existing[0],
+          newValue: parsed.data,
+          metadata: { source: 'api-gateway:skills.PATCH' },
+        },
+        async (tx) => {
+          return (await tx.$queryRawUnsafe(
+            `UPDATE esco_skills SET ${updates.join(', ')} WHERE id = $${idx} RETURNING *`,
+            ...values,
+            id
+          )) as unknown[];
+        }
+      );
       res.json({ data: Array.isArray(rows) ? rows[0] : null });
     } catch (err) {
       next(err);
@@ -468,14 +495,31 @@ skillsRouter.delete(
         return;
       }
 
-      const rows = (await withTenant(req.tenantId!, async (tx) => {
-        return tx.$queryRawUnsafe(`DELETE FROM esco_skills WHERE id = $1 RETURNING id`, id);
-      })) as Array<{ id: string }>;
-
-      if (!Array.isArray(rows) || rows.length === 0) {
+      const existing = (await withTenant(req.tenantId!, async (tx) => {
+        return tx.$queryRawUnsafe(`SELECT * FROM esco_skills WHERE id = $1`, id);
+      })) as Array<Record<string, unknown>>;
+      if (!Array.isArray(existing) || existing.length === 0) {
         res.status(404).json({ error: 'not_found', message: 'Skill not found' });
         return;
       }
+
+      const actor = buildActor(req, req.tenantId!);
+      await auditedTransaction(
+        actor,
+        {
+          action: 'DELETE',
+          category: 'SYSTEM',
+          resourceType: 'esco_skills',
+          resourceId: id,
+          resourceName: `skill:${id}`,
+          oldValue: existing[0],
+          newValue: null,
+          metadata: { source: 'api-gateway:skills.DELETE' },
+        },
+        async (tx) => {
+          return tx.$queryRawUnsafe(`DELETE FROM esco_skills WHERE id = $1 RETURNING id`, id);
+        }
+      );
       res.status(204).end();
     } catch (err) {
       next(err);

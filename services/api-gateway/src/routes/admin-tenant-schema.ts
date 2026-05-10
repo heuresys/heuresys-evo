@@ -4,6 +4,8 @@ import { withTenant } from '../db/pool.js';
 import { requireAuth } from '../middleware/auth.js';
 import { resolveTenant } from '../middleware/tenant.js';
 import { getRBPCache } from '../services/rbp-cache.js';
+import { auditedTransaction } from '../lib/audit/auditedTransaction.js';
+import { buildActor } from '../lib/audit/buildActor.js';
 
 /**
  * Tenant schema version admin route — RTG Phase 4 task 4.12 (ADR-0017).
@@ -74,27 +76,35 @@ adminTenantSchemaRouter.post(
       const { notes } = BumpBodySchema.parse(req.body);
       const callerId = session?.user?.id ?? null;
 
-      const inserted = await withTenant(req.tenantId!, async (tx) => {
-        const rows = (await tx.$queryRawUnsafe(
-          `INSERT INTO tenant_schema_version (tenant_id, version, applied_by, notes)
-           SELECT $1::uuid,
-                  COALESCE(MAX(version), 0) + 1,
-                  $2::uuid,
-                  $3
-           FROM tenant_schema_version
-           WHERE tenant_id = $1::uuid
-           RETURNING id, version, applied_at, notes`,
-          req.tenantId,
-          callerId,
-          notes
-        )) as Array<{ version: number }>;
-        return rows[0];
-      });
-
-      // Note: governance audit_logs entry on bump operation —
-      // pattern documented in ADR-0018, application-side emission.
-      // Skipped in this minimal route to keep scope tight; add when first
-      // governance audit query needs it (Phase 5 cutover prep).
+      const actor = buildActor(req, req.tenantId!);
+      const { result: inserted } = await auditedTransaction(
+        actor,
+        {
+          action: 'CREATE',
+          category: 'CONFIG',
+          resourceType: 'tenant_schema_version',
+          resourceId: 'pending',
+          resourceName: `tenant-schema-bump:${req.tenantId}`,
+          newValue: { notes, applied_by: callerId },
+          metadata: { source: 'api-gateway:admin-tenant-schema.POST_bump' },
+        },
+        async (tx) => {
+          const rows = (await tx.$queryRawUnsafe(
+            `INSERT INTO tenant_schema_version (tenant_id, version, applied_by, notes)
+             SELECT $1::uuid,
+                    COALESCE(MAX(version), 0) + 1,
+                    $2::uuid,
+                    $3
+             FROM tenant_schema_version
+             WHERE tenant_id = $1::uuid
+             RETURNING id, version, applied_at, notes`,
+            req.tenantId,
+            callerId,
+            notes
+          )) as Array<{ version: number }>;
+          return rows[0];
+        }
+      );
 
       res.status(201).json({ data: inserted });
     } catch (err) {

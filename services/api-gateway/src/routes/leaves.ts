@@ -6,6 +6,8 @@ import { resolveTenant } from '../middleware/tenant.js';
 import { getScopeCondition } from '../middleware/rbac.js';
 import { getRBPCache } from '../services/rbp-cache.js';
 import type { ScopeType } from '../services/rbp-cache.js';
+import { auditedTransaction } from '../lib/audit/auditedTransaction.js';
+import { buildActor } from '../lib/audit/buildActor.js';
 
 /**
  * Leaves routes — RTG Phase 4 task 4.10 (P0 endpoint port, scope H Hybrid).
@@ -132,23 +134,36 @@ leavesRouter.post(
       }
       const body = SubmitBodySchema.parse(req.body);
 
-      const inserted = await withTenant(req.tenantId!, async (tx) => {
-        const result = await tx.$queryRawUnsafe(
-          `INSERT INTO employee_time_off_requests
-             (employee_id, tenant_id, leave_type, start_date, end_date,
-              days_requested, reason, status)
-           VALUES ($1::uuid, $2::uuid, $3, $4::date, $5::date, $6, $7, 'pending')
-           RETURNING id, employee_id, leave_type, status, created_at`,
-          ctx.employeeId,
-          ctx.tenantId,
-          body.leave_type,
-          body.start_date,
-          body.end_date,
-          body.days_requested,
-          body.reason ?? null
-        );
-        return Array.isArray(result) ? result[0] : result;
-      });
+      const actor = buildActor(req, req.tenantId!);
+      const { result: inserted } = await auditedTransaction(
+        actor,
+        {
+          action: 'CREATE',
+          category: 'SYSTEM',
+          resourceType: 'employee_time_off_requests',
+          resourceId: 'pending',
+          resourceName: `${body.leave_type} ${body.start_date}→${body.end_date}`,
+          newValue: body,
+          metadata: { source: 'api-gateway:leaves.POST' },
+        },
+        async (tx) => {
+          const result = await tx.$queryRawUnsafe(
+            `INSERT INTO employee_time_off_requests
+               (employee_id, tenant_id, leave_type, start_date, end_date,
+                days_requested, reason, status)
+             VALUES ($1::uuid, $2::uuid, $3, $4::date, $5::date, $6, $7, 'pending')
+             RETURNING id, employee_id, leave_type, status, created_at`,
+            ctx.employeeId,
+            ctx.tenantId,
+            body.leave_type,
+            body.start_date,
+            body.end_date,
+            body.days_requested,
+            body.reason ?? null
+          );
+          return Array.isArray(result) ? result[0] : result;
+        }
+      );
 
       res.status(201).json({ data: inserted });
     } catch (err) {
@@ -172,20 +187,33 @@ leavesRouter.post(
       }
       const id = z.string().uuid().parse(req.params['id']);
 
-      const updated = await withTenant(req.tenantId!, async (tx) => {
-        const rows = (await tx.$queryRawUnsafe(
-          `UPDATE employee_time_off_requests
-              SET status = 'approved',
-                  approver_id = $1::uuid,
-                  approved_at = NOW(),
-                  updated_at = NOW()
-            WHERE id = $2::uuid AND status = 'pending'
-            RETURNING id, employee_id, status, approver_id, approved_at`,
-          ctx.employeeId,
-          id
-        )) as Array<unknown>;
-        return rows[0] ?? null;
-      });
+      const actor = buildActor(req, req.tenantId!);
+      const { result: updated } = await auditedTransaction(
+        actor,
+        {
+          action: 'UPDATE',
+          category: 'SYSTEM',
+          resourceType: 'employee_time_off_requests',
+          resourceId: id,
+          resourceName: `leave-request:${id}`,
+          newValue: { status: 'approved', approver_id: ctx.employeeId },
+          metadata: { source: 'api-gateway:leaves.POST_approve' },
+        },
+        async (tx) => {
+          const rows = (await tx.$queryRawUnsafe(
+            `UPDATE employee_time_off_requests
+                SET status = 'approved',
+                    approver_id = $1::uuid,
+                    approved_at = NOW(),
+                    updated_at = NOW()
+              WHERE id = $2::uuid AND status = 'pending'
+              RETURNING id, employee_id, status, approver_id, approved_at`,
+            ctx.employeeId,
+            id
+          )) as Array<unknown>;
+          return rows[0] ?? null;
+        }
+      );
 
       if (!updated) {
         res.status(404).json({ error: 'not_found_or_already_processed' });

@@ -6,6 +6,8 @@ import { resolveTenant } from '../middleware/tenant.js';
 import { getRBPCache } from '../services/rbp-cache.js';
 import { escapeILIKE } from '../utils/sql-safety.js';
 import { safeParseInt, isUUID } from '../utils/pagination.js';
+import { auditedTransaction } from '../lib/audit/auditedTransaction.js';
+import { buildActor } from '../lib/audit/buildActor.js';
 
 /**
  * Skill Assessments routes — Pack 2.4 (legacy import).
@@ -434,38 +436,51 @@ skillAssessmentsRouter.post(
       }
       const data = parsed.data;
 
-      const result = await withTenant(tenantId, async (tx) => {
-        const empRows = (await tx.$queryRawUnsafe(
+      const empRows = (await withTenant(tenantId, async (tx) => {
+        return tx.$queryRawUnsafe(
           `SELECT id FROM employees WHERE id = $1::uuid AND tenant_id = $2::uuid`,
           data.employee_id,
           tenantId
-        )) as Array<{ id: string }>;
-        if (empRows.length === 0) return null;
-
-        const created = (await tx.$queryRawUnsafe(
-          `INSERT INTO employee_skill_assessments
-             (employee_id, skill_name, esco_skill_uri, assessed_level, required_level,
-              assessment_date, assessment_method, assessed_by, evidence_notes, certification_url)
-           VALUES ($1::uuid, $2, $3, $4, $5, $6::date, $7, $8::uuid, $9, $10)
-           RETURNING *`,
-          data.employee_id,
-          data.skill_name,
-          data.esco_skill_uri ?? null,
-          data.assessed_level,
-          data.required_level ?? null,
-          data.assessment_date ?? new Date().toISOString().slice(0, 10),
-          data.assessment_method ?? null,
-          data.assessed_by ?? null,
-          data.evidence_notes ?? null,
-          data.certification_url ?? null
-        )) as unknown[];
-        return created[0] ?? null;
-      });
-
-      if (result === null) {
+        );
+      })) as Array<{ id: string }>;
+      if (empRows.length === 0) {
         res.status(404).json({ error: 'not_found', message: 'Employee not found' });
         return;
       }
+
+      const actor = buildActor(req, tenantId);
+      const { result } = await auditedTransaction(
+        actor,
+        {
+          action: 'CREATE',
+          category: 'REVIEW',
+          resourceType: 'employee_skill_assessments',
+          resourceId: 'pending',
+          resourceName: `assessment:${data.employee_id}:${data.skill_name}`,
+          newValue: data,
+          metadata: { source: 'api-gateway:skill-assessments.POST' },
+        },
+        async (tx) => {
+          const created = (await tx.$queryRawUnsafe(
+            `INSERT INTO employee_skill_assessments
+               (employee_id, skill_name, esco_skill_uri, assessed_level, required_level,
+                assessment_date, assessment_method, assessed_by, evidence_notes, certification_url)
+             VALUES ($1::uuid, $2, $3, $4, $5, $6::date, $7, $8::uuid, $9, $10)
+             RETURNING *`,
+            data.employee_id,
+            data.skill_name,
+            data.esco_skill_uri ?? null,
+            data.assessed_level,
+            data.required_level ?? null,
+            data.assessment_date ?? new Date().toISOString().slice(0, 10),
+            data.assessment_method ?? null,
+            data.assessed_by ?? null,
+            data.evidence_notes ?? null,
+            data.certification_url ?? null
+          )) as unknown[];
+          return created[0] ?? null;
+        }
+      );
       res.status(201).json({ data: result });
     } catch (err) {
       next(err);
@@ -516,28 +531,42 @@ skillAssessmentsRouter.patch(
       }
       updates.push('updated_at = NOW()');
 
-      const result = await withTenant(tenantId, async (tx) => {
-        const existing = (await tx.$queryRawUnsafe(
-          `SELECT esa.id FROM employee_skill_assessments esa
+      const existing = (await withTenant(tenantId, async (tx) => {
+        return tx.$queryRawUnsafe(
+          `SELECT esa.* FROM employee_skill_assessments esa
            JOIN employees e ON e.id = esa.employee_id
            WHERE esa.id = $1::uuid AND e.tenant_id = $2::uuid`,
           id,
           tenantId
-        )) as Array<{ id: string }>;
-        if (existing.length === 0) return null;
-
-        const updated = (await tx.$queryRawUnsafe(
-          `UPDATE employee_skill_assessments SET ${updates.join(', ')} WHERE id = $${idx}::uuid RETURNING *`,
-          ...values,
-          id
-        )) as unknown[];
-        return updated[0] ?? null;
-      });
-
-      if (result === null) {
+        );
+      })) as Array<Record<string, unknown>>;
+      if (existing.length === 0) {
         res.status(404).json({ error: 'not_found', message: 'Assessment not found' });
         return;
       }
+
+      const actor = buildActor(req, tenantId);
+      const { result } = await auditedTransaction(
+        actor,
+        {
+          action: 'UPDATE',
+          category: 'REVIEW',
+          resourceType: 'employee_skill_assessments',
+          resourceId: id,
+          resourceName: `assessment:${id}`,
+          oldValue: existing[0],
+          newValue: parsed.data,
+          metadata: { source: 'api-gateway:skill-assessments.PATCH' },
+        },
+        async (tx) => {
+          const updated = (await tx.$queryRawUnsafe(
+            `UPDATE employee_skill_assessments SET ${updates.join(', ')} WHERE id = $${idx}::uuid RETURNING *`,
+            ...values,
+            id
+          )) as unknown[];
+          return updated[0] ?? null;
+        }
+      );
       res.json({ data: result });
     } catch (err) {
       next(err);
@@ -559,22 +588,45 @@ skillAssessmentsRouter.delete(
         return;
       }
 
-      const rows = (await withTenant(tenantId, async (tx) => {
+      const existing = (await withTenant(tenantId, async (tx) => {
         return tx.$queryRawUnsafe(
-          `DELETE FROM employee_skill_assessments esa
-           USING employees e
-           WHERE esa.employee_id = e.id
-             AND esa.id = $1::uuid AND e.tenant_id = $2::uuid
-           RETURNING esa.id`,
+          `SELECT esa.* FROM employee_skill_assessments esa
+           JOIN employees e ON e.id = esa.employee_id
+           WHERE esa.id = $1::uuid AND e.tenant_id = $2::uuid`,
           id,
           tenantId
         );
-      })) as Array<{ id: string }>;
-
-      if (!Array.isArray(rows) || rows.length === 0) {
+      })) as Array<Record<string, unknown>>;
+      if (existing.length === 0) {
         res.status(404).json({ error: 'not_found', message: 'Assessment not found' });
         return;
       }
+
+      const actor = buildActor(req, tenantId);
+      await auditedTransaction(
+        actor,
+        {
+          action: 'DELETE',
+          category: 'REVIEW',
+          resourceType: 'employee_skill_assessments',
+          resourceId: id,
+          resourceName: `assessment:${id}`,
+          oldValue: existing[0],
+          newValue: null,
+          metadata: { source: 'api-gateway:skill-assessments.DELETE' },
+        },
+        async (tx) => {
+          return tx.$queryRawUnsafe(
+            `DELETE FROM employee_skill_assessments esa
+             USING employees e
+             WHERE esa.employee_id = e.id
+               AND esa.id = $1::uuid AND e.tenant_id = $2::uuid
+             RETURNING esa.id`,
+            id,
+            tenantId
+          );
+        }
+      );
       res.status(204).end();
     } catch (err) {
       next(err);

@@ -5,6 +5,8 @@ import { requireAuth } from '../middleware/auth.js';
 import { resolveTenant } from '../middleware/tenant.js';
 import { getRBPCache } from '../services/rbp-cache.js';
 import { safeParseInt, isUUID } from '../utils/pagination.js';
+import { auditedTransaction } from '../lib/audit/auditedTransaction.js';
+import { buildActor } from '../lib/audit/buildActor.js';
 
 /**
  * Merit Cycles routes — Pack 4 (legacy import).
@@ -229,28 +231,40 @@ meritCyclesRouter.post(
         return;
       }
       const d = parsed.data;
-
-      const rows = (await withTenant(req.tenantId!, async (tx) => {
-        return tx.$queryRawUnsafe(
-          `INSERT INTO merit_cycles
-             (tenant_id, name, description, effective_date, submission_deadline,
-              approval_deadline, total_budget, budget_spent, min_increase_percent,
-              max_increase_percent, guideline_matrix, status, created_by, created_at, updated_at)
-           VALUES ($1::uuid, $2, $3, $4::date, $5::date, $6::date, $7, 0, $8, $9, $10::jsonb, 'planning', $11::uuid, NOW(), NOW())
-           RETURNING *`,
-          req.tenantId!,
-          d.name,
-          d.description ?? null,
-          d.effective_date,
-          d.submission_deadline ?? null,
-          d.approval_deadline ?? null,
-          d.total_budget ?? null,
-          d.min_increase_percent ?? null,
-          d.max_increase_percent ?? null,
-          d.guideline_matrix ? JSON.stringify(d.guideline_matrix) : null,
-          d.created_by ?? null
-        );
-      })) as unknown[];
+      const actor = buildActor(req, req.tenantId!);
+      const { result: rows } = await auditedTransaction(
+        actor,
+        {
+          action: 'CREATE',
+          category: 'COMPENSATION',
+          resourceType: 'merit_cycles',
+          resourceId: 'pending',
+          resourceName: `merit-cycle:${d.name}`,
+          newValue: d,
+          metadata: { source: 'api-gateway:merit-cycles.POST' },
+        },
+        async (tx) => {
+          return (await tx.$queryRawUnsafe(
+            `INSERT INTO merit_cycles
+               (tenant_id, name, description, effective_date, submission_deadline,
+                approval_deadline, total_budget, budget_spent, min_increase_percent,
+                max_increase_percent, guideline_matrix, status, created_by, created_at, updated_at)
+             VALUES ($1::uuid, $2, $3, $4::date, $5::date, $6::date, $7, 0, $8, $9, $10::jsonb, 'planning', $11::uuid, NOW(), NOW())
+             RETURNING *`,
+            req.tenantId!,
+            d.name,
+            d.description ?? null,
+            d.effective_date,
+            d.submission_deadline ?? null,
+            d.approval_deadline ?? null,
+            d.total_budget ?? null,
+            d.min_increase_percent ?? null,
+            d.max_increase_percent ?? null,
+            d.guideline_matrix ? JSON.stringify(d.guideline_matrix) : null,
+            d.created_by ?? null
+          )) as unknown[];
+        }
+      );
 
       res.status(201).json({ data: rows[0] ?? null });
     } catch (err) {
@@ -306,26 +320,41 @@ meritCyclesRouter.patch(
       }
       updates.push('updated_at = NOW()');
 
-      const result = await withTenant(req.tenantId!, async (tx) => {
-        const existing = (await tx.$queryRawUnsafe(
-          `SELECT id FROM merit_cycles WHERE id = $1::uuid AND tenant_id = $2::uuid`,
+      const existing = (await withTenant(req.tenantId!, async (tx) => {
+        return tx.$queryRawUnsafe(
+          `SELECT * FROM merit_cycles WHERE id = $1::uuid AND tenant_id = $2::uuid`,
           id,
           req.tenantId!
-        )) as Array<{ id: string }>;
-        if (existing.length === 0) return null;
-        const updated = (await tx.$queryRawUnsafe(
-          `UPDATE merit_cycles SET ${updates.join(', ')} WHERE id = $${idx}::uuid AND tenant_id = $${idx + 1}::uuid RETURNING *`,
-          ...values,
-          id,
-          req.tenantId!
-        )) as unknown[];
-        return updated[0] ?? null;
-      });
-
-      if (result === null) {
+        );
+      })) as Array<Record<string, unknown>>;
+      if (existing.length === 0) {
         res.status(404).json({ error: 'not_found', message: 'Merit cycle not found' });
         return;
       }
+
+      const actor = buildActor(req, req.tenantId!);
+      const { result } = await auditedTransaction(
+        actor,
+        {
+          action: 'UPDATE',
+          category: 'COMPENSATION',
+          resourceType: 'merit_cycles',
+          resourceId: id,
+          resourceName: `merit-cycle:${id}`,
+          oldValue: existing[0],
+          newValue: parsed.data,
+          metadata: { source: 'api-gateway:merit-cycles.PATCH' },
+        },
+        async (tx) => {
+          const updated = (await tx.$queryRawUnsafe(
+            `UPDATE merit_cycles SET ${updates.join(', ')} WHERE id = $${idx}::uuid AND tenant_id = $${idx + 1}::uuid RETURNING *`,
+            ...values,
+            id,
+            req.tenantId!
+          )) as unknown[];
+          return updated[0] ?? null;
+        }
+      );
       res.json({ data: result });
     } catch (err) {
       next(err);
@@ -346,15 +375,28 @@ meritCyclesRouter.post(
         return;
       }
 
-      const rows = (await withTenant(req.tenantId!, async (tx) => {
-        return tx.$queryRawUnsafe(
-          `UPDATE merit_cycles SET status = 'active', updated_at = NOW()
-           WHERE id = $1::uuid AND tenant_id = $2::uuid AND status = 'planning'
-           RETURNING *`,
-          id,
-          req.tenantId!
-        );
-      })) as unknown[];
+      const actor = buildActor(req, req.tenantId!);
+      const { result: rows } = await auditedTransaction(
+        actor,
+        {
+          action: 'UPDATE',
+          category: 'COMPENSATION',
+          resourceType: 'merit_cycles',
+          resourceId: id,
+          resourceName: `merit-cycle:${id}`,
+          newValue: { status: 'active' },
+          metadata: { source: 'api-gateway:merit-cycles.POST_activate' },
+        },
+        async (tx) => {
+          return (await tx.$queryRawUnsafe(
+            `UPDATE merit_cycles SET status = 'active', updated_at = NOW()
+             WHERE id = $1::uuid AND tenant_id = $2::uuid AND status = 'planning'
+             RETURNING *`,
+            id,
+            req.tenantId!
+          )) as unknown[];
+        }
+      );
 
       if (!Array.isArray(rows) || rows.length === 0) {
         res
@@ -382,15 +424,28 @@ meritCyclesRouter.post(
         return;
       }
 
-      const rows = (await withTenant(req.tenantId!, async (tx) => {
-        return tx.$queryRawUnsafe(
-          `UPDATE merit_cycles SET status = 'completed', updated_at = NOW()
-           WHERE id = $1::uuid AND tenant_id = $2::uuid AND status = 'active'
-           RETURNING *`,
-          id,
-          req.tenantId!
-        );
-      })) as unknown[];
+      const actor = buildActor(req, req.tenantId!);
+      const { result: rows } = await auditedTransaction(
+        actor,
+        {
+          action: 'UPDATE',
+          category: 'COMPENSATION',
+          resourceType: 'merit_cycles',
+          resourceId: id,
+          resourceName: `merit-cycle:${id}`,
+          newValue: { status: 'completed' },
+          metadata: { source: 'api-gateway:merit-cycles.POST_complete' },
+        },
+        async (tx) => {
+          return (await tx.$queryRawUnsafe(
+            `UPDATE merit_cycles SET status = 'completed', updated_at = NOW()
+             WHERE id = $1::uuid AND tenant_id = $2::uuid AND status = 'active'
+             RETURNING *`,
+            id,
+            req.tenantId!
+          )) as unknown[];
+        }
+      );
 
       if (!Array.isArray(rows) || rows.length === 0) {
         res
@@ -418,19 +473,40 @@ meritCyclesRouter.delete(
         return;
       }
 
-      const rows = (await withTenant(req.tenantId!, async (tx) => {
+      const existing = (await withTenant(req.tenantId!, async (tx) => {
         return tx.$queryRawUnsafe(
-          `UPDATE merit_cycles SET status = 'cancelled', updated_at = NOW()
-           WHERE id = $1::uuid AND tenant_id = $2::uuid RETURNING id`,
+          `SELECT * FROM merit_cycles WHERE id = $1::uuid AND tenant_id = $2::uuid`,
           id,
           req.tenantId!
         );
-      })) as Array<{ id: string }>;
-
-      if (rows.length === 0) {
+      })) as Array<Record<string, unknown>>;
+      if (existing.length === 0) {
         res.status(404).json({ error: 'not_found', message: 'Merit cycle not found' });
         return;
       }
+
+      const actor = buildActor(req, req.tenantId!);
+      await auditedTransaction(
+        actor,
+        {
+          action: 'DELETE',
+          category: 'COMPENSATION',
+          resourceType: 'merit_cycles',
+          resourceId: id,
+          resourceName: `merit-cycle:${id}`,
+          oldValue: existing[0],
+          newValue: { ...existing[0], status: 'cancelled' },
+          metadata: { source: 'api-gateway:merit-cycles.DELETE' },
+        },
+        async (tx) => {
+          return tx.$queryRawUnsafe(
+            `UPDATE merit_cycles SET status = 'cancelled', updated_at = NOW()
+             WHERE id = $1::uuid AND tenant_id = $2::uuid RETURNING id`,
+            id,
+            req.tenantId!
+          );
+        }
+      );
       res.status(204).end();
     } catch (err) {
       next(err);

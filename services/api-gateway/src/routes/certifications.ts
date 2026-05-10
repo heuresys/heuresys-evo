@@ -5,6 +5,8 @@ import { requireAuth } from '../middleware/auth.js';
 import { resolveTenant } from '../middleware/tenant.js';
 import { getRBPCache } from '../services/rbp-cache.js';
 import { safeParseInt, isUUID } from '../utils/pagination.js';
+import { auditedTransaction } from '../lib/audit/auditedTransaction.js';
+import { buildActor } from '../lib/audit/buildActor.js';
 
 /** Certifications routes — Pack 6. Tenant-scoped CRUD. */
 
@@ -160,24 +162,37 @@ certificationsRouter.post(
         return;
       }
       const d = parsed.data;
-      const rows = (await withTenant(req.tenantId!, async (tx) => {
-        return tx.$queryRawUnsafe(
-          `INSERT INTO certifications
-             (tenant_id, employee_id, name, issuing_organization, issue_date, expiry_date,
-              credential_id, credential_url, status, created_at, updated_at)
-           VALUES ($1::uuid, $2::uuid, $3, $4, $5::date, $6::date, $7, $8, $9, NOW(), NOW())
-           RETURNING *`,
-          req.tenantId!,
-          d.employee_id,
-          d.name,
-          d.issuing_organization ?? null,
-          d.issue_date ?? null,
-          d.expiry_date ?? null,
-          d.credential_id ?? null,
-          d.credential_url ?? null,
-          d.status
-        );
-      })) as unknown[];
+      const actor = buildActor(req, req.tenantId!);
+      const { result: rows } = await auditedTransaction(
+        actor,
+        {
+          action: 'CREATE',
+          category: 'USER',
+          resourceType: 'certifications',
+          resourceId: 'pending',
+          resourceName: `cert:${d.employee_id}:${d.name}`,
+          newValue: d,
+          metadata: { source: 'api-gateway:certifications.POST' },
+        },
+        async (tx) => {
+          return (await tx.$queryRawUnsafe(
+            `INSERT INTO certifications
+               (tenant_id, employee_id, name, issuing_organization, issue_date, expiry_date,
+                credential_id, credential_url, status, created_at, updated_at)
+             VALUES ($1::uuid, $2::uuid, $3, $4, $5::date, $6::date, $7, $8, $9, NOW(), NOW())
+             RETURNING *`,
+            req.tenantId!,
+            d.employee_id,
+            d.name,
+            d.issuing_organization ?? null,
+            d.issue_date ?? null,
+            d.expiry_date ?? null,
+            d.credential_id ?? null,
+            d.credential_url ?? null,
+            d.status
+          )) as unknown[];
+        }
+      );
       res.status(201).json({ data: rows[0] ?? null });
     } catch (err) {
       next(err);
@@ -226,25 +241,41 @@ certificationsRouter.patch(
       }
       updates.push('updated_at = NOW()');
 
-      const result = await withTenant(req.tenantId!, async (tx) => {
-        const existing = (await tx.$queryRawUnsafe(
-          `SELECT id FROM certifications WHERE id = $1::uuid AND tenant_id = $2::uuid`,
+      const existing = (await withTenant(req.tenantId!, async (tx) => {
+        return tx.$queryRawUnsafe(
+          `SELECT * FROM certifications WHERE id = $1::uuid AND tenant_id = $2::uuid`,
           id,
           req.tenantId!
-        )) as Array<{ id: string }>;
-        if (existing.length === 0) return null;
-        const updated = (await tx.$queryRawUnsafe(
-          `UPDATE certifications SET ${updates.join(', ')} WHERE id = $${idx}::uuid AND tenant_id = $${idx + 1}::uuid RETURNING *`,
-          ...values,
-          id,
-          req.tenantId!
-        )) as unknown[];
-        return updated[0] ?? null;
-      });
-      if (result === null) {
+        );
+      })) as Array<Record<string, unknown>>;
+      if (existing.length === 0) {
         res.status(404).json({ error: 'not_found', message: 'Certification not found' });
         return;
       }
+
+      const actor = buildActor(req, req.tenantId!);
+      const { result } = await auditedTransaction(
+        actor,
+        {
+          action: 'UPDATE',
+          category: 'USER',
+          resourceType: 'certifications',
+          resourceId: id,
+          resourceName: `cert:${id}`,
+          oldValue: existing[0],
+          newValue: parsed.data,
+          metadata: { source: 'api-gateway:certifications.PATCH' },
+        },
+        async (tx) => {
+          const updated = (await tx.$queryRawUnsafe(
+            `UPDATE certifications SET ${updates.join(', ')} WHERE id = $${idx}::uuid AND tenant_id = $${idx + 1}::uuid RETURNING *`,
+            ...values,
+            id,
+            req.tenantId!
+          )) as unknown[];
+          return updated[0] ?? null;
+        }
+      );
       res.json({ data: result });
     } catch (err) {
       next(err);
@@ -266,17 +297,39 @@ certificationsRouter.delete(
           .json({ error: 'invalid_input', message: 'Invalid certification ID format' });
         return;
       }
-      const rows = (await withTenant(req.tenantId!, async (tx) => {
+      const existing = (await withTenant(req.tenantId!, async (tx) => {
         return tx.$queryRawUnsafe(
-          `DELETE FROM certifications WHERE id = $1::uuid AND tenant_id = $2::uuid RETURNING id`,
+          `SELECT * FROM certifications WHERE id = $1::uuid AND tenant_id = $2::uuid`,
           id,
           req.tenantId!
         );
-      })) as Array<{ id: string }>;
-      if (rows.length === 0) {
+      })) as Array<Record<string, unknown>>;
+      if (existing.length === 0) {
         res.status(404).json({ error: 'not_found', message: 'Certification not found' });
         return;
       }
+
+      const actor = buildActor(req, req.tenantId!);
+      await auditedTransaction(
+        actor,
+        {
+          action: 'DELETE',
+          category: 'USER',
+          resourceType: 'certifications',
+          resourceId: id,
+          resourceName: `cert:${id}`,
+          oldValue: existing[0],
+          newValue: null,
+          metadata: { source: 'api-gateway:certifications.DELETE' },
+        },
+        async (tx) => {
+          return tx.$queryRawUnsafe(
+            `DELETE FROM certifications WHERE id = $1::uuid AND tenant_id = $2::uuid RETURNING id`,
+            id,
+            req.tenantId!
+          );
+        }
+      );
       res.status(204).end();
     } catch (err) {
       next(err);

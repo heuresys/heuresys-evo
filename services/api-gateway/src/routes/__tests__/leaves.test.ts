@@ -65,6 +65,10 @@ vi.mock('../../db/pool.js', () => ({
         }
         return fixtureLeaves;
       }),
+      // F2 H4: auditedTransaction wraps writes in tx.audit_logs.create
+      audit_logs: {
+        create: vi.fn(async () => ({ id: 'audit-mock-id' })),
+      },
     };
     return fn(tx);
   }),

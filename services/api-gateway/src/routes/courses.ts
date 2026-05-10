@@ -6,6 +6,8 @@ import { resolveTenant } from '../middleware/tenant.js';
 import { getRBPCache } from '../services/rbp-cache.js';
 import { escapeILIKE } from '../utils/sql-safety.js';
 import { safeParseInt, isUUID } from '../utils/pagination.js';
+import { auditedTransaction } from '../lib/audit/auditedTransaction.js';
+import { buildActor } from '../lib/audit/buildActor.js';
 
 /** Courses routes — Pack 6 (legacy import). Tenant-scoped CRUD. */
 
@@ -161,22 +163,35 @@ coursesRouter.post(
         return;
       }
       const d = parsed.data;
-      const rows = (await withTenant(req.tenantId!, async (tx) => {
-        return tx.$queryRawUnsafe(
-          `INSERT INTO courses
-             (tenant_id, title, description, category, duration_hours, provider, url, is_active, created_at, updated_at)
-           VALUES ($1::uuid, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())
-           RETURNING *`,
-          req.tenantId!,
-          d.title,
-          d.description ?? null,
-          d.category ?? null,
-          d.duration_hours ?? null,
-          d.provider ?? null,
-          d.url ?? null,
-          d.is_active
-        );
-      })) as unknown[];
+      const actor = buildActor(req, req.tenantId!);
+      const { result: rows } = await auditedTransaction(
+        actor,
+        {
+          action: 'CREATE',
+          category: 'SYSTEM',
+          resourceType: 'courses',
+          resourceId: 'pending',
+          resourceName: `course:${d.title}`,
+          newValue: d,
+          metadata: { source: 'api-gateway:courses.POST' },
+        },
+        async (tx) => {
+          return (await tx.$queryRawUnsafe(
+            `INSERT INTO courses
+               (tenant_id, title, description, category, duration_hours, provider, url, is_active, created_at, updated_at)
+             VALUES ($1::uuid, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())
+             RETURNING *`,
+            req.tenantId!,
+            d.title,
+            d.description ?? null,
+            d.category ?? null,
+            d.duration_hours ?? null,
+            d.provider ?? null,
+            d.url ?? null,
+            d.is_active
+          )) as unknown[];
+        }
+      );
       res.status(201).json({ data: rows[0] ?? null });
     } catch (err) {
       next(err);
@@ -223,25 +238,41 @@ coursesRouter.patch(
       }
       updates.push('updated_at = NOW()');
 
-      const result = await withTenant(req.tenantId!, async (tx) => {
-        const existing = (await tx.$queryRawUnsafe(
-          `SELECT id FROM courses WHERE id = $1::uuid AND tenant_id = $2::uuid`,
+      const existing = (await withTenant(req.tenantId!, async (tx) => {
+        return tx.$queryRawUnsafe(
+          `SELECT * FROM courses WHERE id = $1::uuid AND tenant_id = $2::uuid`,
           id,
           req.tenantId!
-        )) as Array<{ id: string }>;
-        if (existing.length === 0) return null;
-        const updated = (await tx.$queryRawUnsafe(
-          `UPDATE courses SET ${updates.join(', ')} WHERE id = $${idx}::uuid AND tenant_id = $${idx + 1}::uuid RETURNING *`,
-          ...values,
-          id,
-          req.tenantId!
-        )) as unknown[];
-        return updated[0] ?? null;
-      });
-      if (result === null) {
+        );
+      })) as Array<Record<string, unknown>>;
+      if (existing.length === 0) {
         res.status(404).json({ error: 'not_found', message: 'Course not found' });
         return;
       }
+
+      const actor = buildActor(req, req.tenantId!);
+      const { result } = await auditedTransaction(
+        actor,
+        {
+          action: 'UPDATE',
+          category: 'SYSTEM',
+          resourceType: 'courses',
+          resourceId: id,
+          resourceName: `course:${id}`,
+          oldValue: existing[0],
+          newValue: parsed.data,
+          metadata: { source: 'api-gateway:courses.PATCH' },
+        },
+        async (tx) => {
+          const updated = (await tx.$queryRawUnsafe(
+            `UPDATE courses SET ${updates.join(', ')} WHERE id = $${idx}::uuid AND tenant_id = $${idx + 1}::uuid RETURNING *`,
+            ...values,
+            id,
+            req.tenantId!
+          )) as unknown[];
+          return updated[0] ?? null;
+        }
+      );
       res.json({ data: result });
     } catch (err) {
       next(err);
@@ -261,17 +292,39 @@ coursesRouter.delete(
         res.status(400).json({ error: 'invalid_input', message: 'Invalid course ID format' });
         return;
       }
-      const rows = (await withTenant(req.tenantId!, async (tx) => {
+      const existing = (await withTenant(req.tenantId!, async (tx) => {
         return tx.$queryRawUnsafe(
-          `DELETE FROM courses WHERE id = $1::uuid AND tenant_id = $2::uuid RETURNING id`,
+          `SELECT * FROM courses WHERE id = $1::uuid AND tenant_id = $2::uuid`,
           id,
           req.tenantId!
         );
-      })) as Array<{ id: string }>;
-      if (rows.length === 0) {
+      })) as Array<Record<string, unknown>>;
+      if (existing.length === 0) {
         res.status(404).json({ error: 'not_found', message: 'Course not found' });
         return;
       }
+
+      const actor = buildActor(req, req.tenantId!);
+      await auditedTransaction(
+        actor,
+        {
+          action: 'DELETE',
+          category: 'SYSTEM',
+          resourceType: 'courses',
+          resourceId: id,
+          resourceName: `course:${id}`,
+          oldValue: existing[0],
+          newValue: null,
+          metadata: { source: 'api-gateway:courses.DELETE' },
+        },
+        async (tx) => {
+          return tx.$queryRawUnsafe(
+            `DELETE FROM courses WHERE id = $1::uuid AND tenant_id = $2::uuid RETURNING id`,
+            id,
+            req.tenantId!
+          );
+        }
+      );
       res.status(204).end();
     } catch (err) {
       next(err);

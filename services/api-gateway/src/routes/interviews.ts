@@ -5,6 +5,8 @@ import { requireAuth } from '../middleware/auth.js';
 import { resolveTenant } from '../middleware/tenant.js';
 import { getRBPCache } from '../services/rbp-cache.js';
 import { safeParseInt, isUUID } from '../utils/pagination.js';
+import { auditedTransaction } from '../lib/audit/auditedTransaction.js';
+import { buildActor } from '../lib/audit/buildActor.js';
 
 /**
  * Interviews routes — Pack 5 (legacy import).
@@ -167,23 +169,36 @@ interviewsRouter.post(
         return;
       }
       const d = parsed.data;
-      const rows = (await withTenant(req.tenantId!, async (tx) => {
-        return tx.$queryRawUnsafe(
-          `INSERT INTO interviews
-             (tenant_id, candidate_id, interview_type, scheduled_at, duration_minutes,
-              interviewer_id, status, notes, created_at, updated_at)
-           VALUES ($1::uuid, $2::uuid, $3, $4::timestamptz, $5, $6::uuid, $7, $8, NOW(), NOW())
-           RETURNING *`,
-          req.tenantId!,
-          d.candidate_id,
-          d.interview_type,
-          d.scheduled_at,
-          d.duration_minutes ?? null,
-          d.interviewer_id ?? null,
-          d.status,
-          d.notes ?? null
-        );
-      })) as unknown[];
+      const actor = buildActor(req, req.tenantId!);
+      const { result: rows } = await auditedTransaction(
+        actor,
+        {
+          action: 'CREATE',
+          category: 'USER',
+          resourceType: 'interviews',
+          resourceId: 'pending',
+          resourceName: `interview:${d.candidate_id}:${d.scheduled_at}`,
+          newValue: d,
+          metadata: { source: 'api-gateway:interviews.POST' },
+        },
+        async (tx) => {
+          return (await tx.$queryRawUnsafe(
+            `INSERT INTO interviews
+               (tenant_id, candidate_id, interview_type, scheduled_at, duration_minutes,
+                interviewer_id, status, notes, created_at, updated_at)
+             VALUES ($1::uuid, $2::uuid, $3, $4::timestamptz, $5, $6::uuid, $7, $8, NOW(), NOW())
+             RETURNING *`,
+            req.tenantId!,
+            d.candidate_id,
+            d.interview_type,
+            d.scheduled_at,
+            d.duration_minutes ?? null,
+            d.interviewer_id ?? null,
+            d.status,
+            d.notes ?? null
+          )) as unknown[];
+        }
+      );
       res.status(201).json({ data: rows[0] ?? null });
     } catch (err) {
       next(err);
@@ -231,26 +246,41 @@ interviewsRouter.patch(
       }
       updates.push('updated_at = NOW()');
 
-      const result = await withTenant(req.tenantId!, async (tx) => {
-        const existing = (await tx.$queryRawUnsafe(
-          `SELECT id FROM interviews WHERE id = $1::uuid AND tenant_id = $2::uuid`,
+      const existing = (await withTenant(req.tenantId!, async (tx) => {
+        return tx.$queryRawUnsafe(
+          `SELECT * FROM interviews WHERE id = $1::uuid AND tenant_id = $2::uuid`,
           id,
           req.tenantId!
-        )) as Array<{ id: string }>;
-        if (existing.length === 0) return null;
-        const updated = (await tx.$queryRawUnsafe(
-          `UPDATE interviews SET ${updates.join(', ')} WHERE id = $${idx}::uuid AND tenant_id = $${idx + 1}::uuid RETURNING *`,
-          ...values,
-          id,
-          req.tenantId!
-        )) as unknown[];
-        return updated[0] ?? null;
-      });
-
-      if (result === null) {
+        );
+      })) as Array<Record<string, unknown>>;
+      if (existing.length === 0) {
         res.status(404).json({ error: 'not_found', message: 'Interview not found' });
         return;
       }
+
+      const actor = buildActor(req, req.tenantId!);
+      const { result } = await auditedTransaction(
+        actor,
+        {
+          action: 'UPDATE',
+          category: 'USER',
+          resourceType: 'interviews',
+          resourceId: id,
+          resourceName: `interview:${id}`,
+          oldValue: existing[0],
+          newValue: parsed.data,
+          metadata: { source: 'api-gateway:interviews.PATCH' },
+        },
+        async (tx) => {
+          const updated = (await tx.$queryRawUnsafe(
+            `UPDATE interviews SET ${updates.join(', ')} WHERE id = $${idx}::uuid AND tenant_id = $${idx + 1}::uuid RETURNING *`,
+            ...values,
+            id,
+            req.tenantId!
+          )) as unknown[];
+          return updated[0] ?? null;
+        }
+      );
       res.json({ data: result });
     } catch (err) {
       next(err);
@@ -270,17 +300,39 @@ interviewsRouter.delete(
         res.status(400).json({ error: 'invalid_input', message: 'Invalid interview ID format' });
         return;
       }
-      const rows = (await withTenant(req.tenantId!, async (tx) => {
+      const existing = (await withTenant(req.tenantId!, async (tx) => {
         return tx.$queryRawUnsafe(
-          `DELETE FROM interviews WHERE id = $1::uuid AND tenant_id = $2::uuid RETURNING id`,
+          `SELECT * FROM interviews WHERE id = $1::uuid AND tenant_id = $2::uuid`,
           id,
           req.tenantId!
         );
-      })) as Array<{ id: string }>;
-      if (rows.length === 0) {
+      })) as Array<Record<string, unknown>>;
+      if (existing.length === 0) {
         res.status(404).json({ error: 'not_found', message: 'Interview not found' });
         return;
       }
+
+      const actor = buildActor(req, req.tenantId!);
+      await auditedTransaction(
+        actor,
+        {
+          action: 'DELETE',
+          category: 'USER',
+          resourceType: 'interviews',
+          resourceId: id,
+          resourceName: `interview:${id}`,
+          oldValue: existing[0],
+          newValue: null,
+          metadata: { source: 'api-gateway:interviews.DELETE' },
+        },
+        async (tx) => {
+          return tx.$queryRawUnsafe(
+            `DELETE FROM interviews WHERE id = $1::uuid AND tenant_id = $2::uuid RETURNING id`,
+            id,
+            req.tenantId!
+          );
+        }
+      );
       res.status(204).end();
     } catch (err) {
       next(err);

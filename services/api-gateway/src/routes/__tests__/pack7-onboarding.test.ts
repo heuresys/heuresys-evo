@@ -10,7 +10,13 @@ const queryRawUnsafeMock = vi.fn();
 
 vi.mock('../../db/pool.js', () => ({
   withTenant: vi.fn(async (_t: string, fn: (tx: unknown) => Promise<unknown>) => {
-    const tx = { $queryRawUnsafe: queryRawUnsafeMock };
+    const tx = {
+      $queryRawUnsafe: queryRawUnsafeMock,
+      // F2 H4: auditedTransaction wraps writes in tx.audit_logs.create
+      audit_logs: {
+        create: vi.fn(async () => ({ id: 'audit-mock-id' })),
+      },
+    };
     return fn(tx);
   }),
   mergeScopedWhere: vi.fn(),
@@ -126,7 +132,8 @@ for (const ep of crudEndpoints) {
 
     it('DELETE 204', async () => {
       asAdmin();
-      queryRawUnsafeMock.mockResolvedValueOnce([{ id: ID }]);
+      // F2 H4: SELECT existing (for audit oldValue) + DELETE
+      queryRawUnsafeMock.mockResolvedValueOnce([{ id: ID }]).mockResolvedValueOnce([{ id: ID }]);
       const res = await request(buildApp()).delete(`${ep.base}/${ID}`);
       expect(res.status).toBe(204);
     });
@@ -163,7 +170,10 @@ describe('tenant-onboarding', () => {
 
   it('PATCH /profile 200', async () => {
     asAdmin();
-    queryRawUnsafeMock.mockResolvedValueOnce([{ tenant_id: ECONOVA, company_name: 'New Co' }]);
+    // F2 H4: SELECT existing (for audit oldValue) + UPDATE
+    queryRawUnsafeMock
+      .mockResolvedValueOnce([{ tenant_id: ECONOVA, company_name: 'Old Co' }])
+      .mockResolvedValueOnce([{ tenant_id: ECONOVA, company_name: 'New Co' }]);
     const res = await request(buildApp())
       .patch('/tenant-onboarding/profile')
       .send({ company_name: 'New Co' });

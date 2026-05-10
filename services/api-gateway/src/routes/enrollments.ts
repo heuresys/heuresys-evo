@@ -5,6 +5,8 @@ import { requireAuth } from '../middleware/auth.js';
 import { resolveTenant } from '../middleware/tenant.js';
 import { getRBPCache } from '../services/rbp-cache.js';
 import { safeParseInt, isUUID } from '../utils/pagination.js';
+import { auditedTransaction } from '../lib/audit/auditedTransaction.js';
+import { buildActor } from '../lib/audit/buildActor.js';
 
 /**
  * Enrollments routes — Pack 6.
@@ -124,29 +126,44 @@ enrollmentsRouter.post(
         return;
       }
       const d = parsed.data;
-      const result = await withTenant(req.tenantId!, async (tx) => {
-        const courseRows = (await tx.$queryRawUnsafe(
+      const courseRows = (await withTenant(req.tenantId!, async (tx) => {
+        return tx.$queryRawUnsafe(
           `SELECT id FROM courses WHERE id = $1::uuid AND tenant_id = $2::uuid`,
           d.course_id,
           req.tenantId!
-        )) as Array<{ id: string }>;
-        if (courseRows.length === 0) return null;
-        const created = (await tx.$queryRawUnsafe(
-          `INSERT INTO course_enrollments
-             (course_id, employee_id, status, enrolled_at, created_at, updated_at)
-           VALUES ($1::uuid, $2::uuid, $3, $4::timestamptz, NOW(), NOW())
-           RETURNING *`,
-          d.course_id,
-          d.employee_id,
-          d.status,
-          d.enrolled_at ?? new Date().toISOString()
-        )) as unknown[];
-        return created[0] ?? null;
-      });
-      if (result === null) {
+        );
+      })) as Array<{ id: string }>;
+      if (courseRows.length === 0) {
         res.status(404).json({ error: 'not_found', message: 'Course not found' });
         return;
       }
+
+      const actor = buildActor(req, req.tenantId!);
+      const { result } = await auditedTransaction(
+        actor,
+        {
+          action: 'CREATE',
+          category: 'USER',
+          resourceType: 'course_enrollments',
+          resourceId: 'pending',
+          resourceName: `enrollment:${d.course_id}:${d.employee_id}`,
+          newValue: d,
+          metadata: { source: 'api-gateway:enrollments.POST_courses' },
+        },
+        async (tx) => {
+          const created = (await tx.$queryRawUnsafe(
+            `INSERT INTO course_enrollments
+               (course_id, employee_id, status, enrolled_at, created_at, updated_at)
+             VALUES ($1::uuid, $2::uuid, $3, $4::timestamptz, NOW(), NOW())
+             RETURNING *`,
+            d.course_id,
+            d.employee_id,
+            d.status,
+            d.enrolled_at ?? new Date().toISOString()
+          )) as unknown[];
+          return created[0] ?? null;
+        }
+      );
       res.status(201).json({ data: result });
     } catch (err) {
       next(err);
@@ -185,26 +202,42 @@ enrollmentsRouter.patch(
       }
       updates.push('updated_at = NOW()');
 
-      const result = await withTenant(req.tenantId!, async (tx) => {
-        const existing = (await tx.$queryRawUnsafe(
-          `SELECT ce.id FROM course_enrollments ce
+      const existing = (await withTenant(req.tenantId!, async (tx) => {
+        return tx.$queryRawUnsafe(
+          `SELECT ce.* FROM course_enrollments ce
            JOIN courses c ON ce.course_id = c.id
            WHERE ce.id = $1::uuid AND c.tenant_id = $2::uuid`,
           id,
           req.tenantId!
-        )) as Array<{ id: string }>;
-        if (existing.length === 0) return null;
-        const updated = (await tx.$queryRawUnsafe(
-          `UPDATE course_enrollments SET ${updates.join(', ')} WHERE id = $${idx}::uuid RETURNING *`,
-          ...values,
-          id
-        )) as unknown[];
-        return updated[0] ?? null;
-      });
-      if (result === null) {
+        );
+      })) as Array<Record<string, unknown>>;
+      if (existing.length === 0) {
         res.status(404).json({ error: 'not_found', message: 'Enrollment not found' });
         return;
       }
+
+      const actor = buildActor(req, req.tenantId!);
+      const { result } = await auditedTransaction(
+        actor,
+        {
+          action: 'UPDATE',
+          category: 'USER',
+          resourceType: 'course_enrollments',
+          resourceId: id,
+          resourceName: `enrollment:${id}`,
+          oldValue: existing[0],
+          newValue: parsed.data,
+          metadata: { source: 'api-gateway:enrollments.PATCH_courses' },
+        },
+        async (tx) => {
+          const updated = (await tx.$queryRawUnsafe(
+            `UPDATE course_enrollments SET ${updates.join(', ')} WHERE id = $${idx}::uuid RETURNING *`,
+            ...values,
+            id
+          )) as unknown[];
+          return updated[0] ?? null;
+        }
+      );
       res.json({ data: result });
     } catch (err) {
       next(err);
@@ -224,21 +257,45 @@ enrollmentsRouter.delete(
         res.status(400).json({ error: 'invalid_input', message: 'Invalid enrollment ID format' });
         return;
       }
-      const rows = (await withTenant(req.tenantId!, async (tx) => {
+      const existing = (await withTenant(req.tenantId!, async (tx) => {
         return tx.$queryRawUnsafe(
-          `DELETE FROM course_enrollments ce
-           USING courses c
-           WHERE ce.course_id = c.id
-             AND ce.id = $1::uuid AND c.tenant_id = $2::uuid
-           RETURNING ce.id`,
+          `SELECT ce.* FROM course_enrollments ce
+           JOIN courses c ON ce.course_id = c.id
+           WHERE ce.id = $1::uuid AND c.tenant_id = $2::uuid`,
           id,
           req.tenantId!
         );
-      })) as Array<{ id: string }>;
-      if (rows.length === 0) {
+      })) as Array<Record<string, unknown>>;
+      if (existing.length === 0) {
         res.status(404).json({ error: 'not_found', message: 'Enrollment not found' });
         return;
       }
+
+      const actor = buildActor(req, req.tenantId!);
+      await auditedTransaction(
+        actor,
+        {
+          action: 'DELETE',
+          category: 'USER',
+          resourceType: 'course_enrollments',
+          resourceId: id,
+          resourceName: `enrollment:${id}`,
+          oldValue: existing[0],
+          newValue: null,
+          metadata: { source: 'api-gateway:enrollments.DELETE_courses' },
+        },
+        async (tx) => {
+          return tx.$queryRawUnsafe(
+            `DELETE FROM course_enrollments ce
+             USING courses c
+             WHERE ce.course_id = c.id
+               AND ce.id = $1::uuid AND c.tenant_id = $2::uuid
+             RETURNING ce.id`,
+            id,
+            req.tenantId!
+          );
+        }
+      );
       res.status(204).end();
     } catch (err) {
       next(err);
