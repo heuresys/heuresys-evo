@@ -58,15 +58,9 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
-    services:
-      # NB: Postgres è bare-metal nel design (vedi ADR-0001).
-      # Niente service container Postgres qui.
-      # Test che richiedono DB usano secret DATABASE_URL_TEST verso un
-      # Postgres reale di test, oppure provisioning on-demand con
-      # testcontainers-node nel job stesso.
-      redis:
-        image: redis:7-alpine
-        ports: ['6379:6379']
+    # NB: Postgres è bare-metal nel design (vedi ADR-0001 + ADR-0023 + ADR-0027).
+    # Niente service container Postgres, niente Docker. Test integration installa
+    # Postgres bare-metal via apt (vedi ADR-0027). Redis idem (apt install).
     steps:
       - uses: actions/checkout@v6
         with:
@@ -80,12 +74,28 @@ jobs:
         with:
           fetch-depth: '1'
       - if: steps.scope.outputs.handoff_only != 'true'
-        run: npm run test:unit
+        name: Install Postgres 16 + pgvector + Redis (bare-metal — ADR-0027)
+        run: |
+          sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+          wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+          sudo apt-get update
+          sudo apt-get install -y postgresql-16 postgresql-16-pgvector redis-server
+          sudo systemctl start postgresql redis-server
+          sudo -u postgres psql -c "CREATE USER heuresys WITH PASSWORD 'heuresys'; CREATE DATABASE heuresys_test OWNER heuresys; GRANT ALL ON DATABASE heuresys_test TO heuresys;"
+      - if: steps.scope.outputs.handoff_only != 'true'
+        run: npm run test:unit -- --coverage
       - if: steps.scope.outputs.handoff_only != 'true'
         run: npm run test:integration
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL_TEST }}
+          DATABASE_URL: postgresql://heuresys:heuresys@localhost:5432/heuresys_test
+          DATABASE_URL_TEST: postgresql://heuresys:heuresys@localhost:5432/heuresys_test
           REDIS_URL: redis://localhost:6379
+      - if: steps.scope.outputs.handoff_only != 'true'
+        name: Coverage threshold gate (ADR-0011)
+        run: |
+          # Threshold target: api-gateway 70%, shared 90%, ui 80% (vedi vitest.config.ts)
+          # Per-workspace threshold enforced inline da Vitest (passing == coverage gate).
+          echo "Coverage gate enforced via per-workspace vitest.config.ts thresholds"
 
   build-workspaces:
     runs-on: ubuntu-latest

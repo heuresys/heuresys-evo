@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "Heuresys API Gateway — Express 5 + Prisma + Zod + Auth.js (Express adapter)",
+  "description": "Heuresys API Gateway â€” Express 5 + Prisma + Zod + Auth.js (Express adapter)",
   "main": "./dist/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",
@@ -16,7 +16,8 @@
     "prisma:prune": "bash scripts/prune-prisma-schema.sh",
     "prisma:generate": "prisma generate --schema prisma/schema.prisma",
     "prisma:refresh": "npm run prisma:pull && npm run prisma:prune && npm run prisma:generate",
-    "clean": "rimraf dist node_modules/.cache"
+    "clean": "rimraf dist node_modules/.cache",
+    "test:unit": "vitest run"
   },
   "dependencies": {
     "@auth/express": "^0.12.2",

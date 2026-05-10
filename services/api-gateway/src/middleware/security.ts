@@ -32,8 +32,9 @@ export const hardenedHelmet: RequestHandler = helmet({
       'form-action': ["'self'"],
       'upgrade-insecure-requests': [],
     },
-    // CSP report-only first; flip to enforce after monitoring (B4.8).
-    reportOnly: process.env.CSP_ENFORCE !== '1',
+    // CSP enforce-by-default (S28 H7 flip). Opt-in report-only via CSP_REPORT_ONLY=1
+    // for monitoring window after directive policy changes.
+    reportOnly: process.env.CSP_REPORT_ONLY === '1',
   },
   hsts: {
     maxAge: 31536000, // 1 year

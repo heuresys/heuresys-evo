@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "Heuresys design system — shared React components, theme tokens, Tailwind 4 styles",
+  "description": "Heuresys design system â€” shared React components, theme tokens, Tailwind 4 styles",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "exports": {
@@ -19,7 +19,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "clean": "rimraf storybook-static node_modules/.cache"
+    "clean": "rimraf storybook-static node_modules/.cache",
+    "test:unit": "vitest run"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

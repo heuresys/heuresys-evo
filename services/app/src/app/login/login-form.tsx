@@ -72,7 +72,7 @@ export function LoginForm({ initialError }: { initialError?: string }) {
           <input type="checkbox" name="remember" />
           <span>Ricordami su questo dispositivo</span>
         </label>
-        <a href="#" className="forgot-link" aria-disabled="true">
+        <a href="/forgot-password" className="forgot-link">
           Password dimenticata?
         </a>
       </div>
