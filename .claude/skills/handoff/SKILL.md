@@ -86,7 +86,7 @@ Check if these need updating based on session changes:
 
 | File | When to update |
 |---|---|
-| `CLAUDE.md` (status block, line ~169) | Sprint name + L-NN bumped, top priorities table changed |
+| `CLAUDE.md` (§ Sistema corrente l. ~169 / § Roadmap successiva l. ~212 / § Carry-forward S25+ l. ~224) | Snapshot operativo cambiato (DB count, test count, app routes, FK state, mat views), oppure priorità roadmap/carry-forward shiftate. Per cronologia sprint shipped (Phase X.Y close, S<N> close) → append a `docs/_meta/sprint-history.md` (archive append-only, ordine cronologico decrescente), NO inline in CLAUDE.md |
 | `.ux-design/DECISIONS-LOG.md` | Decision/architectural choice taken this session → append L-NN entry |
 | `.ux-design/BRAND-STATE.md` | Brand workstream active + phase advancement / new asset / decision |
 | `.handoff/legacy-import-registry.csv` | Import legacy occurred this session |
