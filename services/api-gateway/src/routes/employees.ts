@@ -6,6 +6,7 @@ import { requireAuth } from '../middleware/auth.js';
 import { resolveTenant } from '../middleware/tenant.js';
 import { requirePermission } from '../middleware/require-permission.js';
 import { isUUID } from '../utils/pagination.js';
+import { auditedTransaction, type AuditActor } from '../lib/audit/auditedTransaction.js';
 
 export const employeesRouter = Router();
 
@@ -59,11 +60,37 @@ const TERMINATION_REASONS = [
 ] as const;
 
 interface SessionEnvelope {
-  user?: { id?: string; role?: string; tenantId?: string | null; employeeId?: string | null };
+  user?: {
+    id?: string;
+    role?: string;
+    tenantId?: string | null;
+    employeeId?: string | null;
+    email?: string | null;
+  };
 }
 
 function readSession(req: Request): SessionEnvelope {
   return (req as Request & { session?: SessionEnvelope | null }).session ?? {};
+}
+
+/**
+ * Build AuditActor from request session + tenantId. Throws if userId missing
+ * (P4 invariant: no NULL actor in audit_logs).
+ */
+function buildActor(req: Request, tenantId: string): AuditActor {
+  const session = readSession(req);
+  const userId = session.user?.id;
+  if (!userId) {
+    throw new Error('audit actor missing user.id (P4 violation)');
+  }
+  return {
+    tenantId,
+    userId,
+    userEmail: session.user?.email ?? null,
+    userRole: session.user?.role ?? null,
+    ipAddress: req.ip ?? null,
+    userAgent: req.headers['user-agent'] ?? null,
+  };
 }
 
 employeesRouter.get(
@@ -223,30 +250,45 @@ employeesRouter.post(
       const body = CreateEmployeeSchema.parse(req.body);
       const tenantId = req.tenantId!;
 
-      const created = await withTenant(tenantId, async (tx) => {
-        const existing = await tx.employees.findFirst({ where: { email: body.email } });
-        if (existing) return null;
-        const data: Prisma.employeesUncheckedCreateInput = {
-          tenant_id: tenantId,
-          first_name: body.first_name,
-          last_name: body.last_name,
-          email: body.email,
-          job_title: body.job_title ?? null,
-          department: body.department ?? null,
-          hire_date: body.hire_date ?? null,
-          manager_id: body.manager_id ?? null,
-          org_unit_id: body.org_unit_id ?? null,
-          cost_center_id: body.cost_center_id ?? null,
-          pernr: body.pernr ?? null,
-          is_active: body.is_active ?? true,
-        };
-        return tx.employees.create({ data });
-      });
-
-      if (!created) {
+      // Pre-check email uniqueness outside auditedTransaction (read-only).
+      const existing = await withTenant(tenantId, (tx) =>
+        tx.employees.findFirst({ where: { email: body.email }, select: { id: true } })
+      );
+      if (existing) {
         res.status(409).json({ success: false, error: 'Employee with this email already exists' });
         return;
       }
+
+      const actor = buildActor(req, tenantId);
+      const { result: created } = await auditedTransaction(
+        actor,
+        {
+          action: 'CREATE',
+          category: 'EMPLOYEE',
+          resourceType: 'employees',
+          resourceId: 'pending', // updated post-create via newValue
+          resourceName: `${body.first_name} ${body.last_name}`,
+          newValue: body,
+          metadata: { source: 'api-gateway:employees.POST' },
+        },
+        async (tx) => {
+          const data: Prisma.employeesUncheckedCreateInput = {
+            tenant_id: tenantId,
+            first_name: body.first_name,
+            last_name: body.last_name,
+            email: body.email,
+            job_title: body.job_title ?? null,
+            department: body.department ?? null,
+            hire_date: body.hire_date ?? null,
+            manager_id: body.manager_id ?? null,
+            org_unit_id: body.org_unit_id ?? null,
+            cost_center_id: body.cost_center_id ?? null,
+            pernr: body.pernr ?? null,
+            is_active: body.is_active ?? true,
+          };
+          return tx.employees.create({ data });
+        }
+      );
 
       res.status(201).json({
         success: true,
@@ -274,28 +316,44 @@ employeesRouter.patch(
       const body = UpdateEmployeeSchema.parse(req.body);
       const tenantId = req.tenantId!;
 
-      const updated = await withTenant(tenantId, async (tx) => {
-        const existing = await tx.employees.findUnique({ where: { id } });
-        if (!existing) return null;
-        const data: Prisma.employeesUncheckedUpdateInput = {};
-        if (body.first_name !== undefined) data.first_name = body.first_name;
-        if (body.last_name !== undefined) data.last_name = body.last_name;
-        if (body.email !== undefined) data.email = body.email;
-        if (body.job_title !== undefined) data.job_title = body.job_title;
-        if (body.department !== undefined) data.department = body.department;
-        if (body.hire_date !== undefined) data.hire_date = body.hire_date;
-        if (body.manager_id !== undefined) data.manager_id = body.manager_id;
-        if (body.org_unit_id !== undefined) data.org_unit_id = body.org_unit_id;
-        if (body.cost_center_id !== undefined) data.cost_center_id = body.cost_center_id;
-        if (body.is_active !== undefined) data.is_active = body.is_active;
-        data.updated_at = new Date();
-        return tx.employees.update({ where: { id }, data });
-      });
-
-      if (!updated) {
+      // Pre-fetch existing for oldValue snapshot (outside auditedTransaction).
+      const existing = await withTenant(tenantId, (tx) =>
+        tx.employees.findUnique({ where: { id } })
+      );
+      if (!existing) {
         res.status(404).json({ success: false, error: 'Employee not found' });
         return;
       }
+
+      const actor = buildActor(req, tenantId);
+      const { result: updated } = await auditedTransaction(
+        actor,
+        {
+          action: 'UPDATE',
+          category: 'EMPLOYEE',
+          resourceType: 'employees',
+          resourceId: id,
+          resourceName: `${existing.first_name} ${existing.last_name}`,
+          oldValue: existing,
+          newValue: body,
+          metadata: { source: 'api-gateway:employees.PATCH' },
+        },
+        async (tx) => {
+          const data: Prisma.employeesUncheckedUpdateInput = {};
+          if (body.first_name !== undefined) data.first_name = body.first_name;
+          if (body.last_name !== undefined) data.last_name = body.last_name;
+          if (body.email !== undefined) data.email = body.email;
+          if (body.job_title !== undefined) data.job_title = body.job_title;
+          if (body.department !== undefined) data.department = body.department;
+          if (body.hire_date !== undefined) data.hire_date = body.hire_date;
+          if (body.manager_id !== undefined) data.manager_id = body.manager_id;
+          if (body.org_unit_id !== undefined) data.org_unit_id = body.org_unit_id;
+          if (body.cost_center_id !== undefined) data.cost_center_id = body.cost_center_id;
+          if (body.is_active !== undefined) data.is_active = body.is_active;
+          data.updated_at = new Date();
+          return tx.employees.update({ where: { id }, data });
+        }
+      );
 
       res.json({ success: true, data: updated, message: 'Employee updated successfully' });
     } catch (err) {
@@ -321,30 +379,50 @@ employeesRouter.delete(
       const callerRole = session.user?.role ?? null;
       const tenantId = req.tenantId!;
 
-      const result = await withTenant(tenantId, async (tx) => {
-        const existing = await tx.employees.findUnique({ where: { id } });
-        if (!existing) return { kind: 'not_found' as const };
-        if (hardDelete && callerRole === 'SUPERUSER') {
-          await tx.employees.delete({ where: { id } });
-          return { kind: 'deleted' as const };
-        }
-        await tx.employees.update({
-          where: { id },
-          data: { is_active: false, updated_at: new Date() },
-        });
-        return { kind: 'archived' as const };
-      });
-
-      if (result.kind === 'not_found') {
+      // Pre-fetch existing for oldValue + 404 short-circuit (outside transaction).
+      const existing = await withTenant(tenantId, (tx) =>
+        tx.employees.findUnique({ where: { id } })
+      );
+      if (!existing) {
         res.status(404).json({ success: false, error: 'Employee not found' });
         return;
       }
+
+      const isHardDelete = hardDelete && callerRole === 'SUPERUSER';
+      const actor = buildActor(req, tenantId);
+      await auditedTransaction(
+        actor,
+        {
+          action: 'DELETE',
+          category: 'EMPLOYEE',
+          resourceType: 'employees',
+          resourceId: id,
+          resourceName: `${existing.first_name} ${existing.last_name}`,
+          oldValue: existing,
+          newValue: isHardDelete ? null : { ...existing, is_active: false },
+          metadata: {
+            source: 'api-gateway:employees.DELETE',
+            hardDelete: isHardDelete,
+          },
+        },
+        async (tx) => {
+          if (isHardDelete) {
+            await tx.employees.delete({ where: { id } });
+            return { kind: 'deleted' as const };
+          }
+          await tx.employees.update({
+            where: { id },
+            data: { is_active: false, updated_at: new Date() },
+          });
+          return { kind: 'archived' as const };
+        }
+      );
+
       res.json({
         success: true,
-        message:
-          result.kind === 'deleted'
-            ? 'Employee permanently deleted'
-            : 'Employee archived (is_active=false)',
+        message: isHardDelete
+          ? 'Employee permanently deleted'
+          : 'Employee archived (is_active=false)',
       });
     } catch (err) {
       next(err);

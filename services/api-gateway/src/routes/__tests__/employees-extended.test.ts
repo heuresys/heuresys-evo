@@ -91,6 +91,10 @@ vi.mock('../../db/pool.js', () => ({
           return employeeSkills.filter((s) => s.employee_id === args.where.employee_id);
         }),
       },
+      // S28-bis Wave 8 H4: auditedTransaction wraps writes in tx.audit_logs.create
+      audit_logs: {
+        create: vi.fn(async () => ({ id: 'audit-mock-id' })),
+      },
     };
     return fn(tx);
   }),
