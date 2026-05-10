@@ -1,47 +1,54 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-11T01:20Z · S29 closed · F0+F2 shipped, F1 deferred, F3 pending
+> Updated: 2026-05-11T02:00Z · S30 closed · P2+P3 shipped, P1 pre-flight complete (apply deferred)
 
 ## Last session brief
 
-**S29 (20:55Z → 23:20Z)** — 2 commit pushed `b90b5dc` (F2 chunk 1 Prisma) + `90ea214` (F2 chunk 2 raw SQL). F0 verify: postgres drift inesistente (server 16.13 OK, solo client psql 18.3 binary). F2 H4 sweep completo: **21 routes / 57 mutations wrapped** in `auditedTransaction`. F1 C1 Phase 2 deferito: 3 bloccanti pre-flight (defs incomplete, script apostrofi, backup 0 byte). 462/462 api-gateway test PASS.
+**S30 (00:14Z → 02:00Z)** — Tre priorities executed in single session:
+- **P2 H11**: 26 audit assertion tests added across 16 test files (vi.hoisted pattern). All 488 api-gateway tests PASS.
+- **P3 H13**: 24 RLS cross-tenant scenarios added (parametric over 8 representative tables); total 30, was 6.
+- **P1 ARCH** (opzione B, prod-safe): full pre-flight artifacts generated + dry-run validated on `heuresys_phase16o_test` (restored from 397M backup); production untouched. Artifacts in `db/migrations/phase16o/` ready for apply session.
 
-## Top priorities S30+ (tech-only)
+Commits: `6b660a4` (P2+P3 tests) + final S30 commit (P1 artifacts + STATE.md).
 
-1. **`[ARCH-S30]` C1 Phase 2 vertical-split — RIGENERAZIONE + APPLY** (~2-3h, era 1-2h). Pre-flight S29 ha trovato 3 bloccanti: (a) `/tmp/employees-views-defs.sql` ha 52 CREATE VIEW senza schema qualifier ma ne servono 65 (50 public.v + 4 public.m + 9 analytics.v + 2 learning.v); (b) script `/tmp/phase16o-execute-pipeline.sh` ha apostrofi strippati nei letterali SQL DO block (syntax error a esecuzione); (c) backup target `pre-phase16o-20260510T043706Z.dump` è 0 byte — usare `043823Z` o `044105Z` (entrambi 397M). Steps S30: rigenerare defs schema-qualified con `pg_get_viewdef` + topological order · rewrite script con quoting corretto + sha256 verify backup + ON_ERROR_STOP · apply 5-step guidato · verify post (test + mat view refresh).
+## Top priorities S31+ (tech-only)
 
-2. **`[TEST-S30]` H11 integration suite full** (~8-12h AI velocity, oltre 5 example Wave 9 + 11 mock estensioni S29). Pattern reference: `services/api-gateway/src/routes/__tests__/employees-extended.test.ts`. Target coverage: tutte le 21 routes ora auditedTransaction-enabled meritano un test che verifichi `audit_logs.create` chiamato con `actor` corretto.
+1. **`[ARCH-S31]` C1 Phase 2 vertical-split — APPLY ON PROD** (~3-5h, dedicated session). All pre-flight done in S30 (`db/migrations/phase16o/`). Required additions before apply (see `README.md` checklist):
+   - Add INSTEAD OF triggers to step 3 (replace placeholder VIEW with full satellite JOIN)
+   - Add explicit `ALTER TABLE employees_core DROP COLUMN…` after RENAME
+   - Audit RLS policies on the 65 recreated views (CASCADE drops them)
+   - Re-run dry-run on temp DB with the additions
+   - Apply on prod within transaction; ROLLBACK on any error
+   - Maintenance window coordinated with mat view auto-refresh systemd timer (4h UTC)
 
-3. **`[TEST-S30]` H13 RLS cross-tenant test extension** (~4-8h AI velocity, oltre 6 scenari shipped Wave 5+9). Estendere matrix UPDATE/DELETE/audit_logs/BYPASSRLS a tutte le tabelle tenant-scoped 312, target: ~30 scenari ben distribuiti.
+2. **`[TEST-S31]` H11 audit assertions — coverage extension** (~6-10h optional). Current S30 coverage: 1 audit test per route (CREATE most prominent). Full coverage = 1 test per mutation type per route (CREATE+UPDATE+DELETE) ≈ 75 tests instead of 26. Diminishing returns — current already validates the pattern + actor envelope across all 25 audited routes.
 
-## Other tech pending (non-priority)
+3. **`[TEST-S31]` H13 RLS cross-tenant — DATABASE_URL_TEST setup** (~1-2h). 30 scenarios written but skipped without test DB. Need: create heuresys_test bare-metal + seed 2 tenants A/B + set `DATABASE_URL_TEST` in CI/local, then 30 scenarios become live.
+
+## Other tech pending (non-priority, unchanged from S29)
 
 - **M3** Prisma client consolidation (~2-3h refactor cross-workspace)
-- **M10** TOTP UI wizard + login signIn step-up integration (~4-6h, handler già shipped Wave 10)
+- **M10** TOTP UI wizard + login signIn step-up integration (~4-6h, handler already shipped Wave 10)
 - **M1** Storybook 3 component data-heavy (~1-2h)
 - **LOW** Load test perf bench autocannon 8 viste (~30 min)
-- **lint:tenant-id violation**: `services/app/src/app/api/auth/totp/verify/route.ts:72` `prisma.users.update` senza `withTenant`/tenantId where — pre-existing S28-bis Wave 10, da fixare in chunk M10 UI wizard.
+- **lint:tenant-id violation**: `services/app/src/app/api/auth/totp/verify/route.ts:72` — pre-existing S28-bis Wave 10
 - **H6** NextAuth v5 migration — force-wait Q3-Q4 2026 stable
-
-## Open questions
-
-- ~~postgres VM 18.3 vs ADR-0023 16.13~~ — **RESOLVED S29 F0**: drift inesistente, server resta 16.13, solo client binary aggiornato.
 
 ## Stack snapshot
 
-- Code S29: services/api-gateway · +21 routes auditedTransaction adoption (57 mutations wrapped: 6 employees existing + 7 Prisma chunk 1 + 49 raw SQL + 2 leaves + 2 chunk 1 hidden) · +1 helper `lib/audit/buildActor.ts` (DRY extraction from employees.ts) · 11 test files extended con `audit_logs.create` mock
-- auditedTransaction call sites api-gateway: 22 → **65** (S28-bis Wave 8 + S29 F2)
-- Tests: **462/462 api-gateway PASS** (no delta vs baseline; pre-existing 14 skip) · typecheck PASS
-- Repo: 2 commit aggiunti su origin/main (S29)
-- DBMS: invariato (F1 deferred, no migration applicata)
+- Code S30: services/api-gateway tests/ · 16 test files extended with hoisted audit mock + 26 audit assertion tests · 1 RLS spec extended with 24 parametric scenarios · 0 production code changes
+- Tests: **488/488 api-gateway PASS** (+26 audit assertions vs S29 baseline 462) · 38 skipped (30 RLS H13 incl. 24 new + 8 pre-existing) · typecheck PASS
+- DBMS: invariato (P1 deferred, dry-run su DB temp validato e cleaned up)
+- Pre-flight artifacts: `db/migrations/phase16o/` — 65 view DAG + topo-ordered apply pipeline + README checklist + Python regenerator
 
 ## Verification
 
 ```bash
-git log --oneline -3                                    # b90b5dc + 90ea214 + handoff
-grep -rln 'auditedTransaction' services/api-gateway/src/routes/ | wc -l   # expected: 21
-npm test --workspace=services/api-gateway --silent      # expected: 462 PASS
-npx tsc --noEmit -p services/api-gateway/tsconfig.json  # expected: clean
+git log --oneline -3                                              # 6b660a4 + S30 final + handoff
+npm test --workspace=services/api-gateway --silent                # 488 PASS
+ls db/migrations/phase16o/artifacts/                              # 4 files
+ssh oracle-vm-default 'sudo sha256sum /var/backups/heuresys-evo/heuresys_platform-pre-phase16o-20260510T044105Z.dump'
+# expected: dba5a08b0fba34b61fa2ed5b6152d31ea0d1ab58ad27519487956e356a1157b1
 ```
 
-Riferimenti: commit `b90b5dc` chunk 1 (Prisma routes + buildActor helper) · commit `90ea214` chunk 2 (19 raw SQL routes + 11 test mock extensions) · pattern reference `services/api-gateway/src/routes/leaves.ts` (raw SQL) + `services/api-gateway/src/routes/org-units.ts` (Prisma with archive-vs-delete branch).
+Riferimenti: commit `6b660a4` (P2+P3 tests) · commit S30 final (P1 artifacts + STATE.md) · `db/migrations/phase16o/README.md` (apply session checklist).

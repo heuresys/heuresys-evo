@@ -1,0 +1,5 @@
+analytics.v_executive_dashboard|public.v_flight_risk_features
+analytics.v_executive_dashboard|public.v_nine_box_grid
+analytics.v_performance_snapshot|public.v_nine_box_grid
+analytics.v_workforce_planning_dashboard|public.v_flight_risk_features
+analytics.v_workforce_planning_dashboard|public.v_nine_box_grid
