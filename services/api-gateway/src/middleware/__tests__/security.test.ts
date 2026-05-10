@@ -22,13 +22,15 @@ function buildApp(): express.Express {
 }
 
 describe('hardenedHelmet', () => {
-  it('sets HSTS, no-sniff, frameguard, and CSP report-only headers', async () => {
+  it('sets HSTS, no-sniff, frameguard, and CSP enforce headers (S28 H7 flip)', async () => {
     const res = await request(buildApp()).get('/safe');
     expect(res.headers['strict-transport-security']).toMatch(/max-age=31536000/);
     expect(res.headers['x-content-type-options']).toBe('nosniff');
     expect(res.headers['x-frame-options']).toMatch(/SAMEORIGIN|DENY/i);
     expect(res.headers['referrer-policy']).toBe('strict-origin-when-cross-origin');
-    expect(res.headers['content-security-policy-report-only']).toBeDefined();
+    // S28 H7: CSP default = enforce; opt-in report-only via CSP_REPORT_ONLY=1
+    expect(res.headers['content-security-policy']).toBeDefined();
+    expect(res.headers['content-security-policy-report-only']).toBeUndefined();
   });
 });
 

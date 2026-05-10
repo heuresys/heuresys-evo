@@ -1,6 +1,6 @@
 # ADR-0002: Strategia di testing database in CI — testcontainers-node
 
-**Status**: Superseded by ADR-0027 (2026-05-10) — bare-metal test Postgres strategy adottata in luogo di testcontainers Docker, coerente con direttiva "no Docker in progetto"
+**Status**: Superseded by ADR-0027 (2026-05-10) — bare-metal test Postgres strategy adottata in luogo di testcontainers Docker, coerente con direttiva "no Docker in progetto". Helper `packages/shared/src/test-utils/postgres-bare-metal.ts` shipped S28 Wave 5.
 **Date**: 2026-04-27
 **Authors**: Enzo Spenuso
 
