@@ -8,13 +8,17 @@ const REL_ID = '33333333-3333-3333-3333-333333333333';
 
 const queryRawUnsafeMock = vi.fn();
 
+const { auditLogsCreateMock } = vi.hoisted(() => ({
+  auditLogsCreateMock: vi.fn(async () => ({ id: 'audit-mock-id' })),
+}));
+
 vi.mock('../../db/pool.js', () => ({
   withTenant: vi.fn(async (_t: string, fn: (tx: unknown) => Promise<unknown>) => {
     const tx = {
       $queryRawUnsafe: queryRawUnsafeMock,
       // F2 H4: auditedTransaction wraps writes in tx.audit_logs.create
       audit_logs: {
-        create: vi.fn(async () => ({ id: 'audit-mock-id' })),
+        create: auditLogsCreateMock,
       },
     };
     return fn(tx);
@@ -83,12 +87,19 @@ const crudEndpoints = [
   },
 ];
 
+// F2 H11: audit_logs.create payload expectations per route
+const auditExpectations: Record<string, { category: string; resourceType: string }> = {
+  attendance: { category: 'SYSTEM', resourceType: 'employee_attendance' },
+  'time-off': { category: 'SYSTEM', resourceType: 'employee_time_off_requests' },
+};
+
 for (const ep of crudEndpoints) {
   describe(ep.name, () => {
     beforeEach(() => {
       mockSession = null;
       cacheStub.isAllowed.mockReset().mockReturnValue(true);
       queryRawUnsafeMock.mockReset();
+      auditLogsCreateMock.mockClear();
     });
 
     it('GET / 401', async () => {
@@ -137,6 +148,26 @@ for (const ep of crudEndpoints) {
       const res = await request(buildApp()).delete(`${ep.base}/${ID}`);
       expect(res.status).toBe(204);
     });
+
+    it('audits CREATE with correct actor + category/resource_type', async () => {
+      asAdmin();
+      queryRawUnsafeMock.mockResolvedValueOnce([{ id: ID }]);
+      await request(buildApp()).post(ep.base).send(ep.create);
+      const exp = auditExpectations[ep.name]!;
+      expect(auditLogsCreateMock).toHaveBeenCalledOnce();
+      expect(auditLogsCreateMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            action: 'CREATE',
+            category: exp.category,
+            resource_type: exp.resourceType,
+            user_id: 'u1',
+            tenant_id: ECONOVA,
+            success: true,
+          }),
+        })
+      );
+    });
   });
 }
 
@@ -145,6 +176,7 @@ describe('tenant-onboarding', () => {
     mockSession = null;
     cacheStub.isAllowed.mockReset().mockReturnValue(true);
     queryRawUnsafeMock.mockReset();
+    auditLogsCreateMock.mockClear();
   });
 
   it('GET /profile 200', async () => {
@@ -178,5 +210,28 @@ describe('tenant-onboarding', () => {
       .patch('/tenant-onboarding/profile')
       .send({ company_name: 'New Co' });
     expect(res.status).toBe(200);
+  });
+
+  it('audits UPDATE tenant_onboarding_profiles with TENANT category', async () => {
+    asAdmin();
+    queryRawUnsafeMock
+      .mockResolvedValueOnce([{ tenant_id: ECONOVA, company_name: 'Old Co' }])
+      .mockResolvedValueOnce([{ tenant_id: ECONOVA, company_name: 'Audited Co' }]);
+    await request(buildApp())
+      .patch('/tenant-onboarding/profile')
+      .send({ company_name: 'Audited Co' });
+    expect(auditLogsCreateMock).toHaveBeenCalledOnce();
+    expect(auditLogsCreateMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          action: 'UPDATE',
+          category: 'TENANT',
+          resource_type: 'tenant_onboarding_profiles',
+          user_id: 'u1',
+          tenant_id: ECONOVA,
+          success: true,
+        }),
+      })
+    );
   });
 });

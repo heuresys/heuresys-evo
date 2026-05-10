@@ -70,6 +70,10 @@ type UserRow = {
 
 let users: UserRow[] = [];
 
+const { auditLogsCreateMock } = vi.hoisted(() => ({
+  auditLogsCreateMock: vi.fn(async () => ({ id: 'audit-id-mock' })),
+}));
+
 function makeUser(o: Partial<UserRow> & { id: string; username: string }): UserRow {
   const now = new Date('2026-01-01T00:00:00Z');
   return {
@@ -167,7 +171,7 @@ vi.mock('../../db/pool.js', () => ({
       }),
     },
     audit_logs: {
-      create: vi.fn(async () => ({ id: 'audit-id-mock' })),
+      create: auditLogsCreateMock,
     },
   },
   withTenant: vi.fn(async (_tenantId: string, fn: (tx: unknown) => Promise<unknown>) => {
@@ -198,7 +202,7 @@ vi.mock('../../db/pool.js', () => ({
         }),
       },
       audit_logs: {
-        create: vi.fn(async () => ({ id: 'audit-id-mock' })),
+        create: auditLogsCreateMock,
       },
     };
     return fn(tx);
@@ -223,6 +227,7 @@ beforeEach(() => {
   mockSession = null;
   cacheMock.ensureLoaded.mockReset().mockResolvedValue(undefined);
   cacheMock.isAllowed.mockReset().mockReturnValue(true);
+  auditLogsCreateMock.mockClear();
   users = [
     makeUser({
       id: ALICE_ID,
@@ -400,6 +405,26 @@ describe('POST /users', () => {
       .send({ username: 'employeeuser', role: 'EMPLOYEE', generate_password: true });
     expect(res.status).toBe(400);
     expect(res.body.message).toContain('linked to an employee');
+  });
+
+  it('audits CREATE user with USER category', async () => {
+    mockSession = { expires: FAR_FUTURE, user: { id: SUPER_ID, role: 'SUPERUSER' } };
+    await request(buildApp())
+      .post('/users')
+      .send({ username: 'auditadmin', role: 'TENANT_OWNER', generate_password: true });
+    expect(auditLogsCreateMock).toHaveBeenCalled();
+    expect(auditLogsCreateMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          action: 'CREATE',
+          category: 'USER',
+          resource_type: 'user',
+          user_id: SUPER_ID,
+          user_role: 'SUPERUSER',
+          success: true,
+        }),
+      })
+    );
   });
 });
 

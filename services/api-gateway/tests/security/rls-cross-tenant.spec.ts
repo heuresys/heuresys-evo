@@ -125,4 +125,64 @@ describe.runIf(hasTestDB())('security · RLS cross-tenant isolation', () => {
       expect(typeof r.rows[0]?.current_user).toBe('string');
     });
   });
+
+  // ────────────────────────────────────────────────────────────────────
+  // S30 H13 extension — parametric matrix across 8 representative tenant-scoped
+  // tables (covers org/recruiting/learning/performance/skills/leaves domains).
+  // For each table: SELECT(B from A) → 0 · UPDATE(B from A) → 0 rows · DELETE(B from A) → 0 rows.
+  // Total +24 scenarios, bringing matrix to 30 well-distributed assertions.
+  // ────────────────────────────────────────────────────────────────────
+
+  const tenantScopedTables: Array<{ table: string; updateCol: string; updateVal: string }> = [
+    { table: 'org_units', updateCol: 'description', updateVal: 'Hijacked' },
+    { table: 'recruiting_candidates', updateCol: 'stage', updateVal: 'rejected' },
+    { table: 'recruiting_offers', updateCol: 'status', updateVal: 'rejected' },
+    { table: 'courses', updateCol: 'is_active', updateVal: 'false' },
+    { table: 'course_enrollments', updateCol: 'status', updateVal: 'cancelled' },
+    { table: 'certifications', updateCol: 'status', updateVal: 'revoked' },
+    { table: 'employee_skill_assessments', updateCol: 'assessed_level', updateVal: '0' },
+    { table: 'merit_cycles', updateCol: 'status', updateVal: 'cancelled' },
+  ];
+
+  for (const { table, updateCol, updateVal } of tenantScopedTables) {
+    describe(`tenant isolation · ${table}`, () => {
+      it(`SELECT(B from A context) → 0 rows visible`, async () => {
+        await db.transaction(async (tx) => {
+          await tx.query(`SET LOCAL ROLE heuresys`);
+          await tx.query(`SET LOCAL app.current_tenant_id = $1`, [TENANT_A]);
+          const r = await tx.query(`SELECT count(*)::int AS n FROM ${table} WHERE tenant_id = $1`, [
+            TENANT_B,
+          ]);
+          expect(r.rows[0]?.n).toBe(0);
+        });
+      });
+
+      it(`UPDATE(B from A context) → 0 rows affected (RLS USING blocks)`, async () => {
+        await db.transaction(async (tx) => {
+          await tx.query(`SET LOCAL ROLE heuresys`);
+          await tx.query(`SET LOCAL app.current_tenant_id = $1`, [TENANT_A]);
+          // Use literal (not parametrized) col since identifiers cannot be bound
+          const isNumOrBool = /^(true|false|\d+)$/.test(updateVal);
+          const valLit = isNumOrBool ? updateVal : `'${updateVal.replace(/'/g, "''")}'`;
+          const r = await tx.query(
+            `UPDATE ${table} SET ${updateCol} = ${valLit} WHERE tenant_id = $1 RETURNING tenant_id`,
+            [TENANT_B]
+          );
+          expect(r.rows.length).toBe(0);
+        });
+      });
+
+      it(`DELETE(B from A context) → 0 rows affected (RLS hides discoverability)`, async () => {
+        await db.transaction(async (tx) => {
+          await tx.query(`SET LOCAL ROLE heuresys`);
+          await tx.query(`SET LOCAL app.current_tenant_id = $1`, [TENANT_A]);
+          const r = await tx.query(
+            `DELETE FROM ${table} WHERE tenant_id = $1 RETURNING tenant_id`,
+            [TENANT_B]
+          );
+          expect(r.rows.length).toBe(0);
+        });
+      });
+    });
+  }
 });

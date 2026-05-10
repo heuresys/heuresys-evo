@@ -16,6 +16,10 @@ interface FixtureLeave {
   days_requested: number;
 }
 
+const { auditLogsCreateMock } = vi.hoisted(() => ({
+  auditLogsCreateMock: vi.fn(async () => ({ id: 'audit-mock-id' })),
+}));
+
 const fixtureLeaves: FixtureLeave[] = [
   {
     id: 'leave-1',
@@ -67,7 +71,7 @@ vi.mock('../../db/pool.js', () => ({
       }),
       // F2 H4: auditedTransaction wraps writes in tx.audit_logs.create
       audit_logs: {
-        create: vi.fn(async () => ({ id: 'audit-mock-id' })),
+        create: auditLogsCreateMock,
       },
     };
     return fn(tx);
@@ -172,6 +176,7 @@ describe('POST /leaves (submit)', () => {
     mockSession = null;
     cacheStub.isAllowed.mockReset().mockReturnValue(true);
     cacheStub.getPermission.mockReset();
+    auditLogsCreateMock.mockClear();
   });
 
   it('403 when role lacks LEAVES.create', async () => {
@@ -227,6 +232,32 @@ describe('POST /leaves (submit)', () => {
     expect(res.status).toBe(201);
     expect(res.body.data.status).toBe('pending');
   });
+
+  it('audits CREATE with correct actor + payload on successful submit', async () => {
+    mockSession = {
+      user: { id: 'u1', role: 'EMPLOYEE', tenantId: ECONOVA, employeeId: EMP_ALICE },
+    };
+    await request(buildApp()).post('/leaves').send({
+      leave_type: 'vacation',
+      start_date: '2026-06-01',
+      end_date: '2026-06-05',
+      days_requested: 5,
+    });
+    expect(auditLogsCreateMock).toHaveBeenCalledOnce();
+    expect(auditLogsCreateMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          action: 'CREATE',
+          category: 'SYSTEM',
+          resource_type: 'employee_time_off_requests',
+          user_id: 'u1',
+          user_role: 'EMPLOYEE',
+          tenant_id: ECONOVA,
+          success: true,
+        }),
+      })
+    );
+  });
 });
 
 describe('POST /leaves/:id/approve', () => {
@@ -234,6 +265,7 @@ describe('POST /leaves/:id/approve', () => {
     mockSession = null;
     cacheStub.isAllowed.mockReset().mockReturnValue(true);
     cacheStub.getPermission.mockReset();
+    auditLogsCreateMock.mockClear();
   });
 
   it('403 when role lacks LEAVES.approve', async () => {
@@ -264,5 +296,28 @@ describe('POST /leaves/:id/approve', () => {
     };
     const res = await request(buildApp()).post('/leaves/not-a-uuid/approve');
     expect(res.status).toBe(400);
+  });
+
+  it('audits UPDATE with correct actor + resource_id on approve', async () => {
+    mockSession = {
+      user: { id: 'mgr-1', role: 'LINE_MANAGER', tenantId: ECONOVA, employeeId: EMP_MGR },
+    };
+    const leaveId = 'aaaaaaaa-1111-1111-1111-111111111111';
+    await request(buildApp()).post(`/leaves/${leaveId}/approve`);
+    expect(auditLogsCreateMock).toHaveBeenCalledOnce();
+    expect(auditLogsCreateMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          action: 'UPDATE',
+          category: 'SYSTEM',
+          resource_type: 'employee_time_off_requests',
+          resource_id: leaveId,
+          user_id: 'mgr-1',
+          user_role: 'LINE_MANAGER',
+          tenant_id: ECONOVA,
+          success: true,
+        }),
+      })
+    );
   });
 });

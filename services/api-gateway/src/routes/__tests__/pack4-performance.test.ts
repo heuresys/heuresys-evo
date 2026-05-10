@@ -9,13 +9,17 @@ const EMP_ID = '44444444-4444-4444-4444-444444444444';
 
 const queryRawUnsafeMock = vi.fn();
 
+const { auditLogsCreateMock } = vi.hoisted(() => ({
+  auditLogsCreateMock: vi.fn(async () => ({ id: 'audit-mock-id' })),
+}));
+
 vi.mock('../../db/pool.js', () => ({
   withTenant: vi.fn(async (_t: string, fn: (tx: unknown) => Promise<unknown>) => {
     const tx = {
       $queryRawUnsafe: queryRawUnsafeMock,
       // F2 H4: auditedTransaction wraps writes in tx.audit_logs.create
       audit_logs: {
-        create: vi.fn(async () => ({ id: 'audit-mock-id' })),
+        create: auditLogsCreateMock,
       },
     };
     return fn(tx);
@@ -168,6 +172,7 @@ describe('/merit-cycles', () => {
     mockSession = null;
     cacheStub.isAllowed.mockReset().mockReturnValue(true);
     queryRawUnsafeMock.mockReset();
+    auditLogsCreateMock.mockClear();
   });
 
   it('GET /stats 200', async () => {
@@ -267,5 +272,27 @@ describe('/merit-cycles', () => {
       .mockResolvedValueOnce([{ id: CYCLE_ID }]);
     const res = await request(buildApp()).delete(`/merit-cycles/${CYCLE_ID}`);
     expect(res.status).toBe(204);
+  });
+
+  it('audits CREATE merit_cycles with COMPENSATION category', async () => {
+    asAdmin();
+    queryRawUnsafeMock.mockResolvedValueOnce([{ id: CYCLE_ID, name: 'Q2 Audit' }]);
+    await request(buildApp())
+      .post('/merit-cycles')
+      .send({ name: 'Q2 Audit', effective_date: '2026-04-01' });
+    expect(auditLogsCreateMock).toHaveBeenCalledOnce();
+    expect(auditLogsCreateMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          action: 'CREATE',
+          category: 'COMPENSATION',
+          resource_type: 'merit_cycles',
+          user_id: 'u1',
+          user_role: 'HR_DIRECTOR',
+          tenant_id: ECONOVA,
+          success: true,
+        }),
+      })
+    );
   });
 });

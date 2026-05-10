@@ -7,13 +7,17 @@ const SKILL_ID = '22222222-2222-2222-2222-222222222222';
 
 const queryRawUnsafeMock = vi.fn();
 
+const { auditLogsCreateMock } = vi.hoisted(() => ({
+  auditLogsCreateMock: vi.fn(async () => ({ id: 'audit-mock-id' })),
+}));
+
 vi.mock('../../db/pool.js', () => ({
   withTenant: vi.fn(async (_t: string, fn: (tx: unknown) => Promise<unknown>) => {
     const tx = {
       $queryRawUnsafe: queryRawUnsafeMock,
       // F2 H4: auditedTransaction wraps writes in tx.audit_logs.create
       audit_logs: {
-        create: vi.fn(async () => ({ id: 'audit-mock-id' })),
+        create: auditLogsCreateMock,
       },
     };
     return fn(tx);
@@ -240,6 +244,7 @@ describe('POST /skills', () => {
     mockSession = null;
     cacheStub.isAllowed.mockReset().mockReturnValue(true);
     queryRawUnsafeMock.mockReset();
+    auditLogsCreateMock.mockClear();
   });
 
   it('401 without session', async () => {
@@ -275,6 +280,32 @@ describe('POST /skills', () => {
     });
     expect(res.status).toBe(201);
     expect(res.body.data.id).toBe(SKILL_ID);
+  });
+
+  it('audits CREATE with correct actor + payload', async () => {
+    asAdmin();
+    queryRawUnsafeMock.mockResolvedValueOnce([
+      { id: SKILL_ID, uri: 'http://example/y', preferred_label_en: 'Y', skill_type: 'skill' },
+    ]);
+    await request(buildApp()).post('/skills').send({
+      uri: 'http://example/y',
+      preferred_label_en: 'Y',
+      skill_type: 'skill',
+    });
+    expect(auditLogsCreateMock).toHaveBeenCalledOnce();
+    expect(auditLogsCreateMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          action: 'CREATE',
+          category: 'SYSTEM',
+          resource_type: 'esco_skills',
+          user_id: 'u1',
+          user_role: 'HR_DIRECTOR',
+          tenant_id: ECONOVA,
+          success: true,
+        }),
+      })
+    );
   });
 });
 

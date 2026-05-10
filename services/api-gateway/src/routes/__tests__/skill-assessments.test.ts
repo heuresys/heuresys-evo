@@ -8,13 +8,17 @@ const ASSESS_ID = '33333333-3333-3333-3333-333333333333';
 
 const queryRawUnsafeMock = vi.fn();
 
+const { auditLogsCreateMock } = vi.hoisted(() => ({
+  auditLogsCreateMock: vi.fn(async () => ({ id: 'audit-mock-id' })),
+}));
+
 vi.mock('../../db/pool.js', () => ({
   withTenant: vi.fn(async (_t: string, fn: (tx: unknown) => Promise<unknown>) => {
     const tx = {
       $queryRawUnsafe: queryRawUnsafeMock,
       // F2 H4: auditedTransaction wraps writes in tx.audit_logs.create
       audit_logs: {
-        create: vi.fn(async () => ({ id: 'audit-mock-id' })),
+        create: auditLogsCreateMock,
       },
     };
     return fn(tx);
@@ -240,6 +244,7 @@ describe('POST /skill-assessments', () => {
     mockSession = null;
     cacheStub.isAllowed.mockReset().mockReturnValue(true);
     queryRawUnsafeMock.mockReset();
+    auditLogsCreateMock.mockClear();
   });
 
   it('401 without session', async () => {
@@ -272,6 +277,30 @@ describe('POST /skill-assessments', () => {
       .send({ employee_id: EMP_ID, skill_name: 'JS', assessed_level: 4 });
     expect(res.status).toBe(201);
     expect(res.body.data.id).toBe(ASSESS_ID);
+  });
+
+  it('audits CREATE with correct actor + REVIEW category', async () => {
+    asAdmin();
+    queryRawUnsafeMock
+      .mockResolvedValueOnce([{ id: EMP_ID }])
+      .mockResolvedValueOnce([{ id: ASSESS_ID, skill_name: 'SQL', assessed_level: 3 }]);
+    await request(buildApp())
+      .post('/skill-assessments')
+      .send({ employee_id: EMP_ID, skill_name: 'SQL', assessed_level: 3 });
+    expect(auditLogsCreateMock).toHaveBeenCalledOnce();
+    expect(auditLogsCreateMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          action: 'CREATE',
+          category: 'REVIEW',
+          resource_type: 'employee_skill_assessments',
+          user_id: 'u1',
+          user_role: 'HR_DIRECTOR',
+          tenant_id: ECONOVA,
+          success: true,
+        }),
+      })
+    );
   });
 });
 

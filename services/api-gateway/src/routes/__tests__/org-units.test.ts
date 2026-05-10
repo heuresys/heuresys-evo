@@ -30,6 +30,10 @@ type OrgUnit = {
 let orgUnits: OrgUnit[] = [];
 let employeesByOrg: Map<string, number> = new Map();
 
+const { auditLogsCreateMock } = vi.hoisted(() => ({
+  auditLogsCreateMock: vi.fn(async () => ({ id: 'audit-mock-id' })),
+}));
+
 function makeOu(
   o: Partial<OrgUnit> & { id: string; code: string; name: string; org_level: number }
 ): OrgUnit {
@@ -153,7 +157,7 @@ vi.mock('../../db/pool.js', () => ({
       },
       // F2 H4: auditedTransaction wraps writes in tx.audit_logs.create
       audit_logs: {
-        create: vi.fn(async () => ({ id: 'audit-mock-id' })),
+        create: auditLogsCreateMock,
       },
     };
     return fn(tx);
@@ -218,6 +222,7 @@ beforeEach(() => {
   mockSession = null;
   cacheMock.ensureLoaded.mockReset().mockResolvedValue(undefined);
   cacheMock.isAllowed.mockReset().mockReturnValue(true);
+  auditLogsCreateMock.mockClear();
   employeesByOrg = new Map();
   orgUnits = [
     makeOu({ id: ROOT_ID, code: 'ROOT', name: 'RTL Bank', org_level: 1, org_type: 'company' }),
@@ -434,6 +439,30 @@ describe('POST /org-units', () => {
       .post('/org-units')
       .send({ code: 'X', name: 'X', parent_id: '99999999-9999-9999-9999-999999999999' });
     expect(res.status).toBe(400);
+  });
+
+  it('audits CREATE org_units with SYSTEM category', async () => {
+    mockSession = {
+      expires: FAR_FUTURE,
+      user: { id: 'u1', role: 'HR_DIRECTOR', tenantId: RTL_TENANT },
+    };
+    await request(buildApp())
+      .post('/org-units')
+      .send({ code: 'IT-AUDIT', name: 'IT Audit', org_type: 'department' });
+    expect(auditLogsCreateMock).toHaveBeenCalledOnce();
+    expect(auditLogsCreateMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          action: 'CREATE',
+          category: 'SYSTEM',
+          resource_type: 'org_units',
+          user_id: 'u1',
+          user_role: 'HR_DIRECTOR',
+          tenant_id: RTL_TENANT,
+          success: true,
+        }),
+      })
+    );
   });
 });
 

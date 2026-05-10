@@ -4,6 +4,10 @@ import request from 'supertest';
 
 const ECONOVA = '11111111-1111-1111-1111-111111111111';
 
+const { auditLogsCreateMock } = vi.hoisted(() => ({
+  auditLogsCreateMock: vi.fn(async () => ({ id: 'audit-mock-id' })),
+}));
+
 vi.mock('../../db/pool.js', () => ({
   withTenant: vi.fn(async (_t: string, fn: (tx: unknown) => Promise<unknown>) => {
     const tx = {
@@ -24,7 +28,7 @@ vi.mock('../../db/pool.js', () => ({
       }),
       // F2 H4: auditedTransaction wraps writes in tx.audit_logs.create
       audit_logs: {
-        create: vi.fn(async () => ({ id: 'audit-mock-id' })),
+        create: auditLogsCreateMock,
       },
     };
     return fn(tx);
@@ -95,6 +99,7 @@ describe('POST /admin/tenant-schema-version/bump', () => {
   beforeEach(() => {
     mockSession = null;
     cacheStub.isAllowed.mockReset().mockReturnValue(true);
+    auditLogsCreateMock.mockClear();
   });
 
   it('403 when role lacks TENANT_ADMIN.edit', async () => {
@@ -127,5 +132,26 @@ describe('POST /admin/tenant-schema-version/bump', () => {
       .send({ notes: 'Move to ontology v2 — adds skill clusters' });
     expect(res.status).toBe(201);
     expect(res.body.data.version).toBe(2);
+  });
+
+  it('audits CREATE tenant_schema_version with CONFIG category', async () => {
+    mockSession = { user: { id: 'u1', role: 'TENANT_OWNER', tenantId: ECONOVA } };
+    await request(buildApp())
+      .post('/admin/tenant-schema-version/bump')
+      .send({ notes: 'audit-test bump' });
+    expect(auditLogsCreateMock).toHaveBeenCalledOnce();
+    expect(auditLogsCreateMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          action: 'CREATE',
+          category: 'CONFIG',
+          resource_type: 'tenant_schema_version',
+          user_id: 'u1',
+          user_role: 'TENANT_OWNER',
+          tenant_id: ECONOVA,
+          success: true,
+        }),
+      })
+    );
   });
 });

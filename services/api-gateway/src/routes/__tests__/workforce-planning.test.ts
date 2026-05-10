@@ -42,6 +42,10 @@ let plans: Plan[] = [];
 let scenarios: Scenario[] = [];
 let actions: Action[] = [];
 
+const { auditLogsCreateMock } = vi.hoisted(() => ({
+  auditLogsCreateMock: vi.fn(async () => ({ id: 'audit-mock-id' })),
+}));
+
 vi.mock('../../db/pool.js', () => ({
   prisma: {},
   withTenant: vi.fn(async (_tenantId: string, fn: (tx: unknown) => Promise<unknown>) => {
@@ -123,7 +127,7 @@ vi.mock('../../db/pool.js', () => ({
       },
       // F2 H4: auditedTransaction wraps writes in tx.audit_logs.create
       audit_logs: {
-        create: vi.fn(async () => ({ id: 'audit-mock-id' })),
+        create: auditLogsCreateMock,
       },
     };
     return fn(tx);
@@ -188,6 +192,7 @@ beforeEach(() => {
   mockSession = null;
   cacheMock.ensureLoaded.mockReset().mockResolvedValue(undefined);
   cacheMock.isAllowed.mockReset().mockReturnValue(true);
+  auditLogsCreateMock.mockClear();
   plans = [
     {
       id: PLAN_A,
@@ -259,6 +264,30 @@ describe('POST /workforce-planning/plans', () => {
     expect(res.status).toBe(201);
     expect(res.body.data.name).toBe('New Plan');
     expect(res.body.data.status).toBe('draft');
+  });
+
+  it('audits CREATE workforce_plans with REPORT category', async () => {
+    mockSession = {
+      expires: FAR_FUTURE,
+      user: { id: 'u1', role: 'HR_DIRECTOR', tenantId: RTL_TENANT },
+    };
+    await request(buildApp())
+      .post('/workforce-planning/plans')
+      .send({ name: 'Audit Plan', target_date: '2027-09-30' });
+    expect(auditLogsCreateMock).toHaveBeenCalledOnce();
+    expect(auditLogsCreateMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          action: 'CREATE',
+          category: 'REPORT',
+          resource_type: 'workforce_plans',
+          user_id: 'u1',
+          user_role: 'HR_DIRECTOR',
+          tenant_id: RTL_TENANT,
+          success: true,
+        }),
+      })
+    );
   });
 
   it('rejects missing target_date', async () => {

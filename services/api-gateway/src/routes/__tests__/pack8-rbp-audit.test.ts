@@ -7,13 +7,17 @@ const ID = '22222222-2222-2222-2222-222222222222';
 
 const queryRawUnsafeMock = vi.fn();
 
+const { auditLogsCreateMock } = vi.hoisted(() => ({
+  auditLogsCreateMock: vi.fn(async () => ({ id: 'audit-mock-id' })),
+}));
+
 vi.mock('../../db/pool.js', () => ({
   withTenant: vi.fn(async (_t: string, fn: (tx: unknown) => Promise<unknown>) => {
     const tx = {
       $queryRawUnsafe: queryRawUnsafeMock,
       // F2 H4: auditedTransaction wraps writes in tx.audit_logs.create
       audit_logs: {
-        create: vi.fn(async () => ({ id: 'audit-mock-id' })),
+        create: auditLogsCreateMock,
       },
     };
     return fn(tx);
@@ -65,6 +69,7 @@ describe('/workspace/templates', () => {
     mockSession = null;
     cacheStub.isAllowed.mockReset().mockReturnValue(true);
     queryRawUnsafeMock.mockReset();
+    auditLogsCreateMock.mockClear();
   });
 
   it('GET 401', async () => {
@@ -118,6 +123,26 @@ describe('/workspace/templates', () => {
     queryRawUnsafeMock.mockResolvedValueOnce([{ id: ID }]).mockResolvedValueOnce([{ id: ID }]);
     const res = await request(buildApp()).delete(`/workspace/templates/${ID}`);
     expect(res.status).toBe(204);
+  });
+
+  it('audits CREATE workspace_templates with SYSTEM category', async () => {
+    asAdmin();
+    queryRawUnsafeMock.mockResolvedValueOnce([{ id: ID }]);
+    await request(buildApp()).post('/workspace/templates').send({ name: 'Audit Tpl' });
+    expect(auditLogsCreateMock).toHaveBeenCalledOnce();
+    expect(auditLogsCreateMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          action: 'CREATE',
+          category: 'SYSTEM',
+          resource_type: 'workspace_templates',
+          user_id: 'u1',
+          user_role: 'TENANT_OWNER',
+          tenant_id: ECONOVA,
+          success: true,
+        }),
+      })
+    );
   });
 });
 

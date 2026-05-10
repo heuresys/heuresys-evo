@@ -89,6 +89,10 @@ function makeTenant(overrides: Partial<Tenant>): Tenant {
 let tenants: Tenant[] = [];
 let employeeCountByTenant: Map<string, number> = new Map();
 
+const { auditLogsCreateMock } = vi.hoisted(() => ({
+  auditLogsCreateMock: vi.fn(async () => ({ id: 'audit-id-mock' })),
+}));
+
 function findById(id: string): Tenant | null {
   return tenants.find((t) => t.id === id) ?? null;
 }
@@ -173,7 +177,7 @@ vi.mock('../../db/pool.js', () => ({
       }),
     },
     audit_logs: {
-      create: vi.fn(async () => ({ id: 'audit-id-mock' })),
+      create: auditLogsCreateMock,
     },
   },
   withTenant: vi.fn(async (_tenantId: string, fn: (tx: unknown) => Promise<unknown>) => {
@@ -208,7 +212,7 @@ vi.mock('../../db/pool.js', () => ({
         }),
       },
       audit_logs: {
-        create: vi.fn(async () => ({ id: 'audit-id-mock' })),
+        create: auditLogsCreateMock,
       },
     };
     return fn(tx);
@@ -233,6 +237,7 @@ beforeEach(() => {
   mockSession = null;
   cacheMock.ensureLoaded.mockReset().mockResolvedValue(undefined);
   cacheMock.isAllowed.mockReset().mockReturnValue(true);
+  auditLogsCreateMock.mockClear();
   employeeCountByTenant = new Map();
   tenants = [
     makeTenant({
@@ -400,6 +405,24 @@ describe('POST /tenants', () => {
     mockSession = { expires: FAR_FUTURE, user: { id: 'u1', role: 'SUPERUSER' } };
     const res = await request(buildApp()).post('/tenants').send({ code: 'Bad Code!', name: 'X' });
     expect(res.status).toBe(400);
+  });
+
+  it('audits CREATE tenant with TENANT category', async () => {
+    mockSession = { expires: FAR_FUTURE, user: { id: 'u1', role: 'SUPERUSER' } };
+    await request(buildApp()).post('/tenants').send({ code: 'auditco', name: 'Audit Co' });
+    expect(auditLogsCreateMock).toHaveBeenCalled();
+    expect(auditLogsCreateMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          action: 'CREATE',
+          category: 'TENANT',
+          resource_type: 'tenant',
+          user_id: 'u1',
+          user_role: 'SUPERUSER',
+          success: true,
+        }),
+      })
+    );
   });
 });
 

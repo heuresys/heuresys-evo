@@ -28,6 +28,10 @@ type Employee = {
 let employees: Employee[] = [];
 let employeeSkills: { employee_id: string; skill_name: string; created_at: Date }[] = [];
 
+const { auditLogsCreateMock } = vi.hoisted(() => ({
+  auditLogsCreateMock: vi.fn(async () => ({ id: 'audit-mock-id' })),
+}));
+
 function makeEmployee(o: Partial<Employee> & { id: string; email: string }): Employee {
   const now = new Date('2026-01-01T00:00:00Z');
   return {
@@ -93,7 +97,7 @@ vi.mock('../../db/pool.js', () => ({
       },
       // S28-bis Wave 8 H4: auditedTransaction wraps writes in tx.audit_logs.create
       audit_logs: {
-        create: vi.fn(async () => ({ id: 'audit-mock-id' })),
+        create: auditLogsCreateMock,
       },
     };
     return fn(tx);
@@ -165,6 +169,7 @@ beforeEach(() => {
   mockSession = null;
   cacheMock.ensureLoaded.mockReset().mockResolvedValue(undefined);
   cacheMock.isAllowed.mockReset().mockReturnValue(true);
+  auditLogsCreateMock.mockClear();
   employees = [
     makeEmployee({
       id: ALICE_ID,
@@ -334,6 +339,30 @@ describe('POST /employees', () => {
       .post('/employees')
       .send({ first_name: 'X', last_name: 'Y', email: 'not-an-email' });
     expect(res.status).toBe(400);
+  });
+
+  it('audits CREATE employees with EMPLOYEE category', async () => {
+    mockSession = {
+      expires: FAR_FUTURE,
+      user: { id: 'u1', role: 'HR_DIRECTOR', tenantId: RTL_TENANT },
+    };
+    await request(buildApp())
+      .post('/employees')
+      .send({ first_name: 'Audit', last_name: 'Tester', email: 'audit@rtl-bank.org' });
+    expect(auditLogsCreateMock).toHaveBeenCalledOnce();
+    expect(auditLogsCreateMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          action: 'CREATE',
+          category: 'EMPLOYEE',
+          resource_type: 'employees',
+          user_id: 'u1',
+          user_role: 'HR_DIRECTOR',
+          tenant_id: RTL_TENANT,
+          success: true,
+        }),
+      })
+    );
   });
 });
 
