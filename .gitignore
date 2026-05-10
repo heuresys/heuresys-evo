@@ -76,6 +76,7 @@ scripts/dev-local/
 # === Misc backup files ===
 .gitignore.bak
 *.bak
+*.bak-*
 *.orig
 *.rej
 
