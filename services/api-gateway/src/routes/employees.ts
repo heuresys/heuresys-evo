@@ -6,7 +6,8 @@ import { requireAuth } from '../middleware/auth.js';
 import { resolveTenant } from '../middleware/tenant.js';
 import { requirePermission } from '../middleware/require-permission.js';
 import { isUUID } from '../utils/pagination.js';
-import { auditedTransaction, type AuditActor } from '../lib/audit/auditedTransaction.js';
+import { auditedTransaction } from '../lib/audit/auditedTransaction.js';
+import { buildActor, readSession } from '../lib/audit/buildActor.js';
 
 export const employeesRouter = Router();
 
@@ -58,40 +59,6 @@ const TERMINATION_REASONS = [
   { value: 'involuntary', label: 'Involuntary' },
   { value: 'retirement', label: 'Retirement' },
 ] as const;
-
-interface SessionEnvelope {
-  user?: {
-    id?: string;
-    role?: string;
-    tenantId?: string | null;
-    employeeId?: string | null;
-    email?: string | null;
-  };
-}
-
-function readSession(req: Request): SessionEnvelope {
-  return (req as Request & { session?: SessionEnvelope | null }).session ?? {};
-}
-
-/**
- * Build AuditActor from request session + tenantId. Throws if userId missing
- * (P4 invariant: no NULL actor in audit_logs).
- */
-function buildActor(req: Request, tenantId: string): AuditActor {
-  const session = readSession(req);
-  const userId = session.user?.id;
-  if (!userId) {
-    throw new Error('audit actor missing user.id (P4 violation)');
-  }
-  return {
-    tenantId,
-    userId,
-    userEmail: session.user?.email ?? null,
-    userRole: session.user?.role ?? null,
-    ipAddress: req.ip ?? null,
-    userAgent: req.headers['user-agent'] ?? null,
-  };
-}
 
 employeesRouter.get(
   '/',

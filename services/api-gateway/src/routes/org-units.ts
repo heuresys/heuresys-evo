@@ -6,6 +6,8 @@ import { requireAuth } from '../middleware/auth.js';
 import { resolveTenant } from '../middleware/tenant.js';
 import { requirePermission } from '../middleware/require-permission.js';
 import { isUUID } from '../utils/pagination.js';
+import { auditedTransaction } from '../lib/audit/auditedTransaction.js';
+import { buildActor } from '../lib/audit/buildActor.js';
 
 export const orgUnitsRouter = Router();
 
@@ -266,43 +268,59 @@ orgUnitsRouter.post(
       const body = CreateOrgUnitSchema.parse(req.body);
       const tenantId = req.tenantId!;
 
-      const created = await withTenant(tenantId, async (tx) => {
+      // Pre-checks outside auditedTransaction (read-only).
+      const precheck = await withTenant(tenantId, async (tx) => {
         const dup = await tx.org_units.findFirst({ where: { code: body.code } });
-        if (dup) return null;
+        if (dup) return { kind: 'duplicate' as const };
         let orgLevel = 1;
         if (body.parent_id) {
           const parent = await tx.org_units.findUnique({ where: { id: body.parent_id } });
-          if (!parent) {
-            return { error: 'parent_not_found' as const };
-          }
+          if (!parent) return { kind: 'parent_not_found' as const };
           orgLevel = (parent.org_level ?? 0) + 1;
         }
-        const data: Prisma.org_unitsUncheckedCreateInput = {
-          tenant_id: tenantId,
-          code: body.code,
-          name: body.name,
-          name_en: body.name_en ?? null,
-          parent_id: body.parent_id ?? null,
-          org_level: orgLevel,
-          org_type: body.org_type ?? null,
-          manager_id: body.manager_id ?? null,
-          default_location_id: body.default_location_id ?? null,
-          headcount_budget: body.headcount_budget ?? null,
-          is_active: body.is_active ?? true,
-          sort_order: body.sort_order ?? 0,
-          description: body.description ?? null,
-        };
-        return tx.org_units.create({ data });
+        return { kind: 'ok' as const, orgLevel };
       });
-
-      if (!created) {
+      if (precheck.kind === 'duplicate') {
         res.status(409).json({ success: false, error: 'Org unit code already exists' });
         return;
       }
-      if (typeof created === 'object' && 'error' in created) {
+      if (precheck.kind === 'parent_not_found') {
         res.status(400).json({ success: false, error: 'Parent org unit not found' });
         return;
       }
+
+      const actor = buildActor(req, tenantId);
+      const { result: created } = await auditedTransaction(
+        actor,
+        {
+          action: 'CREATE',
+          category: 'SYSTEM',
+          resourceType: 'org_units',
+          resourceId: 'pending',
+          resourceName: `${body.code} ${body.name}`,
+          newValue: body,
+          metadata: { source: 'api-gateway:org-units.POST' },
+        },
+        async (tx) => {
+          const data: Prisma.org_unitsUncheckedCreateInput = {
+            tenant_id: tenantId,
+            code: body.code,
+            name: body.name,
+            name_en: body.name_en ?? null,
+            parent_id: body.parent_id ?? null,
+            org_level: precheck.orgLevel,
+            org_type: body.org_type ?? null,
+            manager_id: body.manager_id ?? null,
+            default_location_id: body.default_location_id ?? null,
+            headcount_budget: body.headcount_budget ?? null,
+            is_active: body.is_active ?? true,
+            sort_order: body.sort_order ?? 0,
+            description: body.description ?? null,
+          };
+          return tx.org_units.create({ data });
+        }
+      );
+
       res.status(201).json({ success: true, data: created });
     } catch (err) {
       next(err);
@@ -323,43 +341,66 @@ orgUnitsRouter.patch(
       const body = UpdateOrgUnitSchema.parse(req.body);
       const tenantId = req.tenantId!;
 
-      const updated = await withTenant(tenantId, async (tx) => {
+      // Pre-fetch + parent resolution outside auditedTransaction.
+      const precheck = await withTenant(tenantId, async (tx) => {
         const existing = await tx.org_units.findUnique({ where: { id } });
-        if (!existing) return null;
-        const data: Prisma.org_unitsUncheckedUpdateInput = {};
-        if (body.name !== undefined) data.name = body.name;
-        if (body.name_en !== undefined) data.name_en = body.name_en;
-        if (body.org_type !== undefined) data.org_type = body.org_type;
-        if (body.manager_id !== undefined) data.manager_id = body.manager_id;
-        if (body.default_location_id !== undefined)
-          data.default_location_id = body.default_location_id;
-        if (body.headcount_budget !== undefined) data.headcount_budget = body.headcount_budget;
-        if (body.is_active !== undefined) data.is_active = body.is_active;
-        if (body.sort_order !== undefined) data.sort_order = body.sort_order;
-        if (body.description !== undefined) data.description = body.description;
-        if (body.parent_id !== undefined) {
-          if (body.parent_id === null) {
-            data.parent_id = null;
-            data.org_level = 1;
-          } else {
-            const parent = await tx.org_units.findUnique({ where: { id: body.parent_id } });
-            if (!parent) return { error: 'parent_not_found' as const };
-            data.parent_id = body.parent_id;
-            data.org_level = (parent.org_level ?? 0) + 1;
-          }
+        if (!existing) return { kind: 'not_found' as const };
+        let parentLevel: number | null = null;
+        if (body.parent_id !== undefined && body.parent_id !== null) {
+          const parent = await tx.org_units.findUnique({ where: { id: body.parent_id } });
+          if (!parent) return { kind: 'parent_not_found' as const };
+          parentLevel = (parent.org_level ?? 0) + 1;
         }
-        data.updated_at = new Date();
-        return tx.org_units.update({ where: { id }, data });
+        return { kind: 'ok' as const, existing, parentLevel };
       });
-
-      if (!updated) {
+      if (precheck.kind === 'not_found') {
         res.status(404).json({ success: false, error: 'Org unit not found' });
         return;
       }
-      if (typeof updated === 'object' && 'error' in updated) {
+      if (precheck.kind === 'parent_not_found') {
         res.status(400).json({ success: false, error: 'Parent org unit not found' });
         return;
       }
+
+      const actor = buildActor(req, tenantId);
+      const { result: updated } = await auditedTransaction(
+        actor,
+        {
+          action: 'UPDATE',
+          category: 'SYSTEM',
+          resourceType: 'org_units',
+          resourceId: id,
+          resourceName: `${precheck.existing.code} ${precheck.existing.name}`,
+          oldValue: precheck.existing,
+          newValue: body,
+          metadata: { source: 'api-gateway:org-units.PATCH' },
+        },
+        async (tx) => {
+          const data: Prisma.org_unitsUncheckedUpdateInput = {};
+          if (body.name !== undefined) data.name = body.name;
+          if (body.name_en !== undefined) data.name_en = body.name_en;
+          if (body.org_type !== undefined) data.org_type = body.org_type;
+          if (body.manager_id !== undefined) data.manager_id = body.manager_id;
+          if (body.default_location_id !== undefined)
+            data.default_location_id = body.default_location_id;
+          if (body.headcount_budget !== undefined) data.headcount_budget = body.headcount_budget;
+          if (body.is_active !== undefined) data.is_active = body.is_active;
+          if (body.sort_order !== undefined) data.sort_order = body.sort_order;
+          if (body.description !== undefined) data.description = body.description;
+          if (body.parent_id !== undefined) {
+            if (body.parent_id === null) {
+              data.parent_id = null;
+              data.org_level = 1;
+            } else {
+              data.parent_id = body.parent_id;
+              data.org_level = precheck.parentLevel!;
+            }
+          }
+          data.updated_at = new Date();
+          return tx.org_units.update({ where: { id }, data });
+        }
+      );
+
       res.json({ success: true, data: updated });
     } catch (err) {
       next(err);
@@ -379,31 +420,55 @@ orgUnitsRouter.delete(
       }
       const tenantId = req.tenantId!;
 
-      const result = await withTenant(tenantId, async (tx) => {
+      // Pre-checks outside auditedTransaction.
+      const precheck = await withTenant(tenantId, async (tx) => {
         const existing = await tx.org_units.findUnique({ where: { id } });
         if (!existing) return { kind: 'not_found' as const };
         const childCount = await tx.org_units.count({ where: { parent_id: id } });
         if (childCount > 0) return { kind: 'has_children' as const };
         const employeeCount = await tx.employees.count({ where: { org_unit_id: id } });
-        if (employeeCount > 0) {
-          await tx.org_units.update({
-            where: { id },
-            data: { is_active: false, updated_at: new Date() },
-          });
-          return { kind: 'archived' as const };
-        }
-        await tx.org_units.delete({ where: { id } });
-        return { kind: 'deleted' as const };
+        return { kind: 'ok' as const, existing, employeeCount };
       });
-
-      if (result.kind === 'not_found') {
+      if (precheck.kind === 'not_found') {
         res.status(404).json({ success: false, error: 'Org unit not found' });
         return;
       }
-      if (result.kind === 'has_children') {
+      if (precheck.kind === 'has_children') {
         res.status(400).json({ success: false, error: 'Cannot delete org unit with children' });
         return;
       }
+
+      const isArchive = precheck.employeeCount > 0;
+      const actor = buildActor(req, tenantId);
+      const { result } = await auditedTransaction(
+        actor,
+        {
+          action: 'DELETE',
+          category: 'SYSTEM',
+          resourceType: 'org_units',
+          resourceId: id,
+          resourceName: `${precheck.existing.code} ${precheck.existing.name}`,
+          oldValue: precheck.existing,
+          newValue: isArchive ? { ...precheck.existing, is_active: false } : null,
+          metadata: {
+            source: 'api-gateway:org-units.DELETE',
+            archive: isArchive,
+            employee_count: precheck.employeeCount,
+          },
+        },
+        async (tx) => {
+          if (isArchive) {
+            await tx.org_units.update({
+              where: { id },
+              data: { is_active: false, updated_at: new Date() },
+            });
+            return { kind: 'archived' as const };
+          }
+          await tx.org_units.delete({ where: { id } });
+          return { kind: 'deleted' as const };
+        }
+      );
+
       res.json({
         success: true,
         message:

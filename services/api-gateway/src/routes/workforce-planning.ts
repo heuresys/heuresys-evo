@@ -6,6 +6,8 @@ import { requireAuth } from '../middleware/auth.js';
 import { resolveTenant } from '../middleware/tenant.js';
 import { requirePermission } from '../middleware/require-permission.js';
 import { isUUID } from '../utils/pagination.js';
+import { auditedTransaction } from '../lib/audit/auditedTransaction.js';
+import { buildActor, readSession } from '../lib/audit/buildActor.js';
 
 export const workforcePlanningRouter = Router();
 
@@ -54,14 +56,6 @@ const CreateActionSchema = z.object({
   target_org_unit_id: z.string().uuid().optional().nullable(),
 });
 
-interface SessionEnvelope {
-  user?: { id?: string; role?: string; tenantId?: string | null };
-}
-
-function readSession(req: Request): SessionEnvelope {
-  return (req as Request & { session?: SessionEnvelope | null }).session ?? {};
-}
-
 workforcePlanningRouter.get(
   '/plans',
   requirePermission('EMPLOYEES', 'view'),
@@ -108,7 +102,20 @@ workforcePlanningRouter.post(
         updated_by: isUUID(userId ?? '') ? userId : null,
       };
 
-      const created = await withTenant(tenantId, (tx) => tx.workforce_plans.create({ data }));
+      const actor = buildActor(req, tenantId);
+      const { result: created } = await auditedTransaction(
+        actor,
+        {
+          action: 'CREATE',
+          category: 'REPORT',
+          resourceType: 'workforce_plans',
+          resourceId: 'pending',
+          resourceName: body.name,
+          newValue: body,
+          metadata: { source: 'api-gateway:workforce-planning.POST_plans' },
+        },
+        (tx) => tx.workforce_plans.create({ data })
+      );
       res.status(201).json({ success: true, data: created });
     } catch (err) {
       next(err);
@@ -156,23 +163,38 @@ workforcePlanningRouter.patch(
       const userId = session.user?.id ?? null;
       const tenantId = req.tenantId!;
 
-      const updated = await withTenant(tenantId, async (tx) => {
-        const existing = await tx.workforce_plans.findUnique({ where: { id } });
-        if (!existing) return null;
-        const data: Prisma.workforce_plansUncheckedUpdateInput = {};
-        if (body.name !== undefined) data.name = body.name;
-        if (body.description !== undefined) data.description = body.description;
-        if (body.target_date !== undefined) data.target_date = body.target_date;
-        if (body.status !== undefined) data.status = body.status;
-        data.updated_at = new Date();
-        if (isUUID(userId ?? '')) data.updated_by = userId;
-        return tx.workforce_plans.update({ where: { id }, data });
-      });
-
-      if (!updated) {
+      const existing = await withTenant(tenantId, (tx) =>
+        tx.workforce_plans.findUnique({ where: { id } })
+      );
+      if (!existing) {
         res.status(404).json({ success: false, error: 'Workforce plan not found' });
         return;
       }
+
+      const actor = buildActor(req, tenantId);
+      const { result: updated } = await auditedTransaction(
+        actor,
+        {
+          action: 'UPDATE',
+          category: 'REPORT',
+          resourceType: 'workforce_plans',
+          resourceId: id,
+          resourceName: existing.name,
+          oldValue: existing,
+          newValue: body,
+          metadata: { source: 'api-gateway:workforce-planning.PATCH_plans' },
+        },
+        async (tx) => {
+          const data: Prisma.workforce_plansUncheckedUpdateInput = {};
+          if (body.name !== undefined) data.name = body.name;
+          if (body.description !== undefined) data.description = body.description;
+          if (body.target_date !== undefined) data.target_date = body.target_date;
+          if (body.status !== undefined) data.status = body.status;
+          data.updated_at = new Date();
+          if (isUUID(userId ?? '')) data.updated_by = userId;
+          return tx.workforce_plans.update({ where: { id }, data });
+        }
+      );
       res.json({ success: true, data: updated });
     } catch (err) {
       next(err);
@@ -217,36 +239,52 @@ workforcePlanningRouter.post(
       const body = CreateActionSchema.parse(req.body);
       const tenantId = req.tenantId!;
 
-      const created = await withTenant(tenantId, async (tx) => {
-        const plan = await tx.workforce_plans.findUnique({ where: { id } });
-        if (!plan) return null;
-
-        const data: Prisma.workforce_plan_actionsUncheckedCreateInput = {
-          tenant_id: tenantId,
-          workforce_plan_id: id,
-          scenario_id: body.scenario_id ?? null,
-          action_type: body.action_type,
-          priority: body.priority ?? 'medium',
-          title: body.title,
-          description: body.description ?? null,
-          target_role: body.target_role ?? null,
-          headcount: body.headcount ?? 1,
-          target_date: body.target_date ?? null,
-          status: 'pending',
-          estimated_cost:
-            body.estimated_cost !== undefined && body.estimated_cost !== null
-              ? new Prisma.Decimal(body.estimated_cost)
-              : null,
-          notes: body.notes ?? null,
-          target_org_unit_id: body.target_org_unit_id ?? null,
-        };
-        return tx.workforce_plan_actions.create({ data });
-      });
-
-      if (!created) {
+      const plan = await withTenant(tenantId, (tx) =>
+        tx.workforce_plans.findUnique({ where: { id } })
+      );
+      if (!plan) {
         res.status(404).json({ success: false, error: 'Workforce plan not found' });
         return;
       }
+
+      const actor = buildActor(req, tenantId);
+      const { result: created } = await auditedTransaction(
+        actor,
+        {
+          action: 'CREATE',
+          category: 'REPORT',
+          resourceType: 'workforce_plan_actions',
+          resourceId: 'pending',
+          resourceName: `${plan.name} · ${body.title}`,
+          newValue: body,
+          metadata: {
+            source: 'api-gateway:workforce-planning.POST_actions',
+            workforce_plan_id: id,
+          },
+        },
+        (tx) => {
+          const data: Prisma.workforce_plan_actionsUncheckedCreateInput = {
+            tenant_id: tenantId,
+            workforce_plan_id: id,
+            scenario_id: body.scenario_id ?? null,
+            action_type: body.action_type,
+            priority: body.priority ?? 'medium',
+            title: body.title,
+            description: body.description ?? null,
+            target_role: body.target_role ?? null,
+            headcount: body.headcount ?? 1,
+            target_date: body.target_date ?? null,
+            status: 'pending',
+            estimated_cost:
+              body.estimated_cost !== undefined && body.estimated_cost !== null
+                ? new Prisma.Decimal(body.estimated_cost)
+                : null,
+            notes: body.notes ?? null,
+            target_org_unit_id: body.target_org_unit_id ?? null,
+          };
+          return tx.workforce_plan_actions.create({ data });
+        }
+      );
       res.status(201).json({ success: true, data: created });
     } catch (err) {
       next(err);
@@ -289,26 +327,43 @@ workforcePlanningRouter.post(
       const userId = session.user?.id ?? null;
       const tenantId = req.tenantId!;
 
-      const created = await withTenant(tenantId, async (tx) => {
-        const plan = await tx.workforce_plans.findUnique({ where: { id: body.workforce_plan_id } });
-        if (!plan) return null;
-        const data: Prisma.workforce_plan_scenariosUncheckedCreateInput = {
-          tenant_id: tenantId,
-          workforce_plan_id: body.workforce_plan_id,
-          name: body.name,
-          description: body.description ?? null,
-          scenario_type: body.scenario_type ?? 'base',
-          target_date: body.target_date ?? null,
-          status: body.status ?? 'draft',
-          created_by: isUUID(userId ?? '') ? userId : null,
-        };
-        return tx.workforce_plan_scenarios.create({ data });
-      });
-
-      if (!created) {
+      const plan = await withTenant(tenantId, (tx) =>
+        tx.workforce_plans.findUnique({ where: { id: body.workforce_plan_id } })
+      );
+      if (!plan) {
         res.status(404).json({ success: false, error: 'Workforce plan not found' });
         return;
       }
+
+      const actor = buildActor(req, tenantId);
+      const { result: created } = await auditedTransaction(
+        actor,
+        {
+          action: 'CREATE',
+          category: 'REPORT',
+          resourceType: 'workforce_plan_scenarios',
+          resourceId: 'pending',
+          resourceName: `${plan.name} · ${body.name}`,
+          newValue: body,
+          metadata: {
+            source: 'api-gateway:workforce-planning.POST_scenarios',
+            workforce_plan_id: body.workforce_plan_id,
+          },
+        },
+        (tx) => {
+          const data: Prisma.workforce_plan_scenariosUncheckedCreateInput = {
+            tenant_id: tenantId,
+            workforce_plan_id: body.workforce_plan_id,
+            name: body.name,
+            description: body.description ?? null,
+            scenario_type: body.scenario_type ?? 'base',
+            target_date: body.target_date ?? null,
+            status: body.status ?? 'draft',
+            created_by: isUUID(userId ?? '') ? userId : null,
+          };
+          return tx.workforce_plan_scenarios.create({ data });
+        }
+      );
       res.status(201).json({ success: true, data: created });
     } catch (err) {
       next(err);
