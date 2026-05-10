@@ -413,6 +413,7 @@ usersRouter.post(
             generated_password: Boolean(body.generate_password),
           },
         },
+        // SAFE: tx scoped via auditedTransaction → withTenant(actor.tenantId)
         (tx) =>
           tx.users.create({
             data: {
@@ -566,6 +567,7 @@ usersRouter.patch(
             ...(body.password !== undefined && { password_changed: true }),
           },
         },
+        // SAFE: tx scoped via auditedTransaction → withTenant(actor.tenantId)
         (tx) =>
           tx.users.update({
             where: { id },
@@ -668,6 +670,7 @@ usersRouter.delete(
             },
             metadata: { delete_kind: 'hard' },
           },
+          // SAFE: tx scoped via auditedTransaction → withTenant(actor.tenantId)
           (tx) => tx.users.delete({ where: { id } })
         );
         res.json({ success: true, message: 'User permanently deleted' });
@@ -686,6 +689,7 @@ usersRouter.delete(
           newValue: { is_active: false },
           metadata: { delete_kind: 'soft', deactivation_reason: 'admin_action' },
         },
+        // SAFE: tx scoped via auditedTransaction → withTenant(actor.tenantId)
         (tx) =>
           tx.users.update({
             where: { id },
@@ -756,6 +760,7 @@ usersRouter.post(
           resourceId: id,
           metadata: { reason: 'password_reset_admin' },
         },
+        // SAFE: tx scoped via auditedTransaction → withTenant(actor.tenantId)
         (tx) =>
           tx.users.update({
             where: { id },
@@ -861,6 +866,7 @@ usersRouter.post(
               },
               metadata: { source: 'bulk_provision', tenant_code: tenantCode },
             },
+            // SAFE: tx scoped via auditedTransaction → withTenant(employee.tenant_id)
             (tx) =>
               tx.users.create({
                 data: {

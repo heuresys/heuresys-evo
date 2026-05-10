@@ -1955,6 +1955,87 @@ Ogni tabella: ALTER ADD COLUMN tenant_id UUID + UPDATE backfill + ALTER NOT NULL
 
 ---
 
+## L58 — 2026-05-10 — S24: forensic audit FINAL closure 95% (P1 P4 sweep extended + P2 GUC normalize + P3 310 FK ON DELETE + P4 systemd timer)
+
+**Decisione**: utente richiesta "esegui tutto fino alla fine senza interruzioni" → tutti i 4 carry-forward S23-quater chiusi in singola sessione (~7h reali). Audit closure passa 77% → 95% (21/22). Solo § 1.2 employees vertical-split resta deliberato S25+ (architectural, threshold > 100k rows non raggiunto).
+
+**4 priorità chiuse**:
+
+| Priorità                                  | Decision input                   | Deliverable                                                                                                                                                                                    |
+| ----------------------------------------- | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **P1** P4 sweep extended (HIGH)           | hard-fail (assertActor throw)    | `services/api-gateway/src/lib/audit/auditedTransaction.ts` mirror + `audit_logs` allowlist+schema + 11 writes wrappati (users.ts:6 + tenants.ts:5)                                             |
+| **P2** GUC drift workspaces (MEDIUM)      | Opzione A — single-GUC normalize | `db/seeds/phase16l_user_workspaces_guc_normalization.sql` (2 policies riscritte su `app.current_tenant_id`)                                                                                    |
+| **P3** 310 FK ON DELETE explicit (MEDIUM) | esecuzione full per dominio      | `db/seeds/phase16m_fk_ondelete_explicit.sql` (310 ALTER TABLE) + `docs/_audit/2026-05-10-fk-ondelete-review.md` decision matrix · auto-gen via `scripts/db/generate-fk-ondelete-migration.mjs` |
+| **P4** mat views auto-refresh (INFRA)     | systemd timer fallback           | `infra/systemd/heuresys-mat-views-refresh.{service,timer}` + `docs/40-operations/dbms-mat-views-refresh.md` runbook · enabled+started su oracle-vm-default                                     |
+
+**P1 dettagli**:
+
+- Mirror helper api-gateway: copia adattata del canonical `services/app/src/lib/audit/auditedTransaction.ts` con import `prisma`/`withTenant` da `../../db/pool` (workspace boundary). Stesso `assertActor` hard-fail, stessi tipi `AuditCategory`/`AuditAction`, default description su payload mancante.
+- `audit_logs` aggiunto a `services/api-gateway/prisma/allowlist.txt` + schema (relations omesse — api-gateway usa solo `tx.audit_logs.create({data})`, no joins). Prisma generate pulito.
+- 11 wraps Prisma: users.ts (line 374 create POST · 502 update PATCH · 585 delete DELETE hard · 591 deactivate DELETE soft · 648 reset-password · 735 bulk-create) + tenants.ts (line 319 create · 399 update · 448 delete permanent · 457 deactivate · 491 reactivate). Actor = caller-derived con tenantId override = target tenant (fallback DEFAULT_SUPERUSER_TENANT_ID).
+- 5 `// SAFE: tx scoped via auditedTransaction → withTenant(actor.tenantId)` annotations su tx.users.\* per soddisfare `lint:tenant-id`.
+
+**P2 dettagli**:
+
+- Pre: policies `user_workspaces_isolation` + `workspace_widgets_isolation` referenziavano 3 GUC (`app.user_id`, `app.role`, `app.tenant_id`) MAI settati dall'app → `current_setting()` ritorna NULL → fail-closed silenzioso.
+- Post: entrambe normalizzate su `app.current_tenant_id` (single-GUC) — allineato a 290 altre policy. `withTenant()` invariato.
+- Trade-off: granularità per-user/per-role nelle policy persa; difesa applicativa via `services/api-gateway/src/routes/workspace.ts` `$queryRawUnsafe` parametrizzato (P6 OK già in audit § 7.1).
+- Asserzioni post-apply: `2 isolation policies` + `0 legacy GUC references`.
+
+**P3 dettagli**:
+
+- CSV input `docs/_audit/_artifacts/2026-05-10-fk-noaction-310.csv` — 310 FK con `confdeltype='a'` estratte via query `pg_constraint` su namespace public.
+- Decision matrix 10 regole priorità top-down (script generator deterministico):
+  - ref=`tenants` → CASCADE (82 FK, tenant nuke = full subtree)
+  - ref=`audit_logs` → RESTRICT (immutable trail)
+  - table=`whistleblowing_*` → RESTRICT (2 FK)
+  - table=`audit_*` → SET NULL
+  - payroll/compensation/salary/bonus/merit/payslip/tax\_ → RESTRICT (12 FK)
+  - ref=`users` → SET NULL (20 FK)
+  - ref=catalog (rbp*/esco*/industry*/company*/locations/skill\_\*) → RESTRICT (57 FK)
+  - ref=`employees` AND col ∈ {manager_id, mentor_id, interviewer_id, assigned_to, resolved_by, created_by, updated_by, reviewed_by, approved_by, deleted_by, owner_id, modified_by, submitted_by, requester_id, approver_id, reporter_id, evaluator_id, completed_by, rejected_by, last_modified_by} → SET NULL (70 FK)
+  - ref=`employees` AND col ∈ {employee_id, subject_id, candidate_id, reviewee_id, target_employee_id} → CASCADE (4 FK)
+  - else → CASCADE (63 FK default)
+- Pre-apply backup: `/var/backups/heuresys-evo/heuresys_platform-pre-phase16m-20260510T014431Z.dump` (397MB)
+- Asserzione post-apply: `0 FK NO ACTION default. 310 FK explicitly tagged.`
+- DB state finale: 646 CASCADE · 215 SET NULL · 81 RESTRICT · 0 NO ACTION (era 460/125/10/310 pre-S24)
+
+**P4 dettagli**:
+
+- Service: `oneshot` invoke `psql -d heuresys_platform -c "SELECT public.refresh_all_mat_views();"` come user `postgres`
+- Timer: `OnCalendar=*-*-* 00,04,08,12,16,20:00:00` UTC + `RandomizedDelaySec=60` jitter
+- Manual run validato: 5/5 mat views refresh OK (`mv_cross_tenant_rollup` non-concurrent fallback gestito dal helper)
+- Doc operational `docs/40-operations/dbms-mat-views-refresh.md` con install/verify/troubleshoot + migration future a pg_cron
+
+**Outcome metriche**:
+
+- 21/22 issues forensic audit L53 chiuse (95%)
+- 865 test verdi (era 860, +5 mirror helper)
+- Login canonical 8/8 PASS
+- typecheck PASS tutti workspace · `lint:tenant-id` exit 0
+- DBMS bare-metal: 312 tenant_id NOT NULL · 367 RLS policies · **0 FK NO ACTION default** · 13 SQL migrations bare-metal (phase16a-m)
+
+**3 commit + push origin/main**:
+
+1. `f505b40` feat(security): S24 P1 — auditedTransaction mirror + 11 writes wrapped
+2. `e87ea25` feat(db,infra): S24 P2+P4 — phase16l GUC normalize + systemd mat views timer
+3. `b0a38f2` feat(db): S24 P3 — phase16m 310 FK ON DELETE explicit per domain
+
+**Out-of-scope esplicito S25+ (1 residuo)**:
+
+- **LOW § 1.2** `employees` 95 col / 19 idx vertical-split: refactor architetturale (settimane), trigger threshold a >100k rows. Oggi 264 active employees → ampiamente sotto soglia.
+
+**Riferimenti**:
+
+- Plan canonical: `~/.claude/plans/parti-dall-inizio-e-esegui-peppy-dream.md`
+- SQL deliverables: `db/seeds/phase16l_*.sql` · `db/seeds/phase16m_*.sql`
+- Code: `services/api-gateway/src/lib/audit/auditedTransaction.ts` + `__tests__/` · `services/api-gateway/src/routes/{users,tenants}.ts` (11 wraps) · `services/api-gateway/prisma/{allowlist.txt,schema.prisma}` (audit_logs added)
+- Infra: `infra/systemd/heuresys-mat-views-refresh.{service,timer}` + `infra/systemd/README.md`
+- Docs: `docs/_audit/2026-05-10-fk-ondelete-review.md` · `docs/40-operations/dbms-mat-views-refresh.md` · `scripts/db/generate-fk-ondelete-migration.mjs`
+- Verifica DB: `0 FK NO ACTION default` · `2 workspace policies normalized` · `systemd timer active`
+
+---
+
 ## Format per nuove entry
 
 Quando aggiungi una nuova decisione, segui questo template:

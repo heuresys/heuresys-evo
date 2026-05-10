@@ -166,7 +166,7 @@ VM: `oracle-vm-default` (IP 80.225.82.207). nginx vhosts in `/etc/nginx/sites-av
 
 **Vincolo "estirpazione clean"**: ogni entry in `Test Stage`/`PreOp Stage` DEVE essere rimovibile dal repo evo SENZA conseguenze su stack/oggetti pre-import. Categorie removability tracciate nel CSV (`no-impact`, `embedded-in-existing-file`, `depends-on-X`, `not-yet-used`, `depends-on-DB-seed`).
 
-## Stato attuale (2026-05-10T01:25Z · S23-quater · L54+L55+L56+L57 — forensic audit FINAL closure: 17/22 issues chiuse (77%) · 1 partial · 3 deliberate out-of-scope · 1 miscount)
+## Stato attuale (2026-05-10T03:55Z · S24 · L58 — forensic audit FINAL closure: 21/22 issues chiuse (95%) · 0 partial residual · 1 deliberate out-of-scope · 1 miscount)
 
 ### DBMS = SoT (certified 2026-05-07T14:30Z)
 
@@ -361,27 +361,43 @@ L47 (commit `08b2097`) — body-only import dei 10 mockup rimanenti (escluso `in
 - 265 active users intatti · login canonical 8/8 PASS post-FK
 - `rbp_role_permissions` count canonical = **179** (NOT 326 come da docs pre-audit)
 
-### 🚀 S24 priorities (carry-forward FINAL post-L57)
+### ✅ S24 close (2026-05-10) — L58 forensic audit FINAL closure 95% (21/22)
+
+**4 priorità S23-quater carry-forward tutte chiuse in singola sessione**. Phase 16.L+16.M migrations + auditedTransaction api-gateway mirror + systemd timer mat views.
+
+| Priorità                  | Status | Deliverable                                                                                                                                                                                                                     |
+| ------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| P1 P4 sweep extended      | ✅     | `services/api-gateway/src/lib/audit/auditedTransaction.ts` mirror + 11 writes wrappati (users.ts:6 + tenants.ts:5)                                                                                                              |
+| P2 GUC drift workspaces   | ✅     | `db/seeds/phase16l_user_workspaces_guc_normalization.sql` (Opzione A single-GUC)                                                                                                                                                |
+| P3 310 FK ON DELETE       | ✅     | `db/seeds/phase16m_fk_ondelete_explicit.sql` + `docs/_audit/2026-05-10-fk-ondelete-review.md` decision matrix per dominio · auto-generated via `scripts/db/generate-fk-ondelete-migration.mjs` · 0 FK NO ACTION default residue |
+| P4 mat views auto-refresh | ✅     | `infra/systemd/heuresys-mat-views-refresh.{service,timer}` + runbook `docs/40-operations/dbms-mat-views-refresh.md` · deployed enabled+started su oracle-vm-default                                                             |
 
 **Bilancio FINALE audit forensic L53**:
 
-- **17/22 issues CLOSED (77%)**: #2 GUC · #4 users.role FK · #5 widget_catalog · #7 rbac_role · #8 RBP doc · § 7.1 $queryRawUnsafe · § 1.3 SAP doc · § 4.3 migrations doc · #3 broken triggers · #1 (35 tables tenant_id+RLS) · § 8.5 enrichment consent · #10 bcrypt rotation · #9 lint rule · § 1.8 mat views helper · § 1.6 idx · #6 miscount confirmed
-- **1 PARTIAL**: #3 (helper P4 + 2 brand-studio + triggers, sweep Prisma writes residual S24)
-- **3 DELIBERATE OUT-OF-SCOPE**: § 2.5 GUC workspaces · § 1.5 310 FK ON DELETE · § 1.2 employees vertical-split
+- **21/22 issues CLOSED (95%)**: tutti i 17 di S23-quater + #3 P4 sweep extended + § 2.5 GUC drift workspaces + § 1.5 310 FK ON DELETE + § 1.8 mat views auto-refresh systemd
+- **1 DELIBERATE OUT-OF-SCOPE**: § 1.2 `employees` 95 col / 19 idx vertical-split (architectural, threshold > 100k rows)
+- **1 MISCOUNT**: #6 P3 routes (S23 audit corrections)
 
-**Top priorities S24 (residuo ~3-5 FTE-day reali)**:
+**DBMS state post-S24** (verified bare-metal `oracle-vm-default:5432/heuresys_platform`):
 
-1. **`[HIGH]`** #3 P4 sweep extended: `auditedTransaction()` ai write paths Prisma + mirror helper in `api-gateway/src/lib/audit/`. ~1-2 FTE-day.
-2. **`[MEDIUM]`** § 2.5 GUC drift `user_workspaces`/`workspace_widgets` refactor multi-clausola RLS. ~1-2 FTE-day.
-3. **`[MEDIUM]`** § 1.5 310 FK senza ON DELETE explicit: review puntuale per ogni FK. ~1 FTE-day.
-4. **`[INFRA]`** § 1.8 pg_cron extension setup + cron.schedule entries per `refresh_all_mat_views()` (helper già pronto). ~2-4 FTE-hour devops.
+- 312 tabelle `tenant_id NOT NULL` (invariato da S23-quater)
+- 367 RLS policies attive (invariato; 2 workspace policies riscritte in-place su `app.current_tenant_id`)
+- **0 FK NO ACTION default** (era 310 pre-S24): 646 CASCADE · 215 SET NULL · 81 RESTRICT · 0 NO ACTION
+- 5 mat views refresh schedulato systemd timer (every 4h UTC, RandomizedDelay 60s) · manual run validato 5/5
+- Backup pre-phase16m: `/var/backups/heuresys-evo/heuresys_platform-pre-phase16m-20260510T014431Z.dump` (397MB)
 
-**Carry-forward S25+** (architectural, non urgenti):
+**Test/lint state post-S24**:
 
-- § 1.2 `employees` 95 col / 19 idx vertical-split — trigger threshold a > 100k rows
+- 865 test verdi (224 app + 462 api-gateway + 7 enrichment + 95 ui + 82 shared) — era 860, +5 mirror helper test
+- typecheck PASS tutti i workspace
+- `npm run lint:tenant-id` exit 0 (5 nuove SAFE annotations su tx.users.\* in auditedTransaction callbacks)
+- login canonical 8/8 PASS bcrypt match end-to-end
+
+### 🚀 Carry-forward S25+ (architectural)
+
+- § 1.2 `employees` 95 col / 19 idx vertical-split — trigger threshold a > 100k rows (oggi 264 active)
 - Plus carry-forward S20+S21+S22: production `/dashboard` refactor DB-driven (~6-10h), WCAG 2.2 AAA full audit (~3-5h)
-
-Plus carry-forward S20+S21+S22: production `/dashboard` refactor DB-driven (~6-10h), WCAG 2.2 AAA full audit (~3-5h).
+- pg_cron migration future: se installato, sostituire systemd timer con `cron.schedule()` row + disable unit
 
 ## Documenti strategici
 
@@ -392,7 +408,7 @@ Plus carry-forward S20+S21+S22: production `/dashboard` refactor DB-driven (~6-1
 - `docs/20-architecture/role-views-matrix.md` — Phase 14.SH FASE 3.1 inventory (scaffolded)
 - `docs/40-operations/dbms-backup-restore.md` — Backup/restore governance policy (scaffolded)
 - `docs/50-reference/decisions/` — 26 ADR (3 superseded · ADR-0023 SoT promotion · ADR-0024 Phase 14.SH plan · ADR-0025 brand identity cycle sealed + v1.0 promotion plan · ADR-0026 Phase 15.A brand-fedele dashboard rendering)
-- `.ux-design/DECISIONS-LOG.md` — log brand identity + governance, ultime entry **L48** (theme/palette framework v1) · **L49** (process autonomous + theme prod + canonical sweep) · **L52** (`users.tenant_id` resta derivata) · **L53** (forensic DB audit baseline) · **L54** (S23 forensic audit partial closure) · **L55** (S23-bis: 3 deferred + P3 miscount) · **L56** (S23-tris: 24 tables batch + drop triggers + parametrize) · **L57** (S23-quater: residual sweep — orphan cleanup + Platform-default + bcrypt rotation + consent + mat views helper + lint rule, audit closure 77%)
+- `.ux-design/DECISIONS-LOG.md` — log brand identity + governance, ultime entry **L48** (theme/palette framework v1) · **L49** (process autonomous + theme prod + canonical sweep) · **L52** (`users.tenant_id` resta derivata) · **L53** (forensic DB audit baseline) · **L54** (S23 forensic audit partial closure) · **L55** (S23-bis: 3 deferred + P3 miscount) · **L56** (S23-tris: 24 tables batch + drop triggers + parametrize) · **L57** (S23-quater: residual sweep — orphan cleanup + Platform-default + bcrypt rotation + consent + mat views helper + lint rule, audit closure 77%) · **L58** (S24: P1 auditedTransaction mirror + 11 wraps · P2 GUC normalize phase16l · P3 phase16m 310 FK ON DELETE explicit · P4 systemd timer mat views refresh — audit closure 95%)
 - `docs/_audit/2026-05-09-forensic-db-audit.md` — audit qualitativo forense DBMS post-S22 (570 tables · 905 FK · 330 RLS policies · 22 issues prioritizzati)
 - `.ux-design/09-asset-showcase/README.md` — webapp catalog locale (gitignored eccetto `_legacy/`). Tool localhost-only Express+Prisma+SQLite per gestione asset brand identity dashboard. Start: `cd .ux-design/09-asset-showcase && npm run dev` → `localhost:5174`
 - `docs/30-developer/security-baseline.md` — P1-P10 enforcement details
