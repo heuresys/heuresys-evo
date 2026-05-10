@@ -1,0 +1,16 @@
+[Unit]
+Description=Heuresys Platform - Refresh all materialized views
+Documentation=docs/40-operations/dbms-mat-views-refresh.md
+After=postgresql.service
+Requires=postgresql.service
+
+[Service]
+Type=oneshot
+User=postgres
+ExecStart=/usr/bin/psql -d heuresys_platform -c "SELECT public.refresh_all_mat_views();"
+StandardOutput=journal
+StandardError=journal
+TimeoutStartSec=300
+
+[Install]
+WantedBy=multi-user.target

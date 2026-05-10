@@ -1,0 +1,12 @@
+[Unit]
+Description=Heuresys Platform - Mat views refresh schedule (every 4 hours)
+Documentation=docs/40-operations/dbms-mat-views-refresh.md
+
+[Timer]
+OnCalendar=*-*-* 00,04,08,12,16,20:00:00
+Persistent=true
+Unit=heuresys-mat-views-refresh.service
+RandomizedDelaySec=60
+
+[Install]
+WantedBy=timers.target
