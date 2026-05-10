@@ -1,50 +1,45 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-10T06:55Z · S26 closed · CLAUDE.md split + 3 priorities reality-check (2 already shipped, 1 deferred S27+ via L60)
+> Updated: 2026-05-10T18:15Z · S27 closed · ACQ-AUDIT-2026-05 acquisition-grade audit shipped
 
-## Last session brief (S25 docs cleanup + S26 reality check)
+## Last session brief (S27 — full session dedicated to acquisition audit)
 
-**S25 (5:30-5:50Z)** — 4 commit pushed `b6ca4fc` → `1d7ccab` → `0f96844` → `73ba905`. R20+CARD-4 governance codified · /handoff skill v2.0 alignment · STATE.md updated.
+**S27 (17:00-18:15Z)** — 3 commit pushed `7d79f98` → `52a6c1e` → `7ce5e9f`. Forensic acquisition-grade audit completo (20 deliverable, 11 dimensioni, 12 subagent + 2 Devil's Advocate + rebuttal + decision brief signed).
 
-**S26 (5:55-6:55Z)** — 4 commit pushed `60991d7` → `9e1537f` → (current commit pending) → ...
+- **Sessione 1 (Fase A+B)**: 12 deliverable. 10 subagent specialisti (D1 architect-review · D2 database-admin · D3 security-auditor · D4 frontend+a11y · D5 devops-troubleshooter · D6 test-automator · D8 business-analyst · D9 market-research+comprehensive-researcher) + tech debt registry consolidato + executive summary preliminary. Verdict prelim: NEGOTIATE.
+- **Sessione 2 (Fase C+D+E)**: 7 deliverable. DA-tech (7 attacchi) + DA-business (9 attacchi) kill-the-deal mode → rebuttal (7 accepted · 5 mitigated · 2 rejected · 2 partial) → PRD reality + cost-to-date + roadmap M+1→M+18 + decision brief signed.
+- **Sessione 2 ext**: file 18 Q&A delle 8 open questions (3 verified: 0 fork · NESSUN LICENSE · legacy repo 584 commit verified · cost-to-date REVISED €664k mid both repos).
 
-- **CLAUDE.md split** (`60991d7`): root da 424→256 righe (-50%), cronologia sprint estratta in `docs/_meta/sprint-history.md` (append-only)
-- **/handoff skill alignment** (`9e1537f`): pointer aggiornato a nuove sezioni `## Sistema corrente / Roadmap / Carry-forward`
-- **3 priorities reality check evidence-based**:
-  - `[INFRA]` JWT cross-service fix → ✅ **già shipped** commit `9f7a283` (jose+HKDF, 11/11 test green). Doc obsoleta in CLAUDE.md/STATE.md, ora corretta
-  - `[ARCH]` /dashboard refactor DB-driven → ✅ **già shipped** commit `35ba6bb` (G6 Adoption) + `d59ae3e` (Phase 15.A). 7 preset `*_v2` popolati, 8 ruoli mappati, switch su `loadG6Elements` + `DashboardRenderer`. Residuo minore non-blocking: 4 process_* secondary nav non `_v2` (~2-3h)
-  - `[ARCH-S26]` Phase 2 vertical-split → 🟡 **DEFERRED S27+ (L60)** — apply attempt fallito al DROP COLUMN per **65 view + 4 mat view dipendenti** non documentate nel plan canonical. Transaction rollback OK. SQL DRAFT preservato in `db/seeds/phase16o_employees_to_view.DRAFT-DEFERRED.sql`. Effort revised 15-25h FTE (vs 9-14h stima originale)
+**Verdict finale signed**: **NEGOTIATE strutturato** asset+acqui-hire+earnout, sweet spot **€500-600k** (solo evo) o **€650-800k** (both repos). 8 condition precedent + 5 walk-away triggers. Acquirer profile preferito: EU HCM tier-2 (Zucchetti/TeamSystem).
 
-865 test verdi · login canonical 8/8 PASS · typecheck PASS · DB integro (no changes applicate questa sessione).
+## Top priorities S28+
 
-## Top priorities (S27+)
+1. **`[STRATEGIC]` Decisioni audit pre-LOI** (Enzo decision-only, ≤7 giorni) — 3 azioni immediate: (a) aggiungere `LICENSE` file (Q5 verified gap critico, repo PUBLIC senza license attualmente), (b) EUIPO/UIBM trademark check "Heuresys" + registration se gap (~€1.4-2k), (c) decisione strategic legacy repo include/exclude nel deal scope (impact +15-25% pricing). Ref: [`docs/_audit/2026-05-10-acquisition-audit/18-open-questions-suggested-answers.md`](../docs/_audit/2026-05-10-acquisition-audit/18-open-questions-suggested-answers.md)
 
-1. **`[ARCH-S27]` § 1.2 vertical-split Phase 2 + view audit** (~15-25h FTE dedicati) — sequenza: (a) audit 65 view dipendenti via `pg_depend` (purpose · usage · droppable), (b) salva definitions via `pg_get_viewdef`, (c) DROP CASCADE, (d) apply `phase16o_employees_to_view.DRAFT-DEFERRED.sql`, (e) ricreare 65 view refactorate per puntare a nuova VIEW `employees`, (f) verify mat view refresh + 12 hot view shape integrity. Backup pre-attempt: `heuresys_platform-pre-phase16o-20260510T044105Z.dump` 380MB sha256 `dba5a08b…`
-2. **`[ARCH]` 4 process_* secondary nav `_v2`** (~2-3h, non-blocking) — preset `process_recruiting_funnel`/`process_onboarding_flow`/`process_performance_cycle`/`process_learning_paths` cablati in `role_default_dashboards` per HR_DIRECTOR+HR_MANAGER ma mancano suffix `_v2` + elements seedati. Refactor incrementale per uniformità con _v2 architecture
-3. **`[INFRA]` pg_cron migration future** (~1-2h, opzionale) — se installato pg_cron, sostituire systemd timer con `cron.schedule()` row + disable unit
-4. **`[BRAND]` Brand v1.0 promotion** (~16-25h, 2-3 sessioni) — pre-flight checks per 8 categorie asset · ref `.ux-design/08-promotion/v1.0-checklist.md`
+2. **`[ARCH-S28]` § 1.2 vertical-split Phase 2 + view audit** (~15-25h FTE — invariato da S26) — sequenza: audit 65 view via `pg_depend`, salva definitions, DROP CASCADE, apply `phase16o_employees_to_view.DRAFT-DEFERRED.sql`, ricreare 65 view refactorate, verify mat view + 12 hot view. Backup pre-attempt: `heuresys_platform-pre-phase16o-20260510T044105Z.dump`. Ora **prioritario** se decisione audit → "NEGOTIATE proceed" (è C1 della decision brief).
+
+3. **`[ARCH]` 4 process_* secondary nav `_v2`** (~2-3h, non-blocking — invariato) — preset HR_DIRECTOR/HR_MANAGER mancano suffix `_v2` + elements seedati.
 
 ## Open questions
 
-- nessuna
+- **Procedere con audit-driven actions o tornare a roadmap originale?** L'audit è meta-work strategico. Le 8 open questions Q&A in file 18 richiedono decisioni Enzo PRIMA di rimettere mano al codice (LICENSE/trademark/repo scope). Senza queste, deal value uncertainty rimane ±10-15%.
+- **Brand v1.0 promotion** (16-25h, S26 priority) ancora rilevante? Audit ha riconfermato brand workstream maturo (Phase 4 chiusa, Brand Book v0 shipped) — promotion v1.0 può ancora essere milestone M+12 roadmap.
 
 ## Stack snapshot (changed this session)
 
-- DBMS: **invariato** (transaction Phase 2 rollback). 312 tenant_id NOT NULL · 367 RLS policies · 0 FK NO ACTION default · 5 mat views systemd timer · 270 employees · satellites Phase 1 in sync via trigger · view employees_full presente
-- Code: **invariato** (no edits applicati questa sessione su services/*)
-- Docs: MOD `CLAUDE.md` (-50% size, split in sprint-history.md) · NEW `docs/_meta/sprint-history.md` (archive append-only) · MOD `.gitignore` (`*.bak-*`) · MOD `.claude/skills/handoff/SKILL.md` (v2.1 align nuove sezioni) · NEW `db/seeds/phase16o_employees_to_view.DRAFT-DEFERRED.sql` (Phase 2 reference S27+) · NEW DECISIONS-LOG L60 (Phase 2 defer evidence-based)
-- Memory: MOD `~/.claude/projects/D--evo-heuresys-com/memory/feedback_session_start_protocol.md` (workflow post-S25 corretto)
-- Tests: **invariato** 865 verdi (224 app + 462 api-gateway + 7 enrichment + 95 ui + 82 shared)
+- DBMS: **invariato** dal S26 (audit read-only, zero migration applicate, zero schema changes)
+- Code: **invariato** (audit puro, zero edit a `services/` o `packages/`)
+- Tests: **invariato** 865 verdi
+- Docs: **NEW directory `docs/_audit/2026-05-10-acquisition-audit/`** con 20 deliverable / 4406 righe (audit + DA + rebuttal + decision brief + Q&A)
+- Memory: nessun update (audit non ha richiesto memoria persistente cross-session)
+- Repo: 3 commit aggiunti su origin/main (`7d79f98`, `52a6c1e`, `7ce5e9f`)
 
 ## Verification
 
 ```bash
-git log --oneline -10
-ls db/seeds/phase16o*  # expected: phase16o_employees_to_view.DRAFT-DEFERRED.sql (NOT applied)
-ssh oracle-vm-default "sudo -n -u postgres psql -d heuresys_platform -tAc \"SELECT count(*) FROM employees;\""  # expected 270
-ssh oracle-vm-default "sudo -n -u postgres psql -d heuresys_platform -tAc \"SELECT count(*) FROM pg_trigger WHERE tgname='trg_sync_employees_to_satellites';\""  # expected 1 (Phase 1 trigger ancora attivo)
-ssh oracle-vm-default "sudo -n -u postgres psql -d heuresys_platform -tAc \"SELECT count(DISTINCT n.nspname || '.' || c.relname) FROM pg_depend d JOIN pg_rewrite r ON r.oid = d.objid JOIN pg_class c ON c.oid = r.ev_class JOIN pg_namespace n ON n.oid = c.relnamespace WHERE d.classid = 'pg_rewrite'::regclass AND d.refobjid = 'public.employees'::regclass AND c.relkind IN ('v','m') AND c.relname != 'employees';\""  # expected 65 (view audit baseline per S27+)
-wc -l CLAUDE.md  # expected ~256 (post-split, era 424)
+git log --oneline -5  # expected: 7ce5e9f file 18 Q&A → 52a6c1e Sessione 2 → 7d79f98 Sessione 1 → 7860769 S26 close
+ls docs/_audit/2026-05-10-acquisition-audit/ | wc -l  # expected 20 (00 + 01 + 02 + 03 + 04 + 05 + 05b + 06 + 07 + 08 + 09 + 10 + 11 + 12 + 13 + 14 + 15 + 16 + 17 + 18)
+ls LICENSE 2>/dev/null && echo "LICENSE present" || echo "LICENSE STILL MISSING — Q5 action pending"
 ```
 
-Riferimenti: `.ux-design/DECISIONS-LOG.md` § **L60** (Phase 2 defer evidence-based) · `docs/_meta/sprint-history.md` § S26 entry · `~/.claude/plans/parti-dall-inizio-e-esegui-peppy-dream.md` § Phase 2 (plan canonical, da estendere con view audit per S27+).
+Riferimenti: [`docs/_audit/2026-05-10-acquisition-audit/16-final-decision-brief.md`](../docs/_audit/2026-05-10-acquisition-audit/16-final-decision-brief.md) (signed verdict) · [`docs/_audit/2026-05-10-acquisition-audit/18-open-questions-suggested-answers.md`](../docs/_audit/2026-05-10-acquisition-audit/18-open-questions-suggested-answers.md) (Q&A + cost revised) · `~/.claude/plans/mi-piacerebbe-un-dreamy-creek.md` (plan canonical audit eseguito).
