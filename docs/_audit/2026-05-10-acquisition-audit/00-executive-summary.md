@@ -1,7 +1,11 @@
 # Executive Summary — heuresys-evo Acquisition Audit
 
-> **Mandato**: ACQ-AUDIT-2026-05 · **Data**: 2026-05-10 · **Status**: **DRAFT PRELIMINARY (post-Sessione 1, pre-Devil's Advocate)**
-> **Decisione preliminary**: **NEGOTIATE** con condizioni precedenti — soggetta a revisione post-attacco DA in Sessione 2
+> **Mandato**: ACQ-AUDIT-2026-05 · **Data**: 2026-05-10 · **Status**: **DRAFT PRELIMINARY (post-Sessione 1, pre-Devil's Advocate)** — **SUPERSEDED**
+> **Decisione preliminary**: **NEGOTIATE** con condizioni precedenti — confermata ma riformulata in `16-final-decision-brief.md` post-rebuttal
+>
+> ⚠️ **QUESTO DOCUMENTO È PRELIMINARY E SUPERSEDED**. Per la decision firmata signed-off post-Devil's Advocate + rebuttal, vedi: [`16-final-decision-brief.md`](./16-final-decision-brief.md)
+>
+> **Verdict finale**: NEGOTIATE strutturato asset+acqui-hire+earnout, sweet spot **€500-600k all-in** per acquirer EU HCM tier-2 mature (Zucchetti/TeamSystem preferred), 7 condition precedent + 5 walk-away triggers.
 
 ---
 
