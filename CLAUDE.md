@@ -413,7 +413,7 @@ L47 (commit `08b2097`) — body-only import dei 10 mockup rimanenti (escluso `in
 - `.ux-design/09-asset-showcase/README.md` — webapp catalog locale (gitignored eccetto `_legacy/`). Tool localhost-only Express+Prisma+SQLite per gestione asset brand identity dashboard. Start: `cd .ux-design/09-asset-showcase && npm run dev` → `localhost:5174`
 - `docs/30-developer/security-baseline.md` — P1-P10 enforcement details
 - `~/.claude/plans/questo-quello-che-glittery-charm.md` — Plan canonical Phase 14.SH
-- `.handoff/HANDOFF.md` — Fresh session input (next sprint trigger)
+- `.handoff/STATE.md` — Single canonical handoff file (post-S11 radical simplification): current state + top priorities + open questions + verification commands. Read first at session start.
 
 ## Quando deragli — segnale
 

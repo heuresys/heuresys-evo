@@ -1,205 +1,159 @@
 ---
 name: handoff
-description: Session close + handoff procedure for the .evo project. Captures session state in 4 files inside .handoff/ (HANDOFF, PROJECT-STATE, PROJECT-LOG, CHANGELOG) plus dated snapshot. Project-scoped variant of the global skill — adopts richer patterns from the wiki-factory project (effort estimates, Files+Done when, Carry-forward, severity tagging, Lezione cross-project, auto-handoff hook). Triggered by "handoff", "/handoff", "chiudi sessione", "fine sessione", "salva stato sessione".
+description: Session close + handoff procedure for heuresys-evo. Updates the single live file `.handoff/STATE.md`, optionally syncs global project docs (CLAUDE.md status block, DECISIONS-LOG.md L-NN entry, BRAND-STATE.md if brand workstream active), commits, pushes direct to main. No snapshots, no PROJECT-LOG, no CHANGELOG, no interview — by design (post-S11 radical simplification). Triggered by "handoff", "/handoff", "chiudi sessione", "fine sessione", "salva stato sessione".
 ---
 
-# handoff — Session close & continuity engine (`.evo` edition)
+# handoff — Session close (heuresys-evo, post-S11 simplification)
 
 ## Purpose
 
-Capture the state of the current session in 4 files inside `.handoff/`. The next session
-reads them to resume **without information loss**. This `.evo`-specific variant adopts
-patterns proven in the wiki-factory project (richer structure, effort tagging, hook-based
-auto-snapshots).
+Capture session state in **a single live file** `.handoff/STATE.md` (overwrite, not append). The next session reads it to resume without information loss. Supplemental docs (CLAUDE.md, DECISIONS-LOG.md, BRAND-STATE.md) are synced **only if relevant** to changes shipped this session.
 
-## Files
+**Design choice**: post-S11 radical simplification killed PROJECT-LOG/CHANGELOG/snapshots/auto-handoff-hook. Git log + STATE.md are the only persistent surfaces. Cerimonia bandita.
 
-| File | Mode | Purpose |
-|---|---|---|
-| `.handoff/HANDOFF.md` | **overwrite** | Plan + todolist + open questions for the **next** session |
-| `.handoff/PROJECT-STATE.md` | **overwrite** | Snapshot of current architecture / components / metrics |
-| `.handoff/PROJECT-LOG.md` | **append-only** | Dev-facing journal: one entry per session |
-| `.handoff/CHANGELOG.md` | **append-only** | User-facing changelog (Keep-a-Changelog format) |
-| `.handoff/snapshots/HANDOFF-YYYY-MM-DD.md` | **immutable** | Frozen copy of HANDOFF.md, kept forever |
-| `.handoff/auto/<timestamp>.md` | **automatic** | Breadcrumbs from auto-handoff hook (Stop event) |
+## Trigger words
 
-## When to activate
+Activate without further prompting on (Italian or English):
 
-Activate without further prompting on any of these triggers (Italian or English):
-- "chiudi sessione", "fine sessione", "salva stato sessione", "passa il testimone"
-- "close session", "session close", "wrap up", "wrap up session"
-- "handoff", "aggiorna handoff", "update handoff"
-- "/handoff" (slash command)
+- `chiudi sessione`, `fine sessione`, `salva stato sessione`, `passa il testimone`
+- `close session`, `session close`, `wrap up`
+- `handoff`, `aggiorna handoff`, `update handoff`
+- `/handoff` (slash command)
 
-Do NOT activate during normal session work — only when the user signals the session is closing.
+Do NOT activate during normal session work — only when user signals closure.
 
-## Workflow — CLOSE SESSION
+## Workflow (5 steps)
 
-Execute the 7 steps in order. Track progress via TaskCreate when there are >5 todos.
+### Step 1 — Capture state
 
-### Step 1 — Pre-checks
+Run in parallel:
 
-1. Verify `.handoff/` exists. If missing: scaffold from `templates/` (auto-create dirs, copy templates with placeholders filled).
-2. **One-time migration**: if a root file matching `HANDOFF-YYYY-MM-DD.md` exists outside `.handoff/`, move it into `.handoff/snapshots/`.
-3. Capture session state:
-   - `git status --short` for uncommitted changes
-   - `git log --since="<last PROJECT-LOG entry date>" --oneline` for commits made this session
-   - `git diff --stat <last-handoff-commit>..HEAD` for file change stats
-4. List recent files in `.handoff/auto/` (last 24h) — they're breadcrumbs from the auto-handoff hook that may indicate the session timeline.
+```bash
+git status -sb              # uncommitted changes + sync state
+git log --oneline -5        # commits this session
+```
 
-### Step 2 — Quick interview (max 3 questions)
+Note: handoff workflow assumes user already committed code/docs changes during the session. The `/handoff` step itself only updates STATE.md and (optionally) syncs CLAUDE.md status block / DECISIONS-LOG.md / BRAND-STATE.md if not already done.
 
-Use a concise format. If the user answers tersely or skips, infer from context.
+### Step 2 — Update `.handoff/STATE.md` (overwrite)
 
-1. **What happened this session that's NOT obvious from the git diff?**
-   Free text. Decisions, blockers, pivots, tacit knowledge.
+Compact format, ~30-50 lines target. Required sections (canonical example: see git log of `.handoff/STATE.md`):
 
-2. **Top priority for next session?** (multiple choice with 3-5 options derived from open todos in current HANDOFF + new items emerged)
+````markdown
+# heuresys-evo — Current State
 
-3. **Open questions, known risks, or carry-forward items**? (free text, optional)
+> Updated: <ISO timestamp UTC> · <sprint name> closed · <one-line summary>
 
-### Step 3 — Compute delta
+## Last session brief (<sprint>)
 
-Compare current state vs `PROJECT-STATE.md` previous snapshot:
-- Files modified / added / removed (`git status` + `git diff --stat`)
-- Components advanced (cross-reference todolist in old `HANDOFF.md`):
-  - Which todos completed (✅)
-  - Which still open (carry-forward)
-  - Which new (emerged this session)
-- Estimate session duration from git log (first commit timestamp → last commit timestamp)
-- Detect notable patterns: dead ends, pivots, escalated blockers
+<3-6 lines: what shipped, key commits, key metrics>
 
-### Step 4 — Update files (in this exact order)
+## Top priorities (<next sprint>)
 
-#### 4a. Append to `PROJECT-LOG.md`
+1. **`[severity]` <title>** (~effort) — <1-2 line context + ref files>
+2. ...
+3. ...
+4. ...
 
-Use richer format from `references/log-format.md`. Required subsections:
-- **Mandato** (briefing received at session start)
-- **Tasks completati** (✅ list)
-- **Files changed** (git diff --stat output)
-- **Commits** (hash + subject list)
-- **Decisions** (decision + rationale, NOT obvious from diff — most valuable section)
-- **Blockers / failures** (symptom + what tried + state)
-- **Lezione operativa cross-project** (distillable lessons valid beyond this project — keep this generous, future sessions on OTHER projects benefit)
-- **References** (links, screenshots, docs)
+## Open questions
 
-NEVER overwrite past entries. NEVER modify them either — to correct, add a new entry that supersedes.
+- <items needing decision before next session can proceed, or "nessuna">
 
-#### 4b. Append to `CHANGELOG.md` (only if user-facing changes)
+## Stack snapshot (changed this session)
 
-Use Keep-a-Changelog format under `## [Unreleased]`:
-- New features → `### Added`
-- Behavior changes → `### Changed` (mark `**BREAKING:**` if backwards-incompatible)
-- Bug fixes → `### Fixed`
-- Removed features → `### Removed`
-- Security fixes → `### Security`
+- DBMS: <key invariants verified>
+- Code: <NEW/MOD files high-level>
+- Infra: <changes>
+- Docs: <key additions>
+- Tests: <count + green>
 
-If session was pure refactor / docs / scaffolding / debug: **skip this file** — don't add filler.
+## Verification
 
-#### 4c. Overwrite `PROJECT-STATE.md`
+```bash
+<3-5 commands the next session can run to confirm baseline>
+```
+````
 
-Per `references/state-format.md`. Required sections:
-- **Overview** — 1-2 paragraphs: what project is, current phase, headline metric
-- **Architecture** — diagram (ASCII / table) faithful to current state
-- **Components** — table with status emoji (✅ done / 🚧 in progress / ⏳ planned / 🧊 frozen / ⚠️ broken)
-- **Key files and paths** — bullet list with one-line purpose
-- **Metrics** — table with `Δ vs last session` column
-- **Backlog (overflow from HANDOFF priorities)** — categorized (e.g. Webapp / Engine / Operational / Corpus refinement) — items that didn't make HANDOFF top-5 but should be tracked
-- **Open questions (mirror from HANDOFF)** — same content as HANDOFF.md §Open questions
+Riferimenti: <plan file, audit doc, DECISIONS-LOG entry>
 
-This file is the single source of truth on current state.
+````
 
-#### 4d. Overwrite `HANDOFF.md`
+**Severity tags**: `[HIGH]` `[MEDIUM]` `[LOW]` `[INFRA]` `[ARCH]` `[ARCH-S<N>]`.
 
-Per `references/handoff-format.md`. Required sections:
-- **Recap last session** — 1 paragraph (3-6 sentences)
-- **Priorities for next session** — 3-5 items, each with:
-  - Subject + effort estimate `(S, ~15min)` / `(M, ~3h)` / `(L, ~6h)`
-  - 1-2 sentences of context
-  - **Files:** absolute paths
-  - **Done when:** verifiable acceptance criterion
-- **Open questions** — items needing decision (alternative phrasing if known)
-- **Carry-forward (still open, exploratory)** — older items still pending, separated from new open questions for clarity
-- **Known issues** — categorized (Webapp / Engine / Operational / etc.) + severity tag (`**P0**` `**P1**` `**P2**` `**P3**` `**P3 NEW S<N>**`)
-- **Verification commands** — divided per area, each with **expected output** explicit
-- **How to start the next session** — bootstrap step-by-step (where to read first, what to verify before any work)
+### Step 3 — Sync global project docs (only if not already done in-session)
 
-This file is the read target for next session bootstrap.
+Check if these need updating based on session changes:
 
-#### 4e. Save dated snapshot
+| File | When to update |
+|---|---|
+| `CLAUDE.md` (status block, line ~169) | Sprint name + L-NN bumped, top priorities table changed |
+| `.ux-design/DECISIONS-LOG.md` | Decision/architectural choice taken this session → append L-NN entry |
+| `.ux-design/BRAND-STATE.md` | Brand workstream active + phase advancement / new asset / decision |
+| `.handoff/legacy-import-registry.csv` | Import legacy occurred this session |
 
-Copy `HANDOFF.md` to `.handoff/snapshots/HANDOFF-YYYY-MM-DD.md` (today's date).
-If a snapshot for today already exists, append `-2`, `-3`, … (never overwrite).
+Skip if already synced in earlier commits this session.
 
-### Step 5 — Suggest git commit
+### Step 4 — Commit
 
-1. Generate commit message:
-   - Regular session: `chore(handoff): YYYY-MM-DD — Sessione N <topic>`
-   - If session shipped feature: `feat: <feature> + handoff`
-   - If session shipped fix: `fix: <fix> + handoff`
-   - Body: 3-5 bullets distilled from PROJECT-LOG.md entry
-2. Show proposed commit. Ask: "Eseguo, oppure preferisci farlo tu?"
-3. If user agrees: stage `.handoff/` + commit. If user has other unstaged changes >5 files: ask whether to also stage those.
-4. **Never force**, never `--no-verify`, never amend pushed commits.
+Generate commit signature based on scope:
 
-### Step 6 — Optional milestone tag
+- Pure handoff (only STATE.md): `chore: handoff <sprint>`
+- Handoff + 1-2 docs sync: `docs(handoff): <sprint> close + <doc> sync`
+- Handoff + feature/fix shipped: `feat: <feature> + handoff <sprint>` or `fix: <fix> + handoff`
 
-If the session reached a notable milestone (e.g. "v1.0 baseline live"):
-- Suggest `git tag` (annotated, with same body as commit)
-- Wait for explicit user approval before executing
+Body 3-5 bullets, distilled from STATE.md "Last session brief" + key metrics + commit hashes referenced.
 
-### Step 7 — Done message
+Show proposed commit. Ask: "Eseguo, oppure preferisci farlo tu?". If user agrees → stage relevant files + commit.
 
-Single paragraph confirming closure. Example:
-> "Sessione chiusa. PROJECT-LOG aggiornato (entry #N), HANDOFF riscritto. Snapshot salvato a `.handoff/snapshots/HANDOFF-YYYY-MM-DD.md`. Prossima sessione partirà da: [top 3 todos]."
+**Hard rules**:
+- Never `--no-verify` (gitleaks + commitlint enforced)
+- Never `--amend` on pushed commits
+- Never `git push --force` on main
+- Stage explicit files (no `git add -A` unless user confirms)
 
-## Auto-handoff hook (background safety net)
+### Step 5 — Push direct main + done message
 
-The companion `.claude/hooks/auto-handoff.sh` runs on Stop events (when Claude Code CLI exits a session) and writes a breadcrumb to `.handoff/auto/<UTC-timestamp>.md` with:
-- Timestamp UTC
-- Current branch
-- Last commit (hash + subject)
-- `git status --short` output
+```bash
+git push origin main
+````
 
-**Purpose**: if the session closes abruptly (crash, ctrl+C, terminal timeout) before the user can run `/handoff`, the next session can read the last breadcrumb and recover state.
+Single paragraph confirmation:
 
-**Promotion**: at the start of each session, the agent (instructed by root `CLAUDE.md`) reads `.handoff/HANDOFF.md` AND scans `.handoff/auto/` for breadcrumbs newer than the last HANDOFF.md update. If found, mention them to the user and ask whether to incorporate into a fresh HANDOFF before starting work.
+> "Sessione chiusa. STATE.md aggiornato (~timestamp). Commit `<hash>` pushed origin/main. Prossima sessione partirà da: [top 3 priorities]."
 
-The hook is configured in `.claude/settings.json` under `hooks.Stop` (auto-installed by this skill on first run if missing).
+## What this skill explicitly does NOT do
+
+- ❌ Append `PROJECT-LOG.md` (file deleted post-S11)
+- ❌ Append `CHANGELOG.md` (file deleted post-S11)
+- ❌ Save dated snapshot in `.handoff/snapshots/` (directory never existed)
+- ❌ Run quick interview with 3 questions (overhead, killed by simplification)
+- ❌ Install or use `auto-handoff.sh` Stop hook (never installed in this repo)
+- ❌ Touch `.handoff/HANDOFF.md` legacy file (stale since 2026-05-07, sostituito da STATE.md)
+- ❌ Auto-create ADR (decisions go in DECISIONS-LOG.md L-NN entry, not separate ADR by default — ADR only for architecturally-binding decisions per S11+)
+
+If a session genuinely needs one of the above (rare), do it OUTSIDE this skill, explicitly.
 
 ## Constraints (hard rules)
 
-- **NEVER delete** `PROJECT-LOG.md`, `CHANGELOG.md`, or anything in `snapshots/` — append-only / immutable
-- **NEVER modify past entries** in `PROJECT-LOG.md` or past snapshots — only append/add new ones
-- **NEVER auto-commit** without user confirmation
-- **NEVER use `git push --force`** or `--no-verify`
-- The skill **only writes** inside `.handoff/`. Exceptions:
-  - One-time creation of `.claude/hooks/auto-handoff.sh` if missing
-  - One-time edit of `.claude/settings.json` to register the Stop hook
-- If templates / references missing in this skill's directory: **fail loudly** — do not improvise
-
-## References (load on demand)
-
-| File | When to load |
-|---|---|
-| `references/handoff-format.md` | Step 4d — writing HANDOFF.md |
-| `references/state-format.md` | Step 4c — writing PROJECT-STATE.md |
-| `references/log-format.md` | Step 4a — appending to PROJECT-LOG.md |
-| `references/changelog-format.md` | Step 4b — appending to CHANGELOG.md |
-| `references/auto-handoff-hook.md` | One-time setup of Stop hook |
+- The skill writes inside `.handoff/STATE.md` (overwrite). Optional touches: `CLAUDE.md`, `.ux-design/DECISIONS-LOG.md`, `.ux-design/BRAND-STATE.md` (only if Step 3 conditions met).
+- Never auto-commit without user confirmation (Step 4).
+- Never push without commit succeeded.
 
 ## Bootstrap (next session) — read by `CLAUDE.md` root
 
-The companion side: at session start, the agent must:
-1. Read `.handoff/HANDOFF.md` — get plan + todolist + open questions
-2. Read `.handoff/PROJECT-STATE.md` — get current state
-3. Scan `.handoff/auto/` for breadcrumbs newer than HANDOFF.md mtime — surface them
-4. Present to user: 1-line state recap + top 3-5 todos + open questions + any post-handoff breadcrumbs
-5. Ask: "Continuiamo dalla todo #1, scegli un'altra priorità, o qualcosa di nuovo?"
-6. Wait for user direction before doing anything else
+At session start, agent must:
 
-This is **not part of this skill** — it lives in the project's `CLAUDE.md`.
+1. Read `.handoff/STATE.md` — get plan + open questions
+2. Run `git status -sb` (clean? in sync `origin/main`?)
+3. Greet user: 1-line state recap + top 3 priorities + open questions if relevant
+4. Wait for explicit user direction before touching code
+
+This is **not part of this skill** — it lives in project root `CLAUDE.md` § Session start protocol.
+
+## Drift policy
+
+If you observe a sync drift between this skill's workflow and what `CLAUDE.md` root says, **CLAUDE.md is canonical**. This skill must be updated to match. Skill drift was the original tech debt that prompted the 2026-05-10 rewrite (post-S24 L59).
 
 ---
 
-*Skill version: 1.1 (`.evo` edition) — based on global handoff v1.0, enriched with wiki-factory patterns + auto-handoff hook.*
+_Skill version 2.0 — 2026-05-10 rewrite aligned to post-S11 single-STATE.md workflow. Previous version 1.1 (`.evo` edition with 4-file structure + snapshots + interview + hook) was theoretical drift, never matched repo reality._
