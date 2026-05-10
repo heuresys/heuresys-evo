@@ -166,7 +166,7 @@ VM: `oracle-vm-default` (IP 80.225.82.207). nginx vhosts in `/etc/nginx/sites-av
 
 **Vincolo "estirpazione clean"**: ogni entry in `Test Stage`/`PreOp Stage` DEVE essere rimovibile dal repo evo SENZA conseguenze su stack/oggetti pre-import. Categorie removability tracciate nel CSV (`no-impact`, `embedded-in-existing-file`, `depends-on-X`, `not-yet-used`, `depends-on-DB-seed`).
 
-## Stato attuale (2026-05-10T03:55Z · S24 · L58 — forensic audit FINAL closure: 21/22 issues chiuse (95%) · 0 partial residual · 1 deliberate out-of-scope · 1 miscount)
+## Stato attuale (2026-05-10T04:15Z · S24 · L58+L59 — forensic audit FINAL closure: 22/22 issues chiuse (100% Phase 1) · 1 architectural Phase 2 deferred S26+ · 1 miscount)
 
 ### DBMS = SoT (certified 2026-05-07T14:30Z)
 
@@ -374,8 +374,8 @@ L47 (commit `08b2097`) — body-only import dei 10 mockup rimanenti (escluso `in
 
 **Bilancio FINALE audit forensic L53**:
 
-- **21/22 issues CLOSED (95%)**: tutti i 17 di S23-quater + #3 P4 sweep extended + § 2.5 GUC drift workspaces + § 1.5 310 FK ON DELETE + § 1.8 mat views auto-refresh systemd
-- **1 DELIBERATE OUT-OF-SCOPE**: § 1.2 `employees` 95 col / 19 idx vertical-split (architectural, threshold > 100k rows)
+- **22/22 issues CLOSED (100% Phase 1)**: tutti i 17 di S23-quater + #3 P4 sweep extended + § 2.5 GUC drift workspaces + § 1.5 310 FK ON DELETE + § 1.8 mat views auto-refresh systemd + § 1.2 employees vertical-split Phase 1 additive (phase16n L59)
+- **1 ARCHITECTURAL PHASE 2 deferred S26+**: § 1.2 employees DROP COLUMN + Prisma schema refactor (richiede ~3-5 FTE-day refactor app code + 2-3 FTE-day test)
 - **1 MISCOUNT**: #6 P3 routes (S23 audit corrections)
 
 **DBMS state post-S24** (verified bare-metal `oracle-vm-default:5432/heuresys_platform`):
@@ -395,7 +395,7 @@ L47 (commit `08b2097`) — body-only import dei 10 mockup rimanenti (escluso `in
 
 ### 🚀 Carry-forward S25+ (architectural)
 
-- § 1.2 `employees` 95 col / 19 idx vertical-split — trigger threshold a > 100k rows (oggi 264 active)
+- § 1.2 employees vertical-split **Phase 2** (DROP COLUMN da employees + Prisma schema refactor + app query migration to satellites) — Phase 1 shipped L59, satellite tables `employees_pii`/`employees_hr`/`employees_payroll` populated 270 row + sync trigger + view `employees_full`. Phase 2 stima ~3-5 FTE-day refactor + 2-3 FTE-day test
 - Plus carry-forward S20+S21+S22: production `/dashboard` refactor DB-driven (~6-10h), WCAG 2.2 AAA full audit (~3-5h)
 - pg_cron migration future: se installato, sostituire systemd timer con `cron.schedule()` row + disable unit
 
@@ -408,7 +408,7 @@ L47 (commit `08b2097`) — body-only import dei 10 mockup rimanenti (escluso `in
 - `docs/20-architecture/role-views-matrix.md` — Phase 14.SH FASE 3.1 inventory (scaffolded)
 - `docs/40-operations/dbms-backup-restore.md` — Backup/restore governance policy (scaffolded)
 - `docs/50-reference/decisions/` — 26 ADR (3 superseded · ADR-0023 SoT promotion · ADR-0024 Phase 14.SH plan · ADR-0025 brand identity cycle sealed + v1.0 promotion plan · ADR-0026 Phase 15.A brand-fedele dashboard rendering)
-- `.ux-design/DECISIONS-LOG.md` — log brand identity + governance, ultime entry **L48** (theme/palette framework v1) · **L49** (process autonomous + theme prod + canonical sweep) · **L52** (`users.tenant_id` resta derivata) · **L53** (forensic DB audit baseline) · **L54** (S23 forensic audit partial closure) · **L55** (S23-bis: 3 deferred + P3 miscount) · **L56** (S23-tris: 24 tables batch + drop triggers + parametrize) · **L57** (S23-quater: residual sweep — orphan cleanup + Platform-default + bcrypt rotation + consent + mat views helper + lint rule, audit closure 77%) · **L58** (S24: P1 auditedTransaction mirror + 11 wraps · P2 GUC normalize phase16l · P3 phase16m 310 FK ON DELETE explicit · P4 systemd timer mat views refresh — audit closure 95%)
+- `.ux-design/DECISIONS-LOG.md` — log brand identity + governance, ultime entry **L48** (theme/palette framework v1) · **L49** (process autonomous + theme prod + canonical sweep) · **L52** (`users.tenant_id` resta derivata) · **L53** (forensic DB audit baseline) · **L54** (S23 forensic audit partial closure) · **L55** (S23-bis: 3 deferred + P3 miscount) · **L56** (S23-tris: 24 tables batch + drop triggers + parametrize) · **L57** (S23-quater: residual sweep — orphan cleanup + Platform-default + bcrypt rotation + consent + mat views helper + lint rule, audit closure 77%) · **L58** (S24: P1 auditedTransaction mirror + 11 wraps · P2 GUC normalize phase16l · P3 phase16m 310 FK ON DELETE explicit · P4 systemd timer mat views refresh — audit closure 95%) · **L59** (S24 ext: § 1.2 employees vertical-split Phase 1 additive — phase16n satellite scaffold + sync trigger + view, audit closure 100% Phase 1)
 - `docs/_audit/2026-05-09-forensic-db-audit.md` — audit qualitativo forense DBMS post-S22 (570 tables · 905 FK · 330 RLS policies · 22 issues prioritizzati)
 - `.ux-design/09-asset-showcase/README.md` — webapp catalog locale (gitignored eccetto `_legacy/`). Tool localhost-only Express+Prisma+SQLite per gestione asset brand identity dashboard. Start: `cd .ux-design/09-asset-showcase && npm run dev` → `localhost:5174`
 - `docs/30-developer/security-baseline.md` — P1-P10 enforcement details

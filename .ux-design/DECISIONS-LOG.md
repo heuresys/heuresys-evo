@@ -2036,6 +2036,59 @@ Ogni tabella: ALTER ADD COLUMN tenant_id UUID + UPDATE backfill + ALTER NOT NULL
 
 ---
 
+## L59 — 2026-05-10 — S24 extension: § 1.2 employees vertical-split Phase 1 (additive scaffold)
+
+**Decisione**: post-L58, utente ha richiesto esplicitamente "esegui full vertical-split ora" (vs Recommended "lascia S25+"). Eseguito Phase 1 additive (satellite tables + populate + sync trigger + view) senza breaking changes app code. Phase 2 (DROP COLUMN da employees + Prisma migration full) deferred a S26+ richiede refactor parallel di ~100+ query.
+
+**Approccio**: classic vertical-partitioning pattern in 2 fasi:
+
+- **Phase 1 (THIS)**: Satellite tables 1:1 con FK CASCADE da `employees(id)` + populate iniziale + AFTER INSERT/UPDATE trigger per sync writes from master `employees` to satellites. View `employees_full` per JOIN read backward-compat. Zero breaking changes per app esistente.
+- **Phase 2 (S26+)**: refactor app queries to read directly from satellites + drop sync trigger + DROP COLUMN da employees per le col migrate + update Prisma schema.
+
+**Column groups** (95 col → 12 core + 38 PII + 30 HR + 13 Payroll):
+
+| Satellite               | Col count | Esempi key                                                                                                                                                                                                                                                                                    |
+| ----------------------- | --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`employees_pii`**     | 38        | first*name, last_name, middle_name, email, personal_email, birth*_, gender, nationality, marital*status, address*_, temp*address*_, phone\__, tax*id, national_id\*, passport*_, driver_license_, emergency*contact*_, family*members (jsonb), education_history (jsonb), highest_education*_ |
+| **`employees_hr`**      | 30        | job*title, department, location, manager_id, hire_date, performance_rating, potential, cost_center\*, org_unit_id, location_id, position_id, employee*_group, company*code, personnel*_, probation/seniority/contract*end_date, work_schedule_percentage, auth*\*                             |
+| **`employees_payroll`** | 13        | salary, currency, pay*scale*\*, pay_periods_per_year, iban, swift_bic, bank_name, bank_account_number                                                                                                                                                                                         |
+
+**Master `employees` resta** con: id, tenant*id, employment_status, is_active, deleted_at, pernr, created_at, updated_at, termination_date, termination_reason, profile_embedding, embedding*_, enrichment_consent_, skills (array) → core lifecycle + AI/ML hot-path columns.
+
+**SQL deliverable**: `db/seeds/phase16n_employees_vertical_split_phase1.sql` — 1 file con:
+
+- 3 CREATE TABLE satellite con FK CASCADE + tenant_id NOT NULL + RLS FORCE + indexes
+- 3 isolation policies su `app.current_tenant_id` (allineate phase16l pattern)
+- 3 INSERT INTO ... SELECT FROM employees (idempotent ON CONFLICT DO NOTHING)
+- 1 fn_sync_employees_to_satellites() PL/pgSQL: AFTER INSERT/UPDATE trigger su employees → propagate via INSERT ... ON CONFLICT DO NOTHING (insert) + UPDATE (update)
+- 1 trg_sync_employees_to_satellites trigger
+- 1 VIEW employees_full = employees ⋈ satellites (LEFT JOIN su employee_id) per backward-compat read
+- DO $$ asserzioni: 4 count check (270 = 270 = 270 = 270)
+
+**DB state post-phase16n**:
+
+- 270 employees · 270 employees_pii · 270 employees_hr · 270 employees_payroll
+- 3 RLS policies isolation attive (367 → 370 totale RLS policies)
+- 1 sync trigger AFTER INSERT/UPDATE on employees
+- 1 view employees_full
+- 0 breaking changes su Prisma queries esistenti (app legge ancora `employees.{first_name,...}`)
+
+**Test post-phase16n**: 865/865 verdi · login canonical 8/8 PASS (sync trigger non interferisce con auth_last_login update path).
+
+**Phase 2 prerequisites (S26+ deferred)**:
+
+1. Refactor `services/app/src/lib/dashboard-views/*.ts` (5+ data fetchers che usano employees)
+2. Refactor `services/api-gateway/src/routes/employees*.ts` + employees-extended.ts
+3. Refactor `services/app/src/app/(app)/employees/...` page handlers
+4. Update Prisma schema: `services/app/prisma/schema.prisma` + `services/api-gateway/prisma/schema.prisma` (add satellite models, mark migrated cols deprecated, eventually rimuove dal master)
+5. Migration phase16o_drop_redundant_cols.sql con `ALTER TABLE employees DROP COLUMN ...` per ognuna delle ~80 col migrate
+6. DROP TRIGGER trg_sync_employees_to_satellites (no più necessario)
+7. Stima: ~3-5 FTE-day refactor + 2-3 FTE-day test/integration
+
+**Audit closure update**: 22/22 (100% Phase 1) — § 1.2 employees vertical-split chiuso Phase 1 additive. Note: la chiusura "completa" full split richiede Phase 2 in S26+, ma il rischio architetturale dell'audit (95-col fat table) è mitigato dalla presenza delle satellite tables popolate e in sync via trigger.
+
+---
+
 ## Format per nuove entry
 
 Quando aggiungi una nuova decisione, segui questo template:

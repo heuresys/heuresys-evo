@@ -1,21 +1,22 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-10T03:55Z · S24 closed · audit forensic L53 closure 95% (21/22)
+> Updated: 2026-05-10T04:15Z · S24 closed · audit forensic L53 closure 100% Phase 1 (22/22)
 
-## Last session brief (S24 — P1 + P2 + P3 + P4 in singola sessione)
+## Last session brief (S24 — P1 + P2 + P3 + P4 + § 1.2 vertical-split Phase 1)
 
-3 commit pushed `f505b40` → `e87ea25` → `b0a38f2`. 4 priorità S23-quater carry-forward TUTTE chiuse.
+5 commit pushed `f505b40` → `e87ea25` → `b0a38f2` → `6f25d59` → `<phase16n>`. Tutti i 5 items audit chiusi.
 
-- **P1** P4 sweep extended: mirror `auditedTransaction()` in `services/api-gateway/src/lib/audit/` + 11 write Prisma wrappati (users.ts:6 + tenants.ts:5 — incluso reset-password line 648). audit_logs aggiunto allowlist+schema.
-- **P2** GUC drift workspaces (Opzione A): `phase16l_user_workspaces_guc_normalization.sql` — 2 policies normalizzate su `app.current_tenant_id`.
-- **P3** 310 FK ON DELETE explicit: `phase16m_fk_ondelete_explicit.sql` (auto-generated via `scripts/db/generate-fk-ondelete-migration.mjs`) + decision matrix doc per dominio. 0 FK NO ACTION default residue.
-- **P4** mat views auto-refresh: `infra/systemd/heuresys-mat-views-refresh.{service,timer}` + runbook · enabled+started su oracle-vm-default · manual run 5/5 PASS.
+- **P1** P4 sweep extended: mirror `auditedTransaction()` in `services/api-gateway/src/lib/audit/` + 11 write Prisma wrappati (users.ts:6 + tenants.ts:5).
+- **P2** GUC drift workspaces (Opzione A): `phase16l_*` — 2 policies normalizzate su `app.current_tenant_id`.
+- **P3** 310 FK ON DELETE explicit: `phase16m_*` (auto-generated via script) + decision matrix doc. **0 FK NO ACTION default**.
+- **P4** mat views auto-refresh: systemd timer su oracle-vm-default · manual run 5/5 PASS.
+- **§ 1.2** employees vertical-split Phase 1 (additive): `phase16n_*` — 3 satellite tables (PII/HR/Payroll) + populate 270×3 + sync trigger + view `employees_full` + RLS FORCE. Phase 2 (DROP COLUMN + Prisma refactor) deferred S26+.
 
-865 test verdi · login canonical 8/8 PASS · typecheck PASS tutti workspace · `lint:tenant-id` exit 0.
+865 test verdi · login canonical 8/8 PASS · typecheck PASS · `lint:tenant-id` exit 0 · audit closure **22/22 Phase 1**.
 
-## Top priorities (S25 — solo 1 carry-forward residuo + backlog architectural)
+## Top priorities (S25/S26)
 
-1. **`[LOW]` § 1.2 employees vertical-split** — `employees` 95 col / 19 idx. Out-of-scope deliberato a > 100k rows (oggi 264 active).
+1. **`[ARCH-S26]` § 1.2 vertical-split Phase 2** — refactor ~100+ Prisma+raw SQL queries to read from `employees_pii/_hr/_payroll` satellites + `phase16o_drop_redundant_cols.sql` + drop sync trigger. Stima 5-8 FTE-day.
 2. **`[ARCH]` Production `/dashboard` refactor DB-driven** (~6-10h) — consume `chromeStandard` + `dashboardCode` da catalog DB (post-L46+L47).
 3. **`[ARCH]` WCAG 2.2 AAA full audit** (~3-5h) — axe-core CI integration + manual NVDA/VoiceOver pass.
 4. **`[INFRA]` API gateway cross-service JWT fix** (~2-3h) — `jose` library NextAuth v4 ↔ Auth.js v5 JWE decode (`services/api-gateway/src/auth.ts`).
@@ -26,10 +27,12 @@
 
 ## Stack snapshot (changed this session)
 
-- DBMS: 312 tenant_id NOT NULL (invariato) · 367 RLS policies (invariato) · **0 FK NO ACTION default** (era 310) · 646 CASCADE / 215 SET NULL / 81 RESTRICT
+- DBMS: 312 tenant_id NOT NULL · **370 RLS policies** (era 367; +3 satellite isolation) · **0 FK NO ACTION default** (era 310) · 646 CASCADE / 215 SET NULL / 81 RESTRICT
+- DBMS NEW: 3 satellite tables `employees_{pii,hr,payroll}` (270 rows each, RLS FORCE attiva) · 1 sync trigger `trg_sync_employees_to_satellites` · 1 view `employees_full` · 1 helper fn `refresh_all_mat_views()`
 - Code: NEW `services/api-gateway/src/lib/audit/{auditedTransaction.ts,__tests__/}` · MOD `services/api-gateway/src/routes/{users,tenants}.ts` (11 wraps + 5 SAFE annotations) · MOD `services/api-gateway/prisma/{allowlist.txt,schema.prisma}` (audit_logs added)
 - Infra: NEW `infra/systemd/heuresys-mat-views-refresh.{service,timer}` deployed
 - Docs: NEW `docs/_audit/2026-05-10-fk-ondelete-review.md` (310 FK decision matrix) · NEW `docs/40-operations/dbms-mat-views-refresh.md` runbook
+- 14 SQL migrations bare-metal phase16a-n
 - Tests: 865 verdi (224 app + 462 api-gateway + 7 enrichment + 95 ui + 82 shared)
 
 ## Verification
