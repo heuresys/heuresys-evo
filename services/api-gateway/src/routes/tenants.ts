@@ -5,6 +5,24 @@ import { prisma } from '../db/pool.js';
 import { requireAuth } from '../middleware/auth.js';
 import { requirePermission } from '../middleware/require-permission.js';
 import { isUUID, buildMeta } from '../utils/pagination.js';
+import { auditedTransaction, type AuditActor } from '../lib/audit/auditedTransaction.js';
+
+const DEFAULT_SUPERUSER_TENANT_ID =
+  process.env['DEFAULT_SUPERUSER_TENANT_ID'] ?? '00000000-0000-0000-0000-000000000001';
+
+function buildActor(req: Request, targetTenantId: string | null): AuditActor {
+  const session = (req as Request & { session?: SessionEnvelope | null }).session ?? null;
+  const userId = session?.user?.id ?? '';
+  const callerTenantId = session?.user?.tenantId ?? null;
+  const tenantId = targetTenantId ?? callerTenantId ?? DEFAULT_SUPERUSER_TENANT_ID;
+  return {
+    tenantId,
+    userId,
+    userRole: session?.user?.role ?? null,
+    ipAddress: req.ip ?? null,
+    userAgent: req.get('user-agent') ?? null,
+  };
+}
 
 export const tenantsRouter = Router();
 
@@ -316,7 +334,23 @@ tenantsRouter.post(
         employee_count: 0,
       };
 
-      const created = await prisma.tenants.create({ data, select: FULL_TENANT_FIELDS });
+      const actor = buildActor(req, null);
+      const { result: created } = await auditedTransaction(
+        actor,
+        {
+          action: 'CREATE',
+          category: 'TENANT',
+          resourceType: 'tenant',
+          resourceId: body.code,
+          newValue: {
+            code: body.code,
+            name: body.name,
+            status: body.status ?? 'pending',
+            subscription_plan: body.subscription_plan ?? 'free',
+          },
+        },
+        (tx) => tx.tenants.create({ data, select: FULL_TENANT_FIELDS })
+      );
 
       res.status(201).json({
         success: true,
@@ -396,11 +430,24 @@ tenantsRouter.patch(
         return;
       }
 
-      const updated = await prisma.tenants.update({
-        where: { id: existing.id },
-        data,
-        select: FULL_TENANT_FIELDS,
-      });
+      const actor = buildActor(req, existing.id);
+      const { result: updated } = await auditedTransaction(
+        actor,
+        {
+          action: 'UPDATE',
+          category: 'TENANT',
+          resourceType: 'tenant',
+          resourceId: existing.id,
+          oldValue: { code: existing.code },
+          newValue: { ...body, updated_at: new Date().toISOString() },
+        },
+        (tx) =>
+          tx.tenants.update({
+            where: { id: existing.id },
+            data,
+            select: FULL_TENANT_FIELDS,
+          })
+      );
 
       res.json({
         success: true,
@@ -436,6 +483,8 @@ tenantsRouter.delete(
         return;
       }
 
+      const actor = buildActor(req, tenant.id);
+
       if (permanent) {
         const employeeCount = await prisma.employees.count({ where: { tenant_id: tenant.id } });
         if (employeeCount > 0) {
@@ -445,7 +494,18 @@ tenantsRouter.delete(
           });
           return;
         }
-        await prisma.tenants.delete({ where: { id: tenant.id } });
+        await auditedTransaction(
+          actor,
+          {
+            action: 'DELETE',
+            category: 'TENANT',
+            resourceType: 'tenant',
+            resourceId: tenant.id,
+            oldValue: { code: tenant.code, status: tenant.status },
+            metadata: { delete_kind: 'hard' },
+          },
+          (tx) => tx.tenants.delete({ where: { id: tenant.id } })
+        );
         res.json({
           success: true,
           message: `Tenant '${tenant.code}' permanently deleted`,
@@ -454,10 +514,23 @@ tenantsRouter.delete(
         return;
       }
 
-      await prisma.tenants.update({
-        where: { id: tenant.id },
-        data: { status: 'inactive', updated_at: new Date() },
-      });
+      await auditedTransaction(
+        actor,
+        {
+          action: 'UPDATE',
+          category: 'TENANT',
+          resourceType: 'tenant',
+          resourceId: tenant.id,
+          oldValue: { status: tenant.status },
+          newValue: { status: 'inactive' },
+          metadata: { delete_kind: 'soft', deactivation_reason: 'admin_action' },
+        },
+        (tx) =>
+          tx.tenants.update({
+            where: { id: tenant.id },
+            data: { status: 'inactive', updated_at: new Date() },
+          })
+      );
       res.json({
         success: true,
         message: `Tenant '${tenant.code}' deactivated`,
@@ -488,10 +561,24 @@ tenantsRouter.post(
         res.status(400).json({ success: false, error: 'Tenant is already active' });
         return;
       }
-      await prisma.tenants.update({
-        where: { id: tenant.id },
-        data: { status: 'active', updated_at: new Date() },
-      });
+      const actor = buildActor(req, tenant.id);
+      await auditedTransaction(
+        actor,
+        {
+          action: 'UPDATE',
+          category: 'TENANT',
+          resourceType: 'tenant',
+          resourceId: tenant.id,
+          oldValue: { status: tenant.status },
+          newValue: { status: 'active' },
+          metadata: { reason: 'tenant_reactivation' },
+        },
+        (tx) =>
+          tx.tenants.update({
+            where: { id: tenant.id },
+            data: { status: 'active', updated_at: new Date() },
+          })
+      );
       res.json({
         success: true,
         message: `Tenant '${tenant.code}' activated`,

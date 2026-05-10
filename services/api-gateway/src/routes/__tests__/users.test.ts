@@ -166,7 +166,43 @@ vi.mock('../../db/pool.js', () => ({
         return null;
       }),
     },
+    audit_logs: {
+      create: vi.fn(async () => ({ id: 'audit-id-mock' })),
+    },
   },
+  withTenant: vi.fn(async (_tenantId: string, fn: (tx: unknown) => Promise<unknown>) => {
+    const tx = {
+      users: {
+        create: vi.fn(async (args: { data: Record<string, unknown> }) => {
+          const u = makeUser({
+            id: `00000000-aaaa-${String(users.length).padStart(4, '0')}-0000-000000000000`,
+            username: args.data['username'] as string,
+            role: (args.data['role'] as string) ?? 'USER',
+            permissions: (args.data['permissions'] as string[]) ?? [],
+            employee_id: (args.data['employee_id'] as string | null) ?? null,
+            is_active: (args.data['is_active'] as boolean) ?? true,
+            password_hash: args.data['password_hash'] as string,
+          });
+          users.push(u);
+          return u;
+        }),
+        update: vi.fn(async (args: { where: { id: string }; data: Record<string, unknown> }) => {
+          const u = users.find((x) => x.id === args.where.id);
+          if (!u) throw new Error('not found');
+          Object.assign(u, args.data, { updated_at: new Date() });
+          return u;
+        }),
+        delete: vi.fn(async (args: { where: { id: string } }) => {
+          users = users.filter((u) => u.id !== args.where.id);
+          return { id: args.where.id };
+        }),
+      },
+      audit_logs: {
+        create: vi.fn(async () => ({ id: 'audit-id-mock' })),
+      },
+    };
+    return fn(tx);
+  }),
 }));
 
 import { usersRouter } from '../users.js';

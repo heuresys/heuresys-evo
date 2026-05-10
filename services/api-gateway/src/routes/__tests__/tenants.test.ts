@@ -172,7 +172,47 @@ vi.mock('../../db/pool.js', () => ({
         return employeeCountByTenant.get(args.where.tenant_id) ?? 0;
       }),
     },
+    audit_logs: {
+      create: vi.fn(async () => ({ id: 'audit-id-mock' })),
+    },
   },
+  withTenant: vi.fn(async (_tenantId: string, fn: (tx: unknown) => Promise<unknown>) => {
+    const tx = {
+      tenants: {
+        create: vi.fn(async (args: { data: Record<string, unknown>; select?: unknown }) => {
+          const t = makeTenant({
+            id: `00000000-aaaa-${String(tenants.length).padStart(4, '0')}-0000-000000000000`,
+            code: args.data['code'] as string,
+            name: args.data['name'] as string,
+            description: (args.data['description'] as string | null) ?? null,
+            region: (args.data['region'] as string | null) ?? null,
+            status: (args.data['status'] as string) ?? 'pending',
+            subscription_plan: (args.data['subscription_plan'] as string) ?? 'free',
+            industry_type: (args.data['industry_type'] as string | null) ?? null,
+            sap_company_code: (args.data['sap_company_code'] as string | null) ?? null,
+            annual_revenue_eur: (args.data['annual_revenue_eur'] as bigint | null) ?? null,
+            employee_count: (args.data['employee_count'] as number) ?? 0,
+          });
+          tenants.push(t);
+          return t;
+        }),
+        update: vi.fn(async (args: { where: { id: string }; data: Record<string, unknown> }) => {
+          const t = findById(args.where.id);
+          if (!t) throw new Error('not found');
+          Object.assign(t, args.data, { updated_at: new Date() });
+          return t;
+        }),
+        delete: vi.fn(async (args: { where: { id: string } }) => {
+          tenants = tenants.filter((t) => t.id !== args.where.id);
+          return { id: args.where.id };
+        }),
+      },
+      audit_logs: {
+        create: vi.fn(async () => ({ id: 'audit-id-mock' })),
+      },
+    };
+    return fn(tx);
+  }),
 }));
 
 import { tenantsRouter } from '../tenants.js';

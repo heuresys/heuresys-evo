@@ -2197,6 +2197,44 @@ model employee_skill_profiles {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 /// This model contains an expression index which requires additional setup for migrations. Visit https://pris.ly/d/expression-indexes for more info.
 
+/// audit_logs (S24 · L58 · added to api-gateway allowlist for P4 sweep extended).
+/// Relations to tenants/employees/users intentionally omitted: api-gateway only
+/// uses tx.audit_logs.create({data}) — no joins. Avoids back-relation churn on
+/// the 3 parent models in this scope-limited schema subset.
+model audit_logs {
+  id                  String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  timestamp           DateTime? @default(now()) @db.Timestamp(6)
+  user_id             String?   @db.Uuid
+  user_email          String?   @db.VarChar(255)
+  user_role           String?   @db.VarChar(50)
+  action              String    @db.VarChar(50)
+  category            String    @db.VarChar(50)
+  resource_type       String?   @db.VarChar(100)
+  resource_id         String?   @db.VarChar(255)
+  resource_name       String?   @db.VarChar(500)
+  description         String
+  old_value           Json?
+  new_value           Json?
+  ip_address          String?   @db.Inet
+  user_agent          String?
+  tenant_id           String    @db.Uuid
+  metadata            Json?     @default("{}")
+  success             Boolean?  @default(true)
+  error_message       String?
+  user_id_employee_id String?   @db.Uuid
+  created_at          DateTime? @default(now()) @db.Timestamptz(6)
+
+  @@index([action], map: "idx_audit_logs_action")
+  @@index([category], map: "idx_audit_logs_category")
+  @@index([resource_type, resource_id], map: "idx_audit_logs_resource")
+  @@index([success], map: "idx_audit_logs_success")
+  @@index([tenant_id], map: "idx_audit_logs_tenant")
+  @@index([timestamp(sort: Desc)], map: "idx_audit_logs_timestamp")
+  @@index([user_id], map: "idx_audit_logs_user")
+  @@index([user_email], map: "idx_audit_logs_user_email")
+  @@index([user_id_employee_id], map: "idx_audit_logs_user_employee")
+}
+
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 
 

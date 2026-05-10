@@ -17,6 +17,7 @@ org_units
 account
 session
 verification_token
+audit_logs
 employee_skills
 rbp_roles
 workforce_plans

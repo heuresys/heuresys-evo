@@ -8,6 +8,24 @@ import { requirePermission } from '../middleware/require-permission.js';
 import { ROLES, ROLE_DESCRIPTIONS, type Role } from '../middleware/roles.js';
 import { isUUID, buildMeta } from '../utils/pagination.js';
 import { validatePassword, generateSecurePassword } from '../utils/password-policy.js';
+import { auditedTransaction, type AuditActor } from '../lib/audit/auditedTransaction.js';
+
+const DEFAULT_SUPERUSER_TENANT_ID =
+  process.env['DEFAULT_SUPERUSER_TENANT_ID'] ?? '00000000-0000-0000-0000-000000000001';
+
+function buildActor(req: Request, tenantIdOverride?: string | null): AuditActor {
+  const session = readSession(req);
+  const userId = session.user?.id ?? '';
+  const callerTenantId = session.user?.tenantId ?? null;
+  const tenantId = tenantIdOverride ?? callerTenantId ?? DEFAULT_SUPERUSER_TENANT_ID;
+  return {
+    tenantId,
+    userId,
+    userRole: session.user?.role ?? null,
+    ipAddress: req.ip ?? null,
+    userAgent: req.get('user-agent') ?? null,
+  };
+}
 
 export const usersRouter = Router();
 
@@ -370,26 +388,52 @@ usersRouter.post(
       }
 
       const passwordHash = await bcrypt.hash(userPassword!, 12);
+      let targetTenantId: string | null = null;
+      if (body.employee_id) {
+        const targetEmp = await prisma.employees.findUnique({
+          where: { id: body.employee_id },
+          select: { tenant_id: true },
+        });
+        targetTenantId = targetEmp?.tenant_id ?? null;
+      }
+      const actor = buildActor(req, targetTenantId);
       // SAFE: users table has no tenant_id (post-L52, derived via employee_id)
-      const created = await prisma.users.create({
-        data: {
-          username: body.username,
-          password_hash: passwordHash,
-          role: userRole,
-          permissions: body.permissions ?? [],
-          employee_id: body.employee_id ?? null,
-          is_active: body.is_active ?? true,
+      const { result: created } = await auditedTransaction(
+        actor,
+        {
+          action: 'CREATE',
+          category: 'USER',
+          resourceType: 'user',
+          resourceId: body.username,
+          newValue: {
+            username: body.username,
+            role: userRole,
+            employee_id: body.employee_id ?? null,
+            is_active: body.is_active ?? true,
+            generated_password: Boolean(body.generate_password),
+          },
         },
-        select: {
-          id: true,
-          username: true,
-          role: true,
-          permissions: true,
-          is_active: true,
-          employee_id: true,
-          created_at: true,
-        },
-      });
+        (tx) =>
+          tx.users.create({
+            data: {
+              username: body.username,
+              password_hash: passwordHash,
+              role: userRole,
+              permissions: body.permissions ?? [],
+              employee_id: body.employee_id ?? null,
+              is_active: body.is_active ?? true,
+            },
+            select: {
+              id: true,
+              username: true,
+              role: true,
+              permissions: true,
+              is_active: true,
+              employee_id: true,
+              created_at: true,
+            },
+          })
+      );
 
       res.status(201).json({
         success: true,
@@ -498,20 +542,45 @@ usersRouter.patch(
       }
       data.updated_at = new Date();
 
+      const targetTenantId = existing.employees?.tenant_id ?? null;
+      const actor = buildActor(req, targetTenantId);
       // SAFE: users table has no tenant_id (derived via employee_id post-L52)
-      const updated = await prisma.users.update({
-        where: { id },
-        data,
-        select: {
-          id: true,
-          username: true,
-          role: true,
-          permissions: true,
-          is_active: true,
-          employee_id: true,
-          updated_at: true,
+      const { result: updated } = await auditedTransaction(
+        actor,
+        {
+          action: 'UPDATE',
+          category: 'USER',
+          resourceType: 'user',
+          resourceId: id,
+          oldValue: {
+            username: existing.username,
+            role: existing.role,
+            is_active: existing.is_active,
+            employee_id: existing.employee_id,
+          },
+          newValue: {
+            ...(body.username !== undefined && { username: body.username }),
+            ...(body.role !== undefined && { role: body.role }),
+            ...(body.is_active !== undefined && { is_active: body.is_active }),
+            ...(body.employee_id !== undefined && { employee_id: body.employee_id }),
+            ...(body.password !== undefined && { password_changed: true }),
+          },
         },
-      });
+        (tx) =>
+          tx.users.update({
+            where: { id },
+            data,
+            select: {
+              id: true,
+              username: true,
+              role: true,
+              permissions: true,
+              is_active: true,
+              employee_id: true,
+              updated_at: true,
+            },
+          })
+      );
 
       res.json({
         success: true,
@@ -580,18 +649,49 @@ usersRouter.delete(
         return;
       }
 
+      const targetTenantId = existing.employees?.tenant_id ?? null;
+      const actor = buildActor(req, targetTenantId);
+
       if (hardDelete && callerRole === 'SUPERUSER') {
         // SAFE: users table has no tenant_id (derived via employee_id post-L52)
-        await prisma.users.delete({ where: { id } });
+        await auditedTransaction(
+          actor,
+          {
+            action: 'DELETE',
+            category: 'USER',
+            resourceType: 'user',
+            resourceId: id,
+            oldValue: {
+              username: existing.username,
+              role: existing.role,
+              employee_id: existing.employee_id,
+            },
+            metadata: { delete_kind: 'hard' },
+          },
+          (tx) => tx.users.delete({ where: { id } })
+        );
         res.json({ success: true, message: 'User permanently deleted' });
         return;
       }
 
       // SAFE: users table has no tenant_id (derived via employee_id post-L52)
-      await prisma.users.update({
-        where: { id },
-        data: { is_active: false, updated_at: new Date() },
-      });
+      await auditedTransaction(
+        actor,
+        {
+          action: 'UPDATE',
+          category: 'USER',
+          resourceType: 'user',
+          resourceId: id,
+          oldValue: { is_active: existing.is_active },
+          newValue: { is_active: false },
+          metadata: { delete_kind: 'soft', deactivation_reason: 'admin_action' },
+        },
+        (tx) =>
+          tx.users.update({
+            where: { id },
+            data: { is_active: false, updated_at: new Date() },
+          })
+      );
       res.json({ success: true, message: 'User deactivated successfully' });
     } catch (err) {
       next(err);
@@ -645,10 +745,23 @@ usersRouter.post(
       }
 
       const passwordHash = await bcrypt.hash(body.new_password, 12);
-      await prisma.users.update({
-        where: { id },
-        data: { password_hash: passwordHash, updated_at: new Date() },
-      });
+      const targetTenantId = existing.employees?.tenant_id ?? null;
+      const actor = buildActor(req, targetTenantId);
+      await auditedTransaction(
+        actor,
+        {
+          action: 'UPDATE',
+          category: 'USER',
+          resourceType: 'user',
+          resourceId: id,
+          metadata: { reason: 'password_reset_admin' },
+        },
+        (tx) =>
+          tx.users.update({
+            where: { id },
+            data: { password_hash: passwordHash, updated_at: new Date() },
+          })
+      );
       res.json({ success: true, message: 'Password reset successfully' });
     } catch (err) {
       next(err);
@@ -731,17 +844,35 @@ usersRouter.post(
           const temporaryPassword = generateSecurePassword(16);
           const passwordHash = await bcrypt.hash(temporaryPassword, 12);
 
+          const actor = buildActor(req, employee.tenant_id);
           // SAFE: users table has no tenant_id (derived via employee_id post-L52)
-          await prisma.users.create({
-            data: {
-              username,
-              password_hash: passwordHash,
-              role: userRole,
-              permissions: [],
-              employee_id: employeeId,
-              is_active: true,
+          await auditedTransaction(
+            actor,
+            {
+              action: 'CREATE',
+              category: 'USER',
+              resourceType: 'user',
+              resourceId: username,
+              newValue: {
+                username,
+                role: userRole,
+                employee_id: employeeId,
+                is_active: true,
+              },
+              metadata: { source: 'bulk_provision', tenant_code: tenantCode },
             },
-          });
+            (tx) =>
+              tx.users.create({
+                data: {
+                  username,
+                  password_hash: passwordHash,
+                  role: userRole,
+                  permissions: [],
+                  employee_id: employeeId,
+                  is_active: true,
+                },
+              })
+          );
           results.created.push({ employeeId, username, temporaryPassword });
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : 'Unknown error';
