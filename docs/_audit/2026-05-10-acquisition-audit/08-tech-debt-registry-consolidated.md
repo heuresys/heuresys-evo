@@ -69,6 +69,25 @@ Sintesi: brief mismatch Phase 4 (Phase 4 brand è chiusa, non in re-exploration 
 
 **Effort cumulativo low**: ~30-50h FTE.
 
+> **S28-bis Wave 12 LOW resolution (2026-05-10)**: triage finale dei 14 LOW. La
+> maggioranza è **già RESOLVED-by-design** o sono STRENGTH (segnalazioni positive,
+> non debt). Classificazione:
+>
+> - **STRENGTH (8)**: workspace `*` protocol · HTTP-only cross-service · 367 RLS +
+>   FORCE RLS + no-BYPASSRLS · zero `$queryRawUnsafe` · CSRF HMAC-bound · 865+
+>   test verdi · governance backup formalizzata · brand book v0 completo →
+>   **NO-OP** (sono valori positivi, non debt da fixare)
+> - **RESOLVED-by-design (4)**: build script bash-only OK su Linux/Mac/CI ·
+>   brand-studio escluso da audit by design · skip rate 1.2% justified per
+>   conditional skip · CI ben architettato → **NO-OP**
+> - **OUTDATED (1)**: Phase 4 brand chiusa (era stale STATE.md) → annotata in
+>   STATE.md S27-S28
+> - **DEFERRED reasonable (1)**: load test out-of-CI (autocannon Wave 6
+>   originale citava perf bench). Defer S29+ come task standalone (~1-2h, no
+>   blocker compliance).
+>
+> **Effort residuo realistico**: ~2h (load test). Resto NON è debt.
+
 ---
 
 ## Cross-cutting patterns identificati

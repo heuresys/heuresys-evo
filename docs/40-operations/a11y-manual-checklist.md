@@ -1,8 +1,15 @@
 # Accessibility · Manual Checklist (NVDA · VoiceOver · Keyboard-only)
 
-> Companion al test automatico `tests/e2e/a11y/wcag-aaa.spec.ts` (axe-core, 8 viste).
+> Companion al test automatico `tests/e2e/a11y/wcag-aaa.spec.ts` (axe-core, 9 viste).
 > Manual passes coprono dimensioni che axe non può verificare: voce screen reader,
 > qualità landmark navigation, focus indicators, ordine logico, gesture mobile.
+
+> **S28-bis Wave 12 update (2026-05-10)**: C8 partial address. Test a11y unit
+> packages/ui/src/components/**tests**/{Button,Input}.a11y.test.tsx aggiunti
+> (11 test totali per AAA touch target, label htmlFor, aria-invalid, alert role).
+> Manual NVDA/VoiceOver pass per la prima volta DEVE essere eseguito da Enzo o
+> auditor terzo (€8-15k stimato VPAT signed). Wave 12 documenta procedura step-by-step
+> per execution standalone. EAA 2025-06-28 deadline già scattato — high priority.
 
 ## 0 · Quando eseguire
 
