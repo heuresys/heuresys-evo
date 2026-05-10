@@ -34,27 +34,48 @@ I tre comandamenti che attraversano tutte le regole. Quando in dubbio, applicare
 - PR-driven solo se richiesta esplicita o cambio strutturale critico
 - Pattern ripetuto >2 volte → segnalo per automazione, NON implemento in autonomia
 
-## 2. Regole operative globali (R1-R17, riferimento `~/.claude/CLAUDE.md`)
+### CARD-4: PROPOSE, DON'T DECIDE — feasibility evidence-based
 
-Numerazione fissata in S2 unification 2026-04-20. Sub-set heuresys-evo (15 regole, esclusi R7 PowerShell OS-only e R13 Cowork legacy).
+> **Principio sopraordinato (DECISION AUTHORITY)**: i suggerimenti di Claude sono apprezzati e considerati ma è l'utente che decide quando interrompere/chiudere una sessione, in funzione dell'effettivo contesto a disposizione. La decisione di scope/closure NON è di Claude.
 
-| #   | Regola                             | Sintesi                                                       |
-| --- | ---------------------------------- | ------------------------------------------------------------- |
-| R1  | PENSA PRIMA, AGISCI DOPO           | Piano in 2 frasi. Modo più semplice                           |
-| R2  | ISTRUZIONI ALLA LETTERA            | "Tutti" = tutti. No reinterpretazione                         |
-| R3  | CORREGGERE OGNI ERRORE             | No "pre-esistente". Codebase migliore                         |
-| R4  | ACCOUNTABILITY                     | Errore → riconoscimento + correttivo. No giustificazioni      |
-| R5  | TEST-BEFORE-CLAIM                  | Asserzione negativa → verified-by stamp                       |
-| R6  | NO-DELEGA SE HAI TOOL              | Tool esiste → uso io                                          |
-| R8  | EFFICIENZA / TOKEN HYGIENE         | Parallelismo. No re-read. Grep/Glob > Read per localize       |
-| R9  | NO-HALLUCINATION                   | "Non lo so, verifico". Mai inventare                          |
-| R10 | SECRET HYGIENE                     | Mai loggare credenziali. Pre-commit gitleaks scan             |
-| R11 | GIT SAFETY + WORKFLOW SNELLO       | Direct push main default, no PR. No `--no-verify`             |
-| R12 | STRATEGIA MULTI-TOOL / SUBAGENT    | Atomico → tool diretto. Esplorazione → Agent                  |
-| R14 | ANTI-BIAS COGNITIVI                | Cerca evidenza contraria. >30min senza convergenza → stop     |
-| R15 | OCCHIO PER L'AUTOMAZIONE           | Pattern >2 volte → segnalo. Non implemento autonomo           |
-| R16 | CLIENT PASTE QUIRK                 | claude.ai trasforma `nome.ext` in link. Variabili nei comandi |
-| R17 | RESPONSABILITÀ TOTALE — SOLE CODER | Mai "non l'ho fatto io". Vigilanza pre-merge                  |
+MAI dichiarare "non fattibile / non eseguibile / serve sessione dedicata / troppo rischioso / richiede settimane" senza aver applicato i **5 criteri obbligatori**:
+
+1. **Grep concreto** del volume coinvolto — file count, occorrenze, linee da modificare misurate con tool, non a memoria
+2. **Calcolo token budget** vs context disponibile — almeno 2× margin = safe
+3. **Pattern repetitivity vs case-by-case** — pattern ripetuto = basso rischio
+4. **Test coverage check** — test esistenti = regression risk LOW
+5. **Risk register esplicito** — probabilità × impatto × mitigazione, non opinione
+
+Senza i 5 punti la frase "non eseguibile" è OPINIONE travestita da valutazione tecnica → **BANDITA ASSOLUTA**.
+
+Forma corretta SEMPRE: _"questa task richiede ~X token budget, regression risk Y/Z, vuoi procedere?"_ → DECIDE L'UTENTE.
+
+CARD-4 estende CARD-2 (verifica fatti) al caso specifico dei giudizi di feasibility/scope/effort. Memorizzata post-S24 L59 (errore valutazione vertical-split Phase 2 — Explore agent ha contraddetto la stima a memoria con 9/9 criteri feasibility PASS).
+
+## 2. Regole operative globali (R1-R20, riferimento `~/.claude/CLAUDE.md`)
+
+Numerazione fissata in S2 unification 2026-04-20, estesa S24 L59 (R20 feasibility evidence-based). Sub-set heuresys-evo (16 regole, esclusi R7 PowerShell OS-only e R13 Cowork legacy).
+
+| #   | Regola                             | Sintesi                                                                |
+| --- | ---------------------------------- | ---------------------------------------------------------------------- |
+| R1  | PENSA PRIMA, AGISCI DOPO           | Piano in 2 frasi. Modo più semplice                                    |
+| R2  | ISTRUZIONI ALLA LETTERA            | "Tutti" = tutti. No reinterpretazione                                  |
+| R3  | CORREGGERE OGNI ERRORE             | No "pre-esistente". Codebase migliore                                  |
+| R4  | ACCOUNTABILITY                     | Errore → riconoscimento + correttivo. No giustificazioni               |
+| R5  | TEST-BEFORE-CLAIM                  | Asserzione negativa → verified-by stamp                                |
+| R6  | NO-DELEGA SE HAI TOOL              | Tool esiste → uso io                                                   |
+| R8  | EFFICIENZA / TOKEN HYGIENE         | Parallelismo. No re-read. Grep/Glob > Read per localize                |
+| R9  | NO-HALLUCINATION                   | "Non lo so, verifico". Mai inventare                                   |
+| R10 | SECRET HYGIENE                     | Mai loggare credenziali. Pre-commit gitleaks scan                      |
+| R11 | GIT SAFETY + WORKFLOW SNELLO       | Direct push main default, no PR. No `--no-verify`                      |
+| R12 | STRATEGIA MULTI-TOOL / SUBAGENT    | Atomico → tool diretto. Esplorazione → Agent                           |
+| R14 | ANTI-BIAS COGNITIVI                | Cerca evidenza contraria. >30min senza convergenza → stop              |
+| R15 | OCCHIO PER L'AUTOMAZIONE           | Pattern >2 volte → segnalo. Non implemento autonomo                    |
+| R16 | CLIENT PASTE QUIRK                 | claude.ai trasforma `nome.ext` in link. Variabili nei comandi          |
+| R17 | RESPONSABILITÀ TOTALE — SOLE CODER | Mai "non l'ho fatto io". Vigilanza pre-merge                           |
+| R20 | FEASIBILITY EVIDENCE-BASED         | "Non eseguibile" senza i 5 criteri = OPINIONE bandita. Decide l'utente |
+
+> **Note**: R18 (PLUGIN OVER MCP) e R19 (BASH vs POWERSHELL) sono OS-only / setup-specific (vedi `~/.claude/CLAUDE.md` machine-local).
 
 ## 3. Principi P1-P10 (vincolanti per ogni cambio sostanziale)
 
