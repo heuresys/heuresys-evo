@@ -17,10 +17,10 @@
 
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { getOpenAIClient, isAdvisorEnabled, readAdvisorConfig } from '@/lib/ontology/openai-client';
 import { checkCostCap, recordCost } from '@/lib/ontology/cost-tracker';
+import { requirePermissionApi } from '@/lib/authorize-api';
 
 const BodySchema = z.object({
   occupationId: z.string().uuid(),
@@ -30,10 +30,8 @@ const BodySchema = z.object({
 const SYSTEM_PROMPT = `You are a senior workforce-planning advisor with deep knowledge of the ESCO occupation taxonomy. Given an ESCO occupation and a question from a hiring/HR practitioner, respond in 2 short paragraphs (max 120 words each). Cite ESCO concepts by name where relevant. Avoid speculation about specific employers or salaries.`;
 
 export async function POST(req: Request) {
-  const session = await auth();
-  if (!session?.user) {
-    return NextResponse.json({ error: 'unauthenticated' }, { status: 401 });
-  }
+  const guard = await requirePermissionApi('ONTOLOGY', 'UPDATE');
+  if (!guard.ok) return guard.response;
 
   const cfg = readAdvisorConfig();
   if (!isAdvisorEnabled(cfg)) {

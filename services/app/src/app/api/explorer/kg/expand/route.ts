@@ -2,18 +2,16 @@
  * Phase 14 Sprint 3.G — GET /api/explorer/kg/expand?occupationId=<uuid>
  *
  * Returns the 1-hop neighbourhood (essential + optional skills) for an
- * ESCO occupation. Auth required; no tenant gate (ESCO is shared).
+ * ESCO occupation. Auth + RBP gate (S28-bis Wave 7 H5): EXPLORER area.
  */
 
 import { NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
+import { requirePermissionApi } from '@/lib/authorize-api';
 
 export async function GET(req: Request) {
-  const session = await auth();
-  if (!session?.user) {
-    return NextResponse.json({ error: 'unauthenticated' }, { status: 401 });
-  }
+  const guard = await requirePermissionApi('EXPLORER', 'READ');
+  if (!guard.ok) return guard.response;
   const url = new URL(req.url);
   const occupationId = url.searchParams.get('occupationId');
   if (!occupationId) {

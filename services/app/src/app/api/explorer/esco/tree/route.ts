@@ -2,19 +2,17 @@
  * Phase 14 Sprint 3.G — GET /api/explorer/esco/tree?parent=<uri>
  *
  * Returns child occupations for a given parent_uri, plus a `hasChildren`
- * boolean per child (one extra group-by query). Auth required; no RBP gate
- * yet (read-only, no tenant data — ESCO is shared knowledge graph).
+ * boolean per child (one extra group-by query). Auth + RBP gate
+ * (S28-bis Wave 7 H5): EXPLORER area, READ action.
  */
 
 import { NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
+import { requirePermissionApi } from '@/lib/authorize-api';
 
 export async function GET(req: Request) {
-  const session = await auth();
-  if (!session?.user) {
-    return NextResponse.json({ error: 'unauthenticated' }, { status: 401 });
-  }
+  const guard = await requirePermissionApi('EXPLORER', 'READ');
+  if (!guard.ok) return guard.response;
 
   const url = new URL(req.url);
   const parent = url.searchParams.get('parent');

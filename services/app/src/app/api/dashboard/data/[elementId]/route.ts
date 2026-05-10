@@ -17,10 +17,10 @@
  */
 
 import { NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { fetchWidgetData, type DataSourceConfig } from '@/lib/dashboard-engine/data-fetcher';
 import { userRoleLevel } from '@/lib/dashboard-engine/resolver';
+import { requirePermissionApi } from '@/lib/authorize-api';
 
 interface RouteContext {
   params: Promise<{ elementId: string }>;
@@ -36,17 +36,9 @@ function extractDataSource(overrides: unknown): DataSourceConfig | null {
 }
 
 export async function GET(_req: Request, ctx: RouteContext) {
-  const session = await auth();
-  if (!session?.user) {
-    return NextResponse.json({ error: 'unauthenticated' }, { status: 401 });
-  }
-
-  const user = session.user as {
-    role?: string;
-    tenantId?: string;
-    username?: string;
-    id?: string;
-  };
+  const guard = await requirePermissionApi('DASHBOARD', 'READ');
+  if (!guard.ok) return guard.response;
+  const { user } = guard;
 
   const { elementId } = await ctx.params;
   const idBig = (() => {

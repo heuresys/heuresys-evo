@@ -65,7 +65,7 @@ describe('GET /api/dashboard/data/[elementId] — auth gate', () => {
 
   it('400 when elementId is not a valid bigint', async () => {
     mockAuth.mockResolvedValueOnce({
-      user: { role: 'HR_DIRECTOR', tenantId: 'tenant-A' },
+      user: { role: 'HR_DIRECTOR', tenantId: 'tenant-A', id: 'user-1' },
     } as unknown as Awaited<ReturnType<typeof authModule.auth>>);
     const r = await GET(makeReq(), ctx('not-a-number'));
     expect(r.status).toBe(400);

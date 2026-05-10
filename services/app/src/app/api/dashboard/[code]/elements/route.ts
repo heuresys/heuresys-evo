@@ -16,9 +16,9 @@
 
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { auditedDashboardMutation } from '@/lib/audit/dashboard-audit';
+import { requirePermissionApi } from '@/lib/authorize-api';
 
 const UpdateSchema = z.object({
   id: z.string().regex(/^\d+$/, 'id must be a stringified BigInt'),
@@ -33,24 +33,16 @@ const BodySchema = z.object({
   updates: z.array(UpdateSchema).min(1).max(50),
 });
 
-const EDITOR_ROLES = new Set(['SUPERUSER', 'TENANT_OWNER', 'HR_DIRECTOR']);
-
 interface RouteContext {
   params: Promise<{ code: string }>;
 }
 
 export async function PUT(req: Request, ctx: RouteContext) {
-  const session = await auth();
-  if (!session?.user) {
-    return NextResponse.json({ error: 'unauthenticated' }, { status: 401 });
-  }
-  const user = session.user as { id?: string; role?: string; tenantId?: string };
-  if (!user.role || !EDITOR_ROLES.has(user.role)) {
-    return NextResponse.json({ error: 'forbidden' }, { status: 403 });
-  }
-  if (!user.tenantId || !user.id) {
-    return NextResponse.json({ error: 'missing_session_context' }, { status: 401 });
-  }
+  // S28-bis Wave 7 H5: RBP gate via requirePermissionApi (ALLOWED_ROLES_FOR_AREA
+  // DASHBOARD = SUPERUSER + TENANT_OWNER + HR_DIRECTOR — equivalente a ex EDITOR_ROLES).
+  const guard = await requirePermissionApi('DASHBOARD', 'UPDATE');
+  if (!guard.ok) return guard.response;
+  const { user } = guard;
 
   const { code } = await ctx.params;
 
