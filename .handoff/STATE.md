@@ -1,84 +1,108 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-11T23:15Z · S37 post-CASCADIA remediation ciclo COMPLETO (W1-W6) · 6 commit pushed
+> Updated: 2026-05-12T00:30Z · S37+S38 post-CASCADIA remediation · 8 commit pushed · ciclo W1-W6 completo (PARTIAL su W4 e W6)
 
 ## Last session brief
 
-**S37 autonomous (~5h FTE, 6 commit pushed)** — Post-CASCADIA remediation 6-Wave roadmap:
+**S37+S38 autonomous (~6h FTE total, 8 commit)** — Post-CASCADIA 6-Wave roadmap:
 
-| Wave | Scope | Status |
+| Wave | Status | Output |
 |---|---|---|
-| **W1** | Prisma schema reconciliation | ✅ DONE — kg_nodes + kg_edges added to services/app schema; tenant_id added to succession_candidates both schemas; validate+generate+typecheck PASS |
-| **W2** | 5 API endpoint quick-wins | ✅ DONE — /api/succession/candidates · /api/nine-box · /api/ccnl · /api/holidays · /api/explorer/kg/edges |
-| **W3** | data-fetcher type:'api' + widget wiring | ✅ DONE — fetchApi() implemented (next/headers cookies + AbortController timeout); BridgeCard bound to /api/succession/candidates via phase18m migration |
-| **W4** | _views/*.tsx Prisma binding | 🟡 PARTIAL — HrDirectorOverviewView succession-grid live via withTenant + succession_plans+candidates; readiness_level enum→% map; fallback fixture preserved. 6 other views + 4 process_* preset secondary remain static (carry-forward S38+) |
-| **W5** | M15 Chrome MCP visual walkthrough | 🟡 PROGRAMMATIC PASS — succession data verified all 4 tenant (RTL 98, SF 52, EN 32, HS 6); 1 widget api-bound. Chrome MCP visual screenshot 88 cells review deferred (richiede dev server + sessione live coordinata) |
-| **W6** | Functionality enhancement | 🟡 PARTIAL (1/5) — /api/industry endpoint shipped (JSON cache reader). 4 micro-features deferred S38+ (holidays widget UI, succession SLA badge, ITLAB leave validation hook, KG skill rec in /ontology) |
+| **W1** | ✅ DONE | Prisma reconciliation: kg_nodes + kg_edges + sc.tenant_id (both schemas). validate+regen+typecheck PASS |
+| **W2** | ✅ DONE | 5 endpoint quick-wins: /api/succession/candidates · /nine-box · /ccnl · /holidays · /explorer/kg/edges |
+| **W3** | ✅ DONE | data-fetcher type:'api' implemented (fetchApi + cookie forwarding + AbortController). BridgeCard bound via phase18m |
+| **W4** | 🟡 PARTIAL 2/7 | HrDirectorOverviewView + TenantOwnerOverviewView succession sections → live Prisma. 5 view rimanenti carry-forward S39+ |
+| **W5** | 🟡 PROGRAMMATIC | Data verified all 4 tenant (RTL 98 succession_candidates, SF 52, EN 32, HS 6). Visual Chrome MCP screenshot 88 cells deferred |
+| **W6** | 🟡 PARTIAL 3/5 | W6.1 /api/industry endpoint · W6.2 KG enrichment in advisor · W6.3 ITLAB CCNL compliance check in /leaves POST. W6.4 (SLA badge UI) + W6.5 (Holidays widget extension UI) carry-forward |
 
-## Commits timeline S37
+## Commits timeline S37+S38
 
-- `6d07272` — W1 Prisma schema reconciliation
-- `f7932d7` — W3 data-fetcher type:'api' + BridgeCard binding (phase18m)
-- `2196025` — W4 HrDirectorOverviewView succession-grid → live Prisma
-- (industry endpoint commit)
+S37:
+- `6d07272` W1 Prisma reconciliation
+- `2af1bbc` W2 5 endpoint quick-wins
+- `f7932d7` W3 data-fetcher api + BridgeCard
+- `2196025` W4 HrDirector succession → live Prisma
+- `98e53a4` W6.1 /api/industry endpoint
+- `fa637f5` S37 handoff
 
-Plus earlier S36 closure commits: `b98f847` STATE handoff · `1ce02d6` mock identities sweep · `b827300` S35.4 EcoNova+Heuresys · `5f522a9` S35.4 SmartFood · `53c917b` F-008 + ADR.
+S38:
+- `5458614` W4-cont TenantOwner top-succession → live Prisma
+- (this commit) W6.2 KG advisor enrichment + W6.3 CCNL compliance check
+- (final) S38 handoff
 
-## Cumulative 4-tenant CASCADIA coverage (post-S37)
+## Cumulative 4-tenant CASCADIA coverage (unchanged)
 
 | Tenant | Workforce | Assess | Succession | 9-box | KG Nodes | KG Edges |
 |---|---|---|---|---|---|---|
-| **rtl-bank** | 158 emp | 1859 | 98 | 157 | 209 | 1766 |
-| **smartfood** | 82 emp | 958 | 52 | 81 | 117 | 924 |
-| **econova** | 26 emp (jt deduped 454→62) | 296 | 32 | 25 | 103 | 289 |
-| **heuresys** | 4 emp | 27 | 6 (3 plans scaffold) | 2 | 38 | 23 |
+| **rtl-bank** | 158 | 1859 | 98 | 157 | 209 | 1766 |
+| **smartfood** | 82 | 958 | 52 | 81 | 117 | 924 |
+| **econova** | 26 (jt deduped) | 296 | 32 | 25 | 103 | 289 |
+| **heuresys** | 4 | 27 | 6 (3 plans scaffold) | 2 | 38 | 23 |
 
-## Verification (post-S37 final)
+## Live API surface post-S37+S38
 
-```bash
-# Typecheck both workspaces
-npx tsc --noEmit -p services/app/tsconfig.json && npx tsc --noEmit -p services/api-gateway/tsconfig.json
+- `/api/succession/candidates?tenant=` — TALPIPE list (DASHBOARD area)
+- `/api/nine-box?tenant=` — TALPIPE M11 grid view (DASHBOARD)
+- `/api/ccnl?sector=&include_levels=` — ITLAB catalog (EMPLOYEES)
+- `/api/holidays?year=&country=&region=` — ITLAB calendar (EXPLORER)
+- `/api/explorer/kg/edges?employeeId=` — ESKAP employee 1-hop (EXPLORER)
+- `/api/industry?tenant=` — INDOOR profile cache (EXPLORER)
+- `/api/ontology/advisor` — now KG-enriched prompt (REQUIRES_SKILL + ADJACENT_SKILL)
+- `/leaves` POST (api-gateway) — now CCNL-compliance advisory in response
 
-# Mock identities CI lint
-npm run lint:mock-identities && npm run lint:tenant-id
+## Migrations applied VM (cumulative)
 
-# Prisma client visibility kg_nodes/edges
-node -e "const{PrismaClient}=require('./services/app/prisma/generated/client'); const p=new PrismaClient(); Promise.all([p.kg_nodes.count(), p.kg_edges.count(), p.succession_candidates.findFirst()]).then(([n,e,s])=>{console.log('nodes:',n,'edges:',e,'sc.tenant_id:',s?.tenant_id?'OK':'MISSING');p.\$disconnect()})"
-# Expected: nodes:17260 edges:139451 sc.tenant_id:OK
+phase18d-l (S35+S36) · **phase18m** widget api binding (S37)
 
-# 5 endpoints (require dev server up + session)
-curl -sH "Cookie: <session>" http://localhost:3200/api/succession/candidates?tenant=<rtl-uuid> | jq '.data|length'
-# Expected: ≥1
+## Top priorities S39+ (carry-forward)
 
-# BridgeCard api binding
-ssh oracle-vm-default "sudo -u postgres psql -d heuresys_platform -At -c \"
-SELECT COUNT(*) FROM dashboard_elements WHERE widget_code='BridgeCard'
-AND config_overrides->'data_source'->>'type'='api'\""
-# Expected: 1
-```
+| # | Topic | Effort | Notes |
+|---|---|---|---|
+| 1 | **W4 completion** | ~2-3h | 5 view rimanenti (CrossTenant, Capability, EmployeeJourney, OrgSystems, SkillsHeatmap) Prisma binding. Pattern blueprint in commit 2196025 + 5458614 |
+| 2 | **W5 Chrome MCP visual** | ~1-2h | Dev server up + 88 cells screenshot. Sessione live coordinata |
+| 3 | **W3 extension** | ~1-2h | KgMiniGraph/CapabilityRadar/ProfileHero employee-context endpoint |
+| 4 | **W6 UI features** | ~1-2h | Succession SLA badge (packages/ui BrandBridgeCard) · Holidays widget extension (BrandActivityFeed) |
+| 5 | **§ 1.2 employees vertical-split Phase 2** | ~15-25h | Separate scope, audit 65 view dipendenze |
 
-## Migrations applied VM (cumulative S35-S37)
+## Stack snapshot (post-S38)
 
-phase18d ITLAB · phase18e PROGOV regulatory · phase18f ESKAP KG · phase18g F-008 persona_label · phase18h SmartFood enrichment · phase18i EcoNova+Heuresys enrichment · phase18j EcoNova jt dedupe · phase18k Heuresys succession scaffold · phase18l mock identities cleanup · **phase18m widget api binding** (S37 W3)
-
-## Top priorities S38+ (carry-forward)
-
-1. **W4 completion** (~2-4h) — 6 remaining `_views/*.tsx` Prisma binding + 4 process_* preset secondary. Pattern blueprint in HrDirectorOverviewView (commit `2196025`).
-2. **W5 Chrome MCP visual walkthrough live** (~1-2h) — 88 cells screenshot baseline. Richiede dev server + sessione live coordinata.
-3. **W3 extension** (~1-2h) — KgMiniGraph/CapabilityRadar/ProfileHero binding tramite endpoint employee-context-aware (richiede passare employeeId server-side).
-4. **W6 remaining 4 micro-features** (~1-2h) — holidays widget · SLA badge · ITLAB leave validation hook · KG skill rec.
-5. **§ 1.2 employees vertical-split Phase 2** (carry-forward documented) — 15-25h FTE.
-
-## Stack snapshot (post-S37 final)
-
-- Prisma schemas in sync con DBMS post-CASCADIA (kg_*, sc.tenant_id)
-- 5+1 nuovi API endpoint live: succession/candidates · nine-box · ccnl · holidays · explorer/kg/edges · industry
+- Prisma schemas in sync con DBMS post-CASCADIA (kg_*, sc.tenant_id) — both workspaces
+- 6 nuovi API endpoint live + 2 existing enhanced (advisor KG, leaves CCNL)
 - data-fetcher.ts supports type:'api' (Sprint 2 unblock)
 - Dashboard widget binding: 1/4 target widget api-bound (BridgeCard)
-- View server components: 1/7 Prisma-bound (HrDirector succession-grid)
+- View server components: 2/7 Prisma-bound (HrDirector + TenantOwner succession sections)
 - 4-tenant CASCADIA coverage stabile da S36
 - Tests: typecheck + lint:tenant-id + lint:mock-identities PASS
 - ADR archive: 30 entries
+
+## Verification (post-S38 final)
+
+```bash
+# Cross-workspace typecheck
+npx tsc --noEmit -p services/app/tsconfig.json && npx tsc --noEmit -p services/api-gateway/tsconfig.json
+
+# Lint CI guards
+npm run lint:mock-identities && npm run lint:tenant-id
+
+# Live API smoke (richiede dev server up + session)
+for endpoint in succession/candidates nine-box ccnl holidays explorer/kg/edges industry; do
+  curl -sH "Cookie: <session>" "http://localhost:3200/api/$endpoint?tenant=<rtl-uuid>" -o /dev/null -w "%{http_code} /api/$endpoint\n"
+done
+# Expected: 6x 200 (o 401 senza session valida)
+
+# Advisor KG enrichment
+curl -sH "Cookie: <session>" -X POST http://localhost:3200/api/ontology/advisor \
+  -H "Content-Type: application/json" \
+  -d '{"occupationId":"<uuid>","question":"What skills are critical?"}' | jq '.answer'
+# Expected: answer cites ESCO-grounded skills (REQUIRES_SKILL block injected)
+
+# Leaves CCNL compliance
+curl -sH "Cookie: <session>" -X POST http://localhost:8200/leaves \
+  -H "Content-Type: application/json" \
+  -d '{"leave_type":"vacation","start_date":"2026-06-01","end_date":"2026-06-15","days_requested":15}' \
+  | jq '.ccnl_compliance'
+# Expected: { ccnl_code, notice_days_provided, notice_days_required, compliant }
+```
 
 ## Riferimenti
 
@@ -86,5 +110,5 @@ phase18d ITLAB · phase18e PROGOV regulatory · phase18f ESKAP KG · phase18g F-
 - CASCADIA original: `~/.claude/plans/in-questa-fase-io-spicy-galaxy.md`
 - Lexicon SoT: `docs/_meta/lexicon.md`
 - ADR S35-S36: 0028 CASCADIA · 0029 ITLAB · 0030 Lexicon
-- Industry profiles: `db/seeds/realistic/_research_cache/{rtl_bank,smartfood,econova,heuresys}_industry_profile.json`
+- Industry profiles: `db/seeds/realistic/_research_cache/*.json`
 - Migrations S37: `db/migrations/phase18m_widget_api_binding.sql`
