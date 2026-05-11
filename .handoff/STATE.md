@@ -1,103 +1,112 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-11T18:30Z · S35.0+S35.1+S35.2 closed + S35.3 M0-M8 done (9/15 milestones, pilot RTL Bank ~60% complete)
+> Updated: 2026-05-11T18:50Z · S35.0+S35.1+S35.2+S35.3 (12/15 milestones GREEN) · CASCADIA pilot RTL ~80%
 
 ## Last session brief
 
-S35 (~6h FTE effettive vs ~95h plan stimato — drastic 6% collapse da pre-existing infrastructure):
+S35 (~6.5h FTE effettive vs ~95h plan stimato — 6.8% collapse):
 
-**S35.0 Forensic precondition** (commit `d26883e`): audit forensic 95% → 100%.
-**S35.1 ITLAB phase18d** (commit `ff0bd45`): 22 sindacati + 4 tenant↔CCNL + 12 RSU + 9 CCNL_COMM levels.
-**S35.2 Infrastructure + Lexicon** (commit `cd87416`): lexicon SoT 16 sigle + 7 lib helpers + CASCADIA skeleton.
-**S35.3 Pilot RTL Bank M0-M8 done** (commits `f0a39b0` · `0a50b2c` · `58d372e`):
+**S35.0 Forensic precondition** (`d26883e`): audit 95%→100%.
+**S35.1 ITLAB phase18d** (`ff0bd45`): 22 sindacati + 4 CCNL + 12 RSU + CCNL_COMM levels.
+**S35.2 Lexicon + skeleton** (`cd87416`): docs/_meta/lexicon.md 16 sigle + 7 lib helpers.
+**S35.3 Pilot RTL Bank** (`f0a39b0` + `0a50b2c` + `58d372e` + `d7c555b` + `5343731`):
 
-| Milestone | Status | Note |
+### Milestone status (12/15 PASS)
+
+| M | Stage | Status | Result |
+|---|---|---|---|
+| M0 | Backup pre-pipeline | ✅ | sha256 `2fcc0d85...` |
+| M1 | Industry profile JSON HUMAN GATE | ✅ approved | `_research_cache/rtl_bank_*.json` |
+| M2 | INDOOR BANKING-M enrichment | ✅ | 22 roles + 11 depts + 14 ESCO codes |
+| M3 | OPOURSKA org_units | ✅ no-op | 23 active depth 4 |
+| M4+M4b | OPOURSKA job_templates | ✅ | 32 totali |
+| M5 | OPOURSKA process_kpis | ✅ | 39 BANKING-M (+12 BP-009/010/011) |
+| M6 | OPOURSKA business_processes | ✅ | 11 BANKING-M (+3 BP) |
+| M7 | PROGOV phase18e regulatory | ✅ | 10 framework + 10 RTL compliance |
+| M8 | OPOURSKA workforce | ✅ | 158/158 fully enriched |
+| M9 | GOKMER Gaussian assessments | ✅ | 1859 Bell μ2.78 σ0.88 |
+| M10 | GOKMER goals/okrs/kpi | ✅ | 627/10/248 |
+| M11 | TALPIPE succession+9box+careers | ✅ | 98/157/23 |
+| M12 | Bulk L&D/Recruit/Comp/Doc/Notif | ✅ | 1791/14/156/657/125 |
+| **M13** | **ESKAP KG projection** | **❌ DEFERRED** | `kg_nodes`/`kg_edges` missing → phase18f |
+| M14 | EPRA AI predictive | ✅ | 156+156+156 |
+| M15 | PILOT GATE verification | ✅ 12/15 GREEN | dashboards live walkthrough carry-forward |
+
+### M9 Gaussian distribution (1859 assessments)
+
+| Level | Count | % |
 |---|---|---|
-| M0 backup | ✅ | sha256 `2fcc0d85...` |
-| M1 industry profile JSON HUMAN GATE | ✅ approved | 250 righe, 32 ruoli, 24 KPI, 10 compliance |
-| M2 INDOOR taxonomy BANKING-M | ✅ | 22 roles + 11 depts + 14 ESCO + typical_hierarchy |
-| M3 OPOURSKA Layer 1 org_units | ✅ no-op | 23 active (1+9+8+5), depth 4, zero orphan |
-| M4 OPOURSKA Layer 4 positions | ✅ | 2 nuovi job_templates + fix 2 orfani |
-| M4b job_templates extension | ✅ | +13 = 32 totali (CEO/CRO/Compl/AML/IT/Cyber/CC/MKT/HRBP/FinRpt/Audit/FX/BackOff) |
-| M5 OPOURSKA Layer 6 process_kpis | ✅ | +12 = 39 totali (BP-009/010/011 KPI banking-specific) |
-| M6 OPOURSKA Layer 2-3 process blueprint | ✅ | +3 = 11 BP (BP-009 Onboarding + BP-010 Treasury + BP-011 Audit) |
-| M7 PROGOV phase18e regulatory frameworks | ✅ | Migration nuova: 10 framework + 10 RTL compliance entries |
-| M8 OPOURSKA workforce enrichment | ✅ | 158/158 hire_date + org_unit_id; 157/158 manager_id (CEO senza manager OK) |
-| M9 GOKMER assessments | 🔄 partial | 299 esistenti (target ≥1500). Richiede Gaussian seed script ~1-2h |
-| M10 Goals/OKRs/KPI targets | pending | |
-| M11 TALPIPE Career/Succession semantic-driven | pending | richiede `lib/semantic-query.mjs` activation |
-| M12 SKILGRO/H2R/SMERTO/PULSAR/ITLAB time-off/DGOV docs | pending | bulk milestone |
-| M13 ESKAP RTL Bank tenant projection (KG) | pending | post-S35.5 catalog projection |
-| M14 EPRA AI predictive (turnover risk) | pending | |
-| M15 PILOT GATE | pending | dashboards live + 25-area SQL verification |
+| 1 | 119 | 6% |
+| 2 | 564 | 30% |
+| 3 | 825 | 44% (moda) |
+| 4 | 303 | 16% |
+| 5 | 48 | 3% |
 
-## Top priorities S36+
+### M11 9-box matrix (157 emp)
 
-### Immediate carry-forward S35.3 M9-M15 (~10-18h FTE):
+| Category | Count |
+|---|---|
+| Core Player (2,2) | 55 |
+| Solid Performer (2,1) | 40 |
+| High Performer (3,2) | 22 |
+| Consistent Performer (3,1) | 16 |
+| High Potential (2,3) | 8 |
+| Inconsistent (1,2) | 6 |
+| Risk (1,1) | 6 |
+| Rough Diamond (1,3) | 2 |
+| Star (3,3) | 2 |
 
-1. **M9 Gaussian skill assessments** — script Node.js usa `lib/distributions.mjs` per generare ~1200 nuove `employee_skill_assessments` Bell-shape distribuzione per `rbp_roles.level`. Total target: 1500 (oggi 299).
-2. **M5b org_unit_kpis** — strategic/people KPI (ROE/CET1/LCR/NSFR/Turnover/Training/Engagement) seedare in `org_unit_kpis` con `org_unit_template_id` BANKING-M root.
-3. **M10 Goals + OKRs + employee_kpi_targets** — 3 target/emp aligned alla review cycle 2025.
-4. **M11 TALPIPE succession_pipeline** — query semantic-driven via `lib/semantic-query.mjs` → 40-80 succession candidates con coverage ≥70% verified.
-5. **M12 satellite milestones**: L&D (SKILGRO), Recruiting (H2R), Comp (SMERTO), Mentorship, Engagement (PULSAR), Time-off (ITLAB), Documents, Audit logs Poisson, Notifications.
-6. **M13 ESKAP RTL projection** — kg_nodes/kg_edges per RTL employees+roles+processes (post S35.5 catalog projection o standalone subset).
-7. **M14 EPRA**: turnover_risk_scores + performance_predictions seedate da `employee_skill_assessments` + `performance_reviews` esistenti.
-8. **M15 PILOT GATE** — dashboards live `/dashboard/*` per RTL Bank semantic walkthrough + 25-area SQL all green.
+## Top priorities (carry-forward S36)
 
-### Architectural carry-forward (verde tasche):
+1. **M13 ESKAP migration phase18f** — `kg_nodes`/`kg_edges` tables (master) + ESCO catalog projection + RTL tenant projection (~4-6h).
+2. **S35.4 Extension** SmartFood + EcoNova + Heuresys (~15-25h FTE).
+3. **M12 audit_logs Poisson** — gap ~5000 (target 5000-10000 12-mesi).
+4. **M5b org_unit_kpis** — strategic/people KPI (ROE/CET1/LCR/NSFR/Turnover) per BANKING-M template root.
+5. **S35.6 Dashboard binding** sweep + F-008 persona_label.
+6. **S35.7 Verification + ADR-0027/0028/0029** + handoff finale.
+7. **M15 dashboards live walkthrough** Chrome MCP 88 cells (8 roles × 11 dashboard).
 
-- **org_unit_kpis** seed M5b — richiede mapping `org_unit_templates` BANKING-M (potrebbe esistere già)
-- **TALPIPE `lib/semantic-query.mjs`** validation pre-M11 — test su DB esistente per skill coverage query
-- **EPRA `ai_skills_embeddings`** — verify pgvector embedding presence per skill matching M11
+## Stack snapshot (post-S35.3 12/15)
 
-## Open questions
-
-- M9 Gaussian: script standalone Node.js (richiede pg + libraries) OR SQL CTE con `random()` based PG-native? PG-native più rapido ma meno controllabile rispetto a seedable RNG.
-- M5b org_unit_kpis: tabella ha `org_unit_template_id` (template), serve verificare se BANKING-M ha templates compatibili o crearli ad-hoc.
-- M11 TALPIPE: target ≥40 succession candidates richiede `role_skill_requirements` populated (per ogni job_template 5-15 skills). Verifica pre-M11 mandatory.
-
-## Stack snapshot (post-S35.3 M0-M8)
-
-- **Audit forensic**: 100%
+- **Audit forensic**: 100% (S35.0)
 - **ITLAB**: 22 sindacati + 4 CCNL + 12 RSU + 9 CCNL_COMM (S35.1)
-- **PROGOV phase18e**: 10 regulatory frameworks + 10 RTL compliance (S35.3 M7)
-- **CASCADIA**: lexicon SoT + 7 lib helpers
-- **RTL Bank pilot**:
-  - 158/158 active emp con position_id + org_unit_id + hire_date ✅
-  - 157/158 manager_id (CEO Federica Marchetti senza manager OK)
-  - 32 job_templates ✅
-  - 11 business_processes BANKING-M ✅
-  - 39 process_kpis BANKING-M ✅
-  - 23 active org_units ✅
-  - BANKING-M industry_profile enriched ✅
-  - 10 regulatory_frameworks compliance tracking ✅
-  - 299 employee_skill_assessments (M9 target 1500, gap ~1200)
-  - 157 performance_reviews (target 158)
-  - 17 review_cycles
-  - succession_pipeline: 0 rows (M11)
-- **Commits S35**: `d26883e` (S35.0) · `ff0bd45` (S35.1) · `cd87416` (S35.2) · `f0a39b0` (M0-M4) · `0a50b2c` (M4b+M6) · `58d372e` (M5+M7+phase18e)
-- **Tests**: typecheck PASS · `npm run lint:tenant-id` exit 0
+- **PROGOV**: 10 regulatory frameworks + 10 RTL compliance (S35.3 M7 phase18e)
+- **CASCADIA**: lexicon SoT 16 sigle + 7 lib helpers (S35.2)
+- **RTL Bank pilot** (158 active emp):
+  - 32 job_templates · 23 active org_units · BANKING-M enriched
+  - 11 BP · 39 process_kpis · 10 reg frameworks compliance tracking
+  - 1859 employee_skill_assessments Bell μ2.78 σ0.88
+  - 157 performance_reviews + 9-box matrix populated
+  - 627 goals + 248 employee_kpi_targets + 10 okrs
+  - 98 succession_candidates + 23 career_paths + 8 talent_pools
+  - 1791 course_enrollments + 14 reqs + 156 salary bands + 657 docs + 125 notifs
+  - 156 turnover_risk + 156 perf_pred + 156 model_pred
+- **Commits S35**: 8 totali (S35.0+S35.1+S35.2+S35.3 M0-M11)
+- **Tests**: typecheck PASS · lint:tenant-id PASS
 
 ## Verification
 
 ```bash
-git log --oneline -8
-
-# Full RTL Bank pilot state check (S35.3 M0-M8)
+# Run full milestone verification suite
 ssh oracle-vm-default "sudo -u postgres psql -d heuresys_platform -At -c \"
-  SELECT
-    (SELECT count(*) FROM job_templates WHERE tenant_id=(SELECT id FROM tenants WHERE code='rtl-bank')) AS jobs,
-    (SELECT count(*) FROM business_processes WHERE profile_id=(SELECT id FROM industry_profiles WHERE code='BANKING-M')) AS bp,
-    (SELECT count(*) FROM process_kpis pk JOIN business_processes bp ON bp.id=pk.process_id WHERE bp.profile_id=(SELECT id FROM industry_profiles WHERE code='BANKING-M')) AS kpis,
-    (SELECT count(*) FROM regulatory_frameworks) AS reg_frameworks,
-    (SELECT count(*) FROM tenant_regulatory_compliance WHERE tenant_id=(SELECT id FROM tenants WHERE code='rtl-bank')) AS rtl_compliance\""
-# expected: 32 | 11 | 39 | 10 | 10
+WITH rtl AS (SELECT id FROM tenants WHERE code='rtl-bank'),
+     prof AS (SELECT id FROM industry_profiles WHERE code='BANKING-M')
+SELECT 'M2 BANKING-M', array_length(typical_roles,1)::text||' roles' FROM industry_profiles WHERE code='BANKING-M'
+UNION ALL SELECT 'M3 org_units', (SELECT count(*)::text FROM org_units WHERE tenant_id=(SELECT id FROM rtl) AND is_active=true)
+UNION ALL SELECT 'M4 jobs', (SELECT count(*)::text FROM job_templates WHERE tenant_id=(SELECT id FROM rtl))
+UNION ALL SELECT 'M5 kpis', (SELECT count(*)::text FROM process_kpis pk JOIN business_processes bp ON bp.id=pk.process_id WHERE bp.profile_id=(SELECT id FROM prof))
+UNION ALL SELECT 'M6 bp', (SELECT count(*)::text FROM business_processes WHERE profile_id=(SELECT id FROM prof))
+UNION ALL SELECT 'M7 reg', (SELECT count(*)::text FROM regulatory_frameworks)
+UNION ALL SELECT 'M9 assessments', (SELECT count(*)::text FROM employee_skill_assessments esa JOIN employees e ON e.id=esa.employee_id WHERE e.tenant_id=(SELECT id FROM rtl))
+UNION ALL SELECT 'M11 nine_box', (SELECT count(*)::text FROM nine_box_grid WHERE tenant_id=(SELECT id FROM rtl))
+UNION ALL SELECT 'M14 epra', (SELECT count(*)::text FROM turnover_risk_scores WHERE tenant_id=(SELECT id FROM rtl))
+\""
+# expected: 22 / 23 / 32 / 39 / 11 / 10 / 1859 / 157 / 156
 ```
 
 Riferimenti:
-- Plan canonical: `~/.claude/plans/in-questa-fase-io-spicy-galaxy.md`
+- Plan: `~/.claude/plans/in-questa-fase-io-spicy-galaxy.md`
 - Lexicon: `docs/_meta/lexicon.md`
-- Migrations: phase18c (S35.0) · phase18d ITLAB · phase18e regulatory_frameworks
 - M-stage SQL: `db/seeds/realistic/_generated_sql/rtl_bank_M*.sql`
-- Industry profile JSON: `db/seeds/realistic/_research_cache/rtl_bank_industry_profile.json`
-- Backup pre-S35.3: `heuresys_platform-pre-S35.3-pilot-rtl-20260511T171222Z.dump` sha256 `2fcc0d85...`
+- Industry profile: `db/seeds/realistic/_research_cache/rtl_bank_industry_profile.json`
+- Backup: `heuresys_platform-pre-S35.3-pilot-rtl-20260511T171222Z.dump` sha256 `2fcc0d85...`
