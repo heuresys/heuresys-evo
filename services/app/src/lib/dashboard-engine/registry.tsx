@@ -99,13 +99,14 @@ const SuccessionCardWidget: WidgetComponent = lazyWidget(() =>
     default: liveWrapper(
       'SuccessionCard',
       {
-        candidateName: 'Stefania Bianchi',
-        currentRole: 'Head Credit Risk',
-        targetRole: 'Director Risk & Analytics',
-        readinessPercent: 88,
-        readiness: 'ready-now' as const,
-        risk: 'low' as const,
-        readyBy: '2026 Q3',
+        // Generic placeholder — actual data via useWidgetData from succession_candidates+plans
+        candidateName: '—',
+        currentRole: 'Current role',
+        targetRole: 'Target role',
+        readinessPercent: 0,
+        readiness: 'development_needed' as const,
+        risk: 'medium' as const,
+        readyBy: '—',
       },
       (props) => <m.BrandSuccessionCard {...props} />
     ),
@@ -252,13 +253,14 @@ const ActivityFeedWidget: WidgetComponent = lazyWidget(() =>
     default: liveWrapper(
       'ActivityFeed',
       {
+        // Generic placeholder — actual data via useWidgetData from audit_logs
         title: 'Activity feed',
         live: true,
         items: [
           { id: '1', when: '2 min ago', what: 'New review cycle started', who: 'HR Director' },
           { id: '2', when: '12 min ago', what: 'Skill assessment imported', who: 'system' },
-          { id: '3', when: '34 min ago', what: 'Goal cascade published', who: 'Maria Rossi' },
-          { id: '4', when: '1 h ago', what: 'Onboarding kickoff', who: 'Luca Bianchi' },
+          { id: '3', when: '34 min ago', what: 'Goal cascade published', who: 'Manager' },
+          { id: '4', when: '1 h ago', what: 'Onboarding kickoff', who: 'HR Operations' },
         ],
       },
       (props) => <m.BrandActivityFeed {...props} />
@@ -349,17 +351,18 @@ const ProfileHeroWidget: WidgetComponent = lazyWidget(() =>
     default: liveWrapper(
       'ProfileHero',
       {
-        name: 'Gabriele Amato',
-        sub: 'Risk Analyst · Credit Risk · 4.2 yr tenure',
+        // Generic placeholder — actual data via useWidgetData from employees + assessments
+        name: '—',
+        sub: 'Role · Department · tenure',
         badges: [
-          { kind: 'role' as const, label: 'Analyst' },
-          { kind: 'dept' as const, label: 'Credit Risk' },
-          { kind: 'tenure' as const, label: '4y 2m' },
+          { kind: 'role' as const, label: 'Role' },
+          { kind: 'dept' as const, label: 'Department' },
+          { kind: 'tenure' as const, label: '—' },
         ],
         stats: [
-          { id: 'cap', label: 'CAPABILITY', value: 78, unit: '%' },
-          { id: 'goals', label: 'GOALS Q4', value: 4, unit: '/5' },
-          { id: 'next', label: 'NEXT REVIEW', value: '12d' },
+          { id: 'cap', label: 'CAPABILITY', value: 0, unit: '%' },
+          { id: 'goals', label: 'GOALS Q4', value: 0, unit: '/5' },
+          { id: 'next', label: 'NEXT REVIEW', value: '—' },
         ],
       },
       (props) => <m.BrandProfileHero {...props} />
@@ -372,15 +375,16 @@ const TenantCardWidget: WidgetComponent = lazyWidget(() =>
     default: liveWrapper(
       'TenantCard',
       {
-        name: 'RTL Bank',
-        tid: 'rtl-bank · 270 employees',
+        // Generic placeholder — actual data via useWidgetData from tenants + employees count
+        name: 'Tenant',
+        tid: '— · 0 employees',
         kind: 'tenant' as const,
         rows: [
-          { label: 'INDUSTRY', value: 'Banking' },
-          { label: 'PLAN', value: 'Enterprise' },
-          { label: 'STATUS', value: 'active', success: true },
+          { label: 'INDUSTRY', value: '—' },
+          { label: 'PLAN', value: '—' },
+          { label: 'STATUS', value: '—', success: false },
         ],
-        health: { label: 'all systems healthy', strong: 'OK', tone: 'ok' as const },
+        health: { label: 'pending data', strong: '—', tone: 'info' as const },
       },
       (props) => <m.BrandTenantCard {...props} />
     ),

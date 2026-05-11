@@ -223,14 +223,14 @@ export default async function TenantOwnerOverviewView({
         {[
           {
             role: 'Head Credit Risk',
-            name: 'Stefania Bianchi',
+            name: 'Senior credit analyst',
             score: '92',
             risk: 'low' as const,
             ready: 'ready-now',
           },
           {
             role: 'Head Quant Analytics',
-            name: 'Gabriele Amato',
+            name: 'Lead analyst',
             score: '88',
             risk: 'low' as const,
             ready: 'ready-now',

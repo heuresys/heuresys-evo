@@ -25,7 +25,8 @@
     "test:coverage": "vitest run --coverage",
     "brand:icons": "node scripts/brand/generate-icons.mjs",
     "lint:tenant-id": "bash scripts/hardening/lint-tenant-id.sh",
-    "lint:tenant-id:staged": "bash scripts/hardening/lint-tenant-id.sh --staged"
+    "lint:tenant-id:staged": "bash scripts/hardening/lint-tenant-id.sh --staged",
+    "lint:mock-identities": "bash scripts/hardening/lint-mock-identities.sh"
   },
   "engines": {
     "node": ">=20.0.0",

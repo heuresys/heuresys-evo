@@ -206,8 +206,7 @@ export default async function HrDirectorOverviewView({
                 ago: '38 min',
                 what: (
                   <>
-                    <strong>succession.add</strong> · Gabriele Amato → Head Quant Analytics
-                    ready-now
+                    <strong>succession.add</strong> · Lead analyst → Head Quant Analytics ready-now
                   </>
                 ),
                 who: '@maria.c · CHRO',
@@ -260,7 +259,7 @@ export default async function HrDirectorOverviewView({
         {[
           {
             role: 'Head Risk Modelling',
-            name: 'Stefania Bianchi',
+            name: 'Senior risk analyst',
             readiness: 92,
             risk: 'low' as const,
           },
