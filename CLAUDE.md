@@ -99,10 +99,10 @@ cd services/app && npx prisma migrate status              # drift check
 
 ## Domini
 
-| Dominio                                                  | Repo                      | Stack   | FE port | API port | DB port           |
-| -------------------------------------------------------- | ------------------------- | ------- | ------- | -------- | ----------------- |
-| `evo.heuresys.com` (HTTPS)                               | questo                    | systemd | 3200    | 8200     | 5432 (bare-metal) |
-| `www.heuresys.com`, `heuresys.com` (pending DNS+certbot) | `heuresys.com.evo` legacy | systemd | 3012    | 8012     | 5433 (bare-metal) |
+| Dominio                                    | Repo                      | Stack          | FE port | API port | DB port           |
+| ------------------------------------------ | ------------------------- | -------------- | ------- | -------- | ----------------- |
+| `evo.heuresys.com` (HTTPS)                 | questo                    | systemd        | 3200    | 8200     | 5432 (bare-metal) |
+| `www.heuresys.com`, `heuresys.com` (HTTPS) | `heuresys.com.evo` legacy | Docker compose | 3012    | 8012     | 5433 (bare-metal) |
 
 VM: `oracle-vm-default` (IP 80.225.82.207). nginx vhosts in `/etc/nginx/sites-available/`.
 
