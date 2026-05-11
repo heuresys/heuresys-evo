@@ -1,7 +1,74 @@
 /**
  * /dashboard view — HR Director Overview (preset_code = 'hr_director_overview' · HR_DIRECTOR).
  * Brand-fedele al mockup .ux-design/06-mockups/dashboards/hr-director-overview.html.
+ *
+ * S37 W4: succession-grid section now data-bound via succession_plans + succession_candidates
+ * (CASCADIA TALPIPE post-S35.4). Skill-gap + activity-feed remain static fixtures
+ * (carry-forward S38+ — gap calc + audit_logs feed require additional aggregation logic).
  */
+import { auth } from '@/lib/auth';
+import { withTenant } from '@/lib/db';
+
+type SuccessionRow = {
+  role: string;
+  name: string;
+  readiness: number;
+  risk: 'low' | 'medium' | 'high';
+};
+
+async function fetchSuccessionRows(tenantId: string | null): Promise<SuccessionRow[]> {
+  if (!tenantId) return [];
+  try {
+    return await withTenant(tenantId, async (tx) => {
+      const plans = await tx.succession_plans.findMany({
+        where: { tenant_id: tenantId, status: 'active' },
+        orderBy: [{ criticality_level: 'asc' }, { target_date: 'asc' }],
+        take: 4,
+        select: { id: true, position_name: true, criticality_level: true, risk_level: true },
+      });
+      if (plans.length === 0) return [];
+
+      const planIds = plans.map((p) => p.id);
+      const topCandidates = await tx.succession_candidates.findMany({
+        where: { critical_role_id: { in: planIds } },
+        orderBy: [{ rank_order: 'asc' }],
+      });
+      const candidateByPlan = new Map<string, typeof topCandidates>();
+      for (const c of topCandidates) {
+        if (!c.critical_role_id) continue;
+        const arr = candidateByPlan.get(c.critical_role_id) ?? [];
+        arr.push(c);
+        candidateByPlan.set(c.critical_role_id, arr);
+      }
+
+      // Readiness % derivation from readiness_level enum
+      const readinessMap: Record<string, number> = {
+        ready_now: 92,
+        ready_1_year: 78,
+        ready_2_years: 62,
+        ready_3_years: 48,
+        ready_3_plus_years: 35,
+        development_needed: 25,
+      };
+
+      return plans.map<SuccessionRow>((p) => {
+        const top = candidateByPlan.get(p.id)?.[0];
+        const readiness = readinessMap[top?.readiness_level ?? 'development_needed'] ?? 50;
+        const risk: SuccessionRow['risk'] =
+          p.risk_level === 'high' ? 'high' : p.risk_level === 'low' ? 'low' : 'medium';
+        return {
+          role: p.position_name,
+          name: 'Top candidate',
+          readiness,
+          risk,
+        };
+      });
+    });
+  } catch {
+    return [];
+  }
+}
+
 export default async function HrDirectorOverviewView({
   role,
   tenantName,
@@ -9,6 +76,26 @@ export default async function HrDirectorOverviewView({
   role: string;
   tenantName: string;
 }) {
+  const session = await auth();
+  const tenantId = (session?.user as { tenantId?: string } | undefined)?.tenantId ?? null;
+  const successionLive = await fetchSuccessionRows(tenantId);
+
+  // Fallback fixture preserva il layout brand-fedele quando DB non popolato
+  const successionRows: SuccessionRow[] =
+    successionLive.length > 0
+      ? successionLive
+      : [
+          { role: 'Head Risk Modelling', name: 'Senior risk analyst', readiness: 92, risk: 'low' },
+          { role: 'IT Architect Lead', name: 'Lead architect', readiness: 88, risk: 'low' },
+          {
+            role: 'Head Compliance',
+            name: 'Senior compliance officer',
+            readiness: 84,
+            risk: 'medium',
+          },
+          { role: 'HR Business Partner', name: 'Senior HRBP', readiness: 79, risk: 'medium' },
+        ];
+
   return (
     <>
       <header className="ws-header">
@@ -256,32 +343,7 @@ export default async function HrDirectorOverviewView({
         <span className="meta">4 critical roles · candidate overlap</span>
       </div>
       <div className="succession-grid">
-        {[
-          {
-            role: 'Head Risk Modelling',
-            name: 'Senior risk analyst',
-            readiness: 92,
-            risk: 'low' as const,
-          },
-          {
-            role: 'IT Architect Lead',
-            name: 'Davide Ferrara',
-            readiness: 88,
-            risk: 'low' as const,
-          },
-          {
-            role: 'Head Compliance',
-            name: 'Federica Marchetti',
-            readiness: 84,
-            risk: 'medium' as const,
-          },
-          {
-            role: 'HR Business Partner',
-            name: 'Sergio Bianchi',
-            readiness: 79,
-            risk: 'medium' as const,
-          },
-        ].map((s) => (
+        {successionRows.map((s) => (
           <article key={s.role} className="succession-card">
             <div className="role">{s.role}</div>
             <h3>{s.name}</h3>
