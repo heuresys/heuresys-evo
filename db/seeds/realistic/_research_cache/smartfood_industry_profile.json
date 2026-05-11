@@ -1,0 +1,839 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-05-11T19:30:00Z",
+  "generation_method": "claude-opus-4-7-reasoning-S35.4",
+  "generation_notes": "AI-advisor generation using Claude Opus 4.7 (knowledge cutoff Jan 2026). ESCO ISCO occupations grounded via heuresys_platform.esco_occupations catalog. CCNL Alimentari Industria references public Federalimentare/ABI rinnovo 2023-2026. Pattern equivalent to RTL pilot RTL bootstrap (same schema, same scope).",
+  "tenant_code": "smartfood",
+  "tenant_name": "SmartFood S.p.A.",
+
+  "industry_classification": {
+    "nace_class_code": "C.10",
+    "nace_label_it": "Industrie alimentari",
+    "nace_label_en": "Manufacture of food products",
+    "nace_subclasses_primary": ["C.10.85", "C.10.71"],
+    "nace_subclasses_label_it": [
+      "Produzione di pasti e piatti preparati (ready meals)",
+      "Produzione di pane e prodotti di pasticceria freschi"
+    ],
+    "ateco_code": "10.85.01",
+    "ateco_label_it": "Produzione di piatti pronti a base di carne e pollame",
+    "sub_industry": [
+      "Ready-to-eat meals manufacturing",
+      "Frozen food production",
+      "Bakery and confectionery",
+      "Dairy and cheese processing",
+      "Cold chain logistics",
+      "Private label production"
+    ],
+    "company_size_code": "M",
+    "company_size_label": "Medium (50-500 FTE)",
+    "geography": "Italy, multi-site (Emilia-Romagna HQ + Veneto + Lazio production plants)"
+  },
+
+  "workforce_baseline": {
+    "total_employees_canonical": 82,
+    "org_depth_typical": 4,
+    "span_of_control_max": 12,
+    "span_of_control_typical": 6,
+    "fte_by_function": {
+      "production_operations": 0.45,
+      "quality_haccp": 0.1,
+      "rd_food_innovation": 0.08,
+      "supply_chain_logistics": 0.12,
+      "sales_marketing": 0.1,
+      "finance_admin": 0.06,
+      "it_systems": 0.04,
+      "hr_legal": 0.05
+    },
+    "seniority_distribution": {
+      "executive": 0.04,
+      "senior_management": 0.08,
+      "middle_management": 0.18,
+      "technical_specialist": 0.2,
+      "operator_skilled": 0.4,
+      "operator_general": 0.1
+    },
+    "geographic_distribution": {
+      "headquarters_bologna": 0.35,
+      "production_plant_verona": 0.4,
+      "production_plant_latina": 0.2,
+      "remote_sales": 0.05
+    },
+    "shift_pattern": {
+      "single_shift": 0.3,
+      "double_shift": 0.5,
+      "triple_shift_continuous": 0.2,
+      "note": "Production plants operate 2-3 shifts; HQ single shift"
+    }
+  },
+
+  "org_structure_template": {
+    "root": {
+      "role_code": "CEO",
+      "title": "Amministratore Delegato",
+      "reports_to": "Board of Directors / Shareholders"
+    },
+    "depth_1_divisions": [
+      {
+        "code": "OPS",
+        "title": "Direzione Operations & Produzione",
+        "fte_share": 0.45,
+        "head_role": "Chief Operations Officer (COO)",
+        "child_units": [
+          "Plant Verona",
+          "Plant Latina",
+          "Production Planning",
+          "Maintenance & Engineering",
+          "Cold Chain Logistics"
+        ]
+      },
+      {
+        "code": "QHSE",
+        "title": "Direzione Quality / Safety / Environment",
+        "fte_share": 0.1,
+        "head_role": "QHSE Director",
+        "child_units": [
+          "HACCP Team",
+          "Quality Control Lab",
+          "Food Safety Audits",
+          "Environment & Sustainability",
+          "Health & Safety (D.Lgs 81/2008)"
+        ]
+      },
+      {
+        "code": "RDI",
+        "title": "Direzione Ricerca, Sviluppo & Innovazione",
+        "fte_share": 0.08,
+        "head_role": "R&D Director",
+        "child_units": [
+          "Recipe Development",
+          "Packaging Innovation",
+          "Shelf-Life Studies",
+          "Sensory Analysis"
+        ]
+      },
+      {
+        "code": "SCM",
+        "title": "Direzione Supply Chain & Procurement",
+        "fte_share": 0.12,
+        "head_role": "Supply Chain Director",
+        "child_units": [
+          "Procurement (raw materials)",
+          "Warehouse Management",
+          "Distribution",
+          "S&OP Planning"
+        ]
+      },
+      {
+        "code": "COM",
+        "title": "Direzione Commerciale & Marketing",
+        "fte_share": 0.1,
+        "head_role": "Sales & Marketing Director",
+        "child_units": ["Key Account (GDO)", "Export", "Private Label", "Trade Marketing", "Brand"]
+      },
+      {
+        "code": "FIN",
+        "title": "Direzione Amministrazione, Finanza & Controllo",
+        "fte_share": 0.06,
+        "head_role": "CFO",
+        "child_units": ["Contabilità", "Controllo di Gestione", "Tesoreria", "Tax & Audit"]
+      },
+      {
+        "code": "ICT",
+        "title": "Direzione ICT & Digital",
+        "fte_share": 0.04,
+        "head_role": "IT Manager",
+        "child_units": [
+          "ERP (SAP)",
+          "Production Systems (MES)",
+          "Cybersecurity",
+          "Digital Transformation"
+        ]
+      },
+      {
+        "code": "HR",
+        "title": "Direzione HR & Legal",
+        "fte_share": 0.05,
+        "head_role": "HR Director",
+        "child_units": ["Talent Acquisition", "Payroll", "HSE Training", "Legal & Compliance"]
+      }
+    ]
+  },
+
+  "process_blueprint": {
+    "value_chain_primary": [
+      {
+        "code": "BP-FOOD-INBOUND",
+        "name_it": "Approvvigionamento materie prime",
+        "criticality": "HIGH",
+        "phases": ["Supplier qualification", "Order management", "Receiving & QC", "Storage"]
+      },
+      {
+        "code": "BP-FOOD-PRODUCTION",
+        "name_it": "Produzione e trasformazione",
+        "criticality": "CRITICAL",
+        "phases": ["Recipe execution", "Cooking/processing", "Packaging", "Lot coding"]
+      },
+      {
+        "code": "BP-FOOD-QC",
+        "name_it": "Controllo qualità in-line",
+        "criticality": "CRITICAL",
+        "phases": ["Sampling", "Microbiological tests", "Sensory analysis", "Release/hold decision"]
+      },
+      {
+        "code": "BP-FOOD-COLDCHAIN",
+        "name_it": "Cold chain & distribuzione",
+        "criticality": "HIGH",
+        "phases": [
+          "Storage temp monitoring",
+          "Order picking",
+          "Cold transport",
+          "Delivery confirmation"
+        ]
+      },
+      {
+        "code": "BP-FOOD-SALES",
+        "name_it": "Gestione ordini GDO + export",
+        "criticality": "HIGH",
+        "phases": ["KAM cycle", "Order capture", "Forecast collaboration", "After-sales"]
+      }
+    ],
+    "value_chain_support": [
+      {
+        "code": "BP-FOOD-HACCP",
+        "name_it": "HACCP management",
+        "criticality": "REGULATORY",
+        "phases": ["Hazard analysis", "CCP monitoring", "Verification", "Documentation"]
+      },
+      {
+        "code": "BP-FOOD-RDI",
+        "name_it": "R&D nuovi prodotti e ricette",
+        "criticality": "STRATEGIC",
+        "phases": ["Ideation", "Lab development", "Pilot run", "Industrialization"]
+      },
+      {
+        "code": "BP-FOOD-MAINT",
+        "name_it": "Manutenzione impianti e PPM",
+        "criticality": "HIGH",
+        "phases": [
+          "Preventive scheduling",
+          "Breakdown response",
+          "Spare parts mgmt",
+          "OEE tracking"
+        ]
+      },
+      {
+        "code": "BP-FOOD-SUSTAIN",
+        "name_it": "Sostenibilità e ESG reporting",
+        "criticality": "MEDIUM",
+        "phases": ["Carbon footprint", "Water/energy", "Waste reduction", "CSRD reporting"]
+      }
+    ],
+    "typical_count": 9,
+    "critical_processes": ["BP-FOOD-PRODUCTION", "BP-FOOD-QC", "BP-FOOD-HACCP", "BP-FOOD-COLDCHAIN"]
+  },
+
+  "role_inventory": {
+    "total_unique_roles": 28,
+    "canonical_roles": [
+      {
+        "code": "CEO",
+        "title_it": "Amministratore Delegato",
+        "esco_isco": "1112",
+        "ccnl_level": "Dirigente"
+      },
+      {
+        "code": "COO",
+        "title_it": "Direttore Operations",
+        "esco_isco": "1321",
+        "ccnl_level": "Dirigente"
+      },
+      {
+        "code": "PLANT_MGR",
+        "title_it": "Direttore di Stabilimento",
+        "esco_isco": "1321",
+        "ccnl_level": "Quadro"
+      },
+      {
+        "code": "PROD_SUPERVISOR",
+        "title_it": "Capo Reparto Produzione",
+        "esco_isco": "3122",
+        "ccnl_level": "5° livello"
+      },
+      {
+        "code": "QHSE_DIR",
+        "title_it": "Direttore Qualità HSE",
+        "esco_isco": "1212",
+        "ccnl_level": "Quadro"
+      },
+      {
+        "code": "QC_MGR",
+        "title_it": "Quality Control Manager",
+        "esco_isco": "2141",
+        "ccnl_level": "5° livello"
+      },
+      {
+        "code": "HACCP_LEAD",
+        "title_it": "Responsabile HACCP",
+        "esco_isco": "2141",
+        "ccnl_level": "5° livello"
+      },
+      {
+        "code": "RD_DIR",
+        "title_it": "Direttore R&D",
+        "esco_isco": "1223",
+        "ccnl_level": "Quadro"
+      },
+      {
+        "code": "FOOD_TECH",
+        "title_it": "Tecnologo Alimentare R&D",
+        "esco_isco": "2141",
+        "ccnl_level": "5° livello"
+      },
+      {
+        "code": "SCM_DIR",
+        "title_it": "Direttore Supply Chain",
+        "esco_isco": "1324",
+        "ccnl_level": "Quadro"
+      },
+      {
+        "code": "PROCUREMENT_SPEC",
+        "title_it": "Buyer materie prime",
+        "esco_isco": "3323",
+        "ccnl_level": "4° livello"
+      },
+      {
+        "code": "WAREHOUSE_MGR",
+        "title_it": "Responsabile Magazzino",
+        "esco_isco": "4321",
+        "ccnl_level": "4° livello"
+      },
+      {
+        "code": "PROD_OPERATOR_SKILLED",
+        "title_it": "Operatore Produzione Specializzato",
+        "esco_isco": "8160",
+        "ccnl_level": "3° livello"
+      },
+      {
+        "code": "PROD_OPERATOR",
+        "title_it": "Operatore Produzione Generico",
+        "esco_isco": "9321",
+        "ccnl_level": "1°-2° livello"
+      },
+      {
+        "code": "BAKER",
+        "title_it": "Pasticcere/Panettiere",
+        "esco_isco": "7512",
+        "ccnl_level": "4° livello"
+      },
+      {
+        "code": "BUTCHER",
+        "title_it": "Macellaio/Insaccatore",
+        "esco_isco": "7511",
+        "ccnl_level": "4° livello"
+      },
+      {
+        "code": "QC_LAB_TECH",
+        "title_it": "Tecnico Laboratorio Microbiologico",
+        "esco_isco": "3141",
+        "ccnl_level": "4° livello"
+      },
+      {
+        "code": "MAINT_TECH",
+        "title_it": "Tecnico Manutenzione Impianti",
+        "esco_isco": "7233",
+        "ccnl_level": "4° livello"
+      },
+      {
+        "code": "PLANT_ENGINEER",
+        "title_it": "Ingegnere di Stabilimento",
+        "esco_isco": "2141",
+        "ccnl_level": "5° livello"
+      },
+      {
+        "code": "SALES_DIR",
+        "title_it": "Direttore Commerciale",
+        "esco_isco": "1221",
+        "ccnl_level": "Quadro"
+      },
+      {
+        "code": "KAM_GDO",
+        "title_it": "Key Account Manager GDO",
+        "esco_isco": "2433",
+        "ccnl_level": "5° livello"
+      },
+      {
+        "code": "EXPORT_MGR",
+        "title_it": "Export Manager",
+        "esco_isco": "2433",
+        "ccnl_level": "5° livello"
+      },
+      {
+        "code": "MKT_BRAND",
+        "title_it": "Brand Manager",
+        "esco_isco": "2431",
+        "ccnl_level": "5° livello"
+      },
+      { "code": "CFO", "title_it": "CFO", "esco_isco": "1211", "ccnl_level": "Dirigente" },
+      {
+        "code": "CONTROLLER",
+        "title_it": "Controller / FP&A",
+        "esco_isco": "2411",
+        "ccnl_level": "5° livello"
+      },
+      { "code": "IT_MGR", "title_it": "IT Manager", "esco_isco": "1330", "ccnl_level": "Quadro" },
+      { "code": "HR_DIR", "title_it": "Direttore HR", "esco_isco": "1212", "ccnl_level": "Quadro" },
+      {
+        "code": "HR_BUSINESS_PARTNER",
+        "title_it": "HR Business Partner",
+        "esco_isco": "2423",
+        "ccnl_level": "5° livello"
+      }
+    ]
+  },
+
+  "skill_emphasis": {
+    "primary_esco_occupations": [
+      { "isco": "8160", "label": "Food and related products machine operators", "weight": 0.35 },
+      {
+        "isco": "7511",
+        "label": "Butchers, fishmongers and related food preparers",
+        "weight": 0.1
+      },
+      { "isco": "7512", "label": "Bakers, pastry-cooks", "weight": 0.08 },
+      { "isco": "2141", "label": "Industrial and production engineers", "weight": 0.1 },
+      { "isco": "3122", "label": "Manufacturing supervisors", "weight": 0.08 },
+      { "isco": "3141", "label": "Life science technicians (lab/microbiology)", "weight": 0.06 },
+      { "isco": "2433", "label": "Technical and medical sales professionals", "weight": 0.05 },
+      { "isco": "1321", "label": "Manufacturing managers", "weight": 0.05 }
+    ],
+    "critical_skills": [
+      "HACCP principles and CCP monitoring",
+      "GMP (Good Manufacturing Practices)",
+      "IFS Food / BRCGS Food certification",
+      "ISO 22000 food safety management",
+      "Sensory analysis (panel testing)",
+      "Microbiological testing techniques",
+      "Cold chain temperature management",
+      "Allergen management and cross-contamination control",
+      "Lot traceability and recall procedures",
+      "OEE (Overall Equipment Effectiveness) tracking",
+      "Lean manufacturing / 5S",
+      "Predictive maintenance (FMEA)",
+      "Italian food labeling regulation (Reg 1169/2011)",
+      "Food waste reduction & ESG metrics",
+      "SAP Production Planning (PP module)"
+    ],
+    "domain_certifications": [
+      "HACCP certification (mandatory food handlers)",
+      "IFS Food auditor",
+      "BRCGS Food Safety auditor",
+      "ISO 22000 lead auditor",
+      "Six Sigma Green/Black Belt (operations)",
+      "Italian patente alimentaria"
+    ]
+  },
+
+  "kpi_framework": {
+    "operational": [
+      {
+        "code": "KPI-OEE",
+        "name_it": "Overall Equipment Effectiveness",
+        "target": ">=82%",
+        "unit": "%"
+      },
+      {
+        "code": "KPI-FPY",
+        "name_it": "First Pass Yield (lotto OK al primo tentativo)",
+        "target": ">=95%",
+        "unit": "%"
+      },
+      {
+        "code": "KPI-SCRAP",
+        "name_it": "Scrap rate (% scarto produzione)",
+        "target": "<=3%",
+        "unit": "%"
+      },
+      {
+        "code": "KPI-ONTIME",
+        "name_it": "On-time delivery to customer",
+        "target": ">=97%",
+        "unit": "%"
+      },
+      {
+        "code": "KPI-INV-TURN",
+        "name_it": "Inventory turns annuali",
+        "target": ">=24",
+        "unit": "turns/year"
+      }
+    ],
+    "strategic": [
+      {
+        "code": "KPI-REVENUE-GROWTH",
+        "name_it": "Crescita ricavi YoY",
+        "target": ">=8%",
+        "unit": "%"
+      },
+      { "code": "KPI-MARGIN-EBITDA", "name_it": "EBITDA margin", "target": ">=12%", "unit": "%" },
+      {
+        "code": "KPI-NEW-PRODUCT-RATIO",
+        "name_it": "Ricavi da nuovi prodotti (<2 anni)",
+        "target": ">=15%",
+        "unit": "%"
+      },
+      {
+        "code": "KPI-EXPORT-SHARE",
+        "name_it": "Quota export su ricavi",
+        "target": ">=25%",
+        "unit": "%"
+      }
+    ],
+    "compliance": [
+      {
+        "code": "KPI-HACCP-CCP-COMPL",
+        "name_it": "% CCP monitorati nei limiti",
+        "target": ">=99.5%",
+        "unit": "%"
+      },
+      {
+        "code": "KPI-AUDIT-IFS-SCORE",
+        "name_it": "IFS audit score",
+        "target": ">=85% (Higher Level)",
+        "unit": "%"
+      },
+      {
+        "code": "KPI-RECALL-COUNT",
+        "name_it": "Recall pubblici/anno",
+        "target": "0",
+        "unit": "count"
+      },
+      {
+        "code": "KPI-SAFETY-LTIFR",
+        "name_it": "Lost-Time Injury Frequency Rate",
+        "target": "<=3",
+        "unit": "per million hours"
+      }
+    ],
+    "regulatory": [
+      {
+        "code": "KPI-CCNL-COMPLIANCE",
+        "name_it": "% emp allineati a CCNL Alimentari Industria",
+        "target": "100%",
+        "unit": "%"
+      },
+      {
+        "code": "KPI-INPS-FILING",
+        "name_it": "INPS UniEmens timely filing",
+        "target": "100%",
+        "unit": "%"
+      },
+      {
+        "code": "KPI-WASTE-REPORT",
+        "name_it": "MUD waste reporting compliance",
+        "target": "100%",
+        "unit": "%"
+      },
+      {
+        "code": "KPI-CSRD-READY",
+        "name_it": "CSRD Pillar 1 (E1 Climate) maturity",
+        "target": ">=70%",
+        "unit": "%"
+      }
+    ],
+    "people": [
+      {
+        "code": "KPI-TURNOVER-VOL",
+        "name_it": "Voluntary turnover annuo",
+        "target": "<=9%",
+        "unit": "%"
+      },
+      {
+        "code": "KPI-TRAIN-HRS-EMP",
+        "name_it": "Ore formazione media per FTE",
+        "target": ">=32",
+        "unit": "hours/emp/year"
+      },
+      {
+        "code": "KPI-HACCP-TRAINED",
+        "name_it": "% emp food-handler con HACCP cert valida",
+        "target": "100%",
+        "unit": "%"
+      },
+      {
+        "code": "KPI-ENGAGEMENT",
+        "name_it": "Engagement pulse score",
+        "target": ">=72",
+        "unit": "0-100"
+      }
+    ]
+  },
+
+  "compliance_frameworks": [
+    {
+      "code": "HACCP",
+      "name": "Hazard Analysis and Critical Control Points",
+      "scope": "Mandatory all EU food businesses",
+      "regulator": "Reg. (CE) 852/2004",
+      "audit_frequency": "Continuous + annual external"
+    },
+    {
+      "code": "IFS-FOOD",
+      "name": "International Featured Standards Food",
+      "scope": "GDO supplier qualification",
+      "regulator": "IFS Management GmbH",
+      "audit_frequency": "Annual"
+    },
+    {
+      "code": "BRCGS-FOOD",
+      "name": "British Retail Consortium Global Standards Food Safety v9",
+      "scope": "UK/export market supplier",
+      "regulator": "BRCGS",
+      "audit_frequency": "Annual"
+    },
+    {
+      "code": "ISO-22000",
+      "name": "Food Safety Management System",
+      "scope": "Voluntary",
+      "regulator": "ISO",
+      "audit_frequency": "Annual"
+    },
+    {
+      "code": "REG-1169-2011",
+      "name": "EU Food Information to Consumers regulation",
+      "scope": "Labeling compliance",
+      "regulator": "EU Commission",
+      "audit_frequency": "Continuous"
+    },
+    {
+      "code": "DLGS-81-2008",
+      "name": "Testo Unico Sicurezza sul Lavoro",
+      "scope": "Occupational health & safety",
+      "regulator": "Italian Ministry of Labor",
+      "audit_frequency": "Annual + on-incident"
+    },
+    {
+      "code": "GDPR",
+      "name": "General Data Protection Regulation",
+      "scope": "Employee + customer data",
+      "regulator": "Garante Privacy",
+      "audit_frequency": "Continuous"
+    },
+    {
+      "code": "CSRD",
+      "name": "Corporate Sustainability Reporting Directive",
+      "scope": "ESG disclosure (large companies threshold)",
+      "regulator": "EU + Italian transposition",
+      "audit_frequency": "Annual"
+    },
+    {
+      "code": "MOG-231",
+      "name": "Modello Organizzativo 231 (D.Lgs 231/2001)",
+      "scope": "Anti-corruption + food fraud prevention",
+      "regulator": "Italian Min. Justice",
+      "audit_frequency": "Annual review by OdV"
+    }
+  ],
+
+  "assessment_patterns": {
+    "required_certifications_role_map": {
+      "HACCP_LEAD": ["HACCP Lead Auditor", "ISO 22000"],
+      "QC_LAB_TECH": ["Microbiological testing cert", "ISO 17025 awareness"],
+      "PROD_SUPERVISOR": ["HACCP basic", "Lean Six Sigma Yellow Belt"],
+      "PLANT_MGR": ["IFS auditor", "Lean Six Sigma Green Belt"],
+      "PROD_OPERATOR_SKILLED": ["HACCP basic", "GMP training"],
+      "MAINT_TECH": ["PES/PAV elettrico", "Lockout/Tagout"]
+    },
+    "periodic_reviews": {
+      "cadence": "annual + mid-year calibration",
+      "rating_scale": "1-5 quintile",
+      "include_360": true,
+      "include_self_review": true,
+      "include_calibration": true
+    },
+    "audit_frequency": "monthly internal HACCP + quarterly QHSE + annual external IFS/BRC"
+  },
+
+  "italian_context": {
+    "ccnl_reference": "CCNL Alimentari Industria",
+    "ccnl_code": "ALIMENTARI-IND",
+    "ccnl_signatory_parties": ["Federalimentare (datoriale)", "FAI-CISL", "FLAI-CGIL", "UILA-UIL"],
+    "ccnl_rinnovo": "2023-2027 (vigente)",
+    "ccnl_levels_canonical": [
+      { "level": "Dirigente", "category": "Top management", "monthly_gross_min_eur": 6500 },
+      { "level": "Quadro", "category": "Middle-senior management", "monthly_gross_min_eur": 4200 },
+      { "level": "6S", "category": "Specialist senior", "monthly_gross_min_eur": 3200 },
+      { "level": "6", "category": "Specialist", "monthly_gross_min_eur": 2700 },
+      { "level": "5S", "category": "Skilled professional senior", "monthly_gross_min_eur": 2400 },
+      { "level": "5", "category": "Skilled professional", "monthly_gross_min_eur": 2100 },
+      { "level": "4", "category": "Qualified operator", "monthly_gross_min_eur": 1900 },
+      { "level": "3", "category": "General operator", "monthly_gross_min_eur": 1750 },
+      { "level": "2", "category": "Entry operator", "monthly_gross_min_eur": 1600 },
+      { "level": "1", "category": "Apprentice", "monthly_gross_min_eur": 1400 }
+    ],
+    "payroll_specifics": {
+      "13a_mensilita": true,
+      "14a_mensilita": true,
+      "tfr_quota_annual_pct": 0.0738,
+      "inps_registered": true,
+      "fondo_pension_categoria": "FONDO ALIFOND (Fondo pensione complementare lavoratori industria alimentare)",
+      "casse_sanitarie": "FASA (Fondo Assistenza Sanitaria Alimentari)"
+    },
+    "sindacati": [
+      {
+        "code": "FAI-CISL",
+        "name": "Federazione Agricola Alimentare CISL",
+        "representativity_pct": 0.32
+      },
+      {
+        "code": "FLAI-CGIL",
+        "name": "Federazione Lavoratori Agro-Industria CGIL",
+        "representativity_pct": 0.36
+      },
+      {
+        "code": "UILA-UIL",
+        "name": "Unione Italiana Lavoratori Agroalimentari UIL",
+        "representativity_pct": 0.22
+      },
+      { "code": "ALTRI", "name": "Altre sigle minori / RSU", "representativity_pct": 0.1 }
+    ],
+    "specific_provisions": {
+      "stagionalita": "Contratti stagionali ammessi per picchi produzione natalizia/estiva",
+      "lavoro_notturno": "Maggiorazione 25%-35% per turni notturni produzione continua",
+      "festivi_lavorati": "Maggiorazione 50% + giorno sostitutivo",
+      "indumenti_dpi": "Forniti dall'azienda + indennità lavaggio mensile (~25 EUR)"
+    }
+  },
+
+  "stakeholder_profile": [
+    {
+      "role": "Customers GDO",
+      "weight": "HIGH",
+      "examples": ["Conad", "Coop Italia", "Esselunga", "Carrefour Italia", "Selex"]
+    },
+    {
+      "role": "Suppliers raw materials",
+      "weight": "HIGH",
+      "examples": ["Cooperative agricole", "Importatori spezie", "Fornitori imballaggi"]
+    },
+    {
+      "role": "Regulators",
+      "weight": "CRITICAL",
+      "examples": ["ASL/USL territoriali", "Ministero Salute", "ICQRF"]
+    },
+    {
+      "role": "Certification bodies",
+      "weight": "HIGH",
+      "examples": ["DNV", "Bureau Veritas", "SGS", "Lloyd's Register"]
+    },
+    {
+      "role": "Sindacati",
+      "weight": "MEDIUM-HIGH",
+      "examples": ["FAI-CISL", "FLAI-CGIL", "UILA-UIL"]
+    },
+    {
+      "role": "Banks & investors",
+      "weight": "MEDIUM",
+      "examples": ["Intesa Sanpaolo", "BPER", "Crédit Agricole"]
+    },
+    {
+      "role": "Consumer associations",
+      "weight": "MEDIUM",
+      "examples": ["Altroconsumo", "Codacons"]
+    }
+  ],
+
+  "ld_focus_areas": [
+    "HACCP refresher (annual mandatory)",
+    "Lean Six Sigma Yellow/Green Belt",
+    "Cold chain management certification",
+    "Food fraud prevention (VACCP/TACCP)",
+    "Predictive maintenance & Industry 4.0 (PNRR-aligned)",
+    "Sustainability reporting (GHG protocol)",
+    "Allergen management",
+    "GDPR for food businesses",
+    "Soft skills: leadership for first-line supervisors",
+    "Italian + English business writing"
+  ],
+
+  "recruiting_focus": [
+    {
+      "role": "PROD_OPERATOR_SKILLED",
+      "expected_open_reqs_pa": 8,
+      "main_channels": ["Local job centers", "Adecco Industrial", "Indeed"]
+    },
+    {
+      "role": "FOOD_TECH",
+      "expected_open_reqs_pa": 3,
+      "main_channels": ["LinkedIn", "Università (UniBo, UniPR Food Science)"]
+    },
+    {
+      "role": "QC_LAB_TECH",
+      "expected_open_reqs_pa": 2,
+      "main_channels": ["LinkedIn", "Specialized food science forums"]
+    },
+    {
+      "role": "KAM_GDO",
+      "expected_open_reqs_pa": 2,
+      "main_channels": ["Headhunters", "LinkedIn Recruiter"]
+    },
+    {
+      "role": "MAINT_TECH",
+      "expected_open_reqs_pa": 3,
+      "main_channels": ["Local technical schools (IIS)", "Engineering associations"]
+    }
+  ],
+
+  "esg_priorities": [
+    "Carbon footprint reduction (target -25% by 2030 vs 2020 baseline)",
+    "Water consumption per ton produced (target -15%)",
+    "Food waste reduction (Goodfood-aligned)",
+    "Sustainable sourcing (>=50% certified suppliers by 2027)",
+    "Packaging recyclability (>=85%)",
+    "Energy efficiency PNRR-investment (heat recovery, PV on plant roofs)"
+  ],
+
+  "risk_register_top": [
+    {
+      "risk": "Food safety incident / recall",
+      "probability": "LOW",
+      "impact": "CRITICAL",
+      "mitigation": "HACCP + IFS audit + lot traceability MES"
+    },
+    {
+      "risk": "Raw material price volatility (wheat, dairy, energy)",
+      "probability": "HIGH",
+      "impact": "HIGH",
+      "mitigation": "Forward contracts + supplier diversification"
+    },
+    {
+      "risk": "Cold chain failure during distribution",
+      "probability": "MEDIUM",
+      "impact": "HIGH",
+      "mitigation": "IoT temp monitoring + insurance"
+    },
+    {
+      "risk": "Skilled labor shortage (food tech, maint)",
+      "probability": "HIGH",
+      "impact": "MEDIUM-HIGH",
+      "mitigation": "ITS partnership + apprenticeship pipeline"
+    },
+    {
+      "risk": "Cyberattack on MES/SCADA",
+      "probability": "MEDIUM",
+      "impact": "HIGH",
+      "mitigation": "OT segmentation + EDR + IEC 62443 alignment"
+    },
+    {
+      "risk": "Regulatory change (food labeling, CSRD)",
+      "probability": "HIGH",
+      "impact": "MEDIUM",
+      "mitigation": "Legal monitoring + early adoption program"
+    },
+    {
+      "risk": "Climate disruption supply (drought, harvest)",
+      "probability": "MEDIUM-HIGH",
+      "impact": "HIGH",
+      "mitigation": "Geographic diversification suppliers + climate-adapted varieties"
+    }
+  ]
+}
