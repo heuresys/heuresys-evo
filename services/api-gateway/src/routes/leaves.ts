@@ -165,7 +165,45 @@ leavesRouter.post(
         }
       );
 
-      res.status(201).json({ data: inserted });
+      // S38 W6.3 — ITLAB CCNL compliance check (advisory, non-blocking)
+      let ccnlCompliance: {
+        ccnl_code: string | null;
+        notice_days_provided: number;
+        notice_days_required: number;
+        compliant: boolean;
+      } | null = null;
+      try {
+        const rows = await withTenant<
+          Array<{ ccnl_code: string | null; min_notice_days: unknown }>
+        >(ctx.tenantId!, async (tx) =>
+          tx.$queryRawUnsafe<Array<{ ccnl_code: string | null; min_notice_days: unknown }>>(
+            `SELECT cl.ccnl_code, cc.min_notice_days
+             FROM tenant_ccnl_links cl
+             LEFT JOIN ccnl_contracts cc ON cc.code = cl.ccnl_code
+             WHERE cl.tenant_id = $1::uuid AND cl.is_primary = true
+             LIMIT 1`,
+            ctx.tenantId
+          )
+        );
+        const ccnl = Array.isArray(rows) ? rows[0] : null;
+        const notice = (new Date(body.start_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24);
+        const noticeProvided = Math.max(0, Math.floor(notice));
+        const minNoticeJson = (ccnl?.min_notice_days as Record<string, number> | null) ?? null;
+        const required =
+          (minNoticeJson?.[body.leave_type] as number | undefined) ??
+          (minNoticeJson?.vacation as number | undefined) ??
+          7;
+        ccnlCompliance = {
+          ccnl_code: ccnl?.ccnl_code ?? null,
+          notice_days_provided: noticeProvided,
+          notice_days_required: required,
+          compliant: noticeProvided >= required,
+        };
+      } catch {
+        // CCNL compliance check is advisory — failure does not block insert
+      }
+
+      res.status(201).json({ data: inserted, ccnl_compliance: ccnlCompliance });
     } catch (err) {
       next(err);
     }

@@ -70,6 +70,47 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'occupation_not_found' }, { status: 404 });
   }
 
+  // S38 W6.2 — KG-grounded prompt enrichment: pull top 10 related skills via kg_edges
+  let relatedSkillsBlock = '';
+  try {
+    const occupationNode = await prisma.kg_nodes.findFirst({
+      where: { node_type: 'OCCUPATION', source_id: occupation.id, tenant_id: null },
+      select: { id: true },
+    });
+    if (occupationNode) {
+      const edges = await prisma.kg_edges.findMany({
+        where: {
+          source_node_id: occupationNode.id,
+          edge_type: { in: ['REQUIRES_SKILL', 'ADJACENT_SKILL'] },
+          tenant_id: null,
+        },
+        take: 10,
+        orderBy: [{ edge_type: 'asc' }, { weight: 'desc' }],
+      });
+      const targetIds = edges.map((e) => e.target_node_id);
+      const skillNodes = targetIds.length
+        ? await prisma.kg_nodes.findMany({
+            where: { id: { in: targetIds }, node_type: 'SKILL' },
+            select: { id: true, label: true },
+          })
+        : [];
+      const labelById = new Map(skillNodes.map((s) => [s.id, s.label ?? '']));
+      const skillLines = edges
+        .map((e) => {
+          const label = labelById.get(e.target_node_id);
+          if (!label) return null;
+          const tag = e.edge_type === 'REQUIRES_SKILL' ? '[required]' : '[adjacent]';
+          return `- ${tag} ${label}`;
+        })
+        .filter((s): s is string => s !== null);
+      if (skillLines.length > 0) {
+        relatedSkillsBlock = `\n\nESCO-grounded related skills (top ${skillLines.length}):\n${skillLines.join('\n')}`;
+      }
+    }
+  } catch {
+    // KG enrichment is best-effort; failure does not block advisor call
+  }
+
   const cap = checkCostCap(cfg.costCapUsdDaily);
   if (!cap.allowed) {
     return NextResponse.json(
@@ -82,7 +123,7 @@ export async function POST(req: Request) {
     );
   }
 
-  const userPrompt = `Occupation: ${occupation.preferred_label_en} (ESCO code ${occupation.code}, ISCO ${occupation.isco_code})\nDescription: ${occupation.description_en ?? '(none)'}\n\nQuestion: ${parsed.question}`;
+  const userPrompt = `Occupation: ${occupation.preferred_label_en} (ESCO code ${occupation.code}, ISCO ${occupation.isco_code})\nDescription: ${occupation.description_en ?? '(none)'}${relatedSkillsBlock}\n\nQuestion: ${parsed.question}`;
 
   try {
     const client = getOpenAIClient(cfg);
