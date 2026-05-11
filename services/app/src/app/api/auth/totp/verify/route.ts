@@ -69,6 +69,7 @@ export async function POST(req: Request) {
 
   // Persist encrypted secret + enable flag
   const encryptedSecret = encryptSecret(body.secret);
+  // SAFE: user updates own TOTP settings via session-authenticated id (no cross-tenant possible).
   await prisma.users.update({
     where: { id: user.id },
     data: {

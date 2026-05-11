@@ -33,7 +33,8 @@ describe.runIf(hasTestDB())('security · RLS cross-tenant isolation', () => {
     await db.transaction(async (tx) => {
       // Set role to non-superuser (RLS not bypassed)
       await tx.query(`SET LOCAL ROLE heuresys`);
-      await tx.query(`SET LOCAL app.current_tenant_id = $1`, [TENANT_A]);
+      // PG limitation: SET LOCAL doesn't accept $1 placeholders. Use set_config() function instead.
+      await tx.query(`SELECT set_config('app.current_tenant_id', $1, true)`, [TENANT_A]);
 
       // Tenta una SELECT su qualunque tabella tenant-scoped (employees ha tenant_id)
       // RLS policy deve filtrare automaticamente su current_tenant_id.
@@ -49,7 +50,8 @@ describe.runIf(hasTestDB())('security · RLS cross-tenant isolation', () => {
   it('cross-tenant INSERT bloccata da WITH CHECK clause RLS', async () => {
     await db.transaction(async (tx) => {
       await tx.query(`SET LOCAL ROLE heuresys`);
-      await tx.query(`SET LOCAL app.current_tenant_id = $1`, [TENANT_A]);
+      // PG limitation: SET LOCAL doesn't accept $1 placeholders. Use set_config() function instead.
+      await tx.query(`SELECT set_config('app.current_tenant_id', $1, true)`, [TENANT_A]);
 
       // INSERT con tenant_id = B, mentre context = A → WITH CHECK fail
       let threw = false;
@@ -73,7 +75,8 @@ describe.runIf(hasTestDB())('security · RLS cross-tenant isolation', () => {
   it('cross-tenant UPDATE: tenant A cannot UPDATE tenant B rows (RLS USING bloccato)', async () => {
     await db.transaction(async (tx) => {
       await tx.query(`SET LOCAL ROLE heuresys`);
-      await tx.query(`SET LOCAL app.current_tenant_id = $1`, [TENANT_A]);
+      // PG limitation: SET LOCAL doesn't accept $1 placeholders. Use set_config() function instead.
+      await tx.query(`SELECT set_config('app.current_tenant_id', $1, true)`, [TENANT_A]);
 
       // UPDATE su tenant B mentre context = A → 0 rows affected (RLS hides them)
       const r = await tx.query(
@@ -87,7 +90,8 @@ describe.runIf(hasTestDB())('security · RLS cross-tenant isolation', () => {
   it('cross-tenant DELETE: tenant A cannot DELETE tenant B rows', async () => {
     await db.transaction(async (tx) => {
       await tx.query(`SET LOCAL ROLE heuresys`);
-      await tx.query(`SET LOCAL app.current_tenant_id = $1`, [TENANT_A]);
+      // PG limitation: SET LOCAL doesn't accept $1 placeholders. Use set_config() function instead.
+      await tx.query(`SELECT set_config('app.current_tenant_id', $1, true)`, [TENANT_A]);
 
       const r = await tx.query(`DELETE FROM employees WHERE tenant_id = $1 RETURNING id`, [
         TENANT_B,
@@ -99,7 +103,8 @@ describe.runIf(hasTestDB())('security · RLS cross-tenant isolation', () => {
   it('cross-tenant audit_logs: RLS isolates audit trail per tenant', async () => {
     await db.transaction(async (tx) => {
       await tx.query(`SET LOCAL ROLE heuresys`);
-      await tx.query(`SET LOCAL app.current_tenant_id = $1`, [TENANT_A]);
+      // PG limitation: SET LOCAL doesn't accept $1 placeholders. Use set_config() function instead.
+      await tx.query(`SELECT set_config('app.current_tenant_id', $1, true)`, [TENANT_A]);
 
       // Tenant A query own audit_logs OK (typically empty in fresh test DB)
       const own = await tx.query(`SELECT count(*)::int AS n FROM audit_logs WHERE tenant_id = $1`, [
@@ -137,9 +142,9 @@ describe.runIf(hasTestDB())('security · RLS cross-tenant isolation', () => {
     { table: 'org_units', updateCol: 'description', updateVal: 'Hijacked' },
     { table: 'recruiting_candidates', updateCol: 'stage', updateVal: 'rejected' },
     { table: 'recruiting_offers', updateCol: 'status', updateVal: 'rejected' },
-    { table: 'courses', updateCol: 'is_active', updateVal: 'false' },
+    { table: 'courses', updateCol: 'status', updateVal: 'archived' },
     { table: 'course_enrollments', updateCol: 'status', updateVal: 'cancelled' },
-    { table: 'certifications', updateCol: 'status', updateVal: 'revoked' },
+    { table: 'certifications', updateCol: 'is_active', updateVal: 'false' },
     { table: 'employee_skill_assessments', updateCol: 'assessed_level', updateVal: '0' },
     { table: 'merit_cycles', updateCol: 'status', updateVal: 'cancelled' },
   ];
@@ -149,7 +154,8 @@ describe.runIf(hasTestDB())('security · RLS cross-tenant isolation', () => {
       it(`SELECT(B from A context) → 0 rows visible`, async () => {
         await db.transaction(async (tx) => {
           await tx.query(`SET LOCAL ROLE heuresys`);
-          await tx.query(`SET LOCAL app.current_tenant_id = $1`, [TENANT_A]);
+          // PG limitation: SET LOCAL doesn't accept $1 placeholders. Use set_config() function instead.
+          await tx.query(`SELECT set_config('app.current_tenant_id', $1, true)`, [TENANT_A]);
           const r = await tx.query(`SELECT count(*)::int AS n FROM ${table} WHERE tenant_id = $1`, [
             TENANT_B,
           ]);
@@ -160,7 +166,8 @@ describe.runIf(hasTestDB())('security · RLS cross-tenant isolation', () => {
       it(`UPDATE(B from A context) → 0 rows affected (RLS USING blocks)`, async () => {
         await db.transaction(async (tx) => {
           await tx.query(`SET LOCAL ROLE heuresys`);
-          await tx.query(`SET LOCAL app.current_tenant_id = $1`, [TENANT_A]);
+          // PG limitation: SET LOCAL doesn't accept $1 placeholders. Use set_config() function instead.
+          await tx.query(`SELECT set_config('app.current_tenant_id', $1, true)`, [TENANT_A]);
           // Use literal (not parametrized) col since identifiers cannot be bound
           const isNumOrBool = /^(true|false|\d+)$/.test(updateVal);
           const valLit = isNumOrBool ? updateVal : `'${updateVal.replace(/'/g, "''")}'`;
@@ -175,7 +182,8 @@ describe.runIf(hasTestDB())('security · RLS cross-tenant isolation', () => {
       it(`DELETE(B from A context) → 0 rows affected (RLS hides discoverability)`, async () => {
         await db.transaction(async (tx) => {
           await tx.query(`SET LOCAL ROLE heuresys`);
-          await tx.query(`SET LOCAL app.current_tenant_id = $1`, [TENANT_A]);
+          // PG limitation: SET LOCAL doesn't accept $1 placeholders. Use set_config() function instead.
+          await tx.query(`SELECT set_config('app.current_tenant_id', $1, true)`, [TENANT_A]);
           const r = await tx.query(
             `DELETE FROM ${table} WHERE tenant_id = $1 RETURNING tenant_id`,
             [TENANT_B]

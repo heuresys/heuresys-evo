@@ -318,6 +318,7 @@ employeesRouter.patch(
           if (body.cost_center_id !== undefined) data.cost_center_id = body.cost_center_id;
           if (body.is_active !== undefined) data.is_active = body.is_active;
           data.updated_at = new Date();
+          // SAFE: tx is from auditedTransaction → withTenant() with RLS-scoped tenant_id GUC.
           return tx.employees.update({ where: { id }, data });
         }
       );
@@ -374,9 +375,11 @@ employeesRouter.delete(
         },
         async (tx) => {
           if (isHardDelete) {
+            // SAFE: tx is from auditedTransaction → withTenant() with RLS-scoped tenant_id GUC.
             await tx.employees.delete({ where: { id } });
             return { kind: 'deleted' as const };
           }
+          // SAFE: tx is from auditedTransaction → withTenant() with RLS-scoped tenant_id GUC.
           await tx.employees.update({
             where: { id },
             data: { is_active: false, updated_at: new Date() },

@@ -36,6 +36,7 @@ export async function POST() {
   const { user } = guard;
 
   // Check current TOTP state
+  // SAFE: user reads own TOTP state via session-authenticated id (no cross-tenant possible).
   const u = await prisma.users.findUnique({
     where: { id: user.id },
     select: { id: true, username: true, totp_enabled: true },
