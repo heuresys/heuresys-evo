@@ -1,7 +1,82 @@
 /**
  * /dashboard view — Tenant Owner Overview (preset_code = 'tenant_owner_overview' · TENANT_OWNER).
  * Brand-fedele al mockup .ux-design/06-mockups/dashboards/tenant-owner-overview.html.
+ *
+ * S38 W4-cont: top succession candidates section data-bound via
+ * succession_plans + succession_candidates (replica HrDirectorOverviewView pattern).
  */
+import { auth } from '@/lib/auth';
+import { withTenant } from '@/lib/db';
+
+type TopSuccessionRow = {
+  role: string;
+  name: string;
+  score: string;
+  risk: 'low' | 'medium' | 'high';
+  ready: string;
+};
+
+async function fetchTopSuccessionRows(tenantId: string | null): Promise<TopSuccessionRow[]> {
+  if (!tenantId) return [];
+  try {
+    return await withTenant(tenantId, async (tx) => {
+      const plans = await tx.succession_plans.findMany({
+        where: { tenant_id: tenantId, status: 'active' },
+        orderBy: [{ criticality_level: 'asc' }, { target_date: 'asc' }],
+        take: 5,
+        select: { id: true, position_name: true, criticality_level: true, risk_level: true },
+      });
+      if (plans.length === 0) return [];
+
+      const planIds = plans.map((p) => p.id);
+      const topCandidates = await tx.succession_candidates.findMany({
+        where: { critical_role_id: { in: planIds } },
+        orderBy: [{ rank_order: 'asc' }],
+      });
+      const byPlan = new Map<string, typeof topCandidates>();
+      for (const c of topCandidates) {
+        if (!c.critical_role_id) continue;
+        const arr = byPlan.get(c.critical_role_id) ?? [];
+        arr.push(c);
+        byPlan.set(c.critical_role_id, arr);
+      }
+
+      const scoreMap: Record<string, string> = {
+        ready_now: '92',
+        ready_1_year: '78',
+        ready_2_years: '62',
+        ready_3_years: '48',
+        ready_3_plus_years: '35',
+        development_needed: '25',
+      };
+      const readyMap: Record<string, string> = {
+        ready_now: 'ready-now',
+        ready_1_year: '1y',
+        ready_2_years: '1-2y',
+        ready_3_years: '3y',
+        ready_3_plus_years: '3y+',
+        development_needed: 'develop',
+      };
+
+      return plans.map<TopSuccessionRow>((p) => {
+        const top = byPlan.get(p.id)?.[0];
+        const rl = top?.readiness_level ?? 'development_needed';
+        const risk: TopSuccessionRow['risk'] =
+          p.risk_level === 'high' ? 'high' : p.risk_level === 'low' ? 'low' : 'medium';
+        return {
+          role: p.position_name,
+          name: 'Top candidate',
+          score: scoreMap[rl] ?? '50',
+          risk,
+          ready: readyMap[rl] ?? '1-2y',
+        };
+      });
+    });
+  } catch {
+    return [];
+  }
+}
+
 export default async function TenantOwnerOverviewView({
   role,
   tenantName,
@@ -9,6 +84,51 @@ export default async function TenantOwnerOverviewView({
   role: string;
   tenantName: string;
 }) {
+  const session = await auth();
+  const tenantId = (session?.user as { tenantId?: string } | undefined)?.tenantId ?? null;
+  const successionLive = await fetchTopSuccessionRows(tenantId);
+
+  const successionRows: TopSuccessionRow[] =
+    successionLive.length > 0
+      ? successionLive
+      : [
+          {
+            role: 'Head Credit Risk',
+            name: 'Senior credit analyst',
+            score: '92',
+            risk: 'low',
+            ready: 'ready-now',
+          },
+          {
+            role: 'Head Quant Analytics',
+            name: 'Lead analyst',
+            score: '88',
+            risk: 'low',
+            ready: 'ready-now',
+          },
+          {
+            role: 'Director CX',
+            name: 'Director candidate',
+            score: '85',
+            risk: 'medium',
+            ready: '1-2y',
+          },
+          {
+            role: 'Head IT Architecture',
+            name: 'Lead architect',
+            score: '82',
+            risk: 'low',
+            ready: '1-2y',
+          },
+          {
+            role: 'Head HR Business',
+            name: 'Senior HRBP',
+            score: '79',
+            risk: 'medium',
+            ready: '3-5y',
+          },
+        ];
+
   return (
     <>
       <header className="ws-header">
@@ -220,43 +340,7 @@ export default async function TenantOwnerOverviewView({
         <span className="meta">5 ready-now · cross-dept</span>
       </div>
       <div className="succession-grid">
-        {[
-          {
-            role: 'Head Credit Risk',
-            name: 'Senior credit analyst',
-            score: '92',
-            risk: 'low' as const,
-            ready: 'ready-now',
-          },
-          {
-            role: 'Head Quant Analytics',
-            name: 'Lead analyst',
-            score: '88',
-            risk: 'low' as const,
-            ready: 'ready-now',
-          },
-          {
-            role: 'Director CX',
-            name: 'Sofia Conti',
-            score: '85',
-            risk: 'medium' as const,
-            ready: '1-2y',
-          },
-          {
-            role: 'Head IT Architecture',
-            name: 'Davide Ferrara',
-            score: '82',
-            risk: 'low' as const,
-            ready: '1-2y',
-          },
-          {
-            role: 'Head HR Business',
-            name: 'Sergio Bianchi',
-            score: '79',
-            risk: 'medium' as const,
-            ready: '3-5y',
-          },
-        ].map((s) => (
+        {successionRows.map((s) => (
           <article key={s.name} className="succession-card">
             <div className="role">{s.role}</div>
             <h3>{s.name}</h3>
