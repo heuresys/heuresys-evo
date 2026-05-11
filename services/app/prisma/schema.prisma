@@ -648,6 +648,7 @@ model tenants {
   semantic_entity_index               semantic_entity_index[]
   semantic_entity_relations           semantic_entity_relations[]
   semantic_search_log                 semantic_search_log[]
+  regulatory_compliance               tenant_regulatory_compliance[]
   signature_requests                  signature_requests[]
   sindacato_tenant_links              sindacato_tenant_links[]
   skill_demand_metrics                skill_demand_metrics[]
@@ -2126,6 +2127,51 @@ model sindacato_tenant_links {
   @@unique([tenant_id, sindacato_id])
   @@index([tenant_id], map: "idx_sindacato_tenant_links_tenant")
   @@index([sindacato_id], map: "idx_sindacato_tenant_links_sindacato")
+}
+
+/// S35.3 M7 (PROGOV phase18e): catalog regulatory frameworks (PSD2/MiFID II/AML5/Basel III/GDPR/BdI/TUB/DORA). Platform-default catalog (no tenant_id).
+model regulatory_frameworks {
+  id                           String                         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code                         String                         @unique @db.VarChar(64)
+  name                         String                         @db.VarChar(255)
+  name_en                      String?                        @db.VarChar(255)
+  full_reference               String?                        @db.VarChar(512)
+  scope                        String?
+  regulator                    String?                        @db.VarChar(255)
+  jurisdiction                 String?                        @db.VarChar(64)
+  category                     String?                        @db.VarChar(64)
+  effective_from               DateTime?                      @db.Date
+  is_active                    Boolean                        @default(true)
+  reference_url                String?                        @db.VarChar(512)
+  notes                        String?
+  created_at                   DateTime                       @default(now()) @db.Timestamptz(6)
+  updated_at                   DateTime                       @default(now()) @db.Timestamptz(6)
+  tenant_regulatory_compliance tenant_regulatory_compliance[]
+
+  @@index([category], map: "idx_regulatory_frameworks_category")
+  @@index([jurisdiction], map: "idx_regulatory_frameworks_jurisdiction")
+}
+
+/// S35.3 M7 (PROGOV phase18e): tenant ↔ regulatory framework applicability + compliance status + certification cycle.
+/// This model contains row level security: tenant_id = current_setting('app.current_tenant_id')
+model tenant_regulatory_compliance {
+  id                    String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id             String                @db.Uuid
+  framework_code        String                @db.VarChar(64)
+  compliance_status     String                @default("in_scope") @db.VarChar(32)
+  applicable_from       DateTime              @default(dbgenerated("CURRENT_DATE")) @db.Date
+  certification_date    DateTime?             @db.Date
+  next_review_date      DateTime?             @db.Date
+  responsible_role      String?               @db.VarChar(64)
+  notes                 String?
+  created_at            DateTime              @default(now()) @db.Timestamptz(6)
+  updated_at            DateTime              @default(now()) @db.Timestamptz(6)
+  regulatory_frameworks regulatory_frameworks @relation(fields: [framework_code], references: [code], onDelete: Restrict)
+  tenants               tenants               @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+
+  @@unique([tenant_id, framework_code])
+  @@index([tenant_id], map: "idx_tenant_regulatory_compliance_tenant")
+  @@index([compliance_status], map: "idx_tenant_regulatory_compliance_status")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
