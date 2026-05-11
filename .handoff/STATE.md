@@ -1,41 +1,51 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-11T19:10Z · S35 closed · CASCADIA pilot RTL 14/15 · ESKAP shipped
+> Updated: 2026-05-11T21:00Z · S36 partial autonomous · F-008 shipped · ADR-0028/29/30 drafted
 
 ## Last session brief
 
-S35 (10 commit, ~7h FTE vs ~95h plan): audit forensic 100% (S35.0) · ITLAB phase18d (S35.1) · CASCADIA skeleton+lexicon 16 sigle (S35.2) · pilot RTL Bank M0-M14 PASS (S35.3 14/15) · ESKAP knowledge graph phase18f con 17k nodes + 139k edges (S35.5 full).
+**S36 partial (autonomous, ~50min FTE)**: verification baseline S35.7 (22/24 SQL PASS, 1 known RBP drift, 1 pending F-008) · F-008 persona_label rename via `phase18g_audience_persona_label.sql` applicata su VM (11 dashboard_presets → `Audience: <ROLE>`) · ADR-0028 (CASCADIA pipeline) + ADR-0029 (ITLAB tables) + ADR-0030 (Lexicon canonical 16 sigle) drafted · README ADR backfill 0022-0030.
 
-## Top priorities
+## Top priorities (S36 continuation)
 
-1. **S35.4 Extension SmartFood + EcoNova + Heuresys** (~15-25h FTE) — replica RTL pilot pattern per 3 tenant restanti con industry profile customizzato (HACCP food / ISO 50001 energy / SaaS). Ogni tenant: HUMAN GATE industry profile + cascade INDOOR/OPOURSKA/GOKMER/TALPIPE/SKILGRO/PROGOV/ITLAB/EPRA + ESKAP tenant projection (~30min/tenant post-pattern).
-2. **M15 dashboards live walkthrough** Chrome MCP 88 cells (8 roles × 11 dashboard) — visual validation pilot RTL (~1-2h).
-3. **S35.6 + S35.7** dashboard binding sweep + F-008 persona_label + ADR-0027/0028/0029 + verification finale (~10-16h).
+1. **S35.4 Extension SmartFood + EcoNova + Heuresys** (~15-25h FTE) — replica RTL pilot pattern per 3 tenant. **Open question pending**: industry profile JSON manuale (pattern RTL) vs web research via OpenAI advisor (live API).
+2. **M15 dashboards live walkthrough** Chrome MCP 88 cells (8 roles × 11 dashboard) — visual validation pilot RTL (~1-2h, richiede coordinamento human).
+3. **S35.6 binding sweep** (~3-5h) — `services/app/src/lib/dashboard-engine/registry.tsx` 19 widget: remove demo fallback + adoption `useWidgetData()`. **Decision pending**: per-widget data source strategy.
 
 ## Open questions
 
 - S35.4: industry profile JSON per i 3 tenant restanti — generazione manuale (pattern RTL) o web research via OpenAI advisor (richiede live API call vs cache)?
-- M5b org_unit_kpis strategic (ROE/CET1/Turnover) — seedare per BANKING-M template root o defer a M16 cross-tenant?
+- M5b org_unit_kpis strategic (ROE/CET1/Turnover) — seedare BANKING-M template root o defer a M16 cross-tenant?
+- RBP drift 179/326: forensic fix in S35.0 deferred. Schedule S36+ dedicated session?
 
-## Stack snapshot (post-S35)
-
-- Migrations applicate VM: phase18d (ITLAB) · phase18e (PROGOV) · phase18f (ESKAP)
-- RTL Bank pilot: 158/158 emp enriched · 32 jobs · 11 BP · 39 KPI · 10 reg framework · 1859 assessments Bell · 9-box · 209 KG nodes + 1766 RTL edges
-- ESCO catalog: 17.051 kg_nodes platform + 137.685 kg_edges platform
-- CASCADIA: lexicon SoT 16 sigle (`docs/_meta/lexicon.md`) + 7 lib helpers
-- Audit forensic: 100% · Tests: typecheck + lint:tenant-id PASS
-
-## Verification
+## Verification (post-S36 autonomous)
 
 ```bash
 git log --oneline -10
-# expected HEAD: 5f08439 ESKAP
+# expected HEAD: <S36 commit hash>
 
+# Audience: pattern shipped on 11 presets
+ssh oracle-vm-default "sudo -u postgres psql -d heuresys_platform -At -c \"
+SELECT COUNT(*) FROM dashboard_presets WHERE persona_label LIKE 'Audience:%'\""
+# expected: 11
+
+# RTL Bank pilot coverage unchanged
 ssh oracle-vm-default "sudo -u postgres psql -d heuresys_platform -At -c \"
 SELECT (SELECT count(*) FROM kg_nodes) AS nodes,
        (SELECT count(*) FROM kg_edges) AS edges,
-       (SELECT count(*) FROM employee_skill_assessments esa JOIN employees e ON e.id=esa.employee_id WHERE e.tenant_id=(SELECT id FROM tenants WHERE code='rtl-bank')) AS rtl_assess\""
+       (SELECT count(*) FROM employee_skill_assessments esa
+        JOIN employees e ON e.id=esa.employee_id
+        WHERE e.tenant_id=(SELECT id FROM tenants WHERE code='rtl-bank')) AS rtl_assess\""
 # expected: 17260 / 139451 / 1859
 ```
 
-Riferimenti: `~/.claude/plans/in-questa-fase-io-spicy-galaxy.md` · `docs/_meta/lexicon.md` · `db/seeds/realistic/_research_cache/rtl_bank_industry_profile.json` · backup `heuresys_platform-pre-S35.3-pilot-rtl-20260511T171222Z.dump` sha256 `2fcc0d85...`
+## Stack snapshot (post-S36 autonomous)
+
+- Migrations applicate VM: phase18d (ITLAB) · phase18e (PROGOV regulatory) · phase18f (ESKAP KG) · phase18g (F-008 persona_label)
+- RTL Bank pilot: 158/158 emp enriched · 32 jobs · 11 BP · 39 KPI · 10 reg framework · 1859 assessments Bell · 9-box (157 row) · 209 KG nodes + 1766 RTL edges
+- ESCO catalog: 17.260 kg_nodes platform + 139.451 kg_edges platform
+- Dashboard_presets persona_label: 11/11 `Audience: <ROLE>` pattern (F-008 shipped)
+- Audit forensic: 100% (RBP drift 179/326 known carry-forward) · Tests: typecheck + lint:tenant-id PASS
+- ADR archive: 30 entries (3 superseded), ADR-0028+29+30 drafted retrospective post-S35
+
+Riferimenti: `~/.claude/plans/in-questa-fase-io-spicy-galaxy.md` · `docs/_meta/lexicon.md` · `docs/50-reference/decisions/0028-cascadia-universe-seeding.md` · `db/migrations/phase18g_audience_persona_label.sql` · `db/seeds/realistic/_research_cache/rtl_bank_industry_profile.json` · backup `heuresys_platform-pre-S35.3-pilot-rtl-20260511T171222Z.dump` sha256 `2fcc0d85...`
