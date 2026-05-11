@@ -1,0 +1,445 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-05-11T19:40:00Z",
+  "generation_method": "claude-opus-4-7-reasoning-S35.4",
+  "generation_notes": "AI-advisor generation. NACE D.35 electric power generation/transmission/distribution. Renewable energy focus (solar, wind, small hydro, biomass). Italian context: CCNL Elettrici (Confindustria Energia + Federazione Lavoratori Elettrici), ISO 50001, GSE certifications, PNRR M2C2 alignment.",
+  "tenant_code": "econova",
+  "tenant_name": "EcoNova Energy S.r.l.",
+
+  "industry_classification": {
+    "nace_class_code": "D.35",
+    "nace_label_it": "Fornitura di energia elettrica, gas, vapore e aria condizionata",
+    "nace_label_en": "Electricity, gas, steam and air conditioning supply",
+    "nace_subclasses_primary": ["D.35.11", "D.35.14"],
+    "nace_subclasses_label_it": [
+      "Produzione di energia elettrica (rinnovabile)",
+      "Distribuzione e commercio di energia elettrica"
+    ],
+    "ateco_code": "35.11.00",
+    "sub_industry": [
+      "Solar PV operations",
+      "Wind farm operations",
+      "Small hydro generation",
+      "Biomass cogeneration",
+      "Energy trading retail",
+      "EPC services (Engineering, Procurement, Construction)"
+    ],
+    "company_size_code": "S",
+    "company_size_label": "Small (10-49 FTE)",
+    "geography": "Italy, multi-region (Lombardia HQ + Sicilia/Puglia plant sites)"
+  },
+
+  "workforce_baseline": {
+    "total_employees_canonical": 26,
+    "org_depth_typical": 3,
+    "span_of_control_max": 8,
+    "fte_by_function": {
+      "operations_maintenance": 0.35,
+      "engineering_design": 0.2,
+      "trading_origination": 0.1,
+      "regulatory_compliance": 0.08,
+      "finance_admin": 0.1,
+      "sales_business_dev": 0.1,
+      "hr_legal_corp": 0.07
+    },
+    "seniority_distribution": {
+      "executive": 0.08,
+      "senior_engineer": 0.2,
+      "engineer_specialist": 0.35,
+      "technician_field": 0.25,
+      "support_admin": 0.12
+    },
+    "geographic_distribution": {
+      "headquarters_milano": 0.5,
+      "plant_sites_remote": 0.4,
+      "trading_floor": 0.1
+    }
+  },
+
+  "org_structure_template": {
+    "root": { "role_code": "CEO", "title": "CEO / Direttore Generale" },
+    "depth_1_divisions": [
+      { "code": "OPS", "title": "Operations & Maintenance", "fte_share": 0.35, "head_role": "COO" },
+      {
+        "code": "ENG",
+        "title": "Engineering & EPC",
+        "fte_share": 0.2,
+        "head_role": "Engineering Director"
+      },
+      {
+        "code": "TRD",
+        "title": "Trading & Origination",
+        "fte_share": 0.1,
+        "head_role": "Head of Trading"
+      },
+      {
+        "code": "REG",
+        "title": "Regulatory & Compliance",
+        "fte_share": 0.08,
+        "head_role": "Compliance Manager"
+      },
+      {
+        "code": "BIZ",
+        "title": "Business Development & Sales",
+        "fte_share": 0.1,
+        "head_role": "BD Director"
+      },
+      { "code": "FIN", "title": "Finance & Admin", "fte_share": 0.1, "head_role": "CFO" },
+      {
+        "code": "HR",
+        "title": "HR / Legal / Corporate",
+        "fte_share": 0.07,
+        "head_role": "HR Manager"
+      }
+    ]
+  },
+
+  "process_blueprint": {
+    "value_chain_primary": [
+      {
+        "code": "BP-EN-ASSET-OPS",
+        "name_it": "Asset operations & SCADA monitoring",
+        "criticality": "CRITICAL"
+      },
+      {
+        "code": "BP-EN-MAINT",
+        "name_it": "Predictive + preventive maintenance",
+        "criticality": "HIGH"
+      },
+      { "code": "BP-EN-TRADING", "name_it": "Energy trading PUN/MGP/MI", "criticality": "HIGH" },
+      {
+        "code": "BP-EN-EPC",
+        "name_it": "EPC project lifecycle nuovo impianto",
+        "criticality": "STRATEGIC"
+      },
+      {
+        "code": "BP-EN-RETAIL",
+        "name_it": "Retail customer onboarding & billing",
+        "criticality": "MEDIUM"
+      }
+    ],
+    "value_chain_support": [
+      {
+        "code": "BP-EN-REG",
+        "name_it": "GSE/ARERA compliance reporting",
+        "criticality": "REGULATORY"
+      },
+      {
+        "code": "BP-EN-ESG",
+        "name_it": "ESG / CSRD / GHG protocol reporting",
+        "criticality": "MEDIUM-HIGH"
+      },
+      {
+        "code": "BP-EN-HSE",
+        "name_it": "Health Safety Environment (D.Lgs 81/2008)",
+        "criticality": "REGULATORY"
+      }
+    ],
+    "typical_count": 8,
+    "critical_processes": ["BP-EN-ASSET-OPS", "BP-EN-MAINT", "BP-EN-REG"]
+  },
+
+  "role_inventory": {
+    "total_unique_roles": 14,
+    "canonical_roles": [
+      {
+        "code": "CEO",
+        "title_it": "Amministratore Delegato",
+        "esco_isco": "1112",
+        "ccnl_level": "Dirigente"
+      },
+      {
+        "code": "COO",
+        "title_it": "Direttore Operations",
+        "esco_isco": "1321",
+        "ccnl_level": "Quadro"
+      },
+      {
+        "code": "ENG_DIR",
+        "title_it": "Direttore Engineering",
+        "esco_isco": "2151",
+        "ccnl_level": "Quadro"
+      },
+      {
+        "code": "TRD_HEAD",
+        "title_it": "Head of Trading",
+        "esco_isco": "2421",
+        "ccnl_level": "Quadro"
+      },
+      {
+        "code": "ENERGY_ENG",
+        "title_it": "Ingegnere Energetico",
+        "esco_isco": "2151",
+        "ccnl_level": "B1/B2"
+      },
+      {
+        "code": "MAINT_ENG",
+        "title_it": "Ingegnere Manutenzione Impianti",
+        "esco_isco": "2143",
+        "ccnl_level": "B1"
+      },
+      {
+        "code": "SCADA_OP",
+        "title_it": "Operatore SCADA / Centro Controllo",
+        "esco_isco": "3133",
+        "ccnl_level": "A2/A3"
+      },
+      {
+        "code": "FIELD_TECH",
+        "title_it": "Tecnico di Campo (turbine/PV)",
+        "esco_isco": "7411",
+        "ccnl_level": "A2/A3"
+      },
+      { "code": "TRADER", "title_it": "Energy Trader", "esco_isco": "2421", "ccnl_level": "B1" },
+      {
+        "code": "REG_SPEC",
+        "title_it": "Regulatory Specialist",
+        "esco_isco": "2611",
+        "ccnl_level": "B1"
+      },
+      {
+        "code": "EPC_PM",
+        "title_it": "EPC Project Manager",
+        "esco_isco": "2421",
+        "ccnl_level": "Quadro"
+      },
+      { "code": "ESG_SPEC", "title_it": "ESG Analyst", "esco_isco": "2422", "ccnl_level": "B1" },
+      {
+        "code": "BD_MGR",
+        "title_it": "Business Development Manager",
+        "esco_isco": "1221",
+        "ccnl_level": "Quadro"
+      },
+      { "code": "CFO", "title_it": "CFO", "esco_isco": "1211", "ccnl_level": "Dirigente" }
+    ]
+  },
+
+  "skill_emphasis": {
+    "primary_esco_occupations": [
+      { "isco": "2151", "label": "Electrical engineers", "weight": 0.25 },
+      { "isco": "2143", "label": "Environmental engineers", "weight": 0.15 },
+      {
+        "isco": "3133",
+        "label": "Chemical processing plant controllers (SCADA-analog)",
+        "weight": 0.18
+      },
+      {
+        "isco": "7411",
+        "label": "Building and related electricians (field PV/wind)",
+        "weight": 0.15
+      },
+      { "isco": "2421", "label": "Management and organisation analysts (trading)", "weight": 0.1 },
+      { "isco": "2611", "label": "Legal/regulatory professionals", "weight": 0.06 }
+    ],
+    "critical_skills": [
+      "PV plant design (PVsyst, Helioscope)",
+      "Wind turbine maintenance (Vestas, Siemens Gamesa)",
+      "SCADA system operations (Schneider, Siemens, ABB)",
+      "ISO 50001 energy management",
+      "ISO 14001 environmental management",
+      "PUN/MGP/MI energy market trading",
+      "GSE (Gestore Servizi Energetici) compliance",
+      "ARERA reporting",
+      "GHG protocol scope 1/2/3",
+      "CSRD/EFRAG ESRS standards",
+      "Predictive maintenance (vibration analysis, oil sampling)",
+      "Italian electrical safety norms (CEI 11-1, CEI 0-16)",
+      "PES/PAV/PEI qualification per lavori elettrici",
+      "GIS for renewable site selection"
+    ]
+  },
+
+  "kpi_framework": {
+    "operational": [
+      {
+        "code": "KPI-CAPACITY-FACTOR",
+        "name_it": "Capacity factor (PV/wind)",
+        "target": "PV ≥17%, Wind ≥28%",
+        "unit": "%"
+      },
+      {
+        "code": "KPI-MTTR",
+        "name_it": "Mean Time to Repair impianti",
+        "target": "≤8h",
+        "unit": "hours"
+      },
+      {
+        "code": "KPI-AVAILABILITY",
+        "name_it": "Plant availability",
+        "target": "≥97%",
+        "unit": "%"
+      },
+      {
+        "code": "KPI-PR-RATIO",
+        "name_it": "Performance Ratio (PV)",
+        "target": "≥0.82",
+        "unit": "ratio"
+      }
+    ],
+    "strategic": [
+      {
+        "code": "KPI-MW-INSTALLED",
+        "name_it": "MW installati cumulati",
+        "target": "+12 MW/anno",
+        "unit": "MW"
+      },
+      {
+        "code": "KPI-REVENUE-MWH",
+        "name_it": "Revenue per MWh prodotto",
+        "target": "≥85 €/MWh",
+        "unit": "EUR/MWh"
+      },
+      { "code": "KPI-EBITDA", "name_it": "EBITDA margin", "target": "≥35%", "unit": "%" }
+    ],
+    "compliance": [
+      {
+        "code": "KPI-GSE-FILING",
+        "name_it": "GSE timely filing rate",
+        "target": "100%",
+        "unit": "%"
+      },
+      {
+        "code": "KPI-ARERA-COMP",
+        "name_it": "ARERA compliance audit pass rate",
+        "target": "100%",
+        "unit": "%"
+      },
+      {
+        "code": "KPI-ISO50001",
+        "name_it": "ISO 50001 audit score",
+        "target": "Conforme",
+        "unit": "binary"
+      },
+      {
+        "code": "KPI-LTIFR-EN",
+        "name_it": "Lost Time Injury Frequency Rate",
+        "target": "≤2",
+        "unit": "per million hours"
+      }
+    ],
+    "esg_regulatory": [
+      {
+        "code": "KPI-CO2-AVOIDED",
+        "name_it": "tCO2 evitate (avoided emissions)",
+        "target": "≥18000 tCO2/year",
+        "unit": "tCO2/year"
+      },
+      {
+        "code": "KPI-CSRD-MATURITY",
+        "name_it": "CSRD ESRS readiness",
+        "target": "≥75%",
+        "unit": "%"
+      }
+    ]
+  },
+
+  "compliance_frameworks": [
+    {
+      "code": "ISO-50001",
+      "name": "Energy Management System",
+      "scope": "Voluntary, increasingly required",
+      "audit_frequency": "Annual"
+    },
+    {
+      "code": "ISO-14001",
+      "name": "Environmental Management System",
+      "scope": "Voluntary",
+      "audit_frequency": "Annual"
+    },
+    {
+      "code": "GSE",
+      "name": "Gestore Servizi Energetici incentive compliance",
+      "scope": "Mandatory for incentive recipients",
+      "audit_frequency": "Continuous"
+    },
+    {
+      "code": "ARERA",
+      "name": "Autorità di Regolazione per Energia Reti Ambiente",
+      "scope": "Sector regulator",
+      "audit_frequency": "Quarterly reporting"
+    },
+    {
+      "code": "CSRD",
+      "name": "Corporate Sustainability Reporting Directive",
+      "scope": "ESG disclosure",
+      "audit_frequency": "Annual"
+    },
+    {
+      "code": "DLGS-81-2008",
+      "name": "Sicurezza Lavoro (PES/PAV/PEI specifico elettrico)",
+      "scope": "Workplace safety",
+      "audit_frequency": "Annual"
+    },
+    {
+      "code": "CEI-11-1",
+      "name": "Costruzione esercizio impianti elettrici",
+      "scope": "Italian electrical code",
+      "audit_frequency": "On-design + periodic"
+    },
+    {
+      "code": "GDPR",
+      "name": "GDPR + Codice Privacy",
+      "scope": "Customer + employee data",
+      "audit_frequency": "Continuous"
+    }
+  ],
+
+  "italian_context": {
+    "ccnl_reference": "CCNL Elettrici",
+    "ccnl_code": "ELETTRICI",
+    "ccnl_signatory_parties": ["Confindustria Energia", "Filctem-CGIL", "Flaei-CISL", "Uiltec-UIL"],
+    "ccnl_rinnovo": "2022-2025 (rinnovo in corso 2026)",
+    "ccnl_levels_canonical": [
+      { "level": "Dirigente", "monthly_gross_min_eur": 7200 },
+      { "level": "Quadro", "monthly_gross_min_eur": 4500 },
+      { "level": "B1", "monthly_gross_min_eur": 3000 },
+      { "level": "B2", "monthly_gross_min_eur": 2700 },
+      { "level": "A2", "monthly_gross_min_eur": 2300 },
+      { "level": "A3", "monthly_gross_min_eur": 2000 }
+    ],
+    "payroll_specifics": {
+      "13a_mensilita": true,
+      "14a_mensilita": false,
+      "premio_produzione": "Variabile MBO + premio risultato",
+      "tfr_quota_annual_pct": 0.0738,
+      "fondo_pension_categoria": "PEGASO (fondo pensione settore elettrico)"
+    },
+    "sindacati": [
+      {
+        "code": "FILCTEM-CGIL",
+        "name": "Federazione Italiana Lavoratori Chimica Tessile Energia Manifatture",
+        "representativity_pct": 0.36
+      },
+      {
+        "code": "FLAEI-CISL",
+        "name": "Federazione Lavoratori Aziende Elettriche",
+        "representativity_pct": 0.34
+      },
+      {
+        "code": "UILTEC-UIL",
+        "name": "Unione Italiana Lavoratori Tessile Energia Chimica",
+        "representativity_pct": 0.22
+      },
+      { "code": "ALTRI", "representativity_pct": 0.08 }
+    ]
+  },
+
+  "ld_focus_areas": [
+    "ISO 50001 lead auditor",
+    "PES/PAV/PEI safety re-qualification (biennial)",
+    "Predictive maintenance certification (Mobius / Vibration Institute)",
+    "EFRAG ESRS interpretation workshops",
+    "Power market microeconomics",
+    "GHG accounting / GHG Protocol",
+    "PNRR M2C2 project management"
+  ],
+
+  "esg_priorities": [
+    "Avoided emissions tCO2 reporting",
+    "Local impact biodiversity (wildlife corridors near wind farms)",
+    "Community engagement (PV land use)",
+    "Supply chain due diligence (PV panel rare earth)",
+    "Decommissioning fund accrual",
+    "Just transition workforce skills"
+  ]
+}

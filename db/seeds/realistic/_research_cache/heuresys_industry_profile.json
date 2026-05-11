@@ -1,0 +1,200 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-05-11T19:45:00Z",
+  "generation_method": "claude-opus-4-7-reasoning-S35.4",
+  "generation_notes": "AI-advisor generation. Heuresys è il tenant 'piattaforma' (self-tenant): minimal 4-emp SaaS startup. Pattern minimal applicato — il tenant esiste per cross-tenant superuser/admin scope, non rappresenta una vera azienda cliente. NACE M.72 services R&D + J.62 IT.",
+  "tenant_code": "heuresys",
+  "tenant_name": "Heuresys System",
+
+  "industry_classification": {
+    "nace_class_code": "J.62",
+    "nace_label_it": "Produzione di software, consulenza informatica e attività connesse",
+    "nace_label_en": "Computer programming, consultancy and related activities",
+    "nace_subclasses_primary": ["J.62.01", "M.72.19"],
+    "nace_subclasses_label_it": [
+      "Produzione di software non connesso all'edizione",
+      "Ricerca e sviluppo sperimentale nel campo delle scienze sociali"
+    ],
+    "ateco_code": "62.01.00",
+    "sub_industry": [
+      "Enterprise SaaS B2B",
+      "HR Tech / Organizational Intelligence",
+      "Knowledge Graph applications"
+    ],
+    "company_size_code": "MICRO",
+    "company_size_label": "Micro (1-9 FTE)",
+    "geography": "Italy, fully remote/distributed"
+  },
+
+  "workforce_baseline": {
+    "total_employees_canonical": 4,
+    "org_depth_typical": 2,
+    "span_of_control_max": 3,
+    "fte_by_function": {
+      "engineering_product": 0.5,
+      "founder_strategy": 0.25,
+      "sales_marketing_growth": 0.15,
+      "ops_admin": 0.1
+    },
+    "seniority_distribution": {
+      "founder": 0.25,
+      "senior_engineer": 0.5,
+      "engineer": 0.25
+    }
+  },
+
+  "org_structure_template": {
+    "root": { "role_code": "FOUNDER_CEO", "title": "Founder / CEO" },
+    "depth_1_divisions": [
+      { "code": "PROD", "title": "Product & Engineering", "fte_share": 0.5, "head_role": "CTO" },
+      {
+        "code": "GROWTH",
+        "title": "Growth & Sales",
+        "fte_share": 0.25,
+        "head_role": "Head of Growth"
+      },
+      {
+        "code": "OPS",
+        "title": "Operations & Admin",
+        "fte_share": 0.25,
+        "head_role": "Founder dual-hat"
+      }
+    ]
+  },
+
+  "process_blueprint": {
+    "value_chain_primary": [
+      {
+        "code": "BP-HS-PRODUCT-DEV",
+        "name_it": "Product development lifecycle",
+        "criticality": "CRITICAL"
+      },
+      {
+        "code": "BP-HS-SAAS-OPS",
+        "name_it": "SaaS operations + incident response",
+        "criticality": "HIGH"
+      },
+      { "code": "BP-HS-SALES", "name_it": "B2B Sales pipeline + onboarding", "criticality": "HIGH" }
+    ],
+    "value_chain_support": [
+      {
+        "code": "BP-HS-GDPR",
+        "name_it": "GDPR + DPIA per nuove feature",
+        "criticality": "REGULATORY"
+      }
+    ],
+    "typical_count": 4,
+    "critical_processes": ["BP-HS-PRODUCT-DEV", "BP-HS-SAAS-OPS"]
+  },
+
+  "role_inventory": {
+    "total_unique_roles": 5,
+    "canonical_roles": [
+      {
+        "code": "FOUNDER_CEO",
+        "title_it": "Founder / CEO",
+        "esco_isco": "1120",
+        "ccnl_level": "Direzione"
+      },
+      {
+        "code": "CTO",
+        "title_it": "CTO / Lead Engineer",
+        "esco_isco": "2511",
+        "ccnl_level": "Quadro"
+      },
+      {
+        "code": "SR_FULLSTACK",
+        "title_it": "Senior Full-Stack Engineer",
+        "esco_isco": "2512",
+        "ccnl_level": "1° livello"
+      },
+      {
+        "code": "ENGINEER",
+        "title_it": "Software Engineer",
+        "esco_isco": "2512",
+        "ccnl_level": "2° livello"
+      },
+      {
+        "code": "GROWTH_LEAD",
+        "title_it": "Growth / GTM Lead",
+        "esco_isco": "1221",
+        "ccnl_level": "1° livello"
+      }
+    ]
+  },
+
+  "skill_emphasis": {
+    "primary_esco_occupations": [
+      { "isco": "2511", "label": "Systems analysts", "weight": 0.3 },
+      { "isco": "2512", "label": "Software developers", "weight": 0.5 },
+      { "isco": "1221", "label": "Sales and marketing managers", "weight": 0.2 }
+    ],
+    "critical_skills": [
+      "TypeScript / Node.js / Next.js 16",
+      "PostgreSQL + Prisma ORM",
+      "Knowledge graph design (ESCO + Neo4j-style)",
+      "Multi-tenant RLS architecture",
+      "B2B SaaS GTM",
+      "GDPR for SaaS",
+      "OWASP application security"
+    ]
+  },
+
+  "kpi_framework": {
+    "operational": [
+      { "code": "KPI-UPTIME", "name_it": "SaaS uptime SLA", "target": "≥99.9%", "unit": "%" },
+      {
+        "code": "KPI-DEPLOY-FREQ",
+        "name_it": "Deploy frequency",
+        "target": "≥10/week",
+        "unit": "count"
+      }
+    ],
+    "strategic": [
+      {
+        "code": "KPI-ARR",
+        "name_it": "Annual Recurring Revenue",
+        "target": "growth +50% YoY",
+        "unit": "EUR"
+      },
+      { "code": "KPI-NRR", "name_it": "Net Revenue Retention", "target": "≥110%", "unit": "%" }
+    ],
+    "compliance": [
+      {
+        "code": "KPI-GDPR-DSR",
+        "name_it": "GDPR Data Subject Requests timeliness",
+        "target": "100% within 30 days",
+        "unit": "%"
+      }
+    ]
+  },
+
+  "compliance_frameworks": [
+    { "code": "GDPR", "name": "GDPR + DPIA per processing", "scope": "Continuous" },
+    { "code": "SOC2-PLANNED", "name": "SOC 2 Type II (planned 2027)", "scope": "Customer trust" }
+  ],
+
+  "italian_context": {
+    "ccnl_reference": "CCNL Commercio Terziario (Confcommercio)",
+    "ccnl_code": "COMMERCIO-TERZIARIO",
+    "ccnl_signatory_parties": ["Confcommercio", "Filcams-CGIL", "Fisascat-CISL", "UILTUCS-UIL"],
+    "payroll_specifics": {
+      "13a_mensilita": true,
+      "tfr_quota_annual_pct": 0.0738,
+      "fondo_pension_categoria": "FONTE (fondo pensione settore commercio/terziario)"
+    },
+    "sindacati": [
+      { "code": "FILCAMS-CGIL", "representativity_pct": 0.4 },
+      { "code": "FISASCAT-CISL", "representativity_pct": 0.3 },
+      { "code": "UILTUCS-UIL", "representativity_pct": 0.2 },
+      { "code": "ALTRI", "representativity_pct": 0.1 }
+    ]
+  },
+
+  "ld_focus_areas": [
+    "Knowledge graph theory + Neo4j",
+    "Multi-tenant architecture",
+    "ESCO/CEDEFOP taxonomy",
+    "B2B SaaS growth"
+  ]
+}
