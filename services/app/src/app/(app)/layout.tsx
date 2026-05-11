@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { getNavForUser } from '@/lib/navigation';
+import { resolveUserPalette } from '@/lib/theme-framework/resolve-user-palette';
 import { BrandShell, type BrandShellTenant } from './_components/BrandShell';
 
 /**
@@ -55,6 +56,10 @@ export default async function AppGroupLayout({ children }: { children: ReactNode
   const displayName = u.name ?? u.username ?? u.email ?? 'User';
   const userInitials = deriveInitials(displayName);
 
+  // Resolve user-scoped palette + theme (project default fallback if NULL)
+  const userIdMaybe = (session.user as { id?: string }).id;
+  const { palette, theme } = await resolveUserPalette(userIdMaybe);
+
   return (
     <BrandShell
       sections={sections}
@@ -66,6 +71,8 @@ export default async function AppGroupLayout({ children }: { children: ReactNode
       }}
       tenant={tenant}
       envLabel={process.env.NODE_ENV === 'production' ? 'PROD' : 'DEV'}
+      initialPalette={palette}
+      initialTheme={theme}
     >
       {children}
     </BrandShell>

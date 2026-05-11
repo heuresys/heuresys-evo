@@ -5,9 +5,11 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { LocaleSwitcher } from '@/lib/i18n';
 import type { NavSection } from '@/lib/navigation/types';
+import type { PaletteId, ThemeMode } from '@/lib/theme-framework/palettes';
 import { NavIcon } from './nav-icons';
 import { UserMenu } from './UserMenu';
 import { ThemeToggle } from './ThemeToggle';
+import { PaletteSwitcher } from './PaletteSwitcher';
 
 export interface BrandShellUser {
   username: string;
@@ -30,6 +32,9 @@ export interface BrandShellProps {
   tenant: BrandShellTenant;
   envLabel?: string;
   buildHash?: string;
+  /** Resolved user palette (server-side via resolveUserPalette) for chrome switcher. */
+  initialPalette: PaletteId;
+  initialTheme: ThemeMode;
   children: React.ReactNode;
 }
 
@@ -56,6 +61,8 @@ export function BrandShell({
   tenant,
   envLabel,
   buildHash,
+  initialPalette,
+  initialTheme,
   children,
 }: BrandShellProps) {
   const [collapsed, setCollapsed] = React.useState(false);
@@ -123,6 +130,7 @@ export function BrandShell({
         </div>
         <div className="nav-right">
           <LocaleSwitcher />
+          <PaletteSwitcher initialPalette={initialPalette} initialTheme={initialTheme} />
           <ThemeToggle />
           <UserMenu username={user.username} role={user.role} />
         </div>

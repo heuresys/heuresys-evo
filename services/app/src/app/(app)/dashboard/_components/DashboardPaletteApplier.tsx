@@ -9,9 +9,13 @@ interface Props {
 }
 
 /**
- * Applies user-preference palette/theme to <html> when mounted under /dashboard/*.
- * Restores the previous (project default) values on unmount so navigating away
- * from /dashboard reverts to the project-wide palette.
+ * Scopes user-preference palette/theme application to /dashboard/* routes:
+ * sets <html data-palette={X} data-theme={Y}> on mount, restores the
+ * previous (project default) values on unmount so navigating away from
+ * /dashboard reverts to the project-wide palette.
+ *
+ * The switcher control itself lives in BrandShell topbar (chrome standard),
+ * visible on all (app)/* routes. Only the runtime effect is dashboard-scoped.
  */
 export function DashboardPaletteApplier({ palette, theme }: Props) {
   const prevRef = useRef<{ palette: string | null; theme: string | null } | null>(null);
@@ -27,13 +31,13 @@ export function DashboardPaletteApplier({ palette, theme }: Props) {
     if (theme) html.dataset.theme = theme;
 
     return () => {
-      const html = document.documentElement;
+      const root = document.documentElement;
       const prev = prevRef.current;
       if (!prev) return;
-      if (prev.palette !== null) html.dataset.palette = prev.palette;
-      else delete html.dataset.palette;
-      if (prev.theme !== null) html.dataset.theme = prev.theme;
-      else delete html.dataset.theme;
+      if (prev.palette !== null) root.dataset.palette = prev.palette;
+      else delete root.dataset.palette;
+      if (prev.theme !== null) root.dataset.theme = prev.theme;
+      else delete root.dataset.theme;
     };
   }, [palette, theme]);
 
