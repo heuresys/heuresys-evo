@@ -25,6 +25,8 @@ export interface DataSourceConfig {
   query?: string;
   /** Inline static value for `type === 'static'`. */
   value?: unknown;
+  /** Internal API endpoint path for `type === 'api'`. Must match /^\/api\/[a-z0-9\-\/]+$/i. */
+  endpoint?: string;
   /** Per-config TTL override in seconds. Falls back to widget_catalog.cache_ttl_seconds. */
   ttl?: number;
 }
@@ -99,8 +101,10 @@ export async function fetchWidgetData(args: FetchArgs): Promise<FetchResult> {
         data = await fetchSql(config, ctx);
         break;
       case 'api':
+        data = await fetchApi(config, ctx);
+        break;
       case 'graph':
-        error = `data_source_type "${config.type}" not yet implemented (Sprint 2/3)`;
+        error = `data_source_type "graph" not yet implemented (Sprint 3)`;
         break;
       default: {
         const exhaustive: never = config.type;
@@ -136,6 +140,47 @@ async function fetchSql(config: DataSourceConfig, ctx: FetchContext): Promise<un
   return withTenant(ctx.tenantId, async (tx) => {
     return tx.$queryRawUnsafe(trimmed);
   });
+}
+
+const ALLOWED_ENDPOINT_RE = /^\/api\/[a-z][a-z0-9\-\/]*$/i;
+
+async function fetchApi(config: DataSourceConfig, ctx: FetchContext): Promise<unknown> {
+  if (!config.endpoint || !ALLOWED_ENDPOINT_RE.test(config.endpoint)) {
+    throw new Error(
+      'api data source requires safe "endpoint" path matching /^\\/api\\/[a-z0-9\\-\\/]+$/i'
+    );
+  }
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3200';
+  const sep = config.endpoint.includes('?') ? '&' : '?';
+  const url = ctx.tenantId
+    ? `${baseUrl}${config.endpoint}${sep}tenant=${encodeURIComponent(ctx.tenantId)}`
+    : `${baseUrl}${config.endpoint}`;
+
+  // Forward session cookie (server-side fetch needs explicit auth context)
+  const { cookies } = await import('next/headers');
+  const cookieStore = await cookies();
+  const cookieHeader = cookieStore
+    .getAll()
+    .map((c) => `${c.name}=${c.value}`)
+    .join('; ');
+
+  const ac = new AbortController();
+  const timeoutId = setTimeout(() => ac.abort(), 5000);
+  try {
+    const res = await fetch(url, {
+      signal: ac.signal,
+      headers: cookieHeader ? { cookie: cookieHeader } : {},
+      cache: 'no-store',
+    });
+    if (!res.ok) {
+      throw new Error(`api fetch ${res.status} ${res.statusText} (${config.endpoint})`);
+    }
+    const json = (await res.json()) as { data?: unknown };
+    // Unwrap { data: ... } convention; fallback to whole response
+    return json && typeof json === 'object' && 'data' in json ? json.data : json;
+  } finally {
+    clearTimeout(timeoutId);
+  }
 }
 
 /** Internal — exported only for tests. */
