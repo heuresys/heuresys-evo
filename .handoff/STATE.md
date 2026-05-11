@@ -1,59 +1,70 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-11T17:30Z · S35.0+S35.1+S35.2 closed + S35.3 M0-M4 done (5/15 milestones, pilot RTL Bank ~30% complete)
+> Updated: 2026-05-11T17:55Z · S35.0+S35.1+S35.2 closed + S35.3 M0-M6 done (7/15 milestones, pilot RTL Bank ~45% complete)
 
 ## Last session brief
 
-S35 (~4h FTE effettive vs ~75h plan stimato — collapso drastico da pre-existing infrastructure):
+S35 (~5h FTE effettive vs ~95h plan stimato — 5% collapse da pre-existing infrastructure):
 
-**S35.0 Forensic precondition (commit `d26883e`)**: audit forensic 95% → **100%**. `role_default_dashboards` Prisma model + ESLint `lint:tenant-id` + bcrypt rotation già closed L57.
+**S35.0 Forensic precondition** (commit `d26883e`): audit forensic 95% → 100%.
+**S35.1 ITLAB phase18d** (commit `ff0bd45`): 22 sindacati + 4 tenant↔CCNL + 12 RSU + 9 CCNL_COMM levels.
+**S35.2 Infrastructure + Lexicon** (commit `cd87416`): lexicon SoT 16 sigle + 7 lib helpers + CASCADIA skeleton.
+**S35.3 Pilot RTL Bank M0-M6 done** (commits `f0a39b0` + TBD M4b+M6):
 
-**S35.1 ITLAB phase18d (commit `ff0bd45`)**: 22 sindacati + 4 tenant↔CCNL + 12 RSU/RSA + 9 CCNL_COMM levels + 3 Prisma model. Migration applied su VM con backup pre-migration sha256.
+- **M0** backup `heuresys_platform-pre-S35.3-pilot-rtl-20260511T171222Z.dump` sha256 `2fcc0d85...`
+- **M1** industry profile JSON HUMAN GATE ✅ approved (250 righe, 32 ruoli canonical, 18 critical skills, 24 KPI, 10 compliance, CCNL_CRED_2024)
+- **M2** INDOOR taxonomy BANKING-M enrichment (22 typical_roles + 11 departments + 14 ESCO codes + typical_hierarchy JSONB)
+- **M3** OPOURSKA Layer 1 org_units: già adeguato (23 active: 1 L1 + 9 L2 + 8 L3 + 5 L4)
+- **M4** + **M4b** OPOURSKA Layer 4 job_templates: 32 totali (17 pre + 2 M4 HR/Ops + 13 M4b CEO/CRO/Compl/AML/IT/Cyber/CC/MKT/HRBP/FinRpt/Audit/FX/BackOff)
+- **M6** OPOURSKA Layer 2 process blueprint: 11 BANKING-M BP (8 pre + 3 M6: Onboarding+Treasury+Audit)
+- **M5** KPI framework **DEFERRED** — kpi_definitions canonical table missing; KPI modellati template-based (process_kpis + org_unit_kpis + job_kpis + tenant_job_kpis); richiede architettura mapping JSON→3-4 tabelle
+- **M7** Compliance frameworks **DEFERRED** — `regulatory_frameworks`/`policies` master table missing; richiede migration phase18e nuova
 
-**S35.2 Pipeline skeleton + Lexicon (commit `cd87416`)**: `docs/_meta/lexicon.md` SoT 16 sigle + 7 lib helpers + 2 README + CLAUDE.md update + .gitignore.
+## Top priorities
 
-**S35.3 Pilot RTL Bank in progress (M0-M4 done)**:
-- **M0 backup** `heuresys_platform-pre-S35.3-pilot-rtl-20260511T171222Z.dump` sha256 `2fcc0d85...`
-- **M1 industry profile** `db/seeds/realistic/_research_cache/rtl_bank_industry_profile.json` — HUMAN GATE M1 ✅ approved (250 righe JSON, NACE K.64.19, workforce 158 emp, 7 divisioni, 10 BP, 32 ruoli canonical, 18 critical skills, 24 KPI, 10 compliance framework, CCNL_CRED_2024)
-- **M2 INDOOR taxonomy** (SQL `_generated_sql/rtl_bank_M2_industry_taxonomy.sql` applied): BANKING-M industry_profile enrichment — typical_hierarchy + 22 typical_roles + 11 typical_departments + 14 ESCO occupation codes
-- **M3 OPOURSKA Layer 1 org_units**: già adeguato pre-S35.3 (1 L1 + 9 L2 + 8 L3 + 5 L4, zero orphan, no change applicata)
-- **M4 OPOURSKA Layer 4 job_templates** (SQL `_generated_sql/rtl_bank_M4_position_fix.sql` applied): 2 nuovi job_templates (RTL-HR-MGR, RTL-OPS-MGR) + fix 2 employees orfani → **0 orphans, 19 job_templates RTL Bank, 158/158 active emp con position_id**
+### Immediate carry-forward S35.3 M5+M7+M8-M14 (~15-25h FTE):
 
-**Carry-forward M4b**: extensione 32 ruoli canonical del profile JSON (CEO, Director, AML Specialist, Cybersec, ecc.) — patch minimo solo per orfani, espansione completa M5+.
-
-Plan canonical: `~/.claude/plans/in-questa-fase-io-spicy-galaxy.md`. Effort residuo S35.3 M5-M15: ~15-25 FTE-h.
-
-## Top priorities S35.3 continuation
-
-1. **M5 KPI framework** — `kpi_definitions` ≥30 industry-specific banking (NPL, Cost/Income, ROE, CET1, LCR, AML alert, customer satisfaction, training hours, turnover) seedare da `kpi_framework` del JSON
-2. **M6 Process blueprint** — `business_processes` ≥10 RTL-specific (Onboarding/Erogazione Credito/Payment Processing/Wealth Mgmt/Treasury/Risk/Compliance/Audit/HR/IT) — esistono già 8 BP RTL, verificare e estendere
-3. **M7 Compliance frameworks** — `policies` + `regulatory_frameworks` banking: PSD2/AML5/Basel III/GDPR/BdI Circ 285+295/TUB/DORA
-4. **M8 Workforce enrichment** — 100% RTL emp con manager_id + hire_date + seniority (già 158/158 active, verifica)
-5. **M9-M14**: Assessments/Reviews/Career/Succession/L&D/Recruiting/Comp/Mentorship/Engagement/Time-off/Docs/Audit/KG/AI
+1. **M5 KPI framework** — architettare mapping JSON 24 KPI → tabelle DBMS:
+   - 6 operational (NPL/Cost-Income/Branch tx/FCR/Loan time/Digital adopt) → `process_kpis` linked to BP-002/003/006
+   - 7 strategic (ROE/CET1/LCR/NSFR/CSAT/...) → `org_unit_kpis` (org_unit_template root)
+   - 6 compliance/regulatory (AML alert/STR/audit findings/...) → `process_kpis` linked to BP-007/011
+   - 5 people/culture (turnover/training/engagement/...) → `org_unit_kpis` (org_unit_template STAFF)
+2. **M7 Compliance frameworks** — migration phase18e: `regulatory_frameworks` + `tenant_regulatory_compliance` + seed 10 framework (PSD2/MiFID II/AML5/Basel III/GDPR/BdI 285+295/TUB/DORA)
+3. **M8 Workforce enrichment** — verify 158/158 con manager_id + hire_date + seniority (lazy check su DB esistente, possibilmente già OK)
+4. **M9 Assessments + reviews + calibration** — Gaussian distribuzione skill_assessments + quintile performance_reviews (~1500 employee_skill_assessments + 1 review cycle annuale)
+5. **M10-M14**: Goals/OKRs, Career+Succession, L&D, Recruiting, Comp, Mentorship, Engagement, Time-off, Docs, Audit, KG projection, AI predictive
 6. **M15 PILOT GATE** — dashboards live + 25-area SQL all green
+
+### Architectural carry-forward (necessario per pilot completion):
+
+- **phase18e migration** — `regulatory_frameworks` + `tenant_regulatory_compliance` (M7 prereq, ~2-3h)
+- **process_kpis seeding architecture** — decisione: tabella `kpi_definitions` master nuova o usare `process_kpis`+`org_unit_kpis` esistenti? (M5 prereq, ~1h decisione + 2-3h seeding)
+- **TALPIPE semantic gate implementation** — `lib/semantic-query.mjs` stubbed in S35.2, deve essere callable da M11 (career+succession)
 
 ## Open questions
 
-- M5 KPI seed: usare `kpi_definitions` o `tenant_kpis`? (DB ha entrambe in alcune aree, verificare convenzione)
-- M4b job_templates extension: rivedere prima dell'M5 (HR+Operations sono solo 2 di 32) oppure procedere e tornare a M4b in batch?
-- M11 succession_pipeline semantic gate: implementare prima la query semantic in `lib/semantic-query.mjs` o derivare manualmente dal DB esistente?
+- M5: aggiungere `kpi_definitions` master table (clean architecture, +migration) o seedare nei 3-4 tier esistenti (pragmatic, no migration)?
+- M7: phase18e include solo `regulatory_frameworks` master + `tenant_regulatory_compliance` junction, oppure anche `compliance_checks_results` per audit trail?
+- M9 distribuzioni Gaussian: implementare `lib/distributions.mjs` come callable da Node.js seed-generator script, oppure precomputare valori in SQL?
 
-## Stack snapshot (post-S35.3 M0-M4)
+## Stack snapshot (post-S35.3 M0-M6)
 
-- **Audit forensic**: 100% (era 95%)
-- **ITLAB**: 22 sindacati + 4 CCNL links + 12 RSU + 9 CCNL_COMM + holidays IT 2025-2027
-- **CASCADIA skeleton**: lexicon SoT + 7 lib helpers + 2 README
-- **RTL Bank pilot stato**:
-  - 158/158 active employees con position_id ✅
-  - 19 job_templates ✅ (target ≥25, +6 carry M4b)
+- **Audit forensic**: 100%
+- **ITLAB**: 22 sindacati + 4 CCNL links + 12 RSU + 9 CCNL_COMM
+- **CASCADIA**: lexicon SoT + 7 lib helpers
+- **RTL Bank pilot**:
+  - 158/158 active emp con position_id ✅
+  - 32 job_templates ✅ (M4 era 17, +2 M4 + 13 M4b = 32 = target)
   - 4357 job_template_skills ESCO-grounded ✅
-  - 23 active org_units (1 L1 + 9 L2 + 8 L3 + 5 L4) ✅
-  - BANKING-M industry_profile enriched ✅
+  - 23 active org_units ✅
+  - BANKING-M industry_profile enriched ✅ (22 roles + 11 depts + 14 ESCO + typical_hierarchy)
+  - 11 BANKING-M business_processes ✅ (target ≥10)
   - Industry profile JSON canonical ✅
-  - CCNL_CRED_2024 link ✅ + 4 sindacati linked ✅
+  - CCNL_CRED_2024 + 4 sindacati linked ✅
+  - kpi_definitions: ❌ DEFERRED M5
+  - regulatory_frameworks: ❌ DEFERRED M7 (no master table)
   - succession_pipeline: 0 rows (M11)
-  - kpi_definitions: 0-5 (M5 target ≥30)
-- **Commits S35**: `d26883e` (S35.0) · `ff0bd45` (S35.1) · `cd87416` (S35.2) · TBD (S35.3 M0-M4)
+- **Commits S35**: `d26883e` · `ff0bd45` · `cd87416` · `f0a39b0` (S35.3 M0-M4) · TBD (S35.3 M4b+M6)
 - **Tests**: typecheck PASS · `npm run lint:tenant-id` exit 0
 
 ## Verification
@@ -61,31 +72,18 @@ Plan canonical: `~/.claude/plans/in-questa-fase-io-spicy-galaxy.md`. Effort resi
 ```bash
 git log --oneline -8
 
-# S35.3 M4 verification
+# S35.3 M4b+M6 verification
 ssh oracle-vm-default "sudo -u postgres psql -d heuresys_platform -At -c \"
-  SELECT 
-    (SELECT count(*) FILTER (WHERE position_id IS NULL) FROM employees 
-     WHERE tenant_id=(SELECT id FROM tenants WHERE code='rtl-bank') AND employment_status='active') AS orphans,
+  SELECT
     (SELECT count(*) FROM job_templates WHERE tenant_id=(SELECT id FROM tenants WHERE code='rtl-bank')) AS jobs,
-    (SELECT count(*) FROM org_units WHERE tenant_id=(SELECT id FROM tenants WHERE code='rtl-bank') AND is_active=true) AS units\""
-# expected: 0 | 19 | 23
-
-# S35.3 M2 BANKING-M enrichment
-ssh oracle-vm-default "sudo -u postgres psql -d heuresys_platform -c \"
-  SELECT code, array_length(typical_roles,1), array_length(esco_occupation_codes,1), 
-    typical_hierarchy IS NOT NULL FROM industry_profiles WHERE code='BANKING-M'\""
-# expected: BANKING-M | 22 | 14 | t
-
-# Industry profile artifact
-test -f db/seeds/realistic/_research_cache/rtl_bank_industry_profile.json && \
-  wc -l db/seeds/realistic/_research_cache/rtl_bank_industry_profile.json
-# expected: file exists, ~330 lines
+    (SELECT count(*) FROM business_processes WHERE profile_id=(SELECT id FROM industry_profiles WHERE code='BANKING-M')) AS bp,
+    (SELECT count(*) FILTER (WHERE position_id IS NULL) FROM employees WHERE tenant_id=(SELECT id FROM tenants WHERE code='rtl-bank') AND employment_status='active') AS orphans\""
+# expected: 32 | 11 | 0
 ```
 
 Riferimenti:
 - Plan canonical: `~/.claude/plans/in-questa-fase-io-spicy-galaxy.md`
-- Lexicon SoT: `docs/_meta/lexicon.md`
-- Pipeline scripts: `scripts/seed-generator/README.md`
+- Lexicon: `docs/_meta/lexicon.md`
 - M-stage SQL: `db/seeds/realistic/_generated_sql/rtl_bank_M*.sql`
 - Industry profile JSON: `db/seeds/realistic/_research_cache/rtl_bank_industry_profile.json`
-- Backup pre-S35.3: `/var/backups/heuresys-evo/heuresys_platform-pre-S35.3-pilot-rtl-20260511T171222Z.dump` sha256 `2fcc0d85...`
+- Backup pre-S35.3: `heuresys_platform-pre-S35.3-pilot-rtl-20260511T171222Z.dump` sha256 `2fcc0d85...`
