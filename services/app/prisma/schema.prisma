@@ -721,6 +721,8 @@ model users {
   totp_failed_attempts                                              Int?                                  @default(0)
   totp_lockout_until                                                DateTime?                             @db.Timestamptz(6)
   totp_secret_encrypted                                             String?
+  palette_preference_id                                             String?                               @db.VarChar(32)
+  theme_preference                                                  String?                               @db.VarChar(8)
   account                                                           account[]
   ai_usage_log                                                      ai_usage_log[]
   analysis_sessions                                                 analysis_sessions[]
