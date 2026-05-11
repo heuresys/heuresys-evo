@@ -85,6 +85,8 @@ export async function GET(_req: Request, ctx: RouteContext) {
       tenantId: user.tenantId ?? null,
       role: user.role ?? null,
       userId: user.id ?? null,
+      // S40 Item3 — employee context for widget endpoints with {employeeId} template
+      employeeId: (user as { employeeId?: string | null }).employeeId ?? null,
     },
   });
 

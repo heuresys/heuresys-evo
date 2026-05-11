@@ -35,6 +35,8 @@ export interface FetchContext {
   tenantId: string | null;
   userId?: string | null;
   role?: string | null;
+  /** S40 Item3 — Current user's employee_id (resolved server-side from session.user). */
+  employeeId?: string | null;
 }
 
 export interface FetchResult {
@@ -145,16 +147,36 @@ async function fetchSql(config: DataSourceConfig, ctx: FetchContext): Promise<un
 const ALLOWED_ENDPOINT_RE = /^\/api\/[a-z][a-z0-9\-\/]*$/i;
 
 async function fetchApi(config: DataSourceConfig, ctx: FetchContext): Promise<unknown> {
-  if (!config.endpoint || !ALLOWED_ENDPOINT_RE.test(config.endpoint)) {
-    throw new Error(
-      'api data source requires safe "endpoint" path matching /^\\/api\\/[a-z0-9\\-\\/]+$/i'
+  if (!config.endpoint) {
+    throw new Error('api data source requires "endpoint" path');
+  }
+
+  // S40 Item3 — Template substitution {employeeId} → ctx.employeeId BEFORE validation.
+  // Bail if endpoint requires {employeeId} but ctx.employeeId not set (e.g. platform users).
+  let resolvedEndpoint = config.endpoint;
+  if (config.endpoint.includes('{employeeId}')) {
+    if (!ctx.employeeId) {
+      throw new Error('api endpoint requires {employeeId} but FetchContext.employeeId is unset');
+    }
+    resolvedEndpoint = config.endpoint.replace(
+      /\{employeeId\}/g,
+      encodeURIComponent(ctx.employeeId)
     );
   }
+
+  // Validate resolved endpoint (no curly braces, safe path)
+  const pathOnly = resolvedEndpoint.split('?')[0] ?? '';
+  if (!ALLOWED_ENDPOINT_RE.test(pathOnly)) {
+    throw new Error(
+      'api endpoint must match /^\\/api\\/[a-z0-9\\-\\/]+$/i after template substitution'
+    );
+  }
+
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3200';
-  const sep = config.endpoint.includes('?') ? '&' : '?';
+  const sep = resolvedEndpoint.includes('?') ? '&' : '?';
   const url = ctx.tenantId
-    ? `${baseUrl}${config.endpoint}${sep}tenant=${encodeURIComponent(ctx.tenantId)}`
-    : `${baseUrl}${config.endpoint}`;
+    ? `${baseUrl}${resolvedEndpoint}${sep}tenant=${encodeURIComponent(ctx.tenantId)}`
+    : `${baseUrl}${resolvedEndpoint}`;
 
   // Forward session cookie (server-side fetch needs explicit auth context)
   const { cookies } = await import('next/headers');

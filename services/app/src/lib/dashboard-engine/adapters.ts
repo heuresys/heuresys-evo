@@ -241,8 +241,9 @@ export const rbacMatrixAdapter: WidgetAdapter = (raw) => {
 };
 
 /**
- * ActivityFeed — `{ items: ActivityFeedItem[], title?, live? }`.
+ * ActivityFeed — `{ items: ActivityFeedItem[], title?, live?, holidays?: HolidayPreview[] }`.
  * Items expected as JSONB array of `{ id, when, what, who? }`.
+ * S40 Item4: holidays optional passthrough (consumed by BrandActivityFeed W6.5).
  */
 export const activityFeedAdapter: WidgetAdapter = (raw) => {
   const row = firstRow(raw);
@@ -254,6 +255,8 @@ export const activityFeedAdapter: WidgetAdapter = (raw) => {
   if (title !== null) props.title = title;
   const live = asBoolean(row.live);
   if (live !== null) props.live = live;
+  const holidays = asArray(row.holidays);
+  if (holidays !== null) props.holidays = holidays;
   return props;
 };
 
