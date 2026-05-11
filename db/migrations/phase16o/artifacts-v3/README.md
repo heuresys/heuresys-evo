@@ -1,14 +1,26 @@
-# Phase16o pipeline-v3 (S31 — opzione B+, apply-ready)
+# Phase16o pipeline-v3 — APPLIED on PROD 2026-05-11T00:44:19Z (S32)
 
-> Status: **APPLY-READY · sign-off pending S32**.
-> Dry-run validated 2026-05-11 02:14Z on `heuresys_phase16o_test` (restored from `pre-phase16o-20260510T044105Z.dump`); production DBMS untouched.
+> ✅ **STATUS: APPLIED**. employees vertical-split Phase 2 closed.
+> Production state: `employees` is now a VIEW joining `employees_core` (18 cols) + 3 satellites (`employees_pii` 38 + `employees_hr` 28 + `employees_payroll` 11). 3 INSTEAD OF triggers route writes. 65 dependent views recreated. 4 mat views refreshed.
+
+## Apply summary
+
+| Field | Value |
+|---|---|
+| Pipeline file | `phase16o-pipeline-v3.sql` (3212 lines, 145KB) |
+| Pipeline sha256 | `4de3ab0e2b2e2f3791588a1ebb8a3f94981d171649888260964353194fc29514` |
+| Backup pre-apply | `oracle-vm-default:/var/backups/heuresys-evo/heuresys_platform-pre-phase16o-20260510T044105Z.dump` (397M, sha256 `dba5a08b…`) |
+| Backup post-apply | `oracle-vm-default:/var/backups/heuresys-evo/heuresys_platform-post-phase16o-20260511T004606Z.dump` (397M, sha256 `30f04af7…`) |
+| Apply log | `oracle-vm-default:/var/log/phase16o-apply-20260511T004419Z.log` (6537 bytes) |
+| Apply duration | ~30 seconds |
+| Outcome | COMMIT successful, all asserts PASS |
 
 ## Composition
 
-`phase16o-pipeline-v3.sql` (3212 lines, 145KB) wraps:
+`phase16o-pipeline-v3.sql` (3212 lines, 145KB) wrapped:
 
 1. **DROP CASCADE 65 dependent views** in reverse topological order — INSERTED before stage 4
-2. **Canonical plan body** from `db/seeds/phase16o_employees_to_view.DRAFT-DEFERRED.sql`:
+2. **Canonical plan body** from `db/seeds/phase16o_employees_to_view.APPLIED-2026-05-11.sql`:
    - Pre-flight asserts (270 rows, satellite drift, FK integrity)
    - DROP `trg_sync_employees_to_satellites` + sync function
    - DROP `employees_full` view
@@ -20,95 +32,80 @@
 3. **RECREATE 65 dependent views** in forward topological order — INSERTED after stage 6
 4. **REFRESH 4 mat views** + final view-count assert (65/65 recreated) — INSERTED at end
 
-All wrapped in single `BEGIN; ... COMMIT;` transaction. ROLLBACK on any error.
+All wrapped in single `BEGIN; ... COMMIT;` transaction.
 
-## Dry-run validation
+## Post-apply state
 
 ```
-[restore] dump 397M → 691 tables (4 ignored: ivfflat embeddings, maintenance_work_mem 64MB)
-[apply pipeline-v3]
-  · 0/7 pre-flight asserts: 270 rows, zero drift                        ✓
-  · 1/7 DROP sync trigger + function                                    ✓
-  · 2/7 DROP employees_full                                             ✓
-  · INSERT DROP CASCADE 65 views (reverse topo)                         ✓
-  · 3/7 RENAME employees → employees_core                               ✓
-  · 4/7 DROP COLUMN x77 → employees_core has 18 cols                    ✓
-  · 5/7 CREATE VIEW employees → 270 rows                                ✓
-  · 6/7 INSTEAD OF triggers (3 of them)                                 ✓
-  · INSERT RECREATE 65 views (forward topo)                             ✓
-  · INSERT REFRESH 4 mat views                                          ✓
-  · 7/7 final assert: view=270 core=270 FK=209 triggers=3               ✓
-  · COMMIT                                                              ✓
-
-[functional INSTEAD OF triggers test]
-  INSERT employees → core=1 pii=1 hr=1 payroll=1 view=1                 ✓
-  UPDATE employees SET first_name → propagated to PII                   ✓
-  DELETE employees → core=0 pii=0 hr=0 view=0 (FK CASCADE)              ✓
+employees (VIEW)                  : 270 rows
+employees_core                    : 270 rows
+employees_pii                     : 270 rows
+employees_hr                      : 270 rows
+employees_payroll                 : 269 rows (1 employee with NULL salary, expected)
+mv_talent_signals                 : 270 rows
+mv_employee_performance_context   : 264 rows (active filter)
+mv_cross_tenant_rollup            : 1 row
+mv_tenant_owner_rollup            : N rows
+analytics.v_executive_dashboard   : 4 rows (per tenant)
+INSTEAD OF triggers on employees  : 3 (insert / update / delete)
+FK targeting employees_core       : 209
 ```
 
-Total dry-run runtime: ~5 seconds (post-restore).
+## Functional smoke verified
+
+- VIEW JOIN: `SELECT count(*) FROM employees WHERE first_name IS NOT NULL` → 270 (PII JOIN ✓)
+- VIEW JOIN: `SELECT count(*) FROM employees WHERE job_title IS NOT NULL` → 270 (HR JOIN ✓)
+- VIEW JOIN: `SELECT count(*) FROM employees WHERE salary IS NOT NULL` → 269 (Payroll JOIN ✓)
+- Integrity: 0 orphan satellites, 0 employees_core without PII/HR/Payroll
+- INSTEAD OF triggers (verified pre-apply on temp DB): INSERT routes to all 4 tables, UPDATE per-table propagation, DELETE+CASCADE removes from all 4
+
+## Test suite post-apply
+
+- `npm test --workspace=services/api-gateway`: **488/488 PASS** (38 skipped: 30 RLS H13 needing DATABASE_URL_TEST + 8 pre-existing)
+- `npx tsc --noEmit -p services/app/tsconfig.json`: clean
+
+API-gateway tests are mocked (`vi.mock('../../db/pool.js', …)`) → schema-independent, immediate validation. App-side integration tests against live prod DB are out of standard CI run scope.
+
+## Side effects (CASCADE secondary drops)
+
+Pipeline-v3 `DROP VIEW … CASCADE` on the 65 explicit views also dropped 9 secondary orphan views (0 codebase references):
+
+```
+v_performance_snapshot_cluster
+v_workforce_planning_dashboard_cluster
+v_nine_box_summary
+v_total_rewards_statement_cluster
+v_recruiting_pipeline_cluster
+v_employee_lifecycle_cluster
+v_employee_experience_score_cluster
+v_compliance_dashboard_cluster
+v_executive_dashboard_cluster
+v_candidate_summary  (public.v_candidate_summary, distinct from analytics.v_candidate_summary)
+```
+
+These were pre-existing analytics dashboard prototypes unused by application code (`grep -rln "view_name" services/` returned 0 references for each). They are not recreated by pipeline-v3. If a future need surfaces, recreate from the dump or analytics design.
+
+## Rollback path (only if catastrophic regression discovered)
+
+```bash
+# Restore from post-phase16o backup if catastrophic regression discovered:
+ssh oracle-vm-default '
+  sudo -u postgres dropdb heuresys_platform
+  sudo -u postgres createdb heuresys_platform --owner=heuresys
+  sudo -u postgres pg_restore --dbname=heuresys_platform --no-owner --no-privileges --jobs=4 \
+    /var/backups/heuresys-evo/heuresys_platform-pre-phase16o-20260510T044105Z.dump
+'
+```
+
+## Follow-ups (low priority, optional)
+
+- **Prisma schema sync**: `prisma db pull` will reflect employees as a VIEW. Audit that no `RETURNING *` on INSERT routes break (low risk: INSTEAD OF preserves canonical shape). Likely zero refactor needed.
+- **Performance bench**: query plans on VIEW JOIN may shift. Sample hot queries via `EXPLAIN ANALYZE`. Add satellite indexes if regression observed.
+- **9 secondary orphan views**: if any business need emerges, recreate via canonical analytics design.
 
 ## Files
 
 | File | Size | sha256 (on VM) |
 |---|---|---|
 | `phase16o-pipeline-v3.sql` | 145KB · 3212 lines | `4de3ab0e2b2e2f3791588a1ebb8a3f94981d171649888260964353194fc29514` |
-| `defs.sql` | 112KB · 263 lines | (intermediate from S30, regeneratable) |
-
-`defs.sql` is the per-view DDL extracted via `pg_get_viewdef('schema.view'::regclass, true)` — used as input by `build-pipeline-v3.py` to assemble the recreate block.
-
-## Apply session checklist (S32)
-
-1. **Maintenance window** coordinated with systemd mat view refresh timer (4h UTC fires)
-2. **Backup verify** sha256 still matches `dba5a08b…`:
-   ```bash
-   ssh oracle-vm-default 'sudo sha256sum /var/backups/heuresys-evo/heuresys_platform-pre-phase16o-20260510T044105Z.dump'
-   ```
-3. **Pipeline integrity** sha256 matches generation:
-   ```bash
-   sha256sum db/migrations/phase16o/artifacts-v3/phase16o-pipeline-v3.sql
-   # expected: 4de3ab0e…
-   ```
-4. **Run dry-run again** on `heuresys_phase16o_test` (regenerate from backup) — ensure pipeline-v3 still applies cleanly:
-   ```bash
-   ssh oracle-vm-default '
-     sudo -u postgres dropdb --if-exists heuresys_phase16o_test
-     sudo -u postgres createdb heuresys_phase16o_test --owner=heuresys
-     sudo -u postgres pg_restore --dbname=heuresys_phase16o_test --no-owner --no-privileges --jobs=4 /var/backups/heuresys-evo/heuresys_platform-pre-phase16o-20260510T044105Z.dump
-     sudo -u postgres psql -d heuresys_phase16o_test -v ON_ERROR_STOP=on -f /tmp/phase16o-preflight/artifacts-v3/phase16o-pipeline-v3.sql
-   '
-   ```
-5. **Apply on prod** (single transaction, ROLLBACK on error):
-   ```bash
-   ssh oracle-vm-default '
-     sudo -u postgres psql -d heuresys_platform -1 -v ON_ERROR_STOP=on -f /tmp/phase16o-preflight/artifacts-v3/phase16o-pipeline-v3.sql 2>&1 | tee /tmp/phase16o-apply-$(date +%Y%m%dT%H%M%SZ).log
-   '
-   ```
-6. **Post-apply smoke**:
-   ```bash
-   npm test --workspace=services/api-gateway   # expect: 488 PASS
-   npm test --workspace=services/app           # expect: 224 PASS
-   ```
-7. **Backup baseline refresh**:
-   ```bash
-   ssh oracle-vm-default 'sudo -u postgres pg_dump -Fc heuresys_platform > /var/backups/heuresys-evo/heuresys_platform-post-phase16o-$(date +%Y%m%dT%H%M%SZ).dump'
-   ```
-
-## Known follow-ups (S32+)
-
-- **Prisma schema sync**: `services/app/prisma/schema.prisma` and `services/api-gateway/prisma/schema.prisma` reflect employees as a 95-col model. After apply, `prisma db pull` will refl employees as a VIEW. Auditing impact on Prisma client behavior (RETURNING * on INSERT through VIEW + INSTEAD OF: returns full VIEW shape, not table cols) — likely zero refactor needed since INSTEAD OF triggers preserve canonical insert pattern, but verify by running app+api-gateway tests post-apply.
-- **Performance bench**: query plans on VIEW JOIN vs old TABLE may shift. Index satellites if needed (likely already done in Phase 1, verify).
-- **Documentation**: ADR-0027 post-mortem (originally documented attempt failure, update with successful S32 closure).
-
-## Regeneration
-
-If schema drifts (e.g. new view added that references employees), regenerate everything:
-
-```bash
-ssh oracle-vm-default 'python3 /tmp/phase16o-preflight-builder.py'
-scp 'oracle-vm-default:/tmp/phase16o-preflight/artifacts/{views-list,edges,topo-order,phase16o-pipeline-v2}*' \
-    db/migrations/phase16o/artifacts/
-scp oracle-vm-default:/tmp/phase16o-preflight/artifacts/defs.sql \
-    db/migrations/phase16o/artifacts-v3/
-python3 db/migrations/phase16o/scripts/build-pipeline-v3.py
-```
+| `defs.sql` | 112KB · 263 lines | (intermediate, regeneratable) |

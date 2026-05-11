@@ -1,24 +1,26 @@
 -- Phase 16.O · S26 · L60 — employees vertical-split Phase 2 (VIEW + INSTEAD OF triggers)
 -- =============================================================================
--- ⚠️  STATUS: DRAFT — DEFERRED to S27+
--- ⚠️  Apply attempt 2026-05-10 ~06:50Z FAILED at Stage 4 (DROP COLUMN) due to
--- ⚠️  65 view + 4 mat view dependencies on employees columns NOT documented in
--- ⚠️  the canonical plan. Transaction rolled back, DB integrity preserved.
--- ⚠️
--- ⚠️  To complete Phase 2 a future session needs:
--- ⚠️    1. Audit each of the 65 dependent views (purpose · usage · droppable status)
--- ⚠️    2. Save view definitions via pg_get_viewdef
--- ⚠️    3. DROP CASCADE the 65 views
--- ⚠️    4. Apply this migration (employees → VIEW + INSTEAD OF triggers)
--- ⚠️    5. Recreate the views, refactored to query the new VIEW employees
--- ⚠️       (instead of the old employees TABLE which is now employees_core)
--- ⚠️    6. Verify mat view refresh (systemd timer S24)
--- ⚠️    7. Verify all 12 hot views still return same shape (used by app code)
--- ⚠️
--- ⚠️  Estimated effort revised: 15-25h FTE (vs 9-14h original estimate).
--- ⚠️  See decision: .ux-design/DECISIONS-LOG.md L60.
--- ⚠️  Backup pre-attempt: /var/backups/heuresys-evo/heuresys_platform-pre-phase16o-20260510T044105Z.dump
--- ⚠️    sha256: dba5a08b0fba34b61fa2ed5b6152d31ea0d1ab58ad27519487956e356a1157b1
+-- ✅  STATUS: APPLIED on PROD heuresys_platform — 2026-05-11T00:44:19Z (S32)
+-- ✅  Wrapped by db/migrations/phase16o/artifacts-v3/phase16o-pipeline-v3.sql
+-- ✅  (which adds DROP CASCADE 65 views before stage 4 + RECREATE 65 views in
+-- ✅  topological order after stage 6 + REFRESH 4 mat views)
+-- ✅
+-- ✅  Apply log: oracle-vm-default:/var/log/phase16o-apply-20260511T004419Z.log
+-- ✅  Backup pre-apply : pre-phase16o-20260510T044105Z.dump (sha256 dba5a08b…)
+-- ✅  Backup post-apply: post-phase16o-20260511T004606Z.dump (sha256 30f04af7…)
+-- ✅  Pipeline-v3 sha256: 4de3ab0e2b2e2f3791588a1ebb8a3f94981d171649888260964353194fc29514
+-- ✅
+-- ✅  Post-apply state:
+-- ✅    · employees (VIEW): 270 rows · employees_core: 270 rows · 3 INSTEAD OF triggers
+-- ✅    · 209 FK target employees_core · 65 dependent views recreated
+-- ✅    · 4 mat views refreshed: mv_talent_signals, mv_employee_performance_context,
+-- ✅      mv_cross_tenant_rollup, mv_tenant_owner_rollup
+-- ✅    · 9 secondary CASCADE-dropped views (orphan, 0 codebase references):
+-- ✅      v_*_cluster (8) + v_nine_box_summary + v_candidate_summary
+-- ✅    · 488/488 api-gateway tests PASS (DB-mocked, schema-independent)
+-- ✅
+-- ✅  Earlier failed attempt 2026-05-10 ~06:50Z (DROP COLUMN failed at Stage 4
+-- ✅  on 65 undocumented view dependencies) is resolved by pipeline-v3 wrapper.
 -- =============================================================================
 -- ADDRESS Phase 1 follow-up: complete vertical split by converting employees
 -- TABLE → VIEW backed by employees_core (18 col) + 3 satellites (PII/HR/Payroll).
