@@ -66,6 +66,38 @@ Workflow disciplinato per modifiche a route Next.js in produzione: ogni edit pas
 
 **OUT-OF-SCOPE day-1**: token CSS (vedi `/brand-studio` URL), asset brand (vedi `/brand:*`), componenti `packages/ui/` isolati, cross-route refactor, DB/migration.
 
+## Lexicon canonical (16 sigle) + CASCADIA pipeline (S35+)
+
+Vocabolario controllato delle catene relazionali dell'universo dati (568 modelli Prisma, 25 aree funzionali). SoT: [`docs/_meta/lexicon.md`](docs/_meta/lexicon.md). Adottato S35.2 (ADR-0029 TBD S35.7).
+
+| Sigla           | Significato                                                               | Stato                 |
+| --------------- | ------------------------------------------------------------------------- | --------------------- |
+| **OPOURSKA** ✅ | Organization-Process-OrgUnit-Role-Skill-KPI-Assessment (7-layer ontology) | base attiva           |
+| **PET** ✅      | Process/Enterprise/Talent (3 access perspectives)                         | base attiva           |
+| **INDOOR** ⭐   | Industry-NACE-Domain-Org-OrgUnit-Roles (industry cascade)                 | pending S35.3         |
+| **TALPIPE** ⭐  | Talent Pipeline (Career/Succession/9Box/TalentPool/Mobility)              | pending S35.3         |
+| **H2R** ✅      | Hire-to-Retire                                                            | pending S35.3         |
+| **SKILGRO** ⭐  | Skill-Learning loop (gap→recommend→cert→reassess)                         | pending S35.3         |
+| **GOKMER** ⭐   | Goal-KPI-Measurement-Evaluation-Review (performance cycle)                | pending S35.3         |
+| **PROGOV** ⭐   | Process Governance (workflow/approval/audit/compliance)                   | pending S35.3         |
+| **ESKAP** ⭐    | ESCO + Knowledge graph Application Projection                             | pending S35.5         |
+| **ITLAB** ⭐    | Italian Labor (CCNL/INPS/sindacati/holidays)                              | **active S35.1**      |
+| **RBP** ✅      | Role-Based Permissions matrix                                             | base attiva           |
+| **DGOV** ⭐     | Data Governance (multi-tenant + RLS + audit + GDPR)                       | base attiva (367 RLS) |
+| **SMERTO** ⭐   | Salary-Merit-Equity-Reward-Total (compensation cycle)                     | pending S35.3         |
+| **PULSAR** ⭐   | Pulse-LinkedScore-Action-Retention (engagement loop)                      | pending S35.3         |
+| **EPRA** ⭐     | Embedding-Prediction-Recommendation-Action (AI stack)                     | pending S35.3         |
+| **CASCADIA** ⭐ | Catena seeding realistic end-to-end (pipeline self-ref)                   | pending S35.2-7       |
+
+Naming convention:
+
+- Directory pipeline: `scripts/seed-generator/<sigla-minuscola>/` (es. `eskap/`, `itlab/`)
+- Commit scope: `<type>(<sigla>): <subject>` (es. `migration(itlab): ...`, `feat(eskap): ...`)
+- ADR title: `ADR-NNNN: <SIGLA>[+<SIGLA>] <topic>`
+- Audit cell criteria: "OPOURSKA coverage", "INDOOR coherence", "ESKAP completeness", ecc.
+
+**CASCADIA pipeline (Realistic Industry-Flavored Seeding)**: trasforma il DBMS scheletrico (25 aree, molte vuote) in case-study coerente per i 4 tenant (RTL Bank banking · SmartFood food · EcoNova green-tech · Heuresys SaaS). Plan: `~/.claude/plans/in-questa-fase-io-spicy-galaxy.md` · Effort: ~58-94 FTE-h multi-sessione. Stage: S35.0 forensic precondition · S35.1 ITLAB · S35.2 infrastructure · S35.3 pilot RTL · S35.4 extension · S35.5 ESKAP · S35.6 dashboard binding · S35.7 verification. Scripts: `scripts/seed-generator/README.md`.
+
 ## Mission
 
 Piattaforma SaaS B2B di Organizational Intelligence & Workforce Orchestration. Layer ontologico tra ERP/HR/BI per governare processi, struttura, ruoli, competenze e performance via Knowledge Graph ESCO bilingue (IT/EN).
@@ -231,6 +263,7 @@ Backup track parallel: cron daily/weekly/monthly · off-site Oracle bucket · re
 ## Documenti strategici
 
 - `docs/_meta/operating-baseline.md` — **regole comportamentali complete (canonical SoT)**
+- `docs/_meta/lexicon.md` — **vocabolario canonical 16 sigle catene relazionali** (S35.2)
 - `docs/_meta/sprint-history.md` — **archive cronologico sprint shipped Phase 14 → S24** (append-only)
 - `docs/_meta/doc-architecture.md` — schema docs/ canonical
 - `docs/_meta/governance-evo.md` — governance progetto

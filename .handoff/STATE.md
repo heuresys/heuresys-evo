@@ -1,45 +1,90 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-11T14:38Z · S34 closed · brand chrome switcher + dashboard audit Phase 0+1 shipped
+> Updated: 2026-05-11T17:10Z · S35.0 + S35.1 + S35.2 closed · CASCADIA pipeline skeleton + ITLAB shipped + audit forensic 100%
 
 ## Last session brief
 
-S34 (~9h FTE): (1) feature **per-user palette switcher** in BrandShell topbar (chrome standard, sibling of ThemeToggle/LocaleSwitcher, scope effect `/dashboard/*` via DashboardPaletteApplier) — commit `150518c`. (2) **Forensic audit dashboard Phase 0 baseline + Phase 1 critical fixes** — commit `cab78bd`: F-009 unify renderers (DashboardGrid→DashboardRenderer in `[code]/page.tsx`), F-002 layout-doubleSplit/mainSplit resolved, F-003 perpetual LOADING resolved, F-001 strip duplicate `<h2>` da 5 brand widget, F-010 root title localizzato da `dashboard_presets.name_it/name_en`. Side: `is_published=true` su 7 `_v2` preset. Plan canonical: `~/.claude/plans/cheeky-puzzling-clarke.md`.
+S35 (~3h FTE effettive, vs 13-21h stimati grazie a issue forensic già chiuse post-L57):
+
+**S35.0 Forensic precondition (commit `d26883e`)**: 
+- Audit issue #5 chiuso: `role_default_dashboards` Prisma model aggiunto (era raw-SQL only) + back-relations su `tenants` + `dashboard_presets`
+- Audit issue #9 (ESLint `lint:tenant-id`) e #10 (bcrypt rotation) verificati già closed post-L57 (S23-quater): `scripts/hardening/lint-tenant-id.sh` + `authorize.ts:114-129` one-shot rehash
+- Forensic audit closure: 95% → **100%**
+
+**S35.1 ITLAB phase18d (commit `ff0bd45`)**: 
+- Migration `db/migrations/phase18d_italian_labor_context.sql` applied su VM (backup pre-migration `heuresys_platform-pre-phase18d-20260511T165129Z.dump` sha256 `194613fa...`)
+- 3 nuove tabelle: `sindacati` (22 rows: 4 confederazioni + 18 federazioni), `tenant_ccnl_links` (4 rows), `sindacato_tenant_links` (12 rows)
+- 9 `ccnl_levels` per CCNL_COMM_2024 (Heuresys, Confcommercio Terziario canonical)
+- 3 Prisma model + back-relations + RLS attiva (P5)
+- Holidays IT 144 rows 2025-2027 + ccnl_contracts (7 CCNL) + ccnl_levels per CCNL_CRED/ALIM/ENERGIA già presenti pre-S35.1
+
+**S35.2 Infrastructure + Lexicon (TBD commit)**:
+- `docs/_meta/lexicon.md` SoT canonical 16 sigle (4 ✅ + 12 ⭐): OPOURSKA, PET, INDOOR, TALPIPE, H2R, SKILGRO, GOKMER, PROGOV, ESKAP, ITLAB, RBP, DGOV, SMERTO, PULSAR, EPRA, CASCADIA
+- `scripts/seed-generator/README.md` + skeleton lib/: 6 helpers (rls-tx, distributions, esco-grounded, audit-emit, semantic-query, openai-wrapper, industry-research)
+- `db/seeds/realistic/README.md` + `.gitignore` update per `_generated_sql/`
+- `CLAUDE.md` root aggiornato con sezione "Lexicon canonical + CASCADIA pipeline"
+
+Plan canonical: `~/.claude/plans/in-questa-fase-io-spicy-galaxy.md` (~58-94 FTE-h totali multi-sessione, S35.0+S35.1+S35.2 chiusi in ~3h grazie a vasto pre-existing).
 
 ## Top priorities
 
-1. **Audit Phase 2 — data binding mock → live** (~12-18h FTE) — sweep 19 widget in `services/app/src/lib/dashboard-engine/registry.tsx` per sostituire demo fallback con `useWidgetData()` + API live. Strip hardcoded names (`Maria Rossi`, `Luca Bianchi`, `Stefania Bianchi`, `Gabriele Amato`). Convert seed `phase15g6_full_preset_layouts.sql` da `data_source.type='static'` → `'api'`. Acceptance: zero demo strings + skeleton fallback su API error.
-2. **Audit Phase 3 — canonical brand alignment via Studio** (~10-14h FTE) — `/studio:clone` per ognuna delle 11 dashboard, diff vs `.ux-design/06-mockups/dashboards/*.html`, allineare a 134+ classi `dashboard-brand.css`, promote one-by-one via 5-gate flow. Target: `brand:audit` score ≥ 85.
-3. **Audit Phase 4 — legacy retirement** (~4-6h FTE) — delete 7 `_views/*.tsx` (2242 LOC) + simplify `dashboard/page.tsx` switch + E2E Playwright spec 88 cells.
+1. **S35.3 Pilot RTL Bank end-to-end** (~20-30h FTE) — 14 stage: industry research RTL + INDOOR cascade + OPOURSKA full + PROGOV + GOKMER + TALPIPE + SKILGRO + H2R + SMERTO + PULSAR + ITLAB time-off + DGOV docs/audit + ESKAP KG projection RTL + EPRA. **HUMAN GATE M1** review industry profile JSON prima di taxonomy seed. **PILOT GATE M15** validation dashboards live.
+2. **S35.4 Extension SmartFood + EcoNova + Heuresys** (~15-25h FTE) — replica metodologia pilot per 3 tenant restanti con industry profile customizzato (HACCP food, ISO 50001 energy, SaaS).
+3. **S35.5 ESKAP full projection** (~5-7h) — ESCO catalog 14k+3k+126k+5.8k nodes/edges + tenant projection.
 
 ## Open questions
 
-Nessuna bloccante. Decisioni pre-Phase 2:
-- F-005 hardcoded data: tutte 19 widget demo → live, oppure mantenere alcune come "seed esplicito" per dashboard demo stakeholder?
-- F-008 persona_label: rinominare "IT Admin · G6 smoke" → "Audience: IT_ADMIN" oppure lasciare metadata letterale?
+Nessuna bloccante. Decisioni pre-S35.3 aperte:
+- Industry profile generation: implementare web research live (curl ESCO REST + Eurostat + OECD) PRIMA di S35.3, oppure popolare manualmente cache JSON per pilot RTL come bootstrap?
+- OpenAI cost cap $5/day sufficiente per generation 4 tenant profile + iterazioni debug? (stima budget $0.30-1.00 totale).
 
-## Stack snapshot (post-S34)
+## Stack snapshot (post-S35.2)
 
-- **Brand chrome**: `BrandShell.tsx` topbar ora include `<PaletteSwitcher>` (universal control) accanto a `LocaleSwitcher` + `ThemeToggle` + `UserMenu`. Effetto palette scope `/dashboard/*` via `DashboardPaletteApplier` (apply `<html data-palette={X} data-theme={Y}>` on mount, cleanup on unmount).
-- **Schema**: `users.palette_preference_id VARCHAR(32)` + `users.theme_preference VARCHAR(8)` nullable + 2 CHECK constraints (17 palette + 2 theme whitelist DB-level). Migration `db/migrations/phase17a_user_palette_preference.sql` applicata su VM.
-- **Dashboard renderer**: **unified** — `DashboardRenderer` (lib/dashboard-engine/registry) usato da entrambe `/dashboard` root + `/dashboard/[code]`. `DashboardGrid` (grid.tsx) ora orphan, candidate Phase 4 deletion.
-- **Preset publish**: tutti 7 `_v2` preset + 4 process preset = `is_published=true` (impersonation cross-role abilitata).
-- **Tests**: typecheck PASS · `npm run lint:tenant-id` exit 0.
+- **Audit forensic**: 100% closed (era 95% post-S24+L59). Tutti i 22 issues originali del 2026-05-09-forensic-db-audit.md → chiusi.
+- **ITLAB infrastructure**: completa. 22 sindacati catalog + 4 tenant↔CCNL links + 12 RSU/RSA links + 9 CCNL_COMM levels. CCNL canonical: CRED (RTL), ALIM (SmartFood), ENERGIA (EcoNova), COMM (Heuresys). Holidays IT 2025-2027 144 rows.
+- **CASCADIA pipeline skeleton**: 6 lib helpers + lexicon canonical + 2 README. Sub-directory `<sigla>/` per stages saranno popolate S35.3+.
+- **DGOV base**: 367 RLS policies + lint:tenant-id + auditedTransaction + 4 fk_users_role + 8 canonical users + 274 active total.
+- **OPOURSKA base**: role_default_dashboards Prisma model + 8 ruoli × 34 functional areas × 179 RBP perm canonical.
+- **Tests**: typecheck PASS su services/app post-S35.0 + post-S35.1. `npm run lint:tenant-id` exit 0.
+- **Commits S35**: `d26883e` (S35.0) · `ff0bd45` (S35.1) · TBD (S35.2 handoff).
 
 ## Verification
 
 ```bash
-git log --oneline -5
-# expected: cab78bd + 150518c + 1a61d62 + 382a94f + 9ee6ae6
+git log --oneline -6
+# expected: cab78bd + 150518c + 1a61d62 + f412b00 + d26883e + ff0bd45 + S35.2 commit
 
-npx tsc --noEmit -p services/app/tsconfig.json
-# expected: exit 0 (no errors)
+# S35.1 ITLAB verification
+ssh oracle-vm-default 'sudo -u postgres psql -d heuresys_platform -c "
+  SELECT '\''sindacati'\'' t, count(*)::text c FROM sindacati
+  UNION ALL SELECT '\''tenant_ccnl_links'\'', count(*)::text FROM tenant_ccnl_links
+  UNION ALL SELECT '\''sindacato_tenant_links'\'', count(*)::text FROM sindacato_tenant_links
+  UNION ALL SELECT '\''ccnl_levels_COMM'\'', count(*)::text FROM ccnl_levels WHERE ccnl_code='\''CCNL_COMM_2024'\''"'
+# expected: 22 · 4 · 12 · 9
 
-ssh oracle-vm-default 'sudo -u postgres psql -d heuresys_platform -c "SELECT count(*) FROM dashboard_presets WHERE is_published=true AND code ~ ('\''_v2$|^process_'\'')"'
-# expected: 11 (7 _v2 + 4 process)
+# S35.0 forensic 100% closure
+ssh oracle-vm-default 'sudo -u postgres psql -d heuresys_platform -At -c "
+  SELECT count(*) FROM pg_policy WHERE pg_get_expr(polqual, polrelid) LIKE '\''%current_tenant%'\'' 
+    AND pg_get_expr(polqual, polrelid) NOT LIKE '\''%current_tenant_id%'\''"'
+# expected: 0 (GUC typo)
 
-# Live dashboard (any logged-in user):
-# https://evo.heuresys.com/dashboard → header "Direzione HR (G6)" (localized), no duplicate widget titles, palette switcher in topbar
+# Typecheck + lint
+npx tsc --noEmit -p services/app/tsconfig.json  # expected: exit 0
+npm run lint:tenant-id                          # expected: exit 0
+
+# Lexicon canonical SoT
+test -f docs/_meta/lexicon.md && wc -l docs/_meta/lexicon.md
+# expected: file exists, ~120 lines
+
+# CASCADIA pipeline skeleton
+ls scripts/seed-generator/lib/
+# expected: 6 .mjs files (rls-tx, distributions, esco-grounded, audit-emit, semantic-query, openai-wrapper, industry-research)
 ```
 
-Riferimenti: `~/.claude/plans/cheeky-puzzling-clarke.md` (audit plan canonical 5 fasi) · `.ux-design/audit/AUDIT-GRID.md` (Phase 0 grid 16 cells) · `.ux-design/audit/BASELINE-REPORT.md` (10 findings F-001..F-010 with root cause + fix scope per phase).
+Riferimenti: 
+- Plan canonical: `~/.claude/plans/in-questa-fase-io-spicy-galaxy.md` (16 sigle, 14 stage pipeline)
+- Lexicon SoT: `docs/_meta/lexicon.md`
+- Pipeline scripts: `scripts/seed-generator/README.md`
+- Migration ITLAB: `db/migrations/phase18d_italian_labor_context.sql`
+- Forensic audit baseline: `docs/_audit/2026-05-09-forensic-db-audit.md`
+- Backup baseline pre-CASCADIA: `/var/backups/heuresys-evo/heuresys_platform-SoT-baseline-2026-05-07T143000Z.dump` + pre-phase18d: `heuresys_platform-pre-phase18d-20260511T165129Z.dump` (sha256 `194613fa...`)

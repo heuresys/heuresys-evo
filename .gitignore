@@ -18,6 +18,10 @@ desktop.ini
 .cache/
 tmp/
 
+# === CASCADIA pipeline generated SQL (S35.2+, regenerable) ===
+db/seeds/realistic/_generated_sql/*.sql
+!db/seeds/realistic/_generated_sql/.gitkeep
+
 # === Playwright MCP / browser automation artifacts ===
 .playwright-mcp/
 /*.png
