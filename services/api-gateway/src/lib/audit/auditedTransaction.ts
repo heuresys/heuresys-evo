@@ -18,7 +18,7 @@
  * is tenant-scoped.
  */
 
-import { prisma, withTenant } from '../../db/pool';
+import { prisma, withTenant } from '../../db/pool.js';
 
 /**
  * audit_logs.category CHECK constraint canonical values (DB-enforced):
