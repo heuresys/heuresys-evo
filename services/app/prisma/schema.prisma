@@ -649,6 +649,7 @@ model tenants {
   semantic_entity_relations           semantic_entity_relations[]
   semantic_search_log                 semantic_search_log[]
   signature_requests                  signature_requests[]
+  sindacato_tenant_links              sindacato_tenant_links[]
   skill_demand_metrics                skill_demand_metrics[]
   skill_extraction_jobs               skill_extraction_jobs[]
   skill_gap_analyses                  skill_gap_analyses[]
@@ -668,6 +669,7 @@ model tenants {
   sync_queue                          sync_queue[]
   talent_pool_members                 talent_pool_members[]
   talent_pools                        talent_pools[]
+  tenant_ccnl_links                   tenant_ccnl_links[]
   tenant_custom_skills                tenant_custom_skills[]
   tenant_industry_classifications     tenant_industry_classifications[]
   tenant_jobs                         tenant_jobs[]
@@ -1982,6 +1984,7 @@ model ccnl_contracts {
   ccnl_levels            ccnl_levels[]
   ccnl_seniority_rules   ccnl_seniority_rules[]
   industry_ccnl_mapping  industry_ccnl_mapping[]
+  tenant_ccnl_links      tenant_ccnl_links[]
 
   @@index([is_active], map: "idx_ccnl_active")
   @@index([sector], map: "idx_ccnl_sector")
@@ -2060,6 +2063,69 @@ model ccnl_seniority_rules {
   ccnl_contracts      ccnl_contracts @relation(fields: [ccnl_code], references: [code], onDelete: NoAction)
 
   @@index([ccnl_code, from_level_code, priority], map: "idx_ccnl_sr_lookup")
+}
+
+/// S35.1 (ITLAB): catalogo nazionale italiano sindacati (confederazioni CGIL/CISL/UIL/UGL + federazioni di categoria).
+model sindacati {
+  id                     String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code                   String                   @unique @db.VarChar(32)
+  name                   String                   @db.VarChar(255)
+  name_en                String?                  @db.VarChar(255)
+  full_name              String?                  @db.VarChar(512)
+  sector                 String?                  @db.VarChar(64)
+  federation_parent_id   String?                  @db.Uuid
+  website                String?                  @db.VarChar(255)
+  is_confederation       Boolean                  @default(false)
+  is_active              Boolean                  @default(true)
+  notes                  String?
+  created_at             DateTime                 @default(now()) @db.Timestamptz(6)
+  updated_at             DateTime                 @default(now()) @db.Timestamptz(6)
+  parent                 sindacati?               @relation("sindacati_federation", fields: [federation_parent_id], references: [id], onDelete: SetNull)
+  children               sindacati[]              @relation("sindacati_federation")
+  sindacato_tenant_links sindacato_tenant_links[]
+
+  @@index([sector], map: "idx_sindacati_sector")
+  @@index([federation_parent_id], map: "idx_sindacati_federation_parent")
+  @@index([is_confederation], map: "idx_sindacati_confederation")
+}
+
+/// S35.1 (ITLAB): associazione tenant ↔ CCNL applicato (storico via effective_from/to). is_primary flag per CCNL principale.
+/// This model contains row level security: tenant_id = current_setting('app.current_tenant_id')
+model tenant_ccnl_links {
+  id             String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id      String         @db.Uuid
+  ccnl_code      String         @db.VarChar(64)
+  is_primary     Boolean        @default(true)
+  effective_from DateTime       @default(dbgenerated("CURRENT_DATE")) @db.Date
+  effective_to   DateTime?      @db.Date
+  notes          String?
+  created_at     DateTime       @default(now()) @db.Timestamptz(6)
+  updated_at     DateTime       @default(now()) @db.Timestamptz(6)
+  ccnl_contracts ccnl_contracts @relation(fields: [ccnl_code], references: [code], onDelete: Restrict)
+  tenants        tenants        @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+
+  @@unique([tenant_id, ccnl_code, effective_from])
+  @@index([tenant_id], map: "idx_tenant_ccnl_links_tenant")
+}
+
+/// S35.1 (ITLAB): sindacati attivi presso il tenant (RSU/RSA presenti). is_active flag per stato corrente.
+/// This model contains row level security: tenant_id = current_setting('app.current_tenant_id')
+model sindacato_tenant_links {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id    String    @db.Uuid
+  sindacato_id String    @db.Uuid
+  signed_at    DateTime? @db.Date
+  is_active    Boolean   @default(true)
+  rsu_count    Int?
+  notes        String?
+  created_at   DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at   DateTime  @default(now()) @db.Timestamptz(6)
+  sindacati    sindacati @relation(fields: [sindacato_id], references: [id], onDelete: Cascade)
+  tenants      tenants   @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+
+  @@unique([tenant_id, sindacato_id])
+  @@index([tenant_id], map: "idx_sindacato_tenant_links_tenant")
+  @@index([sindacato_id], map: "idx_sindacato_tenant_links_sindacato")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
