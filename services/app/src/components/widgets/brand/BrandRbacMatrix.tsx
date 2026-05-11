@@ -59,10 +59,8 @@ export function BrandRbacMatrix({ roles, areas, assignments }: BrandRbacMatrixPr
 
   return (
     <div className="matrix-wrap">
-      <div className="widget-head">
-        <h2>
-          RBAC <em>matrix</em>
-        </h2>
+      {/* Title is rendered by parent LayoutPanel (data.title="RBAC matrix"). */}
+      <div className="widget-head" style={{ justifyContent: 'flex-end' }}>
         <div className="filters">
           <span className="filter-pill active">{roles.length} roles</span>
           <span className="filter-pill">{areas.length} areas</span>

@@ -85,10 +85,11 @@ export function BrandKgGraph({
 
   return (
     <section className="kg-graph">
-      <div className="widget-head" style={{ borderBottom: 0, padding: 0, marginBottom: 4 }}>
-        <h2>
-          Capability <em>graph</em>
-        </h2>
+      {/* Title is rendered by parent LayoutPanel (data.title="Capability graph"). */}
+      <div
+        className="widget-head"
+        style={{ borderBottom: 0, padding: 0, marginBottom: 4, justifyContent: 'flex-end' }}
+      >
         <div className="filters">
           <span className="filter-pill active">
             {nodes.length}n · {edges.length}e

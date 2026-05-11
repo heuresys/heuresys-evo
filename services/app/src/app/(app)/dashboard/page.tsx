@@ -4,6 +4,7 @@ import { prisma } from '@/lib/db';
 import { resolvePresetCodeForRole } from '@/lib/dashboard-engine/role-preset-resolver';
 import { prefetchElements } from '@/lib/dashboard-engine/prefetch';
 import { DashboardRenderer, type DashboardRendererSlot } from '@/components/DashboardRenderer';
+import { DEFAULT_LOCALE, pickBilingual } from '@/lib/i18n';
 
 import OrgSystemsView from './_views/OrgSystemsView';
 import CrossTenantOverviewView from './_views/CrossTenantOverviewView';
@@ -151,15 +152,32 @@ export default async function DashboardPage() {
     const slots = toSlots(elements);
     const data = Object.fromEntries(Object.entries(dataMap).map(([k, v]) => [k, v.data]));
 
+    // Resolve preset name (localized) for header title — replaces hardcoded placeholder.
+    const presetMeta = await prisma.dashboard_presets.findFirst({
+      where: { code: presetCode },
+      select: { name_it: true, name_en: true, perspective_code: true, persona_label: true },
+    });
+    const presetName = presetMeta ? pickBilingual(presetMeta, 'name', DEFAULT_LOCALE) : presetCode;
+    const titleParts = presetName.trim().split(/\s+/);
+    const titleAccent = titleParts.length > 1 ? (titleParts.pop() ?? '') : '';
+    const titlePlain = titleParts.join(' ') || presetName;
+    const breadcrumb = presetMeta?.persona_label
+      ? `DASHBOARD · ${presetMeta.perspective_code ?? role} · ${presetMeta.persona_label}`
+      : `DASHBOARD · ${role} · ${presetCode}`;
+
     return (
       <>
         <header className="ws-header">
           <div className="title-block">
-            <div className="breadcrumb">
-              DASHBOARD · {role} · {presetCode}
-            </div>
+            <div className="breadcrumb">{breadcrumb}</div>
             <h1>
-              Brand-fedele <em>dashboard</em> · DB-driven (G6)
+              {titlePlain}
+              {titleAccent ? (
+                <>
+                  {' '}
+                  <em>{titleAccent}</em>
+                </>
+              ) : null}
             </h1>
           </div>
           <div className="actions">

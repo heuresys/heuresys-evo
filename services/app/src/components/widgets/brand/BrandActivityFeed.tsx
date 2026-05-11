@@ -24,19 +24,15 @@ export function BrandActivityFeed({
 }: BrandActivityFeedProps) {
   return (
     <section className="activity">
-      <header className="activity-head">
-        <h2>
-          {title.split(' ').slice(0, -1).join(' ') || ''}{' '}
-          {title.split(' ').length > 1 ? (
-            <em style={{ color: 'var(--accent)', fontStyle: 'normal', fontWeight: 600 }}>
-              {title.split(' ').slice(-1)[0]}
-            </em>
-          ) : (
-            title
-          )}
-        </h2>
-        {live ? <span className="live">live</span> : null}
-      </header>
+      {/* Title is rendered by parent LayoutPanel (data.title="Activity feed"). */}
+      {live ? (
+        <header
+          className="activity-head"
+          style={{ display: 'flex', justifyContent: 'flex-end', padding: '0 0 8px' }}
+        >
+          <span className="live">live</span>
+        </header>
+      ) : null}
       <div className="activity-list">
         {items.length === 0 ? (
           <div

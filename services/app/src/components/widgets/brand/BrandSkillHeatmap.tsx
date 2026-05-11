@@ -54,18 +54,11 @@ export function BrandSkillHeatmap({
 
   return (
     <div className="heatmap-wrap">
-      <div className="widget-head" style={{ borderBottom: 0, padding: 0, marginBottom: 12 }}>
-        <h2>
-          {caption ? (
-            <>
-              {caption.split(' ').slice(0, -1).join(' ')} <em>{caption.split(' ').slice(-1)[0]}</em>
-            </>
-          ) : (
-            <>
-              Skill <em>coverage</em>
-            </>
-          )}
-        </h2>
+      {/* Title is rendered by parent LayoutPanel (data.title="Skill heatmap"). */}
+      <div
+        className="widget-head"
+        style={{ borderBottom: 0, padding: 0, marginBottom: 12, justifyContent: 'flex-end' }}
+      >
         <div className="filters">
           <span className="filter-pill active">
             {rows.length}×{cols.length}

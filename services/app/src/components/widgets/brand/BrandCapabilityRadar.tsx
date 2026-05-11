@@ -79,10 +79,11 @@ export function BrandCapabilityRadar({
 
   return (
     <section className="capability-radar">
-      <div className="widget-head" style={{ borderBottom: 0, padding: 0, marginBottom: 4 }}>
-        <h2>
-          Capability <em>radar</em>
-        </h2>
+      {/* Title is rendered by parent LayoutPanel (data.title="Capability radar"). */}
+      <div
+        className="widget-head"
+        style={{ borderBottom: 0, padding: 0, marginBottom: 4, justifyContent: 'flex-end' }}
+      >
         <div className="filters">
           <span className="filter-pill active">{axes.length} axes</span>
         </div>

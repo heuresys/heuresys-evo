@@ -1,7 +1,7 @@
 import { notFound, redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { loadDashboardPreset, prefetchElements, resolveElements } from '@/lib/dashboard-engine';
-import { DashboardGrid } from '@/lib/dashboard-engine/grid';
+import { DashboardRenderer, type DashboardRendererSlot } from '@/components/DashboardRenderer';
 import { DEFAULT_LOCALE, isLocale, pickBilingual, type Locale } from '@/lib/i18n';
 
 /**
@@ -109,19 +109,27 @@ export default async function DashboardCodePage({ params, searchParams }: PagePr
         </p>
       ) : null}
 
-      <DashboardGrid
-        elements={visibleElements.map((el) => {
-          const id = typeof el.id === 'bigint' ? el.id.toString() : String(el.id);
-          return {
-            ...el,
-            id,
-            dashboard_preset_id:
-              typeof el.dashboard_preset_id === 'bigint'
-                ? el.dashboard_preset_id.toString()
-                : String(el.dashboard_preset_id),
-            data: prefetched[id]?.data ?? null,
-          };
-        })}
+      <DashboardRenderer
+        elements={visibleElements.map<DashboardRendererSlot>((el) => ({
+          id: typeof el.id === 'bigint' ? el.id.toString() : String(el.id),
+          parent_element_id:
+            el.parent_element_id == null
+              ? null
+              : typeof el.parent_element_id === 'bigint'
+                ? el.parent_element_id.toString()
+                : String(el.parent_element_id),
+          position: el.position,
+          widget_code: el.widget_code,
+          variant: el.variant,
+          grid_col_start: el.grid_col_start,
+          grid_col_span: el.grid_col_span,
+        }))}
+        data={Object.fromEntries(
+          visibleElements.map((el) => {
+            const id = typeof el.id === 'bigint' ? el.id.toString() : String(el.id);
+            return [id, prefetched[id]?.data ?? null];
+          })
+        )}
       />
 
       <footer className="ws-footer">
