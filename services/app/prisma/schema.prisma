@@ -13209,8 +13209,10 @@ model succession_candidates {
   rank_order            Int?      @default(1)
   created_at            DateTime? @default(now()) @db.Timestamp(6)
   updated_at            DateTime? @default(now()) @db.Timestamp(6)
+  tenant_id             String    @db.Uuid
 
   @@index([critical_role_id], map: "idx_succession_candidates_role")
+  @@index([tenant_id], map: "idx_succession_candidates_tenant")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -14748,6 +14750,56 @@ model role_default_dashboards {
   @@index([preset_code], map: "idx_role_default_dashboards_preset")
   @@index([tenant_id], map: "idx_role_default_dashboards_tenant")
   @@index([role], map: "idx_role_default_dashboards_role")
+}
+
+/// ESKAP — Knowledge Graph nodes (ESCO catalog tenant_id NULL + tenant projection).
+/// This model contains row level security (kg_nodes_isolation: tenant_id IS NULL OR app.current_tenant_id).
+/// Phase 18f migration. Lexicon: ESKAP.
+model kg_nodes {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id    String?   @db.Uuid
+  node_type    String    @db.VarChar(32)
+  node_code    String    @db.VarChar(255)
+  label        String?   @db.VarChar(512)
+  label_en     String?   @db.VarChar(512)
+  metadata     Json?
+  source_table String?   @db.VarChar(64)
+  source_id    String?   @db.Uuid
+  is_active    Boolean   @default(true)
+  created_at   DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at   DateTime  @default(now()) @db.Timestamptz(6)
+
+  kg_edges_source kg_edges[] @relation("kg_edges_source")
+  kg_edges_target kg_edges[] @relation("kg_edges_target")
+
+  @@unique([tenant_id, node_type, node_code], map: "kg_nodes_tenant_id_node_type_node_code_key")
+  @@index([node_type], map: "idx_kg_nodes_type")
+  @@index([tenant_id], map: "idx_kg_nodes_tenant")
+  @@index([source_table, source_id], map: "idx_kg_nodes_source")
+}
+
+/// ESKAP — Knowledge Graph edges (skill-skill, employee-skill, employee-occupation, etc.).
+/// RLS via kg_edges_isolation (tenant_id IS NULL OR app.current_tenant_id).
+/// Phase 18f migration. Lexicon: ESKAP.
+model kg_edges {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id      String?  @db.Uuid
+  source_node_id String   @db.Uuid
+  target_node_id String   @db.Uuid
+  edge_type      String   @db.VarChar(48)
+  weight         Float?   @default(1.0)
+  metadata       Json?
+  is_active      Boolean  @default(true)
+  created_at     DateTime @default(now()) @db.Timestamptz(6)
+
+  source_node kg_nodes @relation("kg_edges_source", fields: [source_node_id], references: [id], onDelete: Cascade)
+  target_node kg_nodes @relation("kg_edges_target", fields: [target_node_id], references: [id], onDelete: Cascade)
+
+  @@unique([tenant_id, source_node_id, target_node_id, edge_type], map: "kg_edges_tenant_id_source_node_id_target_node_id_edge_type_key")
+  @@index([source_node_id], map: "idx_kg_edges_source")
+  @@index([target_node_id], map: "idx_kg_edges_target")
+  @@index([tenant_id], map: "idx_kg_edges_tenant")
+  @@index([edge_type], map: "idx_kg_edges_type")
 }
 
 enum career_skill_importance {

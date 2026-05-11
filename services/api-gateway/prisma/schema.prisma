@@ -970,8 +970,10 @@ model succession_candidates {
   rank_order            Int?      @default(1)
   created_at            DateTime? @default(now()) @db.Timestamp(6)
   updated_at            DateTime? @default(now()) @db.Timestamp(6)
+  tenant_id             String    @db.Uuid
 
   @@index([critical_role_id], map: "idx_succession_candidates_role")
+  @@index([tenant_id], map: "idx_succession_candidates_tenant")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
