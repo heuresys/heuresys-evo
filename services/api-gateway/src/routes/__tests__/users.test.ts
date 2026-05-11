@@ -426,6 +426,41 @@ describe('POST /users', () => {
       })
     );
   });
+
+  it('audits UPDATE user with USER category', async () => {
+    mockSession = { expires: FAR_FUTURE, user: { id: SUPER_ID, role: 'SUPERUSER' } };
+    await request(buildApp()).patch(`/users/${BOB_ID}`).send({ username: 'bob.audit' });
+    expect(auditLogsCreateMock).toHaveBeenCalled();
+    expect(auditLogsCreateMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          action: 'UPDATE',
+          category: 'USER',
+          resource_type: 'user',
+          resource_id: BOB_ID,
+          user_id: SUPER_ID,
+        }),
+      })
+    );
+  });
+
+  it('audits DELETE user with USER category (soft deactivate)', async () => {
+    mockSession = { expires: FAR_FUTURE, user: { id: SUPER_ID, role: 'SUPERUSER' } };
+    await request(buildApp()).delete(`/users/${BOB_ID}`);
+    expect(auditLogsCreateMock).toHaveBeenCalled();
+    expect(auditLogsCreateMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          // Soft-deactivate uses UPDATE (sets is_active=false), not DELETE
+          action: expect.stringMatching(/UPDATE|DELETE/),
+          category: 'USER',
+          resource_type: 'user',
+          resource_id: BOB_ID,
+          user_id: SUPER_ID,
+        }),
+      })
+    );
+  });
 });
 
 describe('PATCH /users/:id', () => {

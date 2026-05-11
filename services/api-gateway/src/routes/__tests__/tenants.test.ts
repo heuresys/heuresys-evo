@@ -424,6 +424,43 @@ describe('POST /tenants', () => {
       })
     );
   });
+
+  it('audits UPDATE tenant with TENANT category', async () => {
+    mockSession = { expires: FAR_FUTURE, user: { id: 'u1', role: 'SUPERUSER' } };
+    await request(buildApp())
+      .patch(`/tenants/${RTL_BANK_ID}`)
+      .send({ description: 'Audit-Updated' });
+    expect(auditLogsCreateMock).toHaveBeenCalled();
+    expect(auditLogsCreateMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          action: 'UPDATE',
+          category: 'TENANT',
+          resource_type: 'tenant',
+          resource_id: RTL_BANK_ID,
+          user_id: 'u1',
+          user_role: 'SUPERUSER',
+        }),
+      })
+    );
+  });
+
+  it('audits DELETE tenant with TENANT category (soft deactivate)', async () => {
+    mockSession = { expires: FAR_FUTURE, user: { id: 'u1', role: 'SUPERUSER' } };
+    await request(buildApp()).delete(`/tenants/${SMARTFOOD_ID}`);
+    expect(auditLogsCreateMock).toHaveBeenCalled();
+    expect(auditLogsCreateMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          action: expect.stringMatching(/UPDATE|DELETE/),
+          category: 'TENANT',
+          resource_type: 'tenant',
+          resource_id: SMARTFOOD_ID,
+          user_id: 'u1',
+        }),
+      })
+    );
+  });
 });
 
 describe('PATCH /tenants/:identifier', () => {

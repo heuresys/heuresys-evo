@@ -364,6 +364,48 @@ describe('POST /employees', () => {
       })
     );
   });
+
+  it('audits UPDATE employees with EMPLOYEE category', async () => {
+    mockSession = {
+      expires: FAR_FUTURE,
+      user: { id: 'u1', role: 'HR_DIRECTOR', tenantId: RTL_TENANT },
+    };
+    await request(buildApp()).patch(`/employees/${BOB_ID}`).send({ job_title: 'Senior Analyst' });
+    expect(auditLogsCreateMock).toHaveBeenCalledOnce();
+    expect(auditLogsCreateMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          action: 'UPDATE',
+          category: 'EMPLOYEE',
+          resource_type: 'employees',
+          resource_id: BOB_ID,
+          user_id: 'u1',
+          tenant_id: RTL_TENANT,
+        }),
+      })
+    );
+  });
+
+  it('audits DELETE employees with EMPLOYEE category (hard delete)', async () => {
+    mockSession = {
+      expires: FAR_FUTURE,
+      user: { id: 'u1', role: 'SUPERUSER', tenantId: RTL_TENANT },
+    };
+    await request(buildApp()).delete(`/employees/${BOB_ID}?hard=true`);
+    expect(auditLogsCreateMock).toHaveBeenCalledOnce();
+    expect(auditLogsCreateMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          action: 'DELETE',
+          category: 'EMPLOYEE',
+          resource_type: 'employees',
+          resource_id: BOB_ID,
+          user_role: 'SUPERUSER',
+          tenant_id: RTL_TENANT,
+        }),
+      })
+    );
+  });
 });
 
 describe('PATCH /employees/:id', () => {
