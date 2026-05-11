@@ -1,0 +1,807 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-05-11T17:15:00Z",
+  "generation_method": "manual-bootstrap-from-domain-knowledge",
+  "tenant_code": "rtl-bank",
+  "tenant_name": "RTL Bank",
+
+  "industry_classification": {
+    "nace_class_code": "K.64.19",
+    "nace_label_it": "Altre attività relative al credito",
+    "nace_label_en": "Other monetary intermediation",
+    "ateco_code": "64.19.10",
+    "ateco_label_it": "Intermediazione monetaria di istituti monetari diversi dalle Banche centrali",
+    "sub_industry": [
+      "Commercial Banking",
+      "Retail Banking",
+      "Corporate Banking",
+      "Treasury",
+      "Wealth Management"
+    ],
+    "company_size_code": "M",
+    "company_size_label": "Medium (50-500 FTE)",
+    "geography": "Italy, multi-region (Northern + Central focus)"
+  },
+
+  "workforce_baseline": {
+    "total_employees_canonical": 158,
+    "org_depth_typical": 4,
+    "span_of_control_max": 8,
+    "span_of_control_typical": 5,
+    "fte_by_function": {
+      "retail_banking": 0.4,
+      "corporate_banking": 0.2,
+      "treasury_investment": 0.08,
+      "risk_compliance": 0.12,
+      "operations_back_office": 0.1,
+      "it_security": 0.06,
+      "hr_finance_legal": 0.04
+    },
+    "seniority_distribution": {
+      "executive": 0.04,
+      "senior_management": 0.1,
+      "middle_management": 0.2,
+      "professional": 0.36,
+      "support": 0.3
+    },
+    "geographic_distribution": {
+      "headquarters_milan": 0.55,
+      "regional_branches": 0.4,
+      "remote_distributed": 0.05
+    }
+  },
+
+  "org_structure_template": {
+    "root": {
+      "role_code": "CEO",
+      "title": "Amministratore Delegato",
+      "reports_to": "Board of Directors"
+    },
+    "depth_1_divisions": [
+      {
+        "code": "RETAIL",
+        "name": "Direzione Retail Banking",
+        "head_title": "Direttore Retail Banking",
+        "fte_share": 0.4,
+        "sub_units": ["Branch Network", "Direct Banking", "Customer Care"]
+      },
+      {
+        "code": "CORPORATE",
+        "name": "Direzione Corporate Banking",
+        "head_title": "Direttore Corporate Banking",
+        "fte_share": 0.2,
+        "sub_units": ["SME Lending", "Large Corporate", "Trade Finance"]
+      },
+      {
+        "code": "TREASURY",
+        "name": "Direzione Treasury & Investment",
+        "head_title": "Direttore Treasury",
+        "fte_share": 0.08,
+        "sub_units": ["Asset Management", "Treasury Operations", "FX Desk"]
+      },
+      {
+        "code": "RISK_COMPL",
+        "name": "Direzione Risk & Compliance",
+        "head_title": "Chief Risk Officer",
+        "fte_share": 0.12,
+        "sub_units": ["Credit Risk", "Operational Risk", "Compliance", "Internal Audit", "AML Unit"]
+      },
+      {
+        "code": "OPS",
+        "name": "Direzione Operations & Back-Office",
+        "head_title": "Direttore Operations",
+        "fte_share": 0.1,
+        "sub_units": ["Payment Processing", "Settlement", "Reconciliation", "Customer Onboarding"]
+      },
+      {
+        "code": "IT",
+        "name": "Direzione IT & Security",
+        "head_title": "Chief Technology Officer",
+        "fte_share": 0.06,
+        "sub_units": [
+          "Application Development",
+          "Infrastructure",
+          "Cybersecurity",
+          "Digital Transformation"
+        ]
+      },
+      {
+        "code": "STAFF",
+        "name": "Direzioni Staff (HR + Finance + Legal)",
+        "head_title": "Direttore Generale Staff",
+        "fte_share": 0.04,
+        "sub_units": ["HR", "Finance & Reporting", "Legal", "Marketing & Communications"]
+      }
+    ],
+    "depth_2_sample_units": [
+      "Filiale Milano Centro",
+      "Filiale Milano Nord",
+      "Filiale Roma EUR",
+      "Filiale Bologna",
+      "Filiale Torino",
+      "Direct Banking Online Channel",
+      "Contact Center Multilingua"
+    ]
+  },
+
+  "process_blueprint": {
+    "porter_value_chain_primary": [
+      {
+        "code": "BP-001",
+        "name": "Onboarding Cliente (Retail + Corporate)",
+        "phases": ["Account Opening", "KYC Verification", "AML Screening", "Product Activation"],
+        "owner_division": "RETAIL"
+      },
+      {
+        "code": "BP-002",
+        "name": "Erogazione Credito (Retail + SME + Corporate)",
+        "phases": [
+          "Istruttoria",
+          "Valutazione Merito Creditizio",
+          "Delibera",
+          "Erogazione",
+          "Monitoraggio"
+        ],
+        "owner_division": "RETAIL"
+      },
+      {
+        "code": "BP-003",
+        "name": "Payment Processing & Settlement",
+        "phases": ["Authorization", "Clearing", "Settlement", "Reconciliation"],
+        "owner_division": "OPS"
+      },
+      {
+        "code": "BP-004",
+        "name": "Wealth Management & Investment Advisory",
+        "phases": ["Customer Profiling", "Portfolio Design", "Execution", "Periodic Review"],
+        "owner_division": "TREASURY"
+      },
+      {
+        "code": "BP-005",
+        "name": "Treasury Operations & ALM",
+        "phases": ["Liquidity Forecast", "Funding Execution", "FX Hedging", "ALM Reporting"],
+        "owner_division": "TREASURY"
+      }
+    ],
+    "porter_value_chain_support": [
+      {
+        "code": "BP-006",
+        "name": "Risk Management (Credit + Operational + Market)",
+        "phases": ["Identification", "Measurement", "Mitigation", "Reporting"],
+        "owner_division": "RISK_COMPL"
+      },
+      {
+        "code": "BP-007",
+        "name": "Compliance (AML + KYC + GDPR + MiFID II)",
+        "phases": [
+          "Policy Definition",
+          "Control Execution",
+          "Issue Tracking",
+          "Regulatory Reporting"
+        ],
+        "owner_division": "RISK_COMPL"
+      },
+      {
+        "code": "BP-008",
+        "name": "Internal Audit (Banca d'Italia Circ. 285/295)",
+        "phases": ["Planning", "Fieldwork", "Reporting", "Follow-up"],
+        "owner_division": "RISK_COMPL"
+      },
+      {
+        "code": "BP-009",
+        "name": "HR Lifecycle (Recruiting + L&D + Performance)",
+        "phases": [
+          "Talent Acquisition",
+          "Onboarding",
+          "Development",
+          "Performance Review",
+          "Compensation"
+        ],
+        "owner_division": "STAFF"
+      },
+      {
+        "code": "BP-010",
+        "name": "IT Service Management & Cybersecurity",
+        "phases": ["Service Design", "Operations", "Incident Response", "Threat Intelligence"],
+        "owner_division": "IT"
+      }
+    ],
+    "typical_count": 10,
+    "critical_processes": ["BP-002", "BP-007", "BP-003", "BP-006"]
+  },
+
+  "role_inventory": {
+    "total_unique_roles": 32,
+    "canonical_roles": [
+      {
+        "title": "Direttore Generale (CEO)",
+        "level": "C-suite",
+        "esco_isco": "1112",
+        "ccnl_level": "QD4",
+        "headcount_typical": 1
+      },
+      {
+        "title": "Direttore Divisione",
+        "level": "C-1",
+        "esco_isco": "1346",
+        "ccnl_level": "QD3",
+        "headcount_typical": 7
+      },
+      {
+        "title": "Responsabile Filiale (Branch Manager)",
+        "level": "Senior Mgmt",
+        "esco_isco": "1346",
+        "ccnl_level": "QD2",
+        "headcount_typical": 8
+      },
+      {
+        "title": "Responsabile Crediti",
+        "level": "Senior Mgmt",
+        "esco_isco": "2412",
+        "ccnl_level": "QD2",
+        "headcount_typical": 6
+      },
+      {
+        "title": "Chief Risk Officer",
+        "level": "C-1",
+        "esco_isco": "2412",
+        "ccnl_level": "QD3",
+        "headcount_typical": 1
+      },
+      {
+        "title": "Compliance Officer",
+        "level": "Middle Mgmt",
+        "esco_isco": "2422",
+        "ccnl_level": "QD1",
+        "headcount_typical": 4
+      },
+      {
+        "title": "AML Specialist",
+        "level": "Professional",
+        "esco_isco": "2422",
+        "ccnl_level": "3A4L",
+        "headcount_typical": 5
+      },
+      {
+        "title": "Credit Analyst",
+        "level": "Professional",
+        "esco_isco": "2412",
+        "ccnl_level": "3A3L",
+        "headcount_typical": 15
+      },
+      {
+        "title": "Loan Officer (Consulente Crediti)",
+        "level": "Professional",
+        "esco_isco": "2412",
+        "ccnl_level": "3A2L",
+        "headcount_typical": 22
+      },
+      {
+        "title": "Cassiere/Operatore di Sportello",
+        "level": "Support",
+        "esco_isco": "4211",
+        "ccnl_level": "AU",
+        "headcount_typical": 28
+      },
+      {
+        "title": "Corporate Relationship Manager",
+        "level": "Professional",
+        "esco_isco": "3411",
+        "ccnl_level": "QD1",
+        "headcount_typical": 10
+      },
+      {
+        "title": "Wealth Advisor / Private Banker",
+        "level": "Professional",
+        "esco_isco": "3411",
+        "ccnl_level": "QD1",
+        "headcount_typical": 6
+      },
+      {
+        "title": "Treasury Specialist",
+        "level": "Professional",
+        "esco_isco": "2412",
+        "ccnl_level": "3A3L",
+        "headcount_typical": 5
+      },
+      {
+        "title": "FX Trader",
+        "level": "Professional",
+        "esco_isco": "3311",
+        "ccnl_level": "QD1",
+        "headcount_typical": 3
+      },
+      {
+        "title": "Operations Specialist (Back-Office)",
+        "level": "Professional",
+        "esco_isco": "4312",
+        "ccnl_level": "3A2L",
+        "headcount_typical": 12
+      },
+      {
+        "title": "IT Application Developer",
+        "level": "Professional",
+        "esco_isco": "2512",
+        "ccnl_level": "3A3L",
+        "headcount_typical": 4
+      },
+      {
+        "title": "Cybersecurity Analyst",
+        "level": "Professional",
+        "esco_isco": "2529",
+        "ccnl_level": "3A3L",
+        "headcount_typical": 3
+      },
+      {
+        "title": "Customer Care Specialist (Contact Center)",
+        "level": "Support",
+        "esco_isco": "4222",
+        "ccnl_level": "AU",
+        "headcount_typical": 10
+      },
+      {
+        "title": "Marketing Specialist",
+        "level": "Professional",
+        "esco_isco": "2431",
+        "ccnl_level": "3A2L",
+        "headcount_typical": 3
+      },
+      {
+        "title": "HR Business Partner",
+        "level": "Professional",
+        "esco_isco": "2423",
+        "ccnl_level": "3A3L",
+        "headcount_typical": 3
+      },
+      {
+        "title": "Financial Reporting Analyst",
+        "level": "Professional",
+        "esco_isco": "2411",
+        "ccnl_level": "3A3L",
+        "headcount_typical": 3
+      },
+      {
+        "title": "Internal Auditor",
+        "level": "Professional",
+        "esco_isco": "2411",
+        "ccnl_level": "3A3L",
+        "headcount_typical": 3
+      }
+    ]
+  },
+
+  "skill_emphasis": {
+    "primary_esco_occupations": [
+      {
+        "isco_code": "1346",
+        "label": "Financial and insurance services branch managers",
+        "skill_count_target": 22
+      },
+      {
+        "isco_code": "2412",
+        "label": "Financial and investment advisers",
+        "skill_count_target": 18
+      },
+      {
+        "isco_code": "2422",
+        "label": "Policy administration professionals (Compliance/AML)",
+        "skill_count_target": 16
+      },
+      { "isco_code": "2411", "label": "Accountants and Auditors", "skill_count_target": 14 },
+      {
+        "isco_code": "3411",
+        "label": "Legal, social, religious associate professionals (RM)",
+        "skill_count_target": 12
+      },
+      { "isco_code": "4211", "label": "Bank tellers and related clerks", "skill_count_target": 8 },
+      { "isco_code": "2512", "label": "Software developers", "skill_count_target": 16 }
+    ],
+    "critical_skills": [
+      "Credit Risk Modeling (IRB foundation/advanced)",
+      "Know Your Customer (KYC)",
+      "Anti-Money Laundering (AML)",
+      "Basel III/IV regulatory framework",
+      "MiFID II compliance",
+      "GDPR privacy",
+      "PSD2 Payment Services Directive",
+      "Trade Finance instruments",
+      "Treasury liquidity management",
+      "ALM (Asset Liability Management)",
+      "Banca d'Italia regulatory reporting",
+      "Italian Banking Law (TUB)",
+      "IFRS 9 expected credit loss",
+      "Cybersecurity for financial institutions",
+      "Customer relationship management",
+      "Negotiation skills",
+      "Italian language professional fluency",
+      "English language B2+ (treasury/corporate)"
+    ],
+    "emerging_skills": [
+      "Open Banking APIs",
+      "Blockchain & crypto-assets regulation (MiCAR)",
+      "AI/ML in credit scoring",
+      "ESG/sustainability disclosures (CSRD/SFDR)",
+      "Climate risk stress testing"
+    ]
+  },
+
+  "kpi_framework": {
+    "operational": [
+      {
+        "code": "NPL_RATIO",
+        "name": "NPL Ratio (Non-Performing Loans)",
+        "unit": "%",
+        "target": "≤4.5%",
+        "frequency": "monthly"
+      },
+      {
+        "code": "COST_INCOME",
+        "name": "Cost-to-Income Ratio",
+        "unit": "%",
+        "target": "≤62%",
+        "frequency": "quarterly"
+      },
+      {
+        "code": "BRANCH_TXN_VOL",
+        "name": "Branch Transaction Volume",
+        "unit": "count/month",
+        "target": "≥8500/branch",
+        "frequency": "monthly"
+      },
+      {
+        "code": "FIRST_CALL_RES",
+        "name": "First Call Resolution (Contact Center)",
+        "unit": "%",
+        "target": "≥78%",
+        "frequency": "monthly"
+      },
+      {
+        "code": "LOAN_APPROVAL_TIME",
+        "name": "Loan Approval Time",
+        "unit": "days",
+        "target": "≤7 days SME",
+        "frequency": "monthly"
+      },
+      {
+        "code": "DIGITAL_ADOPT",
+        "name": "Digital Channel Adoption",
+        "unit": "%",
+        "target": "≥65% retail customers",
+        "frequency": "quarterly"
+      }
+    ],
+    "strategic": [
+      {
+        "code": "ROE",
+        "name": "Return on Equity",
+        "unit": "%",
+        "target": "≥9%",
+        "frequency": "quarterly"
+      },
+      {
+        "code": "CET1_RATIO",
+        "name": "Common Equity Tier 1 Ratio",
+        "unit": "%",
+        "target": "≥13.5%",
+        "frequency": "quarterly"
+      },
+      {
+        "code": "LCR",
+        "name": "Liquidity Coverage Ratio",
+        "unit": "%",
+        "target": "≥120%",
+        "frequency": "monthly"
+      },
+      {
+        "code": "NSFR",
+        "name": "Net Stable Funding Ratio",
+        "unit": "%",
+        "target": "≥105%",
+        "frequency": "quarterly"
+      },
+      {
+        "code": "NEW_CUSTOMER_RATE",
+        "name": "New Customer Acquisition Rate",
+        "unit": "count/month",
+        "target": "≥350",
+        "frequency": "monthly"
+      },
+      {
+        "code": "CHURN_RATE",
+        "name": "Customer Churn Rate",
+        "unit": "%",
+        "target": "≤4.5%/year",
+        "frequency": "quarterly"
+      },
+      {
+        "code": "CSAT",
+        "name": "Customer Satisfaction Score",
+        "unit": "0-100",
+        "target": "≥82",
+        "frequency": "quarterly"
+      }
+    ],
+    "compliance_regulatory": [
+      {
+        "code": "AML_ALERT_RES",
+        "name": "AML Alert Resolution Time",
+        "unit": "days",
+        "target": "≤5 days",
+        "frequency": "monthly"
+      },
+      {
+        "code": "STR_SUBMITTED",
+        "name": "Suspicious Transaction Reports Submitted",
+        "unit": "count/year",
+        "target": "tracking only",
+        "frequency": "monthly"
+      },
+      {
+        "code": "REG_FINE_INCIDENTS",
+        "name": "Regulatory Fines or Sanctions",
+        "unit": "count",
+        "target": "0",
+        "frequency": "yearly"
+      },
+      {
+        "code": "AUDIT_FINDINGS_HIGH",
+        "name": "High-Severity Audit Findings",
+        "unit": "count",
+        "target": "≤3/year",
+        "frequency": "quarterly"
+      },
+      {
+        "code": "GDPR_BREACH_COUNT",
+        "name": "GDPR Data Breach Notifications",
+        "unit": "count",
+        "target": "0",
+        "frequency": "yearly"
+      },
+      {
+        "code": "BASEL_RWA",
+        "name": "Risk-Weighted Assets (Basel III)",
+        "unit": "EUR",
+        "target": "stable growth ≤8%/yr",
+        "frequency": "quarterly"
+      }
+    ],
+    "people_culture": [
+      {
+        "code": "TURNOVER_RATE",
+        "name": "Employee Turnover Rate",
+        "unit": "%",
+        "target": "≤8%/year",
+        "frequency": "yearly"
+      },
+      {
+        "code": "TRAINING_HOURS",
+        "name": "Average Training Hours per Employee",
+        "unit": "hours/year",
+        "target": "≥40h",
+        "frequency": "yearly"
+      },
+      {
+        "code": "ENGAGEMENT_SCORE",
+        "name": "Employee Engagement Score",
+        "unit": "0-100",
+        "target": "≥72",
+        "frequency": "yearly"
+      },
+      {
+        "code": "GENDER_PARITY_LEAD",
+        "name": "Female Leadership %",
+        "unit": "%",
+        "target": "≥35%",
+        "frequency": "yearly"
+      },
+      {
+        "code": "INTERNAL_PROMOTION",
+        "name": "Internal Promotion Rate",
+        "unit": "%",
+        "target": "≥55%",
+        "frequency": "yearly"
+      }
+    ]
+  },
+
+  "compliance_frameworks": [
+    {
+      "code": "PSD2",
+      "name": "Payment Services Directive 2 (EU 2015/2366)",
+      "scope": "Payments, Open Banking, Strong Customer Authentication",
+      "regulator": "Banca d'Italia + EBA"
+    },
+    {
+      "code": "MIFID_II",
+      "name": "Markets in Financial Instruments Directive II",
+      "scope": "Investment services, suitability assessment, product governance",
+      "regulator": "Consob"
+    },
+    {
+      "code": "AML5",
+      "name": "5th Anti-Money Laundering Directive (EU 2018/843)",
+      "scope": "KYC, beneficial ownership, suspicious transaction reporting",
+      "regulator": "UIF Banca d'Italia"
+    },
+    {
+      "code": "BASEL_III",
+      "name": "Basel III Framework",
+      "scope": "Capital adequacy, leverage ratio, liquidity (LCR/NSFR)",
+      "regulator": "Banca d'Italia + ECB SSM"
+    },
+    {
+      "code": "IFRS_9",
+      "name": "IFRS 9 Financial Instruments",
+      "scope": "Expected credit loss model, classification & measurement",
+      "regulator": "EFRAG + Consob"
+    },
+    {
+      "code": "GDPR",
+      "name": "General Data Protection Regulation (EU 2016/679)",
+      "scope": "Personal data protection, breach notification, DPO",
+      "regulator": "Garante Privacy"
+    },
+    {
+      "code": "BDI_CIRC_285",
+      "name": "Banca d'Italia Circolare 285",
+      "scope": "Disposizioni di vigilanza per le banche",
+      "regulator": "Banca d'Italia"
+    },
+    {
+      "code": "BDI_CIRC_295",
+      "name": "Banca d'Italia Circolare 295",
+      "scope": "Segnalazioni di vigilanza prudenziale",
+      "regulator": "Banca d'Italia"
+    },
+    {
+      "code": "TUB",
+      "name": "Testo Unico Bancario (D.Lgs. 385/1993)",
+      "scope": "Italian banking law master framework",
+      "regulator": "Banca d'Italia"
+    },
+    {
+      "code": "DORA",
+      "name": "Digital Operational Resilience Act (EU 2022/2554)",
+      "scope": "ICT risk management, incident reporting, third-party risk",
+      "regulator": "Banca d'Italia + ENISA"
+    }
+  ],
+
+  "assessment_patterns": {
+    "required_certifications": [
+      "AML Attestation (annual)",
+      "MiFID II Knowledge Assessment (annual, investment-facing roles)",
+      "GDPR Privacy Training (annual)",
+      "Anti-Bribery & Corruption (biennial)",
+      "Information Security Awareness (annual)",
+      "ABI Promotori Finanziari (qualifying, advisors only)",
+      "ESG Investor Education (advisors, from 2024)"
+    ],
+    "periodic_reviews": [
+      "Annual Performance Review (Q1 following fiscal year)",
+      "Mid-Year Calibration (June)",
+      "Quarterly Goals Check-in",
+      "MBO Assessment (executive bonuses, annual)"
+    ],
+    "audit_frequency": "quarterly internal + annual external (Banca d'Italia ispettivo on-site biennial)",
+    "calibration_committees": ["Direzione + HR Business Partners", "Risk Compliance separate track"]
+  },
+
+  "italian_context": {
+    "ccnl_reference_code": "CCNL_CRED_2024",
+    "ccnl_reference_name": "CCNL Credito 2024 (ABI - Associazione Bancaria Italiana)",
+    "ccnl_id_fk_resolved_at_seed": true,
+    "annual_leave_days_canonical": 28,
+    "payroll_specifics": {
+      "num_monthly_payments": 14,
+      "tredicesima": true,
+      "quattordicesima": true,
+      "tfr_quota_annual": 0.0738,
+      "fondo_pensione_complementare": "Previbank (settoriale)",
+      "casse_sanitarie": "Casdic (Cassa di Assistenza Sanitaria del Credito)",
+      "previdenza_integrativa": true,
+      "buoni_pasto_eur_daily": 8.0
+    },
+    "sindacati_canonical": ["UILCA", "FIRST_CISL", "FABI", "FISAC_CGIL"],
+    "stipendi_tabellari_range_2024_eur_monthly": {
+      "AU": 2455,
+      "3A1L": 2715,
+      "3A2L": 2862,
+      "3A3L": 3029,
+      "3A4L": 3307,
+      "QD1": 3706,
+      "QD2": 3927,
+      "QD3": 4356,
+      "QD4": 5113
+    },
+    "fiscal_calendar": "Calendar year (jan-dec); RAS chiusura aprile per bilancio",
+    "rappresentanze_sindacali": "RSA (sede) + RSU per la filiale (1-3 delegati a seconda della dimensione)"
+  },
+
+  "stakeholder_profile": [
+    {
+      "category": "Customers",
+      "segments": [
+        "Retail (mass market + affluent)",
+        "SME Corporate",
+        "Large Corporate",
+        "Private Banking (HNWI)"
+      ],
+      "service_channels": [
+        "Branch Network",
+        "Online Banking",
+        "Mobile App",
+        "Contact Center",
+        "Private Banker"
+      ]
+    },
+    {
+      "category": "Regulators",
+      "entities": [
+        "Banca d'Italia",
+        "Consob",
+        "ECB SSM (indirect via BdI)",
+        "UIF (AML)",
+        "Garante Privacy",
+        "AGCM"
+      ]
+    },
+    {
+      "category": "Industry associations",
+      "entities": ["ABI", "Assogestioni", "Assoreti", "AIBE"]
+    },
+    {
+      "category": "Counterparties",
+      "entities": ["Interbank lending peers", "SWIFT", "TARGET2", "Borsa Italiana / Euronext"]
+    },
+    {
+      "category": "Auditors",
+      "entities": ["Big 4 (external audit annual)", "Internal Audit function"]
+    }
+  ],
+
+  "ld_focus_areas": [
+    "Regulatory compliance (AML/KYC/MiFID/GDPR/Basel) — mandatory annual",
+    "Credit risk modeling & IFRS 9",
+    "Digital transformation & open banking",
+    "Customer relationship & sales skills (advisors)",
+    "Leadership development (high-potential program)",
+    "Cybersecurity awareness (all-staff)",
+    "ESG / sustainable finance (emerging 2024+)",
+    "Italian banking law / contract law refreshers"
+  ],
+
+  "recruiting_focus": {
+    "annual_hiring_volume_estimate": 18,
+    "primary_sources": [
+      "University partnerships (Bocconi, LUISS, Cattolica)",
+      "Industry referrals",
+      "LinkedIn",
+      "ABI Academy",
+      "Stage curriculari/extra-curriculari"
+    ],
+    "hot_roles_2025_2026": [
+      "Compliance Officer (MiCAR + DORA)",
+      "Cybersecurity Analyst",
+      "Data Engineer / AI for Credit Scoring",
+      "Wealth Advisor (HNWI focus)",
+      "ESG Risk Analyst"
+    ],
+    "graduate_program": "Programma Future Leaders RTL Bank (annual cohort 6-10)",
+    "internal_mobility_priority": "Forte cultura interna: ≥55% promozioni interne; bandi interni obbligatori prima di esterni per QD+ roles"
+  },
+
+  "metadata": {
+    "sources_used": [
+      "Domain knowledge — Italian commercial banking sector mid-size",
+      "Existing seeds: db/seeds/prototype_banking_k64.sql + seed_process_layer_rtl.sql",
+      "CCNL Credito 2024 ABI canonical (ccnl_contracts table)",
+      "ESCO ISCO-08 occupation taxonomy",
+      "Banca d'Italia public regulatory framework",
+      "ABI HR statistics (industry benchmark)"
+    ],
+    "human_review_required_before_seed": true,
+    "human_review_gate": "S35.3 M1 — review by enzo.spenuso, approve before M2 taxonomy seed",
+    "next_stage": "M2 Industry Taxonomy seed (industry_profiles + occupation_industry_classifications + crosswalk NACE↔ESCO)"
+  }
+}

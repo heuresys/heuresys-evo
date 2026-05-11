@@ -1,90 +1,91 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-11T17:10Z · S35.0 + S35.1 + S35.2 closed · CASCADIA pipeline skeleton + ITLAB shipped + audit forensic 100%
+> Updated: 2026-05-11T17:30Z · S35.0+S35.1+S35.2 closed + S35.3 M0-M4 done (5/15 milestones, pilot RTL Bank ~30% complete)
 
 ## Last session brief
 
-S35 (~3h FTE effettive, vs 13-21h stimati grazie a issue forensic già chiuse post-L57):
+S35 (~4h FTE effettive vs ~75h plan stimato — collapso drastico da pre-existing infrastructure):
 
-**S35.0 Forensic precondition (commit `d26883e`)**: 
-- Audit issue #5 chiuso: `role_default_dashboards` Prisma model aggiunto (era raw-SQL only) + back-relations su `tenants` + `dashboard_presets`
-- Audit issue #9 (ESLint `lint:tenant-id`) e #10 (bcrypt rotation) verificati già closed post-L57 (S23-quater): `scripts/hardening/lint-tenant-id.sh` + `authorize.ts:114-129` one-shot rehash
-- Forensic audit closure: 95% → **100%**
+**S35.0 Forensic precondition (commit `d26883e`)**: audit forensic 95% → **100%**. `role_default_dashboards` Prisma model + ESLint `lint:tenant-id` + bcrypt rotation già closed L57.
 
-**S35.1 ITLAB phase18d (commit `ff0bd45`)**: 
-- Migration `db/migrations/phase18d_italian_labor_context.sql` applied su VM (backup pre-migration `heuresys_platform-pre-phase18d-20260511T165129Z.dump` sha256 `194613fa...`)
-- 3 nuove tabelle: `sindacati` (22 rows: 4 confederazioni + 18 federazioni), `tenant_ccnl_links` (4 rows), `sindacato_tenant_links` (12 rows)
-- 9 `ccnl_levels` per CCNL_COMM_2024 (Heuresys, Confcommercio Terziario canonical)
-- 3 Prisma model + back-relations + RLS attiva (P5)
-- Holidays IT 144 rows 2025-2027 + ccnl_contracts (7 CCNL) + ccnl_levels per CCNL_CRED/ALIM/ENERGIA già presenti pre-S35.1
+**S35.1 ITLAB phase18d (commit `ff0bd45`)**: 22 sindacati + 4 tenant↔CCNL + 12 RSU/RSA + 9 CCNL_COMM levels + 3 Prisma model. Migration applied su VM con backup pre-migration sha256.
 
-**S35.2 Infrastructure + Lexicon (TBD commit)**:
-- `docs/_meta/lexicon.md` SoT canonical 16 sigle (4 ✅ + 12 ⭐): OPOURSKA, PET, INDOOR, TALPIPE, H2R, SKILGRO, GOKMER, PROGOV, ESKAP, ITLAB, RBP, DGOV, SMERTO, PULSAR, EPRA, CASCADIA
-- `scripts/seed-generator/README.md` + skeleton lib/: 6 helpers (rls-tx, distributions, esco-grounded, audit-emit, semantic-query, openai-wrapper, industry-research)
-- `db/seeds/realistic/README.md` + `.gitignore` update per `_generated_sql/`
-- `CLAUDE.md` root aggiornato con sezione "Lexicon canonical + CASCADIA pipeline"
+**S35.2 Pipeline skeleton + Lexicon (commit `cd87416`)**: `docs/_meta/lexicon.md` SoT 16 sigle + 7 lib helpers + 2 README + CLAUDE.md update + .gitignore.
 
-Plan canonical: `~/.claude/plans/in-questa-fase-io-spicy-galaxy.md` (~58-94 FTE-h totali multi-sessione, S35.0+S35.1+S35.2 chiusi in ~3h grazie a vasto pre-existing).
+**S35.3 Pilot RTL Bank in progress (M0-M4 done)**:
+- **M0 backup** `heuresys_platform-pre-S35.3-pilot-rtl-20260511T171222Z.dump` sha256 `2fcc0d85...`
+- **M1 industry profile** `db/seeds/realistic/_research_cache/rtl_bank_industry_profile.json` — HUMAN GATE M1 ✅ approved (250 righe JSON, NACE K.64.19, workforce 158 emp, 7 divisioni, 10 BP, 32 ruoli canonical, 18 critical skills, 24 KPI, 10 compliance framework, CCNL_CRED_2024)
+- **M2 INDOOR taxonomy** (SQL `_generated_sql/rtl_bank_M2_industry_taxonomy.sql` applied): BANKING-M industry_profile enrichment — typical_hierarchy + 22 typical_roles + 11 typical_departments + 14 ESCO occupation codes
+- **M3 OPOURSKA Layer 1 org_units**: già adeguato pre-S35.3 (1 L1 + 9 L2 + 8 L3 + 5 L4, zero orphan, no change applicata)
+- **M4 OPOURSKA Layer 4 job_templates** (SQL `_generated_sql/rtl_bank_M4_position_fix.sql` applied): 2 nuovi job_templates (RTL-HR-MGR, RTL-OPS-MGR) + fix 2 employees orfani → **0 orphans, 19 job_templates RTL Bank, 158/158 active emp con position_id**
 
-## Top priorities
+**Carry-forward M4b**: extensione 32 ruoli canonical del profile JSON (CEO, Director, AML Specialist, Cybersec, ecc.) — patch minimo solo per orfani, espansione completa M5+.
 
-1. **S35.3 Pilot RTL Bank end-to-end** (~20-30h FTE) — 14 stage: industry research RTL + INDOOR cascade + OPOURSKA full + PROGOV + GOKMER + TALPIPE + SKILGRO + H2R + SMERTO + PULSAR + ITLAB time-off + DGOV docs/audit + ESKAP KG projection RTL + EPRA. **HUMAN GATE M1** review industry profile JSON prima di taxonomy seed. **PILOT GATE M15** validation dashboards live.
-2. **S35.4 Extension SmartFood + EcoNova + Heuresys** (~15-25h FTE) — replica metodologia pilot per 3 tenant restanti con industry profile customizzato (HACCP food, ISO 50001 energy, SaaS).
-3. **S35.5 ESKAP full projection** (~5-7h) — ESCO catalog 14k+3k+126k+5.8k nodes/edges + tenant projection.
+Plan canonical: `~/.claude/plans/in-questa-fase-io-spicy-galaxy.md`. Effort residuo S35.3 M5-M15: ~15-25 FTE-h.
+
+## Top priorities S35.3 continuation
+
+1. **M5 KPI framework** — `kpi_definitions` ≥30 industry-specific banking (NPL, Cost/Income, ROE, CET1, LCR, AML alert, customer satisfaction, training hours, turnover) seedare da `kpi_framework` del JSON
+2. **M6 Process blueprint** — `business_processes` ≥10 RTL-specific (Onboarding/Erogazione Credito/Payment Processing/Wealth Mgmt/Treasury/Risk/Compliance/Audit/HR/IT) — esistono già 8 BP RTL, verificare e estendere
+3. **M7 Compliance frameworks** — `policies` + `regulatory_frameworks` banking: PSD2/AML5/Basel III/GDPR/BdI Circ 285+295/TUB/DORA
+4. **M8 Workforce enrichment** — 100% RTL emp con manager_id + hire_date + seniority (già 158/158 active, verifica)
+5. **M9-M14**: Assessments/Reviews/Career/Succession/L&D/Recruiting/Comp/Mentorship/Engagement/Time-off/Docs/Audit/KG/AI
+6. **M15 PILOT GATE** — dashboards live + 25-area SQL all green
 
 ## Open questions
 
-Nessuna bloccante. Decisioni pre-S35.3 aperte:
-- Industry profile generation: implementare web research live (curl ESCO REST + Eurostat + OECD) PRIMA di S35.3, oppure popolare manualmente cache JSON per pilot RTL come bootstrap?
-- OpenAI cost cap $5/day sufficiente per generation 4 tenant profile + iterazioni debug? (stima budget $0.30-1.00 totale).
+- M5 KPI seed: usare `kpi_definitions` o `tenant_kpis`? (DB ha entrambe in alcune aree, verificare convenzione)
+- M4b job_templates extension: rivedere prima dell'M5 (HR+Operations sono solo 2 di 32) oppure procedere e tornare a M4b in batch?
+- M11 succession_pipeline semantic gate: implementare prima la query semantic in `lib/semantic-query.mjs` o derivare manualmente dal DB esistente?
 
-## Stack snapshot (post-S35.2)
+## Stack snapshot (post-S35.3 M0-M4)
 
-- **Audit forensic**: 100% closed (era 95% post-S24+L59). Tutti i 22 issues originali del 2026-05-09-forensic-db-audit.md → chiusi.
-- **ITLAB infrastructure**: completa. 22 sindacati catalog + 4 tenant↔CCNL links + 12 RSU/RSA links + 9 CCNL_COMM levels. CCNL canonical: CRED (RTL), ALIM (SmartFood), ENERGIA (EcoNova), COMM (Heuresys). Holidays IT 2025-2027 144 rows.
-- **CASCADIA pipeline skeleton**: 6 lib helpers + lexicon canonical + 2 README. Sub-directory `<sigla>/` per stages saranno popolate S35.3+.
-- **DGOV base**: 367 RLS policies + lint:tenant-id + auditedTransaction + 4 fk_users_role + 8 canonical users + 274 active total.
-- **OPOURSKA base**: role_default_dashboards Prisma model + 8 ruoli × 34 functional areas × 179 RBP perm canonical.
-- **Tests**: typecheck PASS su services/app post-S35.0 + post-S35.1. `npm run lint:tenant-id` exit 0.
-- **Commits S35**: `d26883e` (S35.0) · `ff0bd45` (S35.1) · TBD (S35.2 handoff).
+- **Audit forensic**: 100% (era 95%)
+- **ITLAB**: 22 sindacati + 4 CCNL links + 12 RSU + 9 CCNL_COMM + holidays IT 2025-2027
+- **CASCADIA skeleton**: lexicon SoT + 7 lib helpers + 2 README
+- **RTL Bank pilot stato**:
+  - 158/158 active employees con position_id ✅
+  - 19 job_templates ✅ (target ≥25, +6 carry M4b)
+  - 4357 job_template_skills ESCO-grounded ✅
+  - 23 active org_units (1 L1 + 9 L2 + 8 L3 + 5 L4) ✅
+  - BANKING-M industry_profile enriched ✅
+  - Industry profile JSON canonical ✅
+  - CCNL_CRED_2024 link ✅ + 4 sindacati linked ✅
+  - succession_pipeline: 0 rows (M11)
+  - kpi_definitions: 0-5 (M5 target ≥30)
+- **Commits S35**: `d26883e` (S35.0) · `ff0bd45` (S35.1) · `cd87416` (S35.2) · TBD (S35.3 M0-M4)
+- **Tests**: typecheck PASS · `npm run lint:tenant-id` exit 0
 
 ## Verification
 
 ```bash
-git log --oneline -6
-# expected: cab78bd + 150518c + 1a61d62 + f412b00 + d26883e + ff0bd45 + S35.2 commit
+git log --oneline -8
 
-# S35.1 ITLAB verification
-ssh oracle-vm-default 'sudo -u postgres psql -d heuresys_platform -c "
-  SELECT '\''sindacati'\'' t, count(*)::text c FROM sindacati
-  UNION ALL SELECT '\''tenant_ccnl_links'\'', count(*)::text FROM tenant_ccnl_links
-  UNION ALL SELECT '\''sindacato_tenant_links'\'', count(*)::text FROM sindacato_tenant_links
-  UNION ALL SELECT '\''ccnl_levels_COMM'\'', count(*)::text FROM ccnl_levels WHERE ccnl_code='\''CCNL_COMM_2024'\''"'
-# expected: 22 · 4 · 12 · 9
+# S35.3 M4 verification
+ssh oracle-vm-default "sudo -u postgres psql -d heuresys_platform -At -c \"
+  SELECT 
+    (SELECT count(*) FILTER (WHERE position_id IS NULL) FROM employees 
+     WHERE tenant_id=(SELECT id FROM tenants WHERE code='rtl-bank') AND employment_status='active') AS orphans,
+    (SELECT count(*) FROM job_templates WHERE tenant_id=(SELECT id FROM tenants WHERE code='rtl-bank')) AS jobs,
+    (SELECT count(*) FROM org_units WHERE tenant_id=(SELECT id FROM tenants WHERE code='rtl-bank') AND is_active=true) AS units\""
+# expected: 0 | 19 | 23
 
-# S35.0 forensic 100% closure
-ssh oracle-vm-default 'sudo -u postgres psql -d heuresys_platform -At -c "
-  SELECT count(*) FROM pg_policy WHERE pg_get_expr(polqual, polrelid) LIKE '\''%current_tenant%'\'' 
-    AND pg_get_expr(polqual, polrelid) NOT LIKE '\''%current_tenant_id%'\''"'
-# expected: 0 (GUC typo)
+# S35.3 M2 BANKING-M enrichment
+ssh oracle-vm-default "sudo -u postgres psql -d heuresys_platform -c \"
+  SELECT code, array_length(typical_roles,1), array_length(esco_occupation_codes,1), 
+    typical_hierarchy IS NOT NULL FROM industry_profiles WHERE code='BANKING-M'\""
+# expected: BANKING-M | 22 | 14 | t
 
-# Typecheck + lint
-npx tsc --noEmit -p services/app/tsconfig.json  # expected: exit 0
-npm run lint:tenant-id                          # expected: exit 0
-
-# Lexicon canonical SoT
-test -f docs/_meta/lexicon.md && wc -l docs/_meta/lexicon.md
-# expected: file exists, ~120 lines
-
-# CASCADIA pipeline skeleton
-ls scripts/seed-generator/lib/
-# expected: 6 .mjs files (rls-tx, distributions, esco-grounded, audit-emit, semantic-query, openai-wrapper, industry-research)
+# Industry profile artifact
+test -f db/seeds/realistic/_research_cache/rtl_bank_industry_profile.json && \
+  wc -l db/seeds/realistic/_research_cache/rtl_bank_industry_profile.json
+# expected: file exists, ~330 lines
 ```
 
-Riferimenti: 
-- Plan canonical: `~/.claude/plans/in-questa-fase-io-spicy-galaxy.md` (16 sigle, 14 stage pipeline)
+Riferimenti:
+- Plan canonical: `~/.claude/plans/in-questa-fase-io-spicy-galaxy.md`
 - Lexicon SoT: `docs/_meta/lexicon.md`
 - Pipeline scripts: `scripts/seed-generator/README.md`
-- Migration ITLAB: `db/migrations/phase18d_italian_labor_context.sql`
-- Forensic audit baseline: `docs/_audit/2026-05-09-forensic-db-audit.md`
-- Backup baseline pre-CASCADIA: `/var/backups/heuresys-evo/heuresys_platform-SoT-baseline-2026-05-07T143000Z.dump` + pre-phase18d: `heuresys_platform-pre-phase18d-20260511T165129Z.dump` (sha256 `194613fa...`)
+- M-stage SQL: `db/seeds/realistic/_generated_sql/rtl_bank_M*.sql`
+- Industry profile JSON: `db/seeds/realistic/_research_cache/rtl_bank_industry_profile.json`
+- Backup pre-S35.3: `/var/backups/heuresys-evo/heuresys_platform-pre-S35.3-pilot-rtl-20260511T171222Z.dump` sha256 `2fcc0d85...`

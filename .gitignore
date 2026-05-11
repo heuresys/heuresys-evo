@@ -21,6 +21,9 @@ tmp/
 # === CASCADIA pipeline generated SQL (S35.2+, regenerable) ===
 db/seeds/realistic/_generated_sql/*.sql
 !db/seeds/realistic/_generated_sql/.gitkeep
+# Eccezione: SQL manuali per M-milestones del pilot RTL Bank (audit trail)
+!db/seeds/realistic/_generated_sql/rtl_bank_M*.sql
+!db/seeds/realistic/_generated_sql/*_M*.sql
 
 # === Playwright MCP / browser automation artifacts ===
 .playwright-mcp/
