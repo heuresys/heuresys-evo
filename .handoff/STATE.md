@@ -1,33 +1,31 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-12T00:50Z · S37+S38+S39 post-CASCADIA remediation · 9 commit pushed
+> Updated: 2026-05-12T01:00Z · S37→S40 post-CASCADIA remediation · 12 commit pushed · 14 phase18 migrations applicate
 
-## Last session brief
+## Last session brief (S37→S40 cumulative ~7.5h FTE)
 
-**S37+S38+S39 cumulative autonomous (~7h FTE total, 9 commit)** — Post-CASCADIA 6-Wave roadmap:
+**6-Wave roadmap status finale**:
 
-| Wave | Status | Output |
+| Wave | Status | Output finale |
 |---|---|---|
-| **W1** | ✅ DONE | Prisma reconciliation: kg_nodes + kg_edges + sc.tenant_id |
-| **W2** | ✅ DONE | 5 endpoint quick-wins (succession/9box/ccnl/holidays/kg-edges) |
-| **W3** | ✅ DONE base | fetchApi() + BridgeCard bound; widget employee-context extension carry-forward |
-| **W4** | 🟡 2/7 view | HrDirector + TenantOwner Prisma-bound; 5 view rimanenti (CrossTenant partial via fetchOrgSystemsData, others need aggregation logic) carry-forward |
-| **W5** | 🟡 PROGRAMMATIC | Data verified all 4 tenant; visual Chrome MCP screenshot 88 cells deferred (sessione live coordinata) |
-| **W6** | 🟡 5/5 LOGIC, UI partial | W6.1 industry endpoint · W6.2 KG advisor enrichment · W6.3 CCNL compliance · W6.4 SLA badge UI · W6.5 Holidays widget UI |
+| **W1** | ✅ DONE | Prisma reconciliation kg_nodes + kg_edges + sc.tenant_id (both schemas) |
+| **W2** | ✅ DONE | 6 endpoint API: succession/candidates · nine-box · ccnl · holidays · kg/edges · industry |
+| **W3** | ✅ DONE | data-fetcher type:'api' + {employeeId} template substitution + BridgeCard + KgMiniGraph (3 elements) bound |
+| **W4** | 🟡 2/7 view | HrDirector + TenantOwner succession Prisma-bound; 5 view rimanenti carry-forward |
+| **W5** | 🟡 PROGRAMMATIC | Data verified 4 tenant + 4 api-bound widgets; visual Chrome MCP deferred |
+| **W6** | ✅ 5/5 logic | W6.1 /api/industry · W6.2 KG advisor enrichment · W6.3 CCNL compliance · W6.4 SLA badge UI · W6.5 Holidays widget UI |
 
-## Commits timeline (S37→S39)
+**S40 carry-forward addressed**:
+- ✅ Item 4: SLA + Holidays wired end-to-end (succession/candidates response shape + activityFeedAdapter passthrough)
+- ✅ Item 3: W3 widget employee-context binding (FetchContext.employeeId + {employeeId} template + phase18n KgMiniGraph bound)
+- 🟡 Item 1: W4-final 5 view → carry-forward S41+ (per-view aggregation helpers)
 
-- `6d07272` S37-W1 Prisma reconciliation
-- `2af1bbc` S37-W2 5 endpoint quick-wins
-- `f7932d7` S37-W3 data-fetcher api + BridgeCard
-- `2196025` S37-W4 HrDirector succession live
-- `98e53a4` S37-W6.1 /api/industry endpoint
-- `fa637f5` S37 handoff
-- `5458614` S38-W4 TenantOwner top-succession live
-- `d773c9b` S38-W6.2+W6.3 KG advisor + CCNL compliance
-- `2bfd5dc` S38 handoff
-- `25b1f80` S39-W6.4+W6.5 SLA badge + Holidays widget UI
-- (this) S39 handoff
+## Commits timeline (12 commit S37→S40)
+
+S37: `6d07272` W1 · `2af1bbc` W2 · `f7932d7` W3 · `2196025` W4 · `98e53a4` W6.1 · `fa637f5` handoff
+S38: `5458614` W4-cont · `d773c9b` W6.2+W6.3 · `2bfd5dc` handoff
+S39: `25b1f80` W6.4+W6.5 · `528737d` handoff
+S40: `8239d3b` Item3+Item4 · (this) handoff
 
 ## 4-tenant CASCADIA coverage (stable)
 
@@ -38,43 +36,52 @@
 | **econova** | 26 | 296 | 32 | 25 | 103 | 289 |
 | **heuresys** | 4 | 27 | 6 | 2 | 38 | 23 |
 
-## Live API surface (post-S39)
+## Live API surface (post-S40)
 
-- `/api/succession/candidates?tenant=` — TALPIPE list
-- `/api/nine-box?tenant=` — TALPIPE M11 grid view
-- `/api/ccnl?sector=&include_levels=` — ITLAB catalog
-- `/api/holidays?year=&country=&region=` — ITLAB calendar (consumed by BrandActivityFeed W6.5)
-- `/api/explorer/kg/edges?employeeId=` — ESKAP employee 1-hop
-- `/api/industry?tenant=` — INDOOR profile cache
-- `/api/ontology/advisor` — KG-enriched prompt (REQUIRES_SKILL + ADJACENT_SKILL injection)
-- `/leaves` POST (api-gateway) — CCNL-compliance advisory block in response
+- `/api/succession/candidates` — TALPIPE shape pre-built per BridgeCard (id, role, readinessLabel, readinessValue, readinessUnit, gaps[], targetDate, readinessLevel)
+- `/api/nine-box` — TALPIPE grid view via $queryRaw
+- `/api/ccnl` — ITLAB catalog + levels
+- `/api/holidays` — ITLAB calendar IT 2025-2026
+- `/api/explorer/kg/edges?employeeId=` — ESKAP employee 1-hop (consumed by KgMiniGraph)
+- `/api/industry?tenant=` — INDOOR profile cache (4 tenants)
+- `/api/ontology/advisor` — KG-enriched OpenAI advisor
+- `/leaves` POST — CCNL compliance advisory block
 
-## UI components enhanced (S39)
+## Widget binding state (4/4 target)
 
-- `BrandBridgeCard`: SLA badge URGENT/SOON derivato da `targetDate + readinessLevel`
-- `BrandActivityFeed`: `holidays?` prop preview rendered above activity-list
+- ✅ BridgeCard → `/api/succession/candidates` (phase18m, items[] pre-shaped)
+- ✅ KgMiniGraph → `/api/explorer/kg/edges?employeeId={employeeId}` (phase18n, 3 elements, template substitution)
+- 🟡 CapabilityRadar → carry-forward S41+ (richiede /api/capability/aggregate endpoint)
+- 🟡 ProfileHero → carry-forward S41+ (richiede /api/employees/{id}/profile endpoint)
 
-## Migrations applied VM (cumulative)
+## UI components enhanced
 
-phase18d-l (S35+S36) · **phase18m** widget api binding (S37)
+- `BrandBridgeCard`: SLA badge URGENT/SOON from targetDate+readinessLevel
+- `BrandActivityFeed`: optional holidays[] preview row above activity-list
+- `data-fetcher.fetchApi`: {employeeId} template substitution + post-substitution regex validation
 
-## Top priorities S40+ (carry-forward)
+## Migrations applied VM (cumulative S35-S40)
+
+phase18d ITLAB · phase18e PROGOV regulatory · phase18f ESKAP KG · phase18g F-008 persona_label · phase18h SmartFood enrichment · phase18i EcoNova+Heuresys · phase18j EcoNova jt dedupe · phase18k Heuresys succession · phase18l mock identities · phase18m BridgeCard api · **phase18n KgMiniGraph employee-context api**
+
+## Top priorities S41+ (carry-forward)
 
 | # | Topic | Effort | Notes |
 |---|---|---|---|
-| 1 | **W4-final 5 view** | ~2-3h | CrossTenant (extend fetchOrgSystemsData) · SkillsHeatmap (cross-employee skill matrix aggregation) · EmployeeJourney (employees+history) · CapabilityGraph (esco_skills aggregate) · OrgSystems |
+| 1 | **W4-final 5 view aggregation** | ~3-4h | EmployeeJourney (employees+history) · CapabilityGraph (ESCO aggregate) · SkillsHeatmap (cross-emp skill matrix) · OrgSystems (integration_status) · CrossTenant (already partial via fetchOrgSystemsData) |
 | 2 | **W5 Chrome MCP visual** | ~1-2h | Dev server up + 88 cells screenshot. Sessione live coordinata |
-| 3 | **W3 widget employee-context** | ~1-2h | Extend FetchContext.employeeId + bind KgMiniGraph/CapabilityRadar/ProfileHero to /api/explorer/kg/edges?employeeId= |
-| 4 | **Wire SLA badge + Holidays in registry** | ~30min | Update dashboard_elements config_overrides per BridgeCard targetDate/readinessLevel + ActivityFeed holidays |
+| 3 | **ProfileHero + CapabilityRadar binding** | ~1.5h | Create /api/employees/{id}/profile + /api/capability/aggregate endpoints + DB binding |
+| 4 | **/api/employees/{id}/profile endpoint** | ~30min | Employee detail + assessments + role + badges aggregato |
 | 5 | **§ 1.2 employees vertical-split Phase 2** | ~15-25h | Separate scope, audit 65 view dipendenze |
 
-## Stack snapshot (post-S39)
+## Stack snapshot (post-S40)
 
 - Prisma schemas in sync con DBMS post-CASCADIA (both workspaces)
-- 6 nuovi API endpoint + 2 enhanced
-- data-fetcher.ts supports type:'api'
-- 2/7 view Prisma-bound (HrDirector + TenantOwner)
-- 1/4 widget api-bound (BridgeCard); SLA + Holidays UI ready, waiting elements config
+- 6 nuovi API endpoint + 2 enhanced (KG advisor, leaves CCNL)
+- data-fetcher.ts supports type:'api' with template substitution
+- 2/4 target widgets api-bound (BridgeCard + KgMiniGraph)
+- 2/7 views Prisma-bound (HrDirector + TenantOwner)
+- 2 brand UI components extended (SLA badge + Holidays preview)
 - 4-tenant CASCADIA stable
 - Tests: typecheck + lint:tenant-id + lint:mock-identities PASS
 - ADR archive: 30 entries
@@ -89,23 +96,24 @@ npx tsc --noEmit -p services/app/tsconfig.json && npx tsc --noEmit -p services/a
 npm run lint:mock-identities && npm run lint:tenant-id
 
 # Live API smoke (dev server + session)
-for endpoint in succession/candidates nine-box ccnl holidays explorer/kg/edges industry; do
-  curl -sH "Cookie: <session>" "http://localhost:3200/api/$endpoint?tenant=<rtl-uuid>" -o /dev/null -w "%{http_code} /api/$endpoint\n"
-done
+curl -sH "Cookie: <session>" "http://localhost:3200/api/succession/candidates?tenant=<rtl-uuid>" | jq '.data.items[0]'
+# Expected: { id, role, readinessLabel: "Readiness", readinessValue: 92, gaps: [...], targetDate: "2027-...", readinessLevel: "ready_now" }
 
-# CASCADIA coverage
+# Widget binding state
 ssh oracle-vm-default "sudo -u postgres psql -d heuresys_platform -At -c \"
-SELECT t.code,
-  (SELECT count(*) FROM employee_skill_assessments esa JOIN employees e ON e.id=esa.employee_id WHERE e.tenant_id=t.id) AS assess,
-  (SELECT count(*) FROM succession_candidates WHERE tenant_id=t.id) AS succ
-FROM tenants t ORDER BY t.code\""
+SELECT widget_code, COUNT(*) FILTER (WHERE config_overrides->'data_source'->>'type'='api') AS api_bound,
+       COUNT(*) AS total
+FROM dashboard_elements
+WHERE widget_code IN ('BridgeCard','KgMiniGraph','CapabilityRadar','ProfileHero')
+GROUP BY widget_code ORDER BY widget_code\""
+# Expected: BridgeCard 1/1 · KgMiniGraph 3/3 · CapabilityRadar 0/5 · ProfileHero 0/1
 ```
 
 ## Riferimenti
 
-- Plan canonical: `~/.claude/plans/m15-visual-walkthrough-programmiamo-recursive-graham.md`
+- Plan canonical S37+: `~/.claude/plans/m15-visual-walkthrough-programmiamo-recursive-graham.md`
 - CASCADIA: `~/.claude/plans/in-questa-fase-io-spicy-galaxy.md`
 - Lexicon: `docs/_meta/lexicon.md`
-- ADR: 0028 CASCADIA · 0029 ITLAB · 0030 Lexicon
+- ADR S35-S36: 0028 CASCADIA · 0029 ITLAB · 0030 Lexicon
 - Industry profiles: `db/seeds/realistic/_research_cache/*.json`
-- Latest migrations: `db/migrations/phase18m_widget_api_binding.sql`
+- Latest migrations: `db/migrations/phase18m_widget_api_binding.sql` · `phase18n_widget_employee_context_binding.sql`
