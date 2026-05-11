@@ -616,6 +616,7 @@ model tenants {
   rbp_section_translations            rbp_section_translations[]
   rbp_sections                        rbp_sections[]
   rbp_teams                           rbp_teams[]
+  role_default_dashboards             role_default_dashboards[]
   recognition                         recognition[]
   recruiting_candidates               recruiting_candidates[]
   recruiting_interview_templates      recruiting_interview_templates[]
@@ -14562,23 +14563,24 @@ model workspace_widgets {
 
 /// Phase 13.B — dashboard_presets (registry of mockup-derived templates) + dashboard_elements (widget binding). RLS on dashboard_elements (tenant_id NULL = platform default · non-NULL = tenant override P10).
 model dashboard_presets {
-  id                 BigInt               @id @default(autoincrement())
-  code               String               @unique @db.VarChar(64)
-  name_it            String               @db.VarChar(255)
-  name_en            String               @db.VarChar(255)
-  description_it     String?
-  description_en     String?
-  perspective_code   String               @db.VarChar(32)
-  source_mockup_path String?
-  rbp_dashboard_code String?              @db.VarChar(64)
-  persona_label      String?              @db.VarChar(255)
-  is_published       Boolean              @default(false)
-  sort_order         Int                  @default(0)
-  theme_config       Json?
-  created_at         DateTime             @default(now()) @db.Timestamptz(6)
-  updated_at         DateTime             @default(now()) @db.Timestamptz(6)
-  rbp_perspectives   rbp_perspectives     @relation(fields: [perspective_code], references: [code])
-  dashboard_elements dashboard_elements[]
+  id                      BigInt                    @id @default(autoincrement())
+  code                    String                    @unique @db.VarChar(64)
+  name_it                 String                    @db.VarChar(255)
+  name_en                 String                    @db.VarChar(255)
+  description_it          String?
+  description_en          String?
+  perspective_code        String                    @db.VarChar(32)
+  source_mockup_path      String?
+  rbp_dashboard_code      String?                   @db.VarChar(64)
+  persona_label           String?                   @db.VarChar(255)
+  is_published            Boolean                   @default(false)
+  sort_order              Int                       @default(0)
+  theme_config            Json?
+  created_at              DateTime                  @default(now()) @db.Timestamptz(6)
+  updated_at              DateTime                  @default(now()) @db.Timestamptz(6)
+  rbp_perspectives        rbp_perspectives          @relation(fields: [perspective_code], references: [code])
+  dashboard_elements      dashboard_elements[]
+  role_default_dashboards role_default_dashboards[]
 
   @@index([perspective_code], map: "idx_dashboard_presets_perspective")
 }
@@ -14614,6 +14616,26 @@ model dashboard_elements {
 
   @@index([dashboard_preset_id], map: "idx_dashboard_elements_preset")
   @@index([parent_element_id], map: "idx_dashboard_elements_parent")
+}
+
+/// S35.0 (audit issue #5 closure): role_default_dashboards Prisma model.
+/// Maps RBP role to default dashboard_presets.code per tenant (NULL = platform default · non-NULL = tenant override P10).
+/// DB has partial unique indexes (uniq_role_default_platform WHERE tenant_id IS NULL, uniq_role_default_tenant WHERE tenant_id IS NOT NULL) — Prisma 5 does not model partial uniques; constraints remain DB-enforced.
+/// This model contains row level security: tenant_id IS NULL OR tenant_id = current_setting('app.current_tenant_id')
+model role_default_dashboards {
+  id                String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  role              String
+  preset_code       String
+  tenant_id         String?           @db.Uuid
+  priority          Int               @default(0)
+  created_at        DateTime          @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime          @default(now()) @db.Timestamptz(6)
+  dashboard_presets dashboard_presets @relation(fields: [preset_code], references: [code], onDelete: Cascade)
+  tenants           tenants?          @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+
+  @@index([preset_code], map: "idx_role_default_dashboards_preset")
+  @@index([tenant_id], map: "idx_role_default_dashboards_tenant")
+  @@index([role], map: "idx_role_default_dashboards_role")
 }
 
 enum career_skill_importance {
