@@ -2197,3 +2197,23 @@ LOW (3 risolti):
 - **Method learned**: audit visivo browser-based con `claude-in-chrome` > analisi statica via Explore agents. Le 2 false-positive smoking gun in Phase 1 hanno mostrato che il drift inventory deve essere build osservando il prodotto live, non leggendo il codice.
 
 **Verification proof**: 5 surface verified post-deploy via `mcp__claude-in-chrome__navigate` + `javascript_tool`. Computed `--primary #3b82f6` + `--accent #a855f7` bicolor distinto su palette legacy canonical. RoleForbidden render "403 · ACCESSO NEGATO / Permessi insufficienti". Onboarding heading "Benvenuto su Heuresys, Valentina" (firstName derivata DB).
+
+---
+
+## L62 — 2026-05-12 — S51: 3 carry-forward S50 chiusi (P1 diagnosi + P2 redirect v1→v2 + P3 i18n sweep)
+
+**Decisione**: chiuse 3 delle 7 priorità S51+ enumerate in L61. P1 risolto come diagnosi (filter sidebar nav già funziona), P2 shipped (redirect logic v1→v2 in dashboard/[code]/page.tsx), P3 shipped (i18n sweep di 9 file: role-nav-map.ts + 3 explorer + 4 me sub-pages + handoff). Le restanti 3 priorità (P4 WCAG AAA · P5 Lighthouse bench · P6 widget audit visual) sono **carry-forward S52+** in attesa di verifica visiva (utente ha rinviato la visual smoke).
+
+**Contesto**: utente Enzo ha detto "la verifica visiva finale su tutto la rinviamo. adesso procediamo con le Top 7 priorità S51+". Procedendo in ordine di effort crescente (P2 30min → P1 1-2h → P3 2-3h), ho realizzato che P4/P5/P6 richiedono tutti verifica visiva (Lighthouse browser audit, WCAG axe-core run, widget count vs mockup side-by-side). Quindi schedulati S52+.
+
+**Conseguenza**:
+
+- **P2 (dashboard preset v1→v2 redirect)** shipped: `services/app/src/app/(app)/dashboard/[code]/page.tsx` ora controlla — pre `loadDashboardPreset` — se URL code è v1 e exists la versione v2; in tal caso `redirect()` preservando `observer` + `lang` query params. Sblocca rendering brand-fedele completo per `/dashboard/capability_graph` (v1 has 3 elements, v2 has 11). Effort: 30min. Risolve drift L61-D18.
+
+- **P1 (sidebar RBP filter)** completed by diagnosis: `SIDEBAR_MAP[role]` in `role-nav-map.ts` già filtra correttamente. Verified via grep: HR_DIRECTOR sidebar NON include /admin/users /admin/tenants /admin/integrations (vede solo /admin/audit + /admin/rbac). Le 4 admin route deep-link erano già coperte da `RoleForbidden` S50. No code change.
+
+- **P3 (i18n sweep secondary)** shipped in commit `7c4cd14`: 9 file italianizzati. `role-nav-map.ts` 61 sidebar labels EN→IT (8 ruoli × 3-9 link + 4 sezioni shared). /explorer/{esco,kg,sap} h1+body italian. /me/{skills,goals,reviews,learning} STRINGS.it polish (Reviewee→Valutato, Learner→Discente, Owner→Proprietario) + error display sanitized.
+
+- **Carry-forward S52+**: (a) P4 WCAG 2.2 AAA full audit con `chrome-devtools-mcp:a11y-debugging` + axe-core CI + NVDA manual pass; (b) P5 Lighthouse ≥ 90 bench (perf/a11y/best-practices/SEO) su /login + /dashboard + /me + /admin/audit; (c) P6 dashboard widget count visual audit (HR_DIRECTOR vs mockup canonical hr-director-overview.html); (d) Phase 2 employees vertical-split (15-25h FTE, L60); (e) `/analytics/workforce` page.tsx non esiste (linkato in sidebar, 404).
+
+**Verification proof**: commit `7c4cd14` pushed `origin/main`. VM `oracle-vm-default` rebuilded `NODE_OPTIONS='--max-old-space-size=6144'` + restart heuresys-app + heuresys-api-gateway. Services `active/active`. HTTPS smoke: `/login` 200 OK · `/dashboard/capability_graph` 307 (auth redirect, P2 redirect richiede authenticated request per esercitare il code path).
