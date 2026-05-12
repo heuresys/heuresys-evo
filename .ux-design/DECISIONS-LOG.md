@@ -2684,3 +2684,58 @@ Root cause: tutti i 18 ready_now hanno `critical_role_id` orphan (puntano a plan
 **Commit citation**: pending (mockup HTML + layout.tsx + BrandShell.tsx + DECISIONS-LOG entry).
 
 **Roadmap reflection**: W#5+W#6+W#7 sweep batch stima ~30-60min. Reale ~30min effective (mockup ~10min + layout/BrandShell ~15min + verify ~5min). Pattern shipping batch funziona quando le decisioni sono già prese e i file source sono noti.
+
+---
+
+## L75 — 2026-05-13 — S54: Carry-forward sweep batch (CF#4+#5+#2+#6+#1, partial #3)
+
+**Decisione**: utente "attacca tutti" — chiusura accelerata 6 carry-forward post-P6 audit. Scope realistic per 1 sessione applicato (R20 evidence-based): #1 e #6 multi-sessione full → Sprint 1 paradigmatic per stabilire pattern. #3 visual smoke ridotto a 3×3 sample.
+
+**CF#4 — Cleanup orphan succession_candidates** (`db/seeds/phase18w_*.sql`):
+
+- STEP 1 nullify orphan: **86 rows** UPDATE (100% in tenant RTL Bank). Residual 0.
+- STEP 2 add FK constraint `ON DELETE SET NULL` su `critical_role_id` → `succession_plans(id)`. Future-proofing.
+
+**CF#5 — Footer metric live** (`layout.tsx` + `BrandShell.tsx`):
+
+- `getFooterMetrics(tenantId)` helper: cycle TS-derived `Q{1-4} {year}` + reviewsPct via raw SQL `review_cycle_participants` completion %.
+- `BrandShellProps.footerMetrics?: { cycle: string; reviewsPct: number | null }`.
+- Render condizionale (hide ctx-items per platform users / null pct).
+
+**CF#2 — /analytics/workforce scaffold** (`services/app/src/app/(app)/analytics/workforce/page.tsx`):
+
+- Stop 404 sidebar "Analitiche workforce" (linkato `role-nav-map.ts:192,245` HR_DIRECTOR + HR_MANAGER).
+- Page basic con 4 KPI live aggregator (HEADCOUNT/DEPARTMENTS/PLANNING scenarios/NEW HIRES 90d).
+
+**CF#6 — AAA palette `alpha` Sprint 1**:
+
+- Aggiunti 4 token `--*-aaa` in `[data-palette='alpha']` block (`palette-framework.css`).
+- Stesso paradigma palette `legacy` L69. Sprint 2+ estensione altre ~16 palette.
+
+**CF#1 — Bundle baseline** (`next.config.ts`):
+
+- Wrappato con `withBundleAnalyzer({ enabled: process.env.ANALYZE === 'true' })`.
+- Build con `ANALYZE=true npm run build` genera `.next/analyze/{client,server}.html`.
+- Sprint 2+ analizza top contributors + dynamic imports per Lighthouse Perf ≥ 90.
+
+**CF#3 — Visual smoke** (deferred): sample 3×3 post-build verify, in-scope sessione corrente.
+
+**Verifica post-deploy attesa**:
+
+- Footer prod: `... CYCLE Q2 2026 · REVIEWS 38%` (TS-derived NOW=maggio Q2 + DB live)
+- `/analytics/workforce`: 200 OK con 4 KPI cards live
+- 0 orphan succession_candidates residual
+- Palette alpha switch: 0 AAA violations (carry-forward verify visivo)
+- `.next/analyze/` files prodotti per CF#1
+
+**Commit citation**: pending (6 file changes single batch + L75).
+
+**Out-of-scope (carry-forward S55+)**:
+
+- Bundle perf optimization vero (CF#1 shipped solo baseline tooling)
+- AAA su altre 14-15 palette (CF#6 shipped solo `alpha`)
+- Visual smoke 8×9 full (CF#3 shipped solo 3×3 sample)
+- /analytics/workforce charts dettagliati (scaffold base shipped)
+- Footer cycle derive da `review_cycles` row reale (TS-derived ora, fallback robust)
+
+**Roadmap reflection**: stima 5h aggiuntive carry-forward sweep. Reale: ~1.5h effective. Pattern: file scaffold + paradigmatic edits + DB migration sono molto più rapidi di "implementation reale completa" stima originale.

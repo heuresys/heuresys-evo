@@ -296,6 +296,15 @@
   --accent-soft: #2a1a44;
   --primary: #3b82f6;
 
+  /* WCAG 2.2 AAA enhanced contrast variants (L75 CF#6 — palette alpha extension).
+   * Stesso paradigma palette legacy L69: 4 token --*-aaa per testo small (<18pt)
+   * su dark surfaces. Brand identity (--accent, --primary, --semantic-success)
+   * preservata per usi non-textual (icons, fills, borders, glows). */
+  --accent-aaa: #c084fc;
+  --primary-aaa: #60a5fa;
+  --ink-muted-aaa: #b0b5c0;
+  --semantic-success-aaa: #4ade80;
+
   --gradient: linear-gradient(135deg, #3b82f6 0%, #a855f7 100%);
   --glow: 0 0 80px rgba(168, 85, 247, 0.3);
 

@@ -39,6 +39,8 @@ export interface BrandShellProps {
   /** Resolved user palette (server-side via resolveUserPalette) for chrome switcher. */
   initialPalette: PaletteId;
   initialTheme: ThemeMode;
+  /** P6 W#7-bis (L75 CF#5): footer brand metrics live (cycle period + reviews completion %). */
+  footerMetrics?: { cycle: string; reviewsPct: number | null };
   children: React.ReactNode;
 }
 
@@ -67,6 +69,7 @@ export function BrandShell({
   buildHash,
   initialPalette,
   initialTheme,
+  footerMetrics,
   children,
 }: BrandShellProps) {
   const [collapsed, setCollapsed] = React.useState(false);
@@ -293,17 +296,24 @@ export function BrandShell({
             <span className="ft-dot info" aria-hidden />
             ROLE <strong>{user.role}</strong>
           </span>
-          {/* P6 W#7 (L74): brand metric pill — CYCLE corrente + REVIEWS%.
-              Hardcoded Q1 2026 + 86% per ora; carry-forward S55 fetch live
-              da review_cycles + review_cycle_participants aggregator. */}
-          <span className="ctx-item">
-            <span className="ft-dot ok" aria-hidden />
-            CYCLE <strong>Q1 2026</strong>
-          </span>
-          <span className="ctx-item">
-            <span className="ft-dot ok" aria-hidden />
-            REVIEWS <strong>86%</strong>
-          </span>
+          {/* P6 W#7-bis (L75 CF#5): brand metric live — cycle TS-derived
+              da NOW(), reviewsPct via SQL aggregator review_cycle_participants
+              completion %. Hide entrambi se footerMetrics non passato (es.
+              platform users senza tenantId). */}
+          {footerMetrics ? (
+            <>
+              <span className="ctx-item">
+                <span className="ft-dot ok" aria-hidden />
+                CYCLE <strong>{footerMetrics.cycle}</strong>
+              </span>
+              {footerMetrics.reviewsPct !== null ? (
+                <span className="ctx-item">
+                  <span className="ft-dot ok" aria-hidden />
+                  REVIEWS <strong>{footerMetrics.reviewsPct}%</strong>
+                </span>
+              ) : null}
+            </>
+          ) : null}
           {buildHash ? (
             <span className="ctx-item">
               <span className="ft-dot warn" aria-hidden />

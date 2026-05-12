@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/db';
+import { prisma, withTenant } from '@/lib/db';
 import { getNavForUser } from '@/lib/navigation';
 import { resolveUserPalette } from '@/lib/theme-framework/resolve-user-palette';
 import { BrandShell, type BrandShellTenant } from './_components/BrandShell';
@@ -67,6 +67,11 @@ export default async function AppGroupLayout({ children }: { children: ReactNode
   const userIdMaybe = (session.user as { id?: string }).id;
   const { palette, theme } = await resolveUserPalette(userIdMaybe);
 
+  // P6 W#7-bis (L75 CF#5): footer metric live (cycle + reviews completion %).
+  // Cycle string derived TS-side da NOW() (no DB query — robust anche senza
+  // active review_cycles row). ReviewsPct via aggregator SQL su tenant.
+  const footerMetrics = await getFooterMetrics(u.tenantId ?? null);
+
   return (
     <BrandShell
       sections={sections}
@@ -85,6 +90,45 @@ export default async function AppGroupLayout({ children }: { children: ReactNode
       {children}
     </BrandShell>
   );
+}
+
+/**
+ * P6 W#7-bis (L75 CF#5): footer metric live derivation. Returns cycle name
+ * (TS-derived `Q{1-4} {year}`) + reviewsPct (SQL aggregator
+ * review_cycle_participants completion rate per tenant). Returns null fields
+ * for platform users (no tenantId) — BrandShell hides the ctx-items.
+ */
+async function getFooterMetrics(
+  tenantId: string | null
+): Promise<{ cycle: string; reviewsPct: number | null }> {
+  const now = new Date();
+  const quarter = Math.floor(now.getUTCMonth() / 3) + 1;
+  const cycle = `Q${quarter} ${now.getUTCFullYear()}`;
+
+  if (!tenantId) return { cycle, reviewsPct: null };
+
+  try {
+    const rows = await withTenant(tenantId, async (tx) => {
+      return tx.$queryRaw<Array<{ pct: number | null }>>`
+        WITH cur AS (
+          SELECT
+            COUNT(*) FILTER (WHERE status = 'completed')::int AS done,
+            COUNT(*)::int AS total
+          FROM review_cycle_participants
+          WHERE tenant_id = current_setting('app.current_tenant_id', true)::uuid
+        )
+        SELECT CASE WHEN total > 0 THEN ROUND(100.0 * done / total)::int ELSE NULL END AS pct
+        FROM cur
+      `;
+    });
+    const pctRaw = rows?.[0]?.pct;
+    return {
+      cycle,
+      reviewsPct: typeof pctRaw === 'number' ? pctRaw : null,
+    };
+  } catch {
+    return { cycle, reviewsPct: null };
+  }
 }
 
 /**
