@@ -1,17 +1,25 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-12T05:48Z · S47 closed + idempotency PASS + live smoke test PROD PASS · S48 carry-forward fixed (Phase 2 verified closed in DB)
+> Updated: 2026-05-12T06:05Z · S48 closed · Phase 2 verified · Brand v1.0 A+B+C ✅ · G6 cache layer shipped
 
 ## Last session brief
 
-S47: ciclo iterativo perf carry-forward chiuso (phase18t audit_logs idx + G6 prefetch instrumentation + pgBouncer 1.25.2 transaction mode :6432). Bench 30s × 20 conn from VM: `/org_systems` -61% (2234→874ms), `/employee_journey` -57% (1606→690ms), `/skills_heatmap` -26%, `/dashboard` G6 -19%. **8/9 routes within realistic P95 ≤ 1000ms target**. Idempotency check VM↔locale: 4/4 PASS (git HEAD + 35 migrations + 4 file hashes + 4 services active). Live smoke test `https://evo.heuresys.com` via Chrome MCP: **5/5 view PASS** (login + 4 dashboard, 2 personas, zero blocking errors).
+S48: carry-forward cleanup + Brand v1.0 promotion gate audit + G6 dashboard cache layer.
 
-S48 (in corso): carry-forward cleanup — § 1.2 employees vertical-split Phase 2 verified ALREADY CLOSED on prod DB (S32 commit `bf18e57`, 2026-05-11T00:44:19Z). Evidence: `employees` relkind=`v` (view) · `employees_core` relkind=`r` (table) · 3 satellite tables 270/270/270 rows · 3 INSTEAD OF triggers active · VIEW count 270. STATE.md fixed to remove obsolete carry-forward.
+1. **§ 1.2 employees vertical-split Phase 2** verified ALREADY CLOSED on prod DB (S32 commit `bf18e57`, 2026-05-11T00:44:19Z). Evidence: `employees` relkind=`v` · `employees_core` relkind=`r` · 3 satellite tables 270/270/270 · 3 INSTEAD OF triggers · VIEW count 270.
+
+2. **Brand v1.0** (`.ux-design/08-promotion/v1.0-checklist.md`):
+   - Stage A (5 cat asset statici) verified shipped commit `56626a1`
+   - Stage B (next/font integration) verified shipped (3/3 fonts wired in layout.tsx)
+   - Stage C (motion library) extracted from SoT motion-final.md → 4 ease + 6 dur tokens + `motion.css` (4 keyframes + 7 utility classes) + `lib/motion/variants.ts` (Framer Motion variants). Commit `f70d8a4`.
+
+3. **G6 dashboard cache layer** (commit `aa7288f`): hot path analysis pre-prefetch revealed 4 sequential DB queries (~120-260ms/request cold). Implementation: `role-preset-resolver` wrapped `unstable_cache` 300s · new `dashboard-meta-cache.ts` (cached tenant name + preset meta, 300s TTL) · `dashboard/page.tsx` parallelizes 2 pairs via `Promise.all`. Expected -150-250ms on warm path. 230/230 test PASS (fixed 1 pre-existing failure on dashboard-data-fetcher).
 
 ## Top priorities (remaining)
 
-1. **Brand v1.0 promotion** (~16-25h, 2-3 sessioni) — 8 categorie asset checklist (`.ux-design/08-promotion/v1.0-checklist.md`).
-2. **`/dashboard` G6 marginal sub-1000ms** (~2-4h, opzionale) — DashboardRenderer per-widget cache layer.
+1. **Brand v1.0 Stage D — 4 surface utility** (~4-6h, sessione dedicata) — 4 mockup HTML (404 · empty · onboarding · settings) + `/studio:bootstrap` route promotion.
+2. **Brand v1.0 Stage E — brand book v1 visivo** (~8-12h, opzionale) — typesetting + cover + asset embed alta risoluzione.
+3. **G6 production bench verification** (~30min) — autocannon vs `evo.heuresys.com/dashboard` post-deploy, target P95 ≤ 1000ms achieved via warm-cache hit.
 
 ## Open questions
 
