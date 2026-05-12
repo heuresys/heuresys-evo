@@ -1,25 +1,33 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-12T06:05Z · S48 closed · Phase 2 verified · Brand v1.0 A+B+C ✅ · G6 cache layer shipped
+> Updated: 2026-05-12T06:45Z · S48 closed · 6 commit shipped · prod synced · G6 PASS · Brand v1.0 ~85% promoted
 
 ## Last session brief
 
-S48: carry-forward cleanup + Brand v1.0 promotion gate audit + G6 dashboard cache layer.
+S48: carry-forward exhaustion run — Phase 2 verified + Brand v1.0 A/B/C + G6 cache layer + G6 prod bench verification + VM deploy + Brand v1.0 Stage D 4/5.
 
-1. **§ 1.2 employees vertical-split Phase 2** verified ALREADY CLOSED on prod DB (S32 commit `bf18e57`, 2026-05-11T00:44:19Z). Evidence: `employees` relkind=`v` · `employees_core` relkind=`r` · 3 satellite tables 270/270/270 · 3 INSTEAD OF triggers · VIEW count 270.
+1. **§ 1.2 employees vertical-split Phase 2** verified ALREADY CLOSED S32 (commit `bf18e57`). DB evidence: `employees` relkind=`v` · `employees_core` relkind=`r` · 3 satellites 270/270/270 · 3 INSTEAD OF triggers.
 
-2. **Brand v1.0** (`.ux-design/08-promotion/v1.0-checklist.md`):
-   - Stage A (5 cat asset statici) verified shipped commit `56626a1`
-   - Stage B (next/font integration) verified shipped (3/3 fonts wired in layout.tsx)
-   - Stage C (motion library) extracted from SoT motion-final.md → 4 ease + 6 dur tokens + `motion.css` (4 keyframes + 7 utility classes) + `lib/motion/variants.ts` (Framer Motion variants). Commit `f70d8a4`.
+2. **Brand v1.0 promotion** (`.ux-design/08-promotion/v1.0-checklist.md`):
+   - Stage A (5 quick wins asset statici) verified shipped commit `56626a1`
+   - Stage B (next/font 3/3 fonts) verified shipped layout.tsx
+   - Stage C (motion library) shipped `f70d8a4`: 4 ease + 6 dur tokens · `motion.css` (4 keyframes + 7 utility classes) · `lib/motion/variants.ts`
+   - Stage D 4/5 surface shipped: `app/not-found.tsx` + `app/error.tsx` (`0bbfe2c`) · `(app)/onboarding/page.tsx` 4-step stepper (`d578d62`) · EmptyState già in @heuresys/ui
 
-3. **G6 dashboard cache layer** (commit `aa7288f`): hot path analysis pre-prefetch revealed 4 sequential DB queries (~120-260ms/request cold). Implementation: `role-preset-resolver` wrapped `unstable_cache` 300s · new `dashboard-meta-cache.ts` (cached tenant name + preset meta, 300s TTL) · `dashboard/page.tsx` parallelizes 2 pairs via `Promise.all`. Expected -150-250ms on warm path. 230/230 test PASS (fixed 1 pre-existing failure on dashboard-data-fetcher).
+3. **G6 dashboard cache layer** (`aa7288f`): `unstable_cache` 300s su `resolvePresetCodeForRole` + new `dashboard-meta-cache.ts` (getCachedTenantName + getCachedPresetMeta) + `Promise.all` parallelizzazione 2 query pairs.
+
+4. **G6 prod bench verified** (`4de3b19`): VM autocannon 30s × 20 conn vs `evo.heuresys.com/dashboard`, 3 personas:
+   - HR_DIRECTOR P95 **705ms** (-30% vs S47 1006ms)
+   - SUPERUSER P95 **660ms** (-34%)
+   - TENANT_OWNER P95 **640ms** (-36%)
+   - **Verdict PASS** — all 3 within target ≤ 1000ms
+
+5. **VM deploy S48** synced to commit `d578d62` (post-onboarding) · `heuresys-app` active · HTTPS 200.
 
 ## Top priorities (remaining)
 
-1. **Brand v1.0 Stage D — 4 surface utility** (~4-6h, sessione dedicata) — 4 mockup HTML (404 · empty · onboarding · settings) + `/studio:bootstrap` route promotion.
-2. **Brand v1.0 Stage E — brand book v1 visivo** (~8-12h, opzionale) — typesetting + cover + asset embed alta risoluzione.
-3. **G6 production bench verification** (~30min) — autocannon vs `evo.heuresys.com/dashboard` post-deploy, target P95 ≤ 1000ms achieved via warm-cache hit.
+1. **Brand v1.0 Stage D residue — /settings tabs** (~1-2h) — Profile/Theme/Locale/Notifications/Sessions tabs, completa Stage D 5/5.
+2. **Brand v1.0 Stage E — brand book v1 visivo** (~8-12h, opzionale) — typesetting + cover + asset embed, richiede Figma o tool equivalente (eternal carry-forward in CLI puro).
 
 ## Open questions
 
