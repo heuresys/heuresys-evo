@@ -1,69 +1,43 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-12T06:45Z · S48 closed · 6 commit shipped · prod synced · G6 PASS · Brand v1.0 ~85% promoted
+> Updated: 2026-05-12T14:25Z · S48 closed · 9 commits · prod synced · G6 PASS · Brand v1.0 ~93%
 
 ## Last session brief
 
-S48: carry-forward exhaustion run — Phase 2 verified + Brand v1.0 A/B/C + G6 cache layer + G6 prod bench verification + VM deploy + Brand v1.0 Stage D 4/5.
-
-1. **§ 1.2 employees vertical-split Phase 2** verified ALREADY CLOSED S32 (commit `bf18e57`). DB evidence: `employees` relkind=`v` · `employees_core` relkind=`r` · 3 satellites 270/270/270 · 3 INSTEAD OF triggers.
-
-2. **Brand v1.0 promotion** (`.ux-design/08-promotion/v1.0-checklist.md`):
-   - Stage A (5 quick wins asset statici) verified shipped commit `56626a1`
-   - Stage B (next/font 3/3 fonts) verified shipped layout.tsx
-   - Stage C (motion library) shipped `f70d8a4`: 4 ease + 6 dur tokens · `motion.css` (4 keyframes + 7 utility classes) · `lib/motion/variants.ts`
-   - Stage D 4/5 surface shipped: `app/not-found.tsx` + `app/error.tsx` (`0bbfe2c`) · `(app)/onboarding/page.tsx` 4-step stepper (`d578d62`) · EmptyState già in @heuresys/ui
-
-3. **G6 dashboard cache layer** (`aa7288f`): `unstable_cache` 300s su `resolvePresetCodeForRole` + new `dashboard-meta-cache.ts` (getCachedTenantName + getCachedPresetMeta) + `Promise.all` parallelizzazione 2 query pairs.
-
-4. **G6 prod bench verified** (`4de3b19`): VM autocannon 30s × 20 conn vs `evo.heuresys.com/dashboard`, 3 personas:
-   - HR_DIRECTOR P95 **705ms** (-30% vs S47 1006ms)
-   - SUPERUSER P95 **660ms** (-34%)
-   - TENANT_OWNER P95 **640ms** (-36%)
-   - **Verdict PASS** — all 3 within target ≤ 1000ms
-
-5. **VM deploy S48** synced to commit `d578d62` (post-onboarding) · `heuresys-app` active · HTTPS 200.
+S48 carry-forward exhaustion: Phase 2 vertical-split verified already closed S32 (DB evidence 7/7); Brand v1.0 Stages C/D/E shipped (motion library `services/app/src/styles/motion.css` + `lib/motion/variants.ts` · `app/not-found.tsx` + `app/error.tsx` + `(app)/onboarding/page.tsx` 4-step stepper · Stage E closed via Storybook audit `Brand/*` 28 stories + new `Brand/Motion/Library (S48)`); G6 dashboard cache layer (`unstable_cache` 300s on `resolvePresetCodeForRole` + new `dashboard-meta-cache.ts` + `Promise.all` parallelization) verified in production via VM autocannon 30s × 20 conn: HR_DIRECTOR P95 705ms, SUPERUSER 660ms, TENANT_OWNER 640ms — all under 1000ms target, -30/-34/-36% vs S47 baseline. 230/230 test PASS; typecheck PASS; VM redeploy + HTTPS smoke OK.
 
 ## Top priorities (remaining)
 
-1. **Brand v1.0 Stage D residue — /settings tabs** (~1-2h) — Profile/Theme/Locale/Notifications/Sessions tabs, completa Stage D 5/5 (resta unico item non chiuso del v1.0 promotion gate).
-
-Brand v1.0 effective coverage: **13/14 ✅ + 1 🟡** = ~93% complete (Stage E chiuso via Storybook audit · v1.0-checklist `054a3f2`).
+1. **Brand v1.0 Stage D residue — `/settings` tabs** (~1-2h) — Profile/Theme/Locale/Notifications/Sessions tabs · chiude Stage D 5/5 (unico item v1.0 promotion gate non chiuso, coverage attuale 13/14 ✅ + 1 🟡).
 
 ## Open questions
 
-- **`/dashboard` G6 marginal 1006ms**: ulteriore ottimizzazione (DashboardRenderer per-widget cache) potrebbe portare sotto 1000ms ma è scope di future iterazione.
-- **pgBouncer transaction mode + Prisma prepared statements**: configurato `ignore_startup_parameters = extra_float_digits,search_path` in pgbouncer.ini per compatibility. Eventuale Prisma transactions complesse (multi-statement) potrebbero richiedere pool_mode=session su connection-string specifica.
+- **pgBouncer transaction mode + Prisma multi-statement transactions**: `ignore_startup_parameters = extra_float_digits,search_path` attivo. Eventuale Prisma `$transaction` complesse potrebbero richiedere `pool_mode=session` su connection-string dedicata.
 
-## Stack snapshot (post-S47)
+## Stack snapshot (post-S48)
 
-- pgBouncer 1.25.2 active su oracle-vm-default:6432 (transaction mode, 20+5 pool, max_client 100)
-- services/app + services/api-gateway DATABASE_URL → localhost:6432 (production)
-- SSH tunnel locale resta su 5432 (bypass pooler per Prisma migrations)
-- 8 mat views attive (mv_rbac_matrix + 5 esistenti + 2 ulteriori) · refresh 4h systemd
-- 10 indici post-S47: phase18t idx_audit_logs_created_at_desc
-- G6 instrumentation pronta (env PERF_LOG=1 attiva per debugging)
-- typecheck + lint:tenant-id + lint:mock-identities PASS
-- **Perf realistic-target (20-conn load): 8/9 routes within P95 ≤ 1000ms**
+- pgBouncer 1.25.2 active su oracle-vm-default:6432 (transaction mode, 20+5 pool)
+- services/app + services/api-gateway DATABASE_URL → localhost:6432 (prod)
+- 8 mat views attive · refresh 4h systemd
+- 10 indici post-S47 (phase18t idx_audit_logs_created_at_desc)
+- **G6 cache layer S48**: `resolvePresetCodeForRole` + `getCachedTenantName` + `getCachedPresetMeta` (unstable_cache TTL 300s, tag `dashboard-meta`)
+- **Motion library S48**: 4 ease + 6 dur tokens + `services/app/src/styles/motion.css` (4 keyframes + 7 utility classes) + `services/app/src/lib/motion/variants.ts` (Framer Motion variants)
+- **G6 prod bench**: 3 personas /dashboard P95 640–705ms · PASS ≤ 1000ms
 
 ## Verification
 
 ```bash
-# 4-step idempotency check
+# Idempotency check
 LOCAL=$(git rev-parse HEAD)
 VM=$(ssh oracle-vm-default "cd /home/ubuntu/heuresys-evo && git rev-parse HEAD")
 [ "$LOCAL" = "$VM" ] && echo "GIT IDEMPOTENT" || echo "DRIFT"
 
-ssh oracle-vm-default "sudo -u postgres psql -d heuresys_platform -At -c \"
-SELECT COUNT(*) FROM schema_migrations WHERE version LIKE 'phase18%'\""
-# Expected: includes phase18t
-
+# Services up
 ssh oracle-vm-default "systemctl is-active heuresys-app heuresys-api-gateway pgbouncer postgresql"
-# Expected: 4× active
 
-# Live URL smoke
-curl -I https://evo.heuresys.com/login
-# Expected: HTTP 200 + valid cert
+# Live HTTPS smoke
+curl -sI https://evo.heuresys.com/login | head -3
+curl -sI https://evo.heuresys.com/nonexistent | head -3  # → 404 via app/not-found.tsx
 ```
 
-Riferimenti: `docs/_audit/2026-05-12-perf-baseline/S47-FINAL.md` · `docs/_audit/2026-05-12-prod-smoke-test/REPORT.md` · `db/migrations/phase18{m,n,o,p,q,r,s,t}*.sql` · `scripts/dev-local/setup-pgbouncer.sh` (gitignored ops script)
+Riferimenti: `scripts/perf/results/s48-g6-*.md` · `.ux-design/08-promotion/v1.0-checklist.md` · `packages/ui/src/stories/brand/28-motion-library-production.stories.tsx`
