@@ -1,0 +1,44 @@
+{
+  "timestamp": "2026-05-12T04:39:06.779Z",
+  "base": "https://evo.heuresys.com",
+  "duration_s": 30,
+  "connections": 20,
+  "target_p95_ms": 1000,
+  "overall_max_p95_ms": 705.53,
+  "verdict": "PASS",
+  "views": [
+    {
+      "label": "/dashboard · HR_DIRECTOR",
+      "url": "https://evo.heuresys.com/dashboard",
+      "rps": 28,
+      "latency_avg_ms": 705.53,
+      "latency_p95_ms": 705.53,
+      "latency_p99_ms": 1149,
+      "latency_max_ms": 1451,
+      "errors": 0,
+      "non2xx": 0
+    },
+    {
+      "label": "/dashboard · SUPERUSER",
+      "url": "https://evo.heuresys.com/dashboard",
+      "rps": 30,
+      "latency_avg_ms": 660.02,
+      "latency_p95_ms": 660.02,
+      "latency_p99_ms": 1158,
+      "latency_max_ms": 1250,
+      "errors": 0,
+      "non2xx": 0
+    },
+    {
+      "label": "/dashboard · TENANT_OWNER",
+      "url": "https://evo.heuresys.com/dashboard",
+      "rps": 31,
+      "latency_avg_ms": 640.16,
+      "latency_p95_ms": 640.16,
+      "latency_p99_ms": 809,
+      "latency_max_ms": 1009,
+      "errors": 0,
+      "non2xx": 0
+    }
+  ]
+}
