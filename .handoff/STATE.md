@@ -1,14 +1,14 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-12T14:25Z · S48 closed · 9 commits · prod synced · G6 PASS · Brand v1.0 ~93%
+> Updated: 2026-05-12T17:00Z · S49 closed · Brand v1.0 asset gate 14/14 ✅ · sign-off final pending audit
 
 ## Last session brief
 
-S48 carry-forward exhaustion: Phase 2 vertical-split verified already closed S32 (DB evidence 7/7); Brand v1.0 Stages C/D/E shipped (motion library `services/app/src/styles/motion.css` + `lib/motion/variants.ts` · `app/not-found.tsx` + `app/error.tsx` + `(app)/onboarding/page.tsx` 4-step stepper · Stage E closed via Storybook audit `Brand/*` 28 stories + new `Brand/Motion/Library (S48)`); G6 dashboard cache layer (`unstable_cache` 300s on `resolvePresetCodeForRole` + new `dashboard-meta-cache.ts` + `Promise.all` parallelization) verified in production via VM autocannon 30s × 20 conn: HR_DIRECTOR P95 705ms, SUPERUSER 660ms, TENANT_OWNER 640ms — all under 1000ms target, -30/-34/-36% vs S47 baseline. 230/230 test PASS; typecheck PASS; VM redeploy + HTTPS smoke OK.
+S49 v1.0 asset gate closure: `/settings` 5-tab surface shipped (`(app)/settings/page.tsx` server-rendered + `_signout-button.tsx` client · URL search params `?tab=`) — tabs Profilo (session display + initials avatar) · Tema (ThemeToggle + link Brand Studio) · Lingua (LocaleSwitcher) · Notifiche (5-pref form UI stub con role=switch a11y · persistence v1.1) · Sessioni (current JWT card + signOut). Pattern coerente con S48 onboarding (var(--surface-1) · Exo 2 titles · motion utility classes). Brand v1.0 promotion checklist § 1 asset categorie ora 14/14 ✅. Sign-off final § 6 richiede ancora audit downstream (vedi top priorities). Typecheck PASS.
 
 ## Top priorities (remaining)
 
-1. **Brand v1.0 Stage D residue — `/settings` tabs** (~1-2h) — Profile/Theme/Locale/Notifications/Sessions tabs · chiude Stage D 5/5 (unico item v1.0 promotion gate non chiuso, coverage attuale 13/14 ✅ + 1 🟡).
+1. **v1.0 sign-off final** (~6-10h, scope misto già esistente in roadmap) — checklist § 6 richiede: visual smoke 8 ruoli × N viste · Lighthouse ≥ 90 (perf/a11y/best-practices/SEO) su `/login` + `/dashboard` + 2 surface random · WCAG 2.2 AAA audit (axe-core CI + manual NVDA pass) · DECISIONS-LOG entry L60+ "Brand v1.0 promoted" · BRAND-STATE.md update "v1.0 status: ✅ Done". Allineato con CLAUDE.md §Roadmap successiva #4 (WCAG audit) e #5 (perf bench).
 
 ## Open questions
 
