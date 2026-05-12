@@ -26,8 +26,9 @@ S48: carry-forward exhaustion run — Phase 2 verified + Brand v1.0 A/B/C + G6 c
 
 ## Top priorities (remaining)
 
-1. **Brand v1.0 Stage D residue — /settings tabs** (~1-2h) — Profile/Theme/Locale/Notifications/Sessions tabs, completa Stage D 5/5.
-2. **Brand v1.0 Stage E — brand book v1 visivo** (~8-12h, opzionale) — typesetting + cover + asset embed, richiede Figma o tool equivalente (eternal carry-forward in CLI puro).
+1. **Brand v1.0 Stage D residue — /settings tabs** (~1-2h) — Profile/Theme/Locale/Notifications/Sessions tabs, completa Stage D 5/5 (resta unico item non chiuso del v1.0 promotion gate).
+
+Brand v1.0 effective coverage: **13/14 ✅ + 1 🟡** = ~93% complete (Stage E chiuso via Storybook audit · v1.0-checklist `054a3f2`).
 
 ## Open questions
 
