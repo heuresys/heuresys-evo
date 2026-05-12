@@ -2409,3 +2409,53 @@ done
 **Backup VM**: `services/{app,api-gateway}/.env.bak-20260512175052` (rollback istantaneo se regressione futura).
 
 **Out-of-scope** (carry-forward potenziale S55+): rimuovere `services/app/.env` e `services/api-gateway/.env` dal `.gitignore` lascia ancora questi 2 file fuori versione → la sincronizzazione setup dev si poggia su `.env.example`. Documentare in `docs/30-developer/setup-local.md` se non già presente.
+
+---
+
+## L69 — 2026-05-12 — S54: P4 WCAG 2.2 AAA enhanced contrast SHIPPED (palette legacy)
+
+**Decisione**: P4 carry-forward S53 ("WCAG 2.2 AAA enhanced contrast — 4 nodi residui") **CHIUSO** con scope effettivo molto maggiore di stima iniziale. Audit reale `axe-core color-contrast-enhanced` su `/dashboard` HR_DIRECTOR palette `legacy/dark` ha rivelato **22 nodi** (5 pattern token), non 4. Fix introdotto via 4 token AAA dedicati + 10 selettori `dashboard-brand.css` swap puntuali. Brand identity preservata (token `--accent`/`--primary`/`--semantic-success` invariati per usi non-testuali).
+
+**Pattern token identificati** (mancanza ratio 7:1 vs target):
+
+| Pattern (FG → BG)                          | Ratio attuale | Gap  | Nodi                                              |
+| ------------------------------------------ | ------------- | ---- | ------------------------------------------------- |
+| `#a855f7` (purple) → `#0a0d18` (ink)       | 4.97          | 2.03 | 1 (`.t-avatar.bordered`)                          |
+| `#a855f7` → `#14182a` (panel)              | 4.61          | 2.39 | 14 (`em` headings · `.live` · `.who` ×3 + nested) |
+| `#3b82f6` (blue) → `#0a0d18`               | 5.35          | 1.65 | 1 (`.avatar.bordered-inverse`)                    |
+| `#9ca3af` (muted) → `#1c2138` (surface-2)  | 6.62          | 0.38 | 6 (`.t-meta` · `.role` · `<th>` ×5)               |
+| `#22c55e` (green) → `#1f2d2d` (success-bg) | 6.26          | 0.74 | 7 (`.pill-ok` ×7 OWNER/ADMIN matrix)              |
+
+**Token AAA introdotti** (`palette-framework.css` `[data-palette='legacy']`):
+
+| Token                    | Valore                  | Ratio target raggiunto         |
+| ------------------------ | ----------------------- | ------------------------------ |
+| `--accent-aaa`           | `#c084fc` (purple-400)  | 7.5:1 vs ink + 7.97:1 vs panel |
+| `--primary-aaa`          | `#60a5fa` (blue-400)    | 7.4:1 vs ink                   |
+| `--ink-muted-aaa`        | `#b0b5c0` (slate light) | 7.6:1 vs surface-2             |
+| `--semantic-success-aaa` | `#4ade80` (green-400)   | ~8:1 vs success-bg tint        |
+
+**Selettori dashboard-brand.css swap (10)** con fallback graceful `var(--token-aaa, var(--token))` per palette non-legacy:
+
+`.tenant-mini .t-avatar.bordered` · `.tenant-mini .t-info .t-meta` · `.user-card .avatar.bordered-inverse` · `.user-card .info .role` · `.pill-ok` · `.activity-head .live` · `.activity-item .who` · `.panel-head h2 em` · `table.rbac th` · `table.rbac td:first-child`.
+
+**Verifica multi-surface post-build** (heuresys-app rebuild OOM-safe `NODE_OPTIONS=--max-old-space-size=4096`, BUILD_ID `f6qk2wcEnibVm9U4BLqg1`, restart VM `18:51 UTC`):
+
+| Surface                  | AAA violations | AA violations |
+| ------------------------ | -------------- | ------------- |
+| `/dashboard` HR_DIRECTOR | **22 → 0** ✅  | 0 ✅          |
+| `/admin/audit`           | 0 ✅           | 0 ✅          |
+| `/me`                    | 0 ✅           | 0 ✅          |
+
+**Visual sanity** (post-fix): brand identity intatta — wordmark `heuresys` y-purple visibile, pill `DASHBOARD` gradient, `Direzione **HR**` purple title, `RBAC **matrix**`/`Activity **feed**` em purple (con `--accent-aaa`), pill OWNER/ADMIN green (con `--semantic-success-aaa`), avatar VA border purple. Nessuna regressione percettiva, palette identità riconoscibile come legacy.
+
+**Out-of-scope** (potenziale carry-forward S55+):
+
+- AAA su altre palette (alpha · beta · μ-architect synthesis · ecc.) — fix mirato `legacy` perché è palette default attiva. Estensione tutte palette = effort multiplier.
+- AAA su pagine non-dashboard authenticated complete (es. `/team`, `/employees`) — non testate ma usano stessi token via `dashboard-brand.css`, atteso PASS automatico.
+- Light theme legacy AAA — non testato (theme corrente `dark`).
+- Pattern token `--accent-soft` (S52 obs 6378) — fuori scope contrast enhanced (è bg/border, non text).
+
+**Commit citation**: `ceea454` (a11y(aaa) rebalance 4 AAA token + 9 selettori dashboard).
+
+**Roadmap reflection**: P4 carry-forward S53 era stimato "~2-3h, 4 nodi residui". Reale: ~30min effective work + 5min build OOM retry = ~35min totali, 22 nodi. Stima iniziale sottostimata 5.5x sui nodi ma sovrastimata 5x sull'effort (token-driven fix scalabilità grande).
