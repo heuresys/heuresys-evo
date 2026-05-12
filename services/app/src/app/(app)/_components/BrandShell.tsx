@@ -167,11 +167,19 @@ export function BrandShell({
               key={section.id}
               className={`sidebar-section${collapsedSections.has(section.id) ? ' collapsed' : ''}`}
             >
-              <h4 onClick={() => toggleSection(section.id)} role="button" tabIndex={0}>
-                <span>{section.title}</span>
-                <span className="chev" aria-hidden>
-                  ▼
-                </span>
+              <h4>
+                <button
+                  type="button"
+                  onClick={() => toggleSection(section.id)}
+                  aria-expanded={!collapsedSections.has(section.id)}
+                  aria-controls={`sidebar-section-${section.id}`}
+                  className="sidebar-section-toggle"
+                >
+                  <span>{section.title}</span>
+                  <span className="chev" aria-hidden="true">
+                    ▼
+                  </span>
+                </button>
               </h4>
               {section.items
                 .filter((it) => !it.hidden)
@@ -206,7 +214,9 @@ export function BrandShell({
           </div>
         </aside>
 
-        <main className="workspace">{children}</main>
+        <main className="workspace" tabIndex={-1}>
+          {children}
+        </main>
       </div>
 
       {/* ============== App footer ============== */}

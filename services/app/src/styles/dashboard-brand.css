@@ -281,13 +281,21 @@
   margin-bottom: 20px;
 }
 .sidebar-section h4 {
+  margin: 0 0 4px;
+  font-size: inherit;
+  font-weight: 600;
+}
+.sidebar-section h4 .sidebar-section-toggle,
+.sidebar-section h4 button {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
+  font-size: 10px;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: var(--ink-tertiary);
+  color: var(--ink-soft);
+  background: transparent;
+  border: 0;
   padding: 8px 12px;
-  margin-bottom: 4px;
+  width: 100%;
   cursor: pointer;
   display: flex;
   justify-content: space-between;
@@ -296,8 +304,11 @@
   transition: color 0.15s;
   font-weight: 600;
 }
-.sidebar-section h4:hover {
-  color: var(--ink-soft);
+.sidebar-section h4 button:hover,
+.sidebar-section h4 button:focus-visible {
+  color: var(--ink);
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 .sidebar-section h4 .chev {
   font-size: 11px;
@@ -754,8 +765,9 @@
 }
 .filter-pill.active {
   background: var(--accent-soft);
-  color: var(--accent);
+  color: var(--ink);
   border-color: var(--accent);
+  font-weight: 600;
 }
 .filter-pill:hover {
   color: var(--ink);
@@ -833,7 +845,8 @@ table.dense tr:last-child td {
 }
 .pill-info {
   background: var(--accent-soft);
-  color: var(--accent);
+  color: var(--ink);
+  font-weight: 600;
 }
 
 /* Gap bar */
