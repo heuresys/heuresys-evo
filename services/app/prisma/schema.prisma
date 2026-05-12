@@ -1191,6 +1191,7 @@ model audit_logs {
 
   @@index([action], map: "idx_audit_logs_action")
   @@index([category], map: "idx_audit_logs_category")
+  @@index([created_at(sort: Desc)], map: "idx_audit_logs_created_at_desc")
   @@index([resource_type, resource_id], map: "idx_audit_logs_resource")
   @@index([success], map: "idx_audit_logs_success")
   @@index([tenant_id], map: "idx_audit_logs_tenant")
