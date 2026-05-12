@@ -645,126 +645,90 @@
     <!-- Main split -->
     <div class="main-split">
 
-      <!-- Skill gap matrix -->
-      <div class="skill-gap">
-        <div class="skill-gap-head">
-          <h2>Skill gap analysis · top P0 critical · <em>Risk Modelling team</em></h2>
-          <div class="filters">
-            <span class="filter-pill active">P0</span>
-            <span class="filter-pill">P1</span>
-            <span class="filter-pill">All depts</span>
-          </div>
+      <!-- W#3 (L73 P6 audit · prod-as-shipped):
+           RBAC matrix · ROLE × AREA — security/governance widget mantenuto.
+           Sostituisce skill-gap analysis precedente per allineamento al
+           rendering live /dashboard HR_DIRECTOR (BrandRbacMatrix widget). -->
+      <div class="panel">
+        <div class="panel-head">
+          <h2>RBAC <em>matrix</em></h2>
+          <span class="meta">ROLE × AREA</span>
         </div>
-        <table class="dense">
-          <thead>
-            <tr>
-              <th>ESCO ID</th>
-              <th>Skill (IT)</th>
-              <th class="right">Required</th>
-              <th class="right">Current</th>
-              <th>Gap</th>
-              <th>Status</th>
-              <th class="right">Owner</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="mono muted">e/3022</td>
-              <td>Modellazione finanziaria avanzata</td>
-              <td class="right">95%</td>
-              <td class="right">52%</td>
-              <td><span class="gap-bar"><span class="bar"><span class="bar-fill fill-critical" style="width: 90%;"></span></span><span style="color: var(--semantic-danger);">−43pt</span></span></td>
-              <td><span class="pill pill-critical">P0</span></td>
-              <td class="right muted">@stefania.b</td>
-            </tr>
-            <tr>
-              <td class="mono muted">e/2011</td>
-              <td>Analisi del rischio creditizio</td>
-              <td class="right">90%</td>
-              <td class="right">67%</td>
-              <td><span class="gap-bar"><span class="bar"><span class="bar-fill fill-critical" style="width: 75%;"></span></span><span style="color: var(--semantic-danger);">−23pt</span></span></td>
-              <td><span class="pill pill-critical">P0</span></td>
-              <td class="right muted">@stefania.b</td>
-            </tr>
-            <tr>
-              <td class="mono muted">e/4044</td>
-              <td>Apprendimento automatico applicato</td>
-              <td class="right">75%</td>
-              <td class="right">64%</td>
-              <td><span class="gap-bar"><span class="bar"><span class="bar-fill fill-warn" style="width: 50%;"></span></span><span style="color: var(--semantic-warning);">−11pt</span></span></td>
-              <td><span class="pill pill-warn">P1</span></td>
-              <td class="right muted">@andrea.m</td>
-            </tr>
-            <tr>
-              <td class="mono muted">e/4408</td>
-              <td>Architettura cloud Azure</td>
-              <td class="right">60%</td>
-              <td class="right">49%</td>
-              <td><span class="gap-bar"><span class="bar"><span class="bar-fill fill-warn" style="width: 35%;"></span></span><span style="color: var(--semantic-warning);">−11pt</span></span></td>
-              <td><span class="pill pill-warn">P1</span></td>
-              <td class="right muted">@davide.r</td>
-            </tr>
-            <tr>
-              <td class="mono muted">e/5520</td>
-              <td>Compliance Basel III/IV</td>
-              <td class="right">90%</td>
-              <td class="right">94%</td>
-              <td><span class="gap-bar"><span class="bar"><span class="bar-fill fill-ok" style="width: 100%;"></span></span><span style="color: var(--semantic-success);">+4pt</span></span></td>
-              <td><span class="pill pill-ok">OK</span></td>
-              <td class="right muted">@maria.c</td>
-            </tr>
-            <tr>
-              <td class="mono muted">e/1107</td>
-              <td>Pianificazione successioni</td>
-              <td class="right">80%</td>
-              <td class="right">72%</td>
-              <td><span class="gap-bar"><span class="bar"><span class="bar-fill fill-warn" style="width: 30%;"></span></span><span style="color: var(--semantic-warning);">−8pt</span></span></td>
-              <td><span class="pill pill-info">REVIEW</span></td>
-              <td class="right muted">@maria.c</td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="matrix-wrap">
+          <div class="filters" style="text-align: right; padding: 12px 18px 0;">
+            <span class="filter-pill active">4 roles</span>
+            <span class="filter-pill">3 areas</span>
+          </div>
+          <table class="rbac">
+            <thead>
+              <tr>
+                <th>Area / Role</th>
+                <th title="SUPERUSER (level -1)">SUPERUSER<br><span class="muted mono">L-1</span></th>
+                <th title="TENANT_OWNER (level 0)">TENANT_OWNER<br><span class="muted mono">L0</span></th>
+                <th title="HR_DIRECTOR (level 2)">HR_DIRECTOR<br><span class="muted mono">L2</span></th>
+                <th title="EMPLOYEE (level 6)">EMPLOYEE<br><span class="muted mono">L6</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Employees</td>
+                <td title="SUPERUSER × Employees: owner"><span class="pill pill-ok">OWNER</span></td>
+                <td><span class="pill pill-ok">ADMIN</span></td>
+                <td title="HR_DIRECTOR × Employees: admin"><span class="pill pill-ok">ADMIN</span></td>
+                <td><span class="pill pill-info">READ</span></td>
+              </tr>
+              <tr>
+                <td>Audit</td>
+                <td title="SUPERUSER × Audit: owner"><span class="pill pill-ok">OWNER</span></td>
+                <td title="TENANT_OWNER × Audit: admin"><span class="pill pill-ok">ADMIN</span></td>
+                <td>—</td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td>RBP</td>
+                <td title="SUPERUSER × RBP: owner"><span class="pill pill-ok">OWNER</span></td>
+                <td title="TENANT_OWNER × RBP: admin"><span class="pill pill-ok">ADMIN</span></td>
+                <td>—</td>
+                <td>—</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      <!-- Activity feed -->
-      <div class="activity">
+      <!-- W#4 (L73 P6 audit · prod-as-shipped):
+           Activity feed format human-readable (timestamp uppercase mono +
+           single-line what + role label simple) per allineamento al
+           rendering live /dashboard. Riformattato da event.action notation
+           strutturata precedente. -->
+      <section class="activity">
         <div class="activity-head">
-          <h2>Recent activity</h2>
-          <span class="live">Live</span>
+          <h2>Activity <em>feed</em></h2>
+          <span class="live">live</span>
         </div>
         <div class="activity-list">
           <div class="activity-item">
-            <div class="when">2 min · ora</div>
-            <div class="what"><strong>Stefania B.</strong> ha aperto skill review per <strong>Quant Analyst Junior</strong> <span class="dim">(ESCO match 89%)</span></div>
-            <div class="who">@stefania.b · LINE_MANAGER</div>
+            <div class="when">2 MIN AGO</div>
+            <div class="what">New review cycle started</div>
+            <div class="who">HR Director</div>
           </div>
           <div class="activity-item">
-            <div class="when">14 min</div>
-            <div class="what"><strong>Andrea M.</strong> ha completato <strong>self-assessment</strong> con 14 skill rated · 2 P0 surfaced</div>
-            <div class="who">@andrea.m · EMPLOYEE</div>
+            <div class="when">12 MIN AGO</div>
+            <div class="what">Skill assessment imported</div>
+            <div class="who">system</div>
           </div>
           <div class="activity-item">
-            <div class="when">38 min</div>
-            <div class="what"><strong>Davide R.</strong> ha approvato <strong>capability map IT Architecture</strong> per Q1 cycle</div>
-            <div class="who">@davide.r · DEPT_HEAD</div>
+            <div class="when">34 MIN AGO</div>
+            <div class="what">Goal cascade published</div>
+            <div class="who">Manager</div>
           </div>
           <div class="activity-item">
-            <div class="when">1h 12m</div>
-            <div class="what"><strong>System</strong> ha sincronizzato <strong>312 nuove skill</strong> da ESCO release 1.2.0</div>
-            <div class="who">system · ESCO sync</div>
-          </div>
-          <div class="activity-item">
-            <div class="when">2h 4m</div>
-            <div class="what">Generato report <strong>succession plan Risk Modelling</strong> · 14 candidati pronti</div>
-            <div class="who">@maria.c · auto</div>
-          </div>
-          <div class="activity-item">
-            <div class="when">yesterday · 17:42</div>
-            <div class="what"><strong>Q1 calibration</strong> aperta · <span class="dim">scadenza 19 maggio</span></div>
-            <div class="who">@maria.c · CHRO</div>
+            <div class="when">1 H AGO</div>
+            <div class="what">Onboarding kickoff</div>
+            <div class="who">HR Operations</div>
           </div>
         </div>
-      </div>
+      </section>
     </div>
 
     <!-- Succession ready -->

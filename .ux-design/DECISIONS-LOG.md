@@ -2571,3 +2571,65 @@ Tutti i 7 ruoli mappati in `role_default_dashboards` puntano a preset `*_v2` (G6
 **Commit citation**: `f63d650` (a11y(dashboard) — single commit comprende W#2-bis aggregator + L72 fix).
 
 **Out-of-scope**: sweep generic `<th>` altre tabelle non-`.dense`/`.rbac` — atteso pass automatico (verifica empirica post-deploy carry-forward W#3).
+
+---
+
+## L73 — 2026-05-13 — S54: P6 W#3 + W#4 body panels prod-as-shipped + #88 succession spotlight
+
+**Decisione**: terzo + quarto widget P6 audit chiusi. Direzioni utente case-by-case:
+
+- **W#3 left panel**: opzione **B (Prod-as-shipped)** — mantieni RBAC matrix prod, aggiorna mockup HTML.
+- **W#4 right panel** (Activity feed): opzione **B (Prod-as-shipped)** — mantieni format prod human-readable, aggiorna mockup HTML.
+- **Widget #88 (SuccessionCard standalone)**: opzione **A (popolare con SQL aggregator)** — top-1 succession_candidate ranked by best-readiness+plan-validity.
+
+**Cambi applicati**:
+
+1. **Mockup HTML body** (`.ux-design/06-mockups/dashboards/hr-director-overview.html` linee 645-768): sostituito `.main-split` interno per allineare a prod live:
+   - `.skill-gap` → `<div class="panel">` con `RBAC matrix` (4 roles × 3 areas).
+   - `.activity` items: 6 strutturate (event-action notation) → 4 simple format prod (`2 MIN AGO · what · who`).
+
+2. **`db/seeds/phase18v_hr_director_succession_spotlight.sql`** (nuovo seed, idempotent, RLS-safe, cache TTL 60s): UPDATE id 88 con SQL aggregator JOIN succession_candidates+succession_plans+employees + ORDER BY readiness_pri+rank_order+criticality_pri LIMIT 1.
+
+**Investigation #88 — root cause data**:
+
+Initial query `WHERE readiness='ready_now'` restituiva **0 rows** nonostante 18 ready_now esistessero. Diagnostica:
+
+| Check                                           | Risultato                                                         |
+| ----------------------------------------------- | ----------------------------------------------------------------- |
+| COUNT readiness=ready_now su tenant             | **18**                                                            |
+| COUNT con FK valide (sp/emp NOT NULL)           | **18**                                                            |
+| COUNT JOIN sp+emp validi (no readiness filter)  | **12**                                                            |
+| Distribution readiness_level su rows JOIN-valid | ready_3_years=5, ready_1_year=5, ready_2_years=2, **ready_now=0** |
+
+Root cause: tutti i 18 ready_now hanno `critical_role_id` orphan (puntano a plans inesistenti). Solo non-ready_now hanno plans validi.
+
+**Decisione design**: rilascio strict `ready_now` filter, top-1 best-readiness con plan valido. Live: **Valentina Conti** → target **CTO/Chief Technology Officer**.
+
+**Verifica post-deploy**:
+
+| Check                     | Risultato                        |
+| ------------------------- | -------------------------------- |
+| Widget #88 popolato live  | ✅ Valentina Conti · CTO         |
+| RBAC matrix prod render   | ✅ EMPLOYEES/AUDIT/RBP × 4 roles |
+| Activity feed prod format | ✅ 4 items human-readable        |
+| Mockup HTML side-by-side  | ✅ RBAC + activity allineati     |
+| axe AAA regression        | ✅ 0                             |
+| axe AA regression         | ✅ 0                             |
+
+**Note bug iter** (3 iterazioni prima di success):
+
+1. `e.position_title` (colonna inesistente) → fail silently → demo fallback. Fix `e.job_title`.
+2. Strict readiness=ready_now → 0 rows (orphan FK). Fix rilascio filter, top-1 best disponibile.
+3. ✅ Live data render.
+
+**Carry-forward S55+ data quality**: 18 succession_candidates con orphan critical_role_id = data integrity issue. Considerare ON DELETE SET NULL FK + phase18w cleanup migration.
+
+**Commit citation**: pending (mockup HTML + phase18v.sql + DECISIONS-LOG entry).
+
+**Out-of-scope**:
+
+- Data quality cleanup orphan critical_role_id — carry-forward S55 phase18w.
+- W#5 sidebar audit — già brand-fedele post-W#1 discovery (L70).
+- W#6 user card + W#7 footer — gap minori.
+
+**Roadmap reflection**: W#3 stima ~30min-3h. Reale ~50min effective (mockup edit + phase18v 2 retry per data quality + verify).
