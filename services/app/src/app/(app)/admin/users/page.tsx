@@ -1,7 +1,7 @@
-import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { prisma, withTenant } from '@/lib/db';
 import { hasMinRole, isRbpPlatformAdmin } from '@heuresys/shared/rbp';
+import { RoleForbidden } from '@/app/(app)/_components/RoleForbidden';
 
 /**
  * /admin/users — User management (IT_ADMIN+ tenant-scoped, SUPERUSER cross-tenant).
@@ -69,7 +69,13 @@ export default async function AdminUsersPage() {
   const user = session?.user as { role?: string; tenantId?: string } | undefined;
 
   if (!hasMinRole(user, 'IT_ADMIN')) {
-    redirect('/dashboard');
+    return (
+      <RoleForbidden
+        required="IT_ADMIN"
+        currentRole={user?.role}
+        hint="La gestione utenti è riservata agli amministratori IT del tenant e ai SUPERUSER di piattaforma."
+      />
+    );
   }
 
   const tenantId = isRbpPlatformAdmin(user) ? null : (user?.tenantId ?? null);

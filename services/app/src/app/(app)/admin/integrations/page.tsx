@@ -1,8 +1,8 @@
-import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { withTenant } from '@/lib/db';
 import { getServerLocale } from '@/lib/i18n/server';
 import { hasMinRole, isRbpPlatformAdmin } from '@heuresys/shared/rbp';
+import { RoleForbidden } from '@/app/(app)/_components/RoleForbidden';
 
 const STRINGS = {
   it: {
@@ -71,7 +71,15 @@ export default async function IntegrationsPage() {
   const t = STRINGS[locale];
   const session = await auth();
   const user = session?.user as { role?: string; tenantId?: string } | undefined;
-  if (!hasMinRole(user, 'IT_ADMIN')) redirect('/dashboard');
+  if (!hasMinRole(user, 'IT_ADMIN')) {
+    return (
+      <RoleForbidden
+        required="IT_ADMIN"
+        currentRole={user?.role}
+        hint="Le integrazioni esterne (SAP · ESCO · webhook) sono gestite dagli amministratori IT del tenant."
+      />
+    );
+  }
 
   // Pull SAP sync metrics if available
   let sapStatus: { sync_count: number; last_sync_at: Date | null } | null = null;

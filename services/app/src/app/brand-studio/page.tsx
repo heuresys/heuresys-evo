@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
-import { notFound } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { readActivePalette } from '@/lib/theme-framework/active-palette-store';
+import { RoleForbidden } from '@/app/(app)/_components/RoleForbidden';
 import { BrandStudioClient } from './BrandStudioClient';
 
 export const metadata = {
@@ -19,7 +19,13 @@ export default async function BrandStudioPage() {
   }
   const role = (session.user as { role?: string }).role;
   if (!role || !ALLOWED_ROLES.has(role)) {
-    notFound();
+    return (
+      <RoleForbidden
+        required="SUPERUSER"
+        currentRole={role}
+        hint="Brand Studio gestisce token brand globali (palette · tema · typography) e influenza tutti i tenant. Riservato all'amministratore di piattaforma."
+      />
+    );
   }
   const initialPalette = await readActivePalette();
   return (

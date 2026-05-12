@@ -1,7 +1,7 @@
-import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { isRbpPlatformAdmin } from '@heuresys/shared/rbp';
+import { RoleForbidden } from '@/app/(app)/_components/RoleForbidden';
 
 /**
  * /admin/tenants — Platform-wide tenants directory (SUPERUSER only).
@@ -11,7 +11,13 @@ export default async function TenantsPage() {
   const user = session?.user as { role?: string } | undefined;
 
   if (!isRbpPlatformAdmin(user)) {
-    redirect('/dashboard');
+    return (
+      <RoleForbidden
+        required="SUPERUSER"
+        currentRole={user?.role}
+        hint="L'elenco tenant è cross-tenant e visibile solo agli amministratori di piattaforma."
+      />
+    );
   }
 
   let tenants: Array<{

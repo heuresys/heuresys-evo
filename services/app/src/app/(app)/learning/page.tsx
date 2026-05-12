@@ -73,7 +73,10 @@ export default async function LearningPage() {
       <section className="mt-6">
         {err ? (
           <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
-            {t.loadError} <code>{err}</code>
+            {t.loadError}{' '}
+            <span className="text-xs opacity-70">
+              (codice errore: {err.slice(0, 80).replace(/[^\w\s.-]/g, '')}…)
+            </span>
           </p>
         ) : data.paths.length === 0 ? (
           <p className="text-sm text-muted-foreground">{t.empty}</p>
