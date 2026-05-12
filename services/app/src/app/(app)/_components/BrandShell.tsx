@@ -214,8 +214,8 @@ export function BrandShell({
         <div className="ft-static">
           <span className="copyright">
             © 2026{' '}
-            <Link href="/">
-              <span className="wordmark-foot">
+            <Link href="/" aria-label="heuresys.com">
+              <span className="wordmark-foot" aria-hidden="true">
                 heures<span className="y">y</span>s.com
               </span>
             </Link>

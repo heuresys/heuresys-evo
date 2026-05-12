@@ -87,8 +87,12 @@ export default async function CrossTenantOverviewView({ role }: { role: string }
             <h3>
               {t.isPlatform ? (
                 <>
-                  <span className="wordmark-foot">
-                    heures<span className="y">y</span>s
+                  <span className="wordmark-foot" aria-label="Heuresys">
+                    heures
+                    <span className="y" aria-hidden="true">
+                      y
+                    </span>
+                    s
                   </span>{' '}
                   System
                 </>
