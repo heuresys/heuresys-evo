@@ -6,13 +6,13 @@ import { hasMinRole } from '@heuresys/shared/rbp';
 
 const STRINGS = {
   it: {
-    title: 'Performance review',
-    fallbackTitle: 'Review',
+    title: 'Cicli di valutazione',
+    fallbackTitle: 'Valutazioni',
     noTenant: 'Nessun contesto tenant.',
     tenantScope: (id: string) => `Ambito tenant · ${id}…`,
-    loadError: 'Caricamento review fallito:',
-    empty: 'Nessuna review nello scope.',
-    counter: (n: number) => `${n} review`,
+    loadError: 'Caricamento valutazioni fallito:',
+    empty: 'Nessuna valutazione nel perimetro.',
+    counter: (n: number) => `${n} valutazioni`,
     thPeriod: 'Periodo',
     thType: 'Tipo',
     thStatus: 'Stato',
@@ -93,7 +93,7 @@ export default async function ReviewsPage() {
       <section className="mt-6">
         {err ? (
           <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
-            {t.loadError} <code>{err}</code>
+            {t.loadError} <span className="text-xs opacity-70">(errore tecnico registrato)</span>
           </p>
         ) : reviews.length === 0 ? (
           <p className="text-sm text-muted-foreground">{t.empty}</p>

@@ -81,14 +81,14 @@ export default async function EmployeesPage({
   return (
     <main className="mx-auto max-w-6xl p-8">
       <header>
-        <h1 className="text-3xl font-semibold">Talent registry</h1>
+        <h1 className="text-3xl font-semibold">Registro talenti</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           {isRbpPlatformAdmin(user) ? (
-            <>Cross-tenant view · platform scope</>
+            <>Vista cross-tenant · scope piattaforma</>
           ) : (
             <>
               Tenant <code className="text-xs">{user?.tenantId?.slice(0, 8)}…</code>
-              {scope === 'dept' ? ' · scope: department' : ''}
+              {scope === 'dept' ? ' · scope: dipartimento' : ''}
             </>
           )}
         </p>
@@ -97,19 +97,20 @@ export default async function EmployeesPage({
       <section className="mt-6">
         {fetchError ? (
           <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
-            Could not load employees: <code>{fetchError}</code>
+            Impossibile caricare i dipendenti:{' '}
+            <span className="text-xs opacity-70">(errore tecnico registrato)</span>
           </p>
         ) : employees.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No employees in scope.</p>
+          <p className="text-sm text-muted-foreground">Nessun dipendente nel perimetro.</p>
         ) : (
           <>
             <p className="mb-3 text-sm text-muted-foreground">
-              {employees.length} employees (showing first 50)
+              {employees.length} dipendenti (visualizzati i primi 50)
             </p>
             <ul className="divide-y divide-border rounded-md border border-border">
               {employees.map((emp) => {
                 const name =
-                  [emp.first_name, emp.last_name].filter(Boolean).join(' ') || '(unnamed)';
+                  [emp.first_name, emp.last_name].filter(Boolean).join(' ') || '(senza nome)';
                 return (
                   <li
                     key={emp.id}

@@ -50,9 +50,9 @@ export default async function TeamPage() {
   if (!user?.id || !user?.tenantId) {
     return (
       <main className="mx-auto max-w-5xl p-8">
-        <h1 className="text-3xl font-semibold">My team</h1>
+        <h1 className="text-3xl font-semibold">Il mio team</h1>
         <p className="mt-4 rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
-          Session lacks user/tenant context.
+          Sessione senza contesto utente/tenant.
         </p>
       </main>
     );
@@ -69,29 +69,31 @@ export default async function TeamPage() {
   return (
     <main className="mx-auto max-w-5xl p-8">
       <header>
-        <h1 className="text-3xl font-semibold">My team</h1>
+        <h1 className="text-3xl font-semibold">Il mio team</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Direct reports of <strong>{user.username}</strong>
+          Riporti diretti di <strong>{user.username}</strong>
         </p>
       </header>
 
       <section className="mt-6">
         {fetchError ? (
           <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
-            Could not load team: <code>{fetchError}</code>
+            Impossibile caricare il team:{' '}
+            <span className="text-xs opacity-70">(errore tecnico registrato)</span>
           </p>
         ) : !data ? (
           <p className="rounded-md border border-border bg-muted/30 p-4 text-sm text-muted-foreground">
-            No employee record linked to this user (cannot resolve direct reports).
+            Nessun record dipendente collegato a questo utente (impossibile risolvere i riporti
+            diretti).
           </p>
         ) : data.reports.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            No active direct reports for this manager.
+            Nessun riporto diretto attivo per questo manager.
           </p>
         ) : (
           <>
             <p className="mb-3 text-sm text-muted-foreground">
-              {data.reports.length} direct reports
+              {data.reports.length} riporti diretti
             </p>
             <ul className="divide-y divide-border rounded-md border border-border">
               {data.reports.map((emp) => (
@@ -116,7 +118,7 @@ export default async function TeamPage() {
                           POTENTIAL_TONE[emp.potential.toLowerCase()] ?? 'rgba(138,142,155,0.18)',
                       }}
                     >
-                      potential: {emp.potential}
+                      potenziale: {emp.potential}
                     </span>
                   ) : (
                     <span />

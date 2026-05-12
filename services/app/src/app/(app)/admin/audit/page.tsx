@@ -64,33 +64,34 @@ export default async function AuditPage() {
   return (
     <main className="mx-auto max-w-6xl p-8">
       <header>
-        <h1 className="text-3xl font-semibold">Audit log</h1>
+        <h1 className="text-3xl font-semibold">Registro audit</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           {isRbpPlatformAdmin(user)
-            ? 'Cross-tenant audit trail · platform scope'
-            : `Tenant scope · ${user?.tenantId?.slice(0, 8)}…`}
+            ? 'Audit trail cross-tenant · scope piattaforma'
+            : `Scope tenant · ${user?.tenantId?.slice(0, 8)}…`}
         </p>
       </header>
 
       <section className="mt-6">
         {fetchError ? (
           <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
-            Could not load audit log: <code>{fetchError}</code>
+            Impossibile caricare il registro audit:{' '}
+            <span className="text-xs opacity-70">(errore tecnico registrato)</span>
           </p>
         ) : logs.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No audit entries.</p>
+          <p className="text-sm text-muted-foreground">Nessun evento audit.</p>
         ) : (
           <>
-            <p className="mb-3 text-sm text-muted-foreground">{logs.length} most recent entries</p>
+            <p className="mb-3 text-sm text-muted-foreground">{logs.length} eventi più recenti</p>
             <div className="overflow-x-auto rounded-md border border-border">
               <table className="w-full text-sm">
                 <thead className="bg-muted text-xs uppercase tracking-wide text-muted-foreground">
                   <tr>
-                    <th className="p-2 text-left font-mono">When (UTC)</th>
-                    <th className="p-2 text-left font-mono">Category</th>
-                    <th className="p-2 text-left font-mono">Action</th>
-                    <th className="p-2 text-left font-mono">Resource</th>
-                    <th className="p-2 text-left font-mono">Actor</th>
+                    <th className="p-2 text-left font-mono">Quando (UTC)</th>
+                    <th className="p-2 text-left font-mono">Categoria</th>
+                    <th className="p-2 text-left font-mono">Azione</th>
+                    <th className="p-2 text-left font-mono">Risorsa</th>
+                    <th className="p-2 text-left font-mono">Attore</th>
                     {isRbpPlatformAdmin(user) ? (
                       <th className="p-2 text-left font-mono">Tenant</th>
                     ) : null}

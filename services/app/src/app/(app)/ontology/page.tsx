@@ -68,10 +68,10 @@ export default async function OntologyPage({ searchParams }: OntologyPageProps) 
   return (
     <main className="mx-auto max-w-5xl px-4 py-8">
       <header className="mb-6">
-        <h1 className="text-2xl font-semibold">Ontology · ESCO knowledge graph</h1>
+        <h1 className="text-2xl font-semibold">Ontologia · grafo della conoscenza ESCO</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Search 3,040 ESCO occupations + 14,011 skills. Pick one to ask the OpenAI advisor for a
-          workforce-planning recommendation.
+          Cerca tra 3.040 occupazioni ESCO e 14.011 competenze. Seleziona un&apos;occupazione per
+          richiedere al consulente OpenAI una raccomandazione di workforce planning.
         </p>
       </header>
 
@@ -80,23 +80,25 @@ export default async function OntologyPage({ searchParams }: OntologyPageProps) 
           type="search"
           name="q"
           defaultValue={query}
-          placeholder="Search occupations (EN or IT)…"
+          placeholder="Cerca occupazioni (IT o EN)…"
           className="h-10 w-full rounded-md border border-neutral-300 px-3"
         />
         <button
           type="submit"
           className="h-10 rounded-md bg-primary px-4 text-sm font-medium text-primary-fg"
         >
-          Search
+          Cerca
         </button>
       </form>
 
       <div className="grid gap-6 md:grid-cols-2">
         <section>
-          <h2 className="mb-3 text-lg font-medium">Results</h2>
-          {!query && <p className="text-sm text-muted-foreground">Type a query to start.</p>}
+          <h2 className="mb-3 text-lg font-medium">Risultati</h2>
+          {!query && <p className="text-sm text-muted-foreground">Inizia digitando una ricerca.</p>}
           {query && occupations.length === 0 && (
-            <p className="text-sm text-muted-foreground">No occupations matched “{query}”.</p>
+            <p className="text-sm text-muted-foreground">
+              Nessuna occupazione corrisponde a «{query}».
+            </p>
           )}
           <ul className="space-y-1">
             {occupations.map((o) => {
@@ -124,10 +126,10 @@ export default async function OntologyPage({ searchParams }: OntologyPageProps) 
         </section>
 
         <section>
-          <h2 className="mb-3 text-lg font-medium">Advisor</h2>
+          <h2 className="mb-3 text-lg font-medium">Consulente</h2>
           {!selected ? (
             <p className="text-sm text-muted-foreground">
-              Select an occupation to ask the advisor.
+              Seleziona un&apos;occupazione per chiedere al consulente.
             </p>
           ) : (
             <OntologyAdvisor

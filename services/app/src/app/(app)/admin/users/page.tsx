@@ -90,24 +90,25 @@ export default async function AdminUsersPage() {
   return (
     <main className="mx-auto max-w-6xl p-8">
       <header>
-        <h1 className="text-3xl font-semibold">Users</h1>
+        <h1 className="text-3xl font-semibold">Utenti</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           {isRbpPlatformAdmin(user)
-            ? 'Cross-tenant directory · platform scope'
-            : `Tenant scope · ${user?.tenantId?.slice(0, 8)}…`}
+            ? 'Directory cross-tenant · scope piattaforma'
+            : `Scope tenant · ${user?.tenantId?.slice(0, 8)}…`}
         </p>
       </header>
 
       <section className="mt-6">
         {fetchError ? (
           <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
-            Could not load users: <code>{fetchError}</code>
+            Impossibile caricare gli utenti:{' '}
+            <span className="text-xs opacity-70">(errore tecnico registrato)</span>
           </p>
         ) : users.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No active users.</p>
+          <p className="text-sm text-muted-foreground">Nessun utente attivo.</p>
         ) : (
           <>
-            <p className="mb-3 text-sm text-muted-foreground">{users.length} active users</p>
+            <p className="mb-3 text-sm text-muted-foreground">{users.length} utenti attivi</p>
             <ul className="divide-y divide-border rounded-md border border-border">
               {users.map((u) => {
                 const badge = ROLE_BADGE[u.role ?? 'EMPLOYEE'] ?? {
@@ -123,10 +124,10 @@ export default async function AdminUsersPage() {
                       <div className="font-medium">{u.username}</div>
                       {u.last_login ? (
                         <div className="text-xs text-muted-foreground">
-                          Last login: {new Date(u.last_login).toISOString().slice(0, 10)}
+                          Ultimo accesso: {new Date(u.last_login).toISOString().slice(0, 10)}
                         </div>
                       ) : (
-                        <div className="text-xs text-muted-foreground">Never logged in</div>
+                        <div className="text-xs text-muted-foreground">Mai effettuato accesso</div>
                       )}
                     </div>
                     {isRbpPlatformAdmin(user) ? (

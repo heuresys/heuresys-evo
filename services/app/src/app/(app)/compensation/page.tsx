@@ -6,9 +6,9 @@ import { hasMinRole } from '@heuresys/shared/rbp';
 
 const STRINGS = {
   it: {
-    title: 'Compensation',
+    title: 'Stipendi e bonus',
     noTenant: 'Nessun contesto tenant.',
-    subtitle: (id: string) => `Statistiche stipendi + piani bonus · tenant ${id}…`,
+    subtitle: (id: string) => `Statistiche stipendi e piani bonus · tenant ${id}…`,
     loadError: 'Caricamento fallito:',
     salaryDist: 'Distribuzione stipendi',
     employees: 'Dipendenti',
@@ -106,7 +106,7 @@ export default async function CompensationPage() {
       <section className="mt-6">
         {err ? (
           <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
-            {t.loadError} <code>{err}</code>
+            {t.loadError} <span className="text-xs opacity-70">(errore tecnico registrato)</span>
           </p>
         ) : (
           <>
