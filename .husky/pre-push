@@ -1,0 +1,99 @@
+#!/bin/sh
+# DDL/migration → DECISIONS-LOG L<N> gate
+#
+# Refuses pushes that include DDL or DB migration commits without a paired
+# entry in `.ux-design/DECISIONS-LOG.md`. Either the DDL commit itself must
+# touch the log, OR a subsequent commit in the same push must mention the
+# DDL commit's short hash in the log body. Bypass via `--no-verify` (use
+# sparingly; the audit trail is the point).
+#
+# Triggers (subject regex):  feat|fix|refactor|migration|chore (db|migration|schema)
+# Triggers (file regex):     db/seeds/*.sql | db/migrations/*.sql |
+#                            services/*/prisma/migrations/*
+#
+# Stdin (from git): "<local_ref> <local_sha> <remote_ref> <remote_sha>" lines.
+#
+# Lesson behind this gate: S32 commit `bf18e57` shipped phase16o on prod via
+# single-transaction 7-stage migration with 488/488 tests PASS, but no L<N>
+# entry was created. Task "employees vertical-split Phase 2" then propagated
+# through 4 successive handoffs (L60→L61→L62) as a phantom carry-forward
+# until S52 finally verified DB state vs doc state. See DECISIONS-LOG L63.
+
+set -eu
+
+LOG_PATH=".ux-design/DECISIONS-LOG.md"
+ORPHANS=$(mktemp)
+trap 'rm -f "$ORPHANS"' EXIT
+
+ZERO_SHA="0000000000000000000000000000000000000000"
+
+while read -r local_ref local_sha remote_ref remote_sha; do
+  # Deletion push — nothing to scan.
+  [ "$local_sha" = "$ZERO_SHA" ] && continue
+
+  # New branch (remote_sha is zero) — limit scan to commits unique vs origin/main.
+  if [ "$remote_sha" = "$ZERO_SHA" ]; then
+    if git rev-parse --verify origin/main >/dev/null 2>&1; then
+      range="$local_sha ^origin/main"
+    else
+      range="$local_sha"
+    fi
+  else
+    range="$remote_sha..$local_sha"
+  fi
+
+  # Iterate commits in range.
+  for sha in $(git rev-list "$range" 2>/dev/null); do
+    subject=$(git log -1 --format=%s "$sha")
+
+    is_ddl=0
+    # Subject-pattern detection.
+    case "$subject" in
+      feat\(db\)*|fix\(db\)*|refactor\(db\)*|chore\(db\)*|\
+      feat\(migration\)*|fix\(migration\)*|migration\(*\)*|\
+      feat\(schema\)*|fix\(schema\)*|schema\(*\)*)
+        is_ddl=1
+        ;;
+    esac
+
+    # File-pattern detection (only if not already flagged).
+    if [ "$is_ddl" -eq 0 ]; then
+      if git diff-tree --no-commit-id --name-only -r "$sha" 2>/dev/null \
+         | grep -qE '^(db/(seeds|migrations)/.+\.sql$|services/[^/]+/prisma/migrations/)'; then
+        is_ddl=1
+      fi
+    fi
+
+    [ "$is_ddl" -eq 0 ] && continue
+
+    # Same commit touches DECISIONS-LOG? Done.
+    if git diff-tree --no-commit-id --name-only -r "$sha" 2>/dev/null \
+       | grep -qE "^${LOG_PATH}$"; then
+      continue
+    fi
+
+    # Otherwise: does any other commit in the same push range mention this
+    # DDL commit's short hash in the DECISIONS-LOG body?
+    short=$(printf '%s' "$sha" | cut -c1-7)
+    if git log "$range" -p -- "$LOG_PATH" 2>/dev/null | grep -qF "$short"; then
+      continue
+    fi
+
+    # Orphan.
+    printf '  %s :: %s\n' "$short" "$subject" >> "$ORPHANS"
+  done
+done
+
+if [ -s "$ORPHANS" ]; then
+  cat >&2 <<EOF
+DDL/migration commits without a DECISIONS-LOG L<N> entry detected:
+$(cat "$ORPHANS")
+Add a paired entry to ${LOG_PATH} citing the commit short hash, then either
+amend the DDL commit or push a follow-up doc commit covering it. Lesson
+captured in L63 (S32 phase16o orphaned-shipping pattern).
+
+Bypass: \`git push --no-verify\` (use only when L<N> is being created in a
+follow-up push, never as a permanent escape valve).
+EOF
+  exit 1
+fi
