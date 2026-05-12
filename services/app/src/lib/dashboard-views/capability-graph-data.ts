@@ -24,6 +24,12 @@ export interface KgTopEntity {
   centrality: number;
 }
 
+export interface EscoSyncStats {
+  lastSync: { value: string; unit: string; meta: string };
+  drift: { value: string; unit: string; meta: string; tone: 'ok' | 'warn' | 'critical' };
+  nextSync: { value: string; unit: string; meta: string };
+}
+
 export interface CapabilityGraphLiveData {
   totals: {
     nodes: number;
@@ -36,6 +42,7 @@ export interface CapabilityGraphLiveData {
     skillCount: number;
     relationCount: number;
   };
+  escoSync: EscoSyncStats | null;
 }
 
 const CLUSTER_DEFS = [
@@ -66,15 +73,47 @@ const CLUSTER_DEFS = [
   },
 ];
 
+function relativeAgo(ts: Date): string {
+  const ms = Date.now() - ts.getTime();
+  const min = Math.floor(ms / 60000);
+  if (min < 1) return 'now';
+  if (min < 60) return `${min}m`;
+  const h = Math.floor(min / 60);
+  if (h < 24) return `${h}h ${min % 60}m`;
+  const d = Math.floor(h / 24);
+  return `${d}d ${h % 24}h`;
+}
+
+function relativeIn(ts: Date): string {
+  const ms = ts.getTime() - Date.now();
+  if (ms <= 0) return 'overdue';
+  const min = Math.floor(ms / 60000);
+  if (min < 60) return `${min}m`;
+  const h = Math.floor(min / 60);
+  if (h < 24) return `${h}h ${min % 60}m`;
+  const d = Math.floor(h / 24);
+  return `${d}d ${h % 24}h`;
+}
+
+const FREQ_TO_HOURS: Record<string, number> = {
+  hourly: 1,
+  daily: 24,
+  weekly: 168,
+  monthly: 720,
+  realtime: 0.0167,
+};
+
 export async function fetchCapabilityGraphData(): Promise<CapabilityGraphLiveData> {
   try {
-    const [nodeCount, edgeCount, escoSkillCount, escoRelCount, nodesByType] = await Promise.all([
-      prisma.kg_nodes.count(),
-      prisma.kg_edges.count(),
-      prisma.esco_skills.count(),
-      prisma.esco_skill_relations.count(),
-      prisma.kg_nodes.groupBy({ by: ['node_type'], _count: { id: true } }),
-    ]);
+    const [nodeCount, edgeCount, escoSkillCount, escoRelCount, nodesByType, syncStats] =
+      await Promise.all([
+        prisma.kg_nodes.count(),
+        prisma.kg_edges.count(),
+        prisma.esco_skills.count(),
+        prisma.esco_skill_relations.count(),
+        prisma.kg_nodes.groupBy({ by: ['node_type'], _count: { id: true } }),
+        fetchEscoSyncStats(),
+      ]);
 
     const clusters: KgCluster[] = CLUSTER_DEFS.map((def) => {
       const count = nodesByType
@@ -132,6 +171,7 @@ export async function fetchCapabilityGraphData(): Promise<CapabilityGraphLiveDat
       clusters,
       topEntities,
       esco: { skillCount: escoSkillCount, relationCount: escoRelCount },
+      escoSync: syncStats,
     };
   } catch {
     return {
@@ -139,6 +179,91 @@ export async function fetchCapabilityGraphData(): Promise<CapabilityGraphLiveDat
       clusters: [],
       topEntities: [],
       esco: { skillCount: 0, relationCount: 0 },
+      escoSync: null,
     };
+  }
+}
+
+/**
+ * ESCO sync stats derived from integration_sync_logs. Since no integration
+ * is currently named "ESCO", we surface the most recent successful sync of
+ * any integration as a proxy for ontology-feed health.
+ */
+async function fetchEscoSyncStats(): Promise<EscoSyncStats | null> {
+  try {
+    // SAFE: SUPERUSER cross-tenant aggregation (sync log surfacing for platform view)
+    const lastLog = await prisma.integration_sync_logs.findFirst({
+      where: { completed_at: { not: null } },
+      orderBy: { completed_at: 'desc' },
+      select: {
+        completed_at: true,
+        status: true,
+        records_created: true,
+        records_updated: true,
+        records_failed: true,
+        integration_id: true,
+      },
+    });
+    if (!lastLog || !lastLog.completed_at) return null;
+
+    const integration = await prisma.integrations.findUnique({
+      where: { id: lastLog.integration_id },
+      select: { provider: true, sync_frequency: true, last_sync_at: true },
+    });
+
+    const last = lastLog.completed_at;
+    const created = lastLog.records_created ?? 0;
+    const updated = lastLog.records_updated ?? 0;
+    const failed = lastLog.records_failed ?? 0;
+
+    // 24h drift = sum of records_failed across all sync logs in last 24h
+    const driftRow = await prisma.$queryRaw<{ failed: bigint }[]>`
+      SELECT COALESCE(SUM(records_failed), 0)::bigint AS failed
+      FROM integration_sync_logs
+      WHERE created_at >= now() - interval '24 hours'
+    `;
+    const drift24h = Number(driftRow[0]?.failed ?? 0n);
+    const driftTone: EscoSyncStats['drift']['tone'] =
+      drift24h === 0 ? 'ok' : drift24h < 10 ? 'warn' : 'critical';
+
+    const freq = integration?.sync_frequency ?? 'daily';
+    const freqHours = FREQ_TO_HOURS[freq] ?? 24;
+    const nextSyncDate = new Date(last.getTime() + freqHours * 3600 * 1000);
+
+    const lastSyncRelative = relativeAgo(last);
+    const lastSyncMain = lastSyncRelative.includes('h')
+      ? lastSyncRelative.split(' ')[0]!
+      : lastSyncRelative;
+    const lastSyncRest = lastSyncRelative.includes(' ')
+      ? lastSyncRelative.split(' ').slice(1).join(' ')
+      : '';
+
+    const nextRelative = relativeIn(nextSyncDate);
+    const nextMain = nextRelative.includes(' ') ? nextRelative.split(' ')[0]! : nextRelative;
+    const nextRest = nextRelative.includes(' ') ? nextRelative.split(' ').slice(1).join(' ') : '';
+
+    return {
+      lastSync: {
+        value: lastSyncMain,
+        unit: lastSyncRest ? `${lastSyncRest} ago` : 'ago',
+        meta: `${created} created · ${updated} mod`,
+      },
+      drift: {
+        value: String(drift24h),
+        unit: 'drift',
+        meta:
+          drift24h === 0
+            ? 'in sync · last 24h'
+            : `${drift24h} failed in last 24h · ${failed} this run`,
+        tone: driftTone,
+      },
+      nextSync: {
+        value: nextMain,
+        unit: nextRest || '',
+        meta: `cron · ${freq}`,
+      },
+    };
+  } catch {
+    return null;
   }
 }

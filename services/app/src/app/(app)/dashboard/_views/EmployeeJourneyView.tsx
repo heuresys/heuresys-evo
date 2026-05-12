@@ -189,150 +189,171 @@ export default async function EmployeeJourneyView({
         </div>
       </div>
 
-      <div className="main-split">
-        <div className="panel">
-          <div className="panel-head">
-            <h2>
-              Skill <em>trend</em> · 4 quarter
-            </h2>
-            <span className="meta">5 dimensions tracked</span>
-          </div>
-          <div style={{ padding: 18 }}>
-            <svg viewBox="0 0 600 240" style={{ width: '100%', height: 220 }}>
-              <g stroke="var(--rule)" strokeDasharray="2 4">
-                {[40, 80, 120, 160, 200].map((y) => (
-                  <line key={y} x1="40" y1={y} x2="600" y2={y} />
-                ))}
-              </g>
-              {[
+      {(() => {
+        // Build skill-trend series (live or fallback). Polyline points mapped to
+        // viewBox coordinates: x = 40 + idx*140 (5 quarters), y = 200 - (v/100)*180.
+        const trendQuarters = live.skillTrend?.quarters ?? [
+          'Q1 25',
+          'Q2 25',
+          'Q3 25',
+          'Q4 25',
+          'Q1 26',
+        ];
+        const trendSeries =
+          live.skillTrend?.series && live.skillTrend.series.length > 0
+            ? live.skillTrend.series
+            : [
                 {
-                  color: '#a855f7',
-                  points: '40,200 180,180 320,140 460,90 600,60',
                   label: 'Modellazione finanziaria',
+                  color: '#a855f7',
+                  values: [10, 30, 60, 80, 90],
                 },
-                {
-                  color: '#3b82f6',
-                  points: '40,210 180,190 320,160 460,120 600,90',
-                  label: 'ML applicato',
-                },
-                {
-                  color: '#5fb87a',
-                  points: '40,180 180,150 320,120 460,80 600,50',
-                  label: 'Python',
-                },
-                {
-                  color: '#f59e0b',
-                  points: '40,220 180,210 320,180 460,150 600,130',
-                  label: 'Stress testing',
-                },
-                { color: '#6c5ce7', points: '40,170 180,150 320,130 460,110 600,85', label: 'SQL' },
-              ].map((s) => (
-                <polyline
-                  key={s.label}
-                  points={s.points}
-                  fill="none"
-                  stroke={s.color}
+                { label: 'ML applicato', color: '#3b82f6', values: [5, 25, 50, 70, 85] },
+                { label: 'Python', color: '#5fb87a', values: [20, 45, 65, 85, 95] },
+                { label: 'Stress testing', color: '#f59e0b', values: [0, 10, 30, 50, 65] },
+                { label: 'SQL', color: '#6c5ce7', values: [25, 45, 60, 75, 85] },
+              ];
+        const trendPoints = (vals: number[]) =>
+          vals
+            .map(
+              (v, i) =>
+                `${40 + i * ((600 - 40) / Math.max(1, vals.length - 1))},${200 - (Math.min(100, Math.max(0, v)) / 100) * 160}`
+            )
+            .join(' ');
+
+        // Build radar polygons (live or fallback). Points relative to 120,120 center.
+        const radar = live.radar;
+        const currentVals = radar?.series.find((s) => s.name === 'Current')?.values ?? [
+          82, 70, 35, 60, 75,
+        ];
+        const targetVals = radar?.series.find((s) => s.name === 'Target')?.values ?? [
+          75, 80, 70, 80, 85,
+        ];
+        const radarLabels = radar?.axes ?? ['Process', 'Struct', 'Role', 'Skill', 'Perf'];
+        const radarPoints = (vals: number[]) =>
+          vals
+            .map((v, i) => {
+              const angle = (i / vals.length) * Math.PI * 2 - Math.PI / 2;
+              const r = (90 * Math.min(100, Math.max(0, v))) / 100;
+              return `${120 + Math.cos(angle) * r},${120 + Math.sin(angle) * r}`;
+            })
+            .join(' ');
+
+        return (
+          <div className="main-split">
+            <div className="panel">
+              <div className="panel-head">
+                <h2>
+                  Skill <em>trend</em> · {trendQuarters.length} quarter
+                </h2>
+                <span className="meta">{trendSeries.length} skills tracked</span>
+              </div>
+              <div style={{ padding: 18 }}>
+                <svg viewBox="0 0 600 240" style={{ width: '100%', height: 220 }}>
+                  <g stroke="var(--rule)" strokeDasharray="2 4">
+                    {[40, 80, 120, 160, 200].map((y) => (
+                      <line key={y} x1="40" y1={y} x2="600" y2={y} />
+                    ))}
+                  </g>
+                  {trendSeries.map((s) => (
+                    <polyline
+                      key={s.label}
+                      points={trendPoints(s.values)}
+                      fill="none"
+                      stroke={s.color}
+                      strokeWidth="2"
+                    />
+                  ))}
+                  {trendQuarters.map((q, i) => (
+                    <text
+                      key={q}
+                      x={40 + i * ((600 - 40) / Math.max(1, trendQuarters.length - 1))}
+                      y="232"
+                      fontFamily="JetBrains Mono, monospace"
+                      fontSize="9"
+                      fill="var(--ink-muted)"
+                      letterSpacing="1"
+                      textAnchor={
+                        i === 0 ? 'start' : i === trendQuarters.length - 1 ? 'end' : 'middle'
+                      }
+                    >
+                      {q}
+                    </text>
+                  ))}
+                </svg>
+              </div>
+            </div>
+
+            <div className="capability-radar">
+              <div className="panel-head" style={{ borderBottom: 0, padding: 0, marginBottom: 12 }}>
+                <h2>
+                  Capability <em>radar</em>
+                </h2>
+                <span className="meta">{radarLabels.length}-axis · current vs target</span>
+              </div>
+              <svg className="radar-svg" viewBox="0 0 240 240">
+                {[1, 2, 3, 4].map((k) => (
+                  <polygon
+                    key={k}
+                    points={radarLabels
+                      .map((_, i) => {
+                        const angle = (i / radarLabels.length) * Math.PI * 2 - Math.PI / 2;
+                        const r = (90 * k) / 4;
+                        return `${120 + Math.cos(angle) * r},${120 + Math.sin(angle) * r}`;
+                      })
+                      .join(' ')}
+                    fill="none"
+                    stroke="var(--rule)"
+                  />
+                ))}
+                <polygon
+                  points={radarPoints(currentVals)}
+                  fill="var(--accent)"
+                  fillOpacity="0.18"
+                  stroke="var(--accent)"
                   strokeWidth="2"
                 />
-              ))}
-              {['Q1 25', 'Q2 25', 'Q3 25', 'Q4 25', 'Q1 26'].map((q, i) => (
-                <text
-                  key={q}
-                  x={40 + i * 140}
-                  y="232"
-                  fontFamily="JetBrains Mono, monospace"
-                  fontSize="9"
-                  fill="var(--ink-muted)"
-                  letterSpacing="1"
-                  textAnchor={i === 0 ? 'start' : 'middle'}
-                >
-                  {q}
-                </text>
-              ))}
-            </svg>
+                <polygon
+                  points={radarPoints(targetVals)}
+                  fill="none"
+                  stroke="var(--brand-blue)"
+                  strokeWidth="1.5"
+                  strokeDasharray="4 3"
+                />
+                {radarLabels.map((l, i) => {
+                  const angle = (i / radarLabels.length) * Math.PI * 2 - Math.PI / 2;
+                  const r = 105;
+                  return (
+                    <text
+                      key={l}
+                      x={120 + Math.cos(angle) * r}
+                      y={120 + Math.sin(angle) * r}
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                      fontFamily="JetBrains Mono, monospace"
+                      fontSize="9"
+                      fill="var(--ink-muted)"
+                      letterSpacing="1"
+                    >
+                      {l.toUpperCase()}
+                    </text>
+                  );
+                })}
+              </svg>
+              <div className="radar-legend">
+                <span>
+                  <span className="legend-swatch" style={{ background: 'var(--accent)' }} />
+                  Current
+                </span>
+                <span>
+                  <span className="legend-swatch" style={{ background: 'var(--brand-blue)' }} />
+                  Target
+                </span>
+              </div>
+            </div>
           </div>
-        </div>
-
-        <div className="capability-radar">
-          <div className="panel-head" style={{ borderBottom: 0, padding: 0, marginBottom: 12 }}>
-            <h2>
-              Capability <em>radar</em>
-            </h2>
-            <span className="meta">5-axis · current vs target</span>
-          </div>
-          <svg className="radar-svg" viewBox="0 0 240 240">
-            {[1, 2, 3, 4].map((k) => (
-              <polygon
-                key={k}
-                points={[0, 1, 2, 3, 4]
-                  .map((i) => {
-                    const angle = (i / 5) * Math.PI * 2 - Math.PI / 2;
-                    const r = (90 * k) / 4;
-                    return `${120 + Math.cos(angle) * r},${120 + Math.sin(angle) * r}`;
-                  })
-                  .join(' ')}
-                fill="none"
-                stroke="var(--rule)"
-              />
-            ))}
-            <polygon
-              points={[82, 70, 35, 60, 75]
-                .map((v, i) => {
-                  const angle = (i / 5) * Math.PI * 2 - Math.PI / 2;
-                  const r = (90 * v) / 100;
-                  return `${120 + Math.cos(angle) * r},${120 + Math.sin(angle) * r}`;
-                })
-                .join(' ')}
-              fill="var(--accent)"
-              fillOpacity="0.18"
-              stroke="var(--accent)"
-              strokeWidth="2"
-            />
-            <polygon
-              points={[75, 80, 70, 80, 85]
-                .map((v, i) => {
-                  const angle = (i / 5) * Math.PI * 2 - Math.PI / 2;
-                  const r = (90 * v) / 100;
-                  return `${120 + Math.cos(angle) * r},${120 + Math.sin(angle) * r}`;
-                })
-                .join(' ')}
-              fill="none"
-              stroke="var(--brand-blue)"
-              strokeWidth="1.5"
-              strokeDasharray="4 3"
-            />
-            {['Process', 'Struct', 'Role', 'Skill', 'Perf'].map((l, i) => {
-              const angle = (i / 5) * Math.PI * 2 - Math.PI / 2;
-              const r = 105;
-              return (
-                <text
-                  key={l}
-                  x={120 + Math.cos(angle) * r}
-                  y={120 + Math.sin(angle) * r}
-                  textAnchor="middle"
-                  dominantBaseline="middle"
-                  fontFamily="JetBrains Mono, monospace"
-                  fontSize="9"
-                  fill="var(--ink-muted)"
-                  letterSpacing="1"
-                >
-                  {l.toUpperCase()}
-                </text>
-              );
-            })}
-          </svg>
-          <div className="radar-legend">
-            <span>
-              <span className="legend-swatch" style={{ background: 'var(--accent)' }} />
-              Current
-            </span>
-            <span>
-              <span className="legend-swatch" style={{ background: 'var(--brand-blue)' }} />
-              Target
-            </span>
-          </div>
-        </div>
-      </div>
+        );
+      })()}
 
       <div className="panel" style={{ marginBottom: 24 }}>
         <div className="panel-head">

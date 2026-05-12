@@ -125,88 +125,127 @@ export default async function CrossTenantOverviewView({ role }: { role: string }
         ))}
       </div>
 
-      <div className="panel" style={{ marginBottom: 24 }}>
-        <div className="panel-head">
-          <h2>
-            Workforce trend · <em>12 months</em>
-          </h2>
-          <span className="meta">monthly aggregates · cross-tenant</span>
-        </div>
-        <div style={{ padding: 18 }}>
-          <svg viewBox="0 0 600 200" style={{ width: '100%', height: 200 }}>
-            <g stroke="var(--rule)" strokeDasharray="2 4">
-              {[40, 80, 120, 160].map((y) => (
-                <line key={y} x1="0" y1={y} x2="600" y2={y} />
-              ))}
-            </g>
-            {[
-              {
-                color: '#a855f7',
-                points:
-                  '0,140 50,135 100,130 150,128 200,120 250,115 300,110 350,105 400,100 450,95 500,88 550,82 600,75',
-                label: 'RTL Bank',
-              },
-              {
-                color: '#3b82f6',
-                points:
-                  '0,165 50,162 100,160 150,158 200,155 250,150 300,148 350,145 400,142 450,140 500,138 550,135 600,132',
-                label: 'SmartFood',
-              },
-              {
-                color: '#5fb87a',
-                points:
-                  '0,180 50,178 100,176 150,174 200,170 250,168 300,165 350,162 400,160 450,158 500,155 550,152 600,150',
-                label: 'EcoNova',
-              },
-              {
-                color: '#f59e0b',
-                points:
-                  '0,190 50,189 100,188 150,187 200,186 250,185 300,184 350,183 400,182 450,181 500,180 550,179 600,178',
-                label: 'Heuresys',
-              },
-            ].map((s) => (
-              <polyline
-                key={s.label}
-                points={s.points}
-                fill="none"
-                stroke={s.color}
-                strokeWidth="2"
-              />
-            ))}
-          </svg>
-          <div
-            style={{
-              display: 'flex',
-              gap: 16,
-              marginTop: 12,
-              fontFamily: 'JetBrains Mono, monospace',
-              fontSize: 11,
-              color: 'var(--ink-muted)',
-              textTransform: 'uppercase',
-              letterSpacing: '1px',
-            }}
-          >
-            {tenants.slice(0, 4).map((t, i) => {
-              const colors = ['#a855f7', '#3b82f6', '#5fb87a', '#f59e0b'];
-              return (
-                <span key={t.tenantId}>
-                  <span
-                    style={{
-                      display: 'inline-block',
-                      width: 10,
-                      height: 10,
-                      background: colors[i],
-                      marginRight: 6,
-                      verticalAlign: 'middle',
-                    }}
+      {(() => {
+        const trend = data.workforceTrend;
+        // Build series + month axis from live data with fallback
+        const months = trend?.months ?? [
+          'Jan 25',
+          'Feb 25',
+          'Mar 25',
+          'Apr 25',
+          'May 25',
+          'Jun 25',
+          'Jul 25',
+          'Aug 25',
+          'Sep 25',
+          'Oct 25',
+          'Nov 25',
+          'Dec 25',
+          'Jan 26',
+        ];
+        const fallbackSeries = [
+          {
+            tenantId: 'rtl',
+            code: 'rtl-bank',
+            label: 'RTL Bank',
+            color: '#a855f7',
+            values: [60, 65, 70, 72, 80, 85, 90, 95, 100, 105, 112, 118, 125],
+          },
+          {
+            tenantId: 'sf',
+            code: 'smartfood',
+            label: 'SmartFood',
+            color: '#3b82f6',
+            values: [35, 38, 40, 42, 45, 50, 52, 55, 58, 60, 62, 65, 68],
+          },
+          {
+            tenantId: 'en',
+            code: 'econova',
+            label: 'EcoNova',
+            color: '#5fb87a',
+            values: [20, 22, 24, 26, 30, 32, 35, 38, 40, 42, 45, 48, 50],
+          },
+          {
+            tenantId: 'hs',
+            code: 'heuresys',
+            label: 'Heuresys',
+            color: '#f59e0b',
+            values: [10, 10, 11, 12, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+          },
+        ];
+        const series = trend?.series && trend.series.length > 0 ? trend.series : fallbackSeries;
+        // Normalize: max across all series → 100% → y=0; min → y=160. Padding 20.
+        const allVals = series.flatMap((s) => s.values);
+        const maxV = Math.max(1, ...allVals);
+        const minV = Math.min(0, ...allVals);
+        const yRange = Math.max(1, maxV - minV);
+        const xStep = months.length > 1 ? 600 / (months.length - 1) : 600;
+        const buildPoints = (vals: number[]) =>
+          vals
+            .map(
+              (v, i) =>
+                `${(i * xStep).toFixed(1)},${(190 - ((v - minV) / yRange) * 170).toFixed(1)}`
+            )
+            .join(' ');
+
+        return (
+          <div className="panel" style={{ marginBottom: 24 }}>
+            <div className="panel-head">
+              <h2>
+                Workforce trend · <em>{months.length} months</em>
+              </h2>
+              <span className="meta">monthly cumulative headcount · cross-tenant</span>
+            </div>
+            <div style={{ padding: 18 }}>
+              <svg viewBox="0 0 600 200" style={{ width: '100%', height: 200 }}>
+                <g stroke="var(--rule)" strokeDasharray="2 4">
+                  {[40, 80, 120, 160].map((y) => (
+                    <line key={y} x1="0" y1={y} x2="600" y2={y} />
+                  ))}
+                </g>
+                {series.map((s) => (
+                  <polyline
+                    key={s.tenantId}
+                    points={buildPoints(s.values)}
+                    fill="none"
+                    stroke={s.color}
+                    strokeWidth="2"
                   />
-                  {t.code.toUpperCase()}
-                </span>
-              );
-            })}
+                ))}
+              </svg>
+              <div
+                style={{
+                  display: 'flex',
+                  gap: 16,
+                  marginTop: 12,
+                  fontFamily: 'JetBrains Mono, monospace',
+                  fontSize: 11,
+                  color: 'var(--ink-muted)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '1px',
+                  flexWrap: 'wrap',
+                }}
+              >
+                {series.map((s) => (
+                  <span key={s.tenantId}>
+                    <span
+                      style={{
+                        display: 'inline-block',
+                        width: 10,
+                        height: 10,
+                        background: s.color,
+                        marginRight: 6,
+                        verticalAlign: 'middle',
+                      }}
+                    />
+                    {s.code.toUpperCase()}
+                  </span>
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
+        );
+      })()}
 
       <div className="double-split">
         <div className="panel">

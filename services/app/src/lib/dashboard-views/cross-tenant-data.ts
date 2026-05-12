@@ -28,9 +28,23 @@ export interface CrossTenantPlatformTotals {
   tenants: number;
 }
 
+export interface WorkforceTrendSeries {
+  tenantId: string;
+  code: string;
+  label: string;
+  color: string;
+  values: number[]; // 13 months, cumulative headcount
+}
+
+export interface WorkforceTrendData {
+  months: string[]; // ['Jan 25','Feb 25',...]
+  series: WorkforceTrendSeries[];
+}
+
 export interface CrossTenantLiveData {
   tenants: CrossTenantRow[];
   totals: CrossTenantPlatformTotals;
+  workforceTrend: WorkforceTrendData | null;
 }
 
 export async function fetchCrossTenantData(): Promise<CrossTenantLiveData> {
@@ -123,7 +137,9 @@ export async function fetchCrossTenantData(): Promise<CrossTenantLiveData> {
       tenants: rows.length,
     };
 
-    return { tenants: rows, totals };
+    const workforceTrend = await fetchWorkforceTrend(rows);
+
+    return { tenants: rows, totals, workforceTrend };
   } catch {
     return {
       tenants: [],
@@ -134,6 +150,85 @@ export async function fetchCrossTenantData(): Promise<CrossTenantLiveData> {
         successionReady: 0,
         tenants: 0,
       },
+      workforceTrend: null,
     };
   }
+}
+
+const TREND_COLORS = ['#a855f7', '#3b82f6', '#5fb87a', '#f59e0b'];
+
+/**
+ * 13-month cumulative headcount per tenant. Computed on-the-fly from
+ * employees.hire_date + termination_date (carry-forward: migrate to
+ * monthly_employee_snapshot mat view for performance once seeded).
+ *
+ * SAFE: SUPERUSER cross-tenant aggregation (intentional, platform-only view).
+ */
+async function fetchWorkforceTrend(tenants: CrossTenantRow[]): Promise<WorkforceTrendData | null> {
+  if (tenants.length === 0) return null;
+  const customers = tenants.filter((t) => !t.isPlatform).slice(0, 4);
+  if (customers.length === 0) return null;
+
+  // 13 month boundaries (start of each month, oldest → newest)
+  const now = new Date();
+  const months: { date: Date; label: string }[] = [];
+  for (let i = 12; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months.push({
+      date: d,
+      label: `${d.toLocaleString('en', { month: 'short' })} ${String(d.getFullYear()).slice(-2)}`,
+    });
+  }
+
+  // SAFE: SUPERUSER cross-tenant aggregation
+  const rawRows = await prisma.$queryRaw<
+    { tenant_id: string; month_start: Date; headcount: bigint }[]
+  >`
+    WITH month_grid AS (
+      SELECT generate_series(
+        date_trunc('month', now())::date - interval '12 months',
+        date_trunc('month', now())::date,
+        interval '1 month'
+      )::date AS month_start
+    ),
+    tenant_grid AS (
+      SELECT id AS tenant_id FROM tenants WHERE id = ANY(${customers.map((c) => c.tenantId)}::uuid[])
+    )
+    SELECT tg.tenant_id,
+           mg.month_start,
+           COUNT(e.id)::bigint AS headcount
+    FROM tenant_grid tg
+    CROSS JOIN month_grid mg
+    LEFT JOIN employees e
+      ON e.tenant_id = tg.tenant_id
+      AND e.hire_date IS NOT NULL
+      AND e.hire_date <= (mg.month_start + interval '1 month' - interval '1 day')
+      AND (e.termination_date IS NULL OR e.termination_date > mg.month_start)
+    GROUP BY tg.tenant_id, mg.month_start
+    ORDER BY tg.tenant_id, mg.month_start
+  `;
+
+  const byTenant = new Map<string, Map<string, number>>();
+  for (const r of rawRows) {
+    const key = r.month_start.toISOString().slice(0, 10);
+    if (!byTenant.has(r.tenant_id)) byTenant.set(r.tenant_id, new Map());
+    byTenant.get(r.tenant_id)!.set(key, Number(r.headcount));
+  }
+
+  const series: WorkforceTrendSeries[] = customers.map((t, idx) => {
+    const map = byTenant.get(t.tenantId) ?? new Map();
+    const values = months.map((m) => map.get(m.date.toISOString().slice(0, 10)) ?? 0);
+    return {
+      tenantId: t.tenantId,
+      code: t.code,
+      label: t.name,
+      color: TREND_COLORS[idx % TREND_COLORS.length]!,
+      values,
+    };
+  });
+
+  const anyData = series.some((s) => s.values.some((v) => v > 0));
+  if (!anyData) return null;
+
+  return { months: months.map((m) => m.label), series };
 }

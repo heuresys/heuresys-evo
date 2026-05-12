@@ -277,62 +277,93 @@ export default async function CapabilityGraphView({
         </table>
       </div>
 
-      <div className="section-head">
-        <h2>
-          ESCO <em>sync</em> stats
-        </h2>
-        <span className="meta">3 tracking metrics · last 24h</span>
-      </div>
-      <div className="metrics-grid">
-        <div className="metric-card">
-          <div className="lbl">LAST SYNC</div>
-          <div className="val">
-            1h<span className="unit">12m ago</span>
-          </div>
-          <div
-            style={{
-              marginTop: 10,
-              fontFamily: 'JetBrains Mono, monospace',
-              fontSize: 11,
-              color: 'var(--ink-muted)',
-            }}
-          >
-            312 skill aggiunti · 47 mod
-          </div>
-        </div>
-        <div className="metric-card">
-          <div className="lbl">DRIFT DETECTION</div>
-          <div className="val">
-            0<span className="unit">drift</span>
-          </div>
-          <div
-            style={{
-              marginTop: 10,
-              fontFamily: 'JetBrains Mono, monospace',
-              fontSize: 11,
-              color: 'var(--semantic-success)',
-            }}
-          >
-            in sync ESCO 1.2.0
-          </div>
-        </div>
-        <div className="metric-card">
-          <div className="lbl">PROSSIMO SYNC</div>
-          <div className="val">
-            22h<span className="unit">48m</span>
-          </div>
-          <div
-            style={{
-              marginTop: 10,
-              fontFamily: 'JetBrains Mono, monospace',
-              fontSize: 11,
-              color: 'var(--ink-muted)',
-            }}
-          >
-            cron · daily 03:00 UTC
-          </div>
-        </div>
-      </div>
+      {(() => {
+        const sync = live.escoSync;
+        const driftColor =
+          sync?.drift.tone === 'critical'
+            ? 'var(--semantic-error)'
+            : sync?.drift.tone === 'warn'
+              ? 'var(--semantic-warning)'
+              : 'var(--semantic-success)';
+        const cards = sync
+          ? [
+              {
+                lbl: 'LAST SYNC',
+                val: sync.lastSync.value,
+                unit: sync.lastSync.unit,
+                meta: sync.lastSync.meta,
+                color: 'var(--ink-muted)',
+              },
+              {
+                lbl: 'DRIFT DETECTION',
+                val: sync.drift.value,
+                unit: sync.drift.unit,
+                meta: sync.drift.meta,
+                color: driftColor,
+              },
+              {
+                lbl: 'PROSSIMO SYNC',
+                val: sync.nextSync.value,
+                unit: sync.nextSync.unit,
+                meta: sync.nextSync.meta,
+                color: 'var(--ink-muted)',
+              },
+            ]
+          : [
+              {
+                lbl: 'LAST SYNC',
+                val: '1h',
+                unit: '12m ago',
+                meta: '312 skill aggiunti · 47 mod',
+                color: 'var(--ink-muted)',
+              },
+              {
+                lbl: 'DRIFT DETECTION',
+                val: '0',
+                unit: 'drift',
+                meta: 'in sync ESCO 1.2.0',
+                color: 'var(--semantic-success)',
+              },
+              {
+                lbl: 'PROSSIMO SYNC',
+                val: '22h',
+                unit: '48m',
+                meta: 'cron · daily 03:00 UTC',
+                color: 'var(--ink-muted)',
+              },
+            ];
+        return (
+          <>
+            <div className="section-head">
+              <h2>
+                ESCO <em>sync</em> stats
+              </h2>
+              <span className="meta">3 tracking metrics · last 24h</span>
+            </div>
+            <div className="metrics-grid">
+              {cards.map((c) => (
+                <div key={c.lbl} className="metric-card">
+                  <div className="lbl">{c.lbl}</div>
+                  <div className="val">
+                    {c.val}
+                    <span className="unit">{c.unit}</span>
+                  </div>
+                  <div
+                    style={{
+                      marginTop: 10,
+                      fontFamily: 'JetBrains Mono, monospace',
+                      fontSize: 11,
+                      color: c.color,
+                    }}
+                  >
+                    {c.meta}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        );
+      })()}
 
       <footer className="ws-footer">
         <span>SOURCE · kg_nodes · kg_edges · esco_skills · esco_skill_relations · ESCO 1.2.0</span>
