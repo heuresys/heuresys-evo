@@ -1,10 +1,10 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-12T04:50Z · S47 perf optimization batch CLOSED — all 4 carry-forward resolved (excluding architectural #5/#6)
+> Updated: 2026-05-12T05:33Z · S47 closed + idempotency PASS + live smoke test PROD PASS
 
 ## Last session brief
 
-S47: ciclo iterativo fix+test sui 4 carry-forward perf chiuso. (1) phase18t idx audit_logs(created_at DESC). (2) G6 prefetch instrumentation per-widget hrtime + env-gated PERF_LOG=1. (3) pgBouncer installato su VM (transaction mode, listen :6432, pool 20+5), services/app + services/api-gateway DATABASE_URL switched 5432→6432. (4) Bench finale 30s × 20 conn from VM mostra miglioramenti drastici: `/org_systems` -61% (2234→874ms), `/employee_journey` -57% (1606→690ms), `/skills_heatmap` -26%, `/dashboard` G6 -19%. Per target realistico P95 ≤ 1000ms sotto 20-conn load: **8/9 routes within target** (solo /dashboard G6 a 1006ms, marginal).
+S47: ciclo iterativo perf carry-forward chiuso (phase18t audit_logs idx + G6 prefetch instrumentation + pgBouncer 1.25.2 transaction mode :6432). Bench 30s × 20 conn from VM: `/org_systems` -61% (2234→874ms), `/employee_journey` -57% (1606→690ms), `/skills_heatmap` -26%, `/dashboard` G6 -19%. **8/9 routes within realistic P95 ≤ 1000ms target**. Idempotency check VM↔locale: 4/4 PASS (git HEAD + 35 migrations + 4 file hashes + 4 services active). Live smoke test `https://evo.heuresys.com` via Chrome MCP: **5/5 view PASS** (login + 4 dashboard, 2 personas, zero blocking errors).
 
 ## Top priorities (remaining)
 
@@ -47,4 +47,4 @@ curl -I https://evo.heuresys.com/login
 # Expected: HTTP 200 + valid cert
 ```
 
-Riferimenti: `docs/_audit/2026-05-12-perf-baseline/S47-FINAL.md` · `db/migrations/phase18{m,n,o,p,q,r,s,t}*.sql` · `scripts/dev-local/setup-pgbouncer.sh` (gitignored ops script)
+Riferimenti: `docs/_audit/2026-05-12-perf-baseline/S47-FINAL.md` · `docs/_audit/2026-05-12-prod-smoke-test/REPORT.md` · `db/migrations/phase18{m,n,o,p,q,r,s,t}*.sql` · `scripts/dev-local/setup-pgbouncer.sh` (gitignored ops script)
