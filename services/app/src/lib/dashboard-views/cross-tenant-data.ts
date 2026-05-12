@@ -1,9 +1,12 @@
+import { unstable_cache } from 'next/cache';
 import { prisma } from '@/lib/db';
 
 /**
  * Server-side fetcher for /dashboard cross_tenant_overview view (S41 W4-final).
  * Aggregates per-tenant metrics: headcount, skill coverage avg, performance avg,
  * succession ready candidates. SUPERUSER cross-tenant intentional.
+ *
+ * S45 perf: wrapped with unstable_cache (revalidate=60s).
  */
 
 export interface CrossTenantRow {
@@ -47,7 +50,7 @@ export interface CrossTenantLiveData {
   workforceTrend: WorkforceTrendData | null;
 }
 
-export async function fetchCrossTenantData(): Promise<CrossTenantLiveData> {
+async function fetchCrossTenantDataUncached(): Promise<CrossTenantLiveData> {
   try {
     const tenantsRaw = await prisma.tenants.findMany({
       select: { id: true, code: true, name: true, status: true, industry_type: true },
@@ -232,3 +235,9 @@ async function fetchWorkforceTrend(tenants: CrossTenantRow[]): Promise<Workforce
 
   return { months: months.map((m) => m.label), series };
 }
+
+export const fetchCrossTenantData = unstable_cache(
+  fetchCrossTenantDataUncached,
+  ['dashboard:cross-tenant:v1'],
+  { revalidate: 60, tags: ['dashboard:cross-tenant'] }
+);

@@ -1,8 +1,12 @@
+import { unstable_cache } from 'next/cache';
 import { prisma } from '@/lib/db';
 
 /**
  * Server-side fetchers for /dashboard org_systems view.
  * Pragmatic data binding: live where DB has the data, demo where not yet seeded.
+ *
+ * S45 perf: wrapped with unstable_cache (revalidate=60s · tag=dashboard:org-systems).
+ * Cross-tenant SUPERUSER aggregations safe to cache as no per-tenant scoping in this fetcher.
  */
 
 export interface TenantFleetRow {
@@ -51,7 +55,7 @@ function relativeAgo(ts: Date): string {
   return `${d}d ${h % 24}h`;
 }
 
-export async function fetchOrgSystemsData(): Promise<OrgSystemsLiveData> {
+async function fetchOrgSystemsDataUncached(): Promise<OrgSystemsLiveData> {
   const [tenantsRaw, auditRaw, rolesCount, areasCount, joinsCount, policiesCount, totalEmp] =
     await Promise.all([
       prisma.tenants.findMany({
@@ -135,3 +139,9 @@ export async function fetchOrgSystemsData(): Promise<OrgSystemsLiveData> {
     totalEmployees: totalEmp,
   };
 }
+
+export const fetchOrgSystemsData = unstable_cache(
+  fetchOrgSystemsDataUncached,
+  ['dashboard:org-systems:v1'],
+  { revalidate: 60, tags: ['dashboard:org-systems'] }
+);

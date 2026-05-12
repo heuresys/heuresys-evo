@@ -1,3 +1,4 @@
+import { unstable_cache } from 'next/cache';
 import { withTenant } from '@/lib/db';
 
 /**
@@ -123,7 +124,7 @@ function axisOf(skillName: string): number {
   return 3;
 }
 
-export async function fetchEmployeeJourneyData(
+async function fetchEmployeeJourneyDataUncached(
   tenantId: string | null,
   employeeId: string | null
 ): Promise<EmployeeJourneyLiveData> {
@@ -409,3 +410,9 @@ async function fetchSkillTrend(
     series: nonEmpty,
   };
 }
+
+export const fetchEmployeeJourneyData = unstable_cache(
+  fetchEmployeeJourneyDataUncached,
+  ['dashboard:employee-journey:v1'],
+  { revalidate: 60, tags: ['dashboard:employee-journey'] }
+);

@@ -1,3 +1,4 @@
+import { unstable_cache } from 'next/cache';
 import { prisma } from '@/lib/db';
 
 /**
@@ -6,6 +7,8 @@ import { prisma } from '@/lib/db';
  *
  * Cross-tenant aggregations: kg_nodes / kg_edges / esco_* are platform-wide
  * reference data (no RLS) — direct prisma access is intentional.
+ *
+ * S45 perf: wrapped with unstable_cache (revalidate=60s).
  */
 
 export interface KgCluster {
@@ -103,7 +106,7 @@ const FREQ_TO_HOURS: Record<string, number> = {
   realtime: 0.0167,
 };
 
-export async function fetchCapabilityGraphData(): Promise<CapabilityGraphLiveData> {
+async function fetchCapabilityGraphDataUncached(): Promise<CapabilityGraphLiveData> {
   try {
     const [nodeCount, edgeCount, escoSkillCount, escoRelCount, nodesByType, syncStats] =
       await Promise.all([
@@ -267,3 +270,9 @@ async function fetchEscoSyncStats(): Promise<EscoSyncStats | null> {
     return null;
   }
 }
+
+export const fetchCapabilityGraphData = unstable_cache(
+  fetchCapabilityGraphDataUncached,
+  ['dashboard:capability-graph:v1'],
+  { revalidate: 60, tags: ['dashboard:capability-graph'] }
+);

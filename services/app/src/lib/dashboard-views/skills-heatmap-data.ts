@@ -1,3 +1,4 @@
+import { unstable_cache } from 'next/cache';
 import { withTenant } from '@/lib/db';
 
 /**
@@ -7,6 +8,8 @@ import { withTenant } from '@/lib/db';
  *
  * Note: employee_skill_assessments does NOT have a tenant_id column —
  * tenant scoping is enforced via JOIN to employees.tenant_id.
+ *
+ * S45 perf: wrapped with unstable_cache (revalidate=60s · per-tenant key).
  */
 
 export interface HeatmapCell {
@@ -43,7 +46,7 @@ function bucketOf(v: number): HeatmapCell['bucket'] {
   return 'critical';
 }
 
-export async function fetchSkillsHeatmapData(
+async function fetchSkillsHeatmapDataUncached(
   tenantId: string | null
 ): Promise<SkillsHeatmapLiveData> {
   const fallback: SkillsHeatmapLiveData = {
@@ -158,3 +161,9 @@ export async function fetchSkillsHeatmapData(
     return fallback;
   }
 }
+
+export const fetchSkillsHeatmapData = unstable_cache(
+  fetchSkillsHeatmapDataUncached,
+  ['dashboard:skills-heatmap:v1'],
+  { revalidate: 60, tags: ['dashboard:skills-heatmap'] }
+);

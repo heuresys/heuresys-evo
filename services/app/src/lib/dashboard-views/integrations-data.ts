@@ -1,8 +1,11 @@
+import { unstable_cache } from 'next/cache';
 import { prisma } from '@/lib/db';
 
 /**
  * Server-side fetcher for integration health used by /dashboard org_systems
  * and cross_tenant_overview views (S41 W4-final). Reads integrations table.
+ *
+ * S45 perf: wrapped with unstable_cache (revalidate=60s).
  *
  * Cross-tenant: integrations table has tenant_id but for the platform view
  * we aggregate across tenants — SUPERUSER intentional.
@@ -50,7 +53,7 @@ function deriveStatus(
   return 'ok';
 }
 
-export async function fetchIntegrationsHealth(limit = 7): Promise<IntegrationHealthRow[]> {
+async function fetchIntegrationsHealthUncached(limit = 7): Promise<IntegrationHealthRow[]> {
   try {
     // SAFE: cross-tenant aggregation for platform admin views (SUPERUSER intentional)
     const integrations = await prisma.integrations.findMany({
@@ -81,3 +84,9 @@ export async function fetchIntegrationsHealth(limit = 7): Promise<IntegrationHea
     return [];
   }
 }
+
+export const fetchIntegrationsHealth = unstable_cache(
+  fetchIntegrationsHealthUncached,
+  ['dashboard:integrations-health:v1'],
+  { revalidate: 60, tags: ['dashboard:integrations-health'] }
+);
