@@ -2145,3 +2145,55 @@ Quando aggiungi una nuova decisione, segui questo template:
 
 **⚠️ STATUS** (se applicabile): superseduta dalla L<X>
 ```
+
+---
+
+## L61 — 2026-05-12 — S50 brand audit visivo + correzione ciclica (14 drift chiusi)
+
+**Decisione**: condotto audit visivo sistemico cross-surface con `claude-in-chrome` + correzione ciclica in 5 cluster (A quick wins · B foundation brand · C dashboard guards · D branded forbidden · E italian sweep). 21 drift catalogati evidence-based, 14 chiusi via fix shipped, 4 chiusi come diagnosi (no fix needed), 3 spostati carry-forward S51.
+
+**Contesto**: utente Enzo ha segnalato "il risultato visibile del brand design non è quello atteso: molte imprecisioni, errori, omissioni" e ha autorizzato sessione dedicata con powerusers/agenti/skill/tools/claude-in-chrome/brand-studio. L'audit Phase 1 (analisi statica via Explore agents) ha prodotto 5 "smoking gun" preliminari, di cui **2 erano allucinazioni** dell'agent (heatmap classes + pill collision già risolti). Lesson learned: **audit visivo browser-based > analisi statica** per drift brand.
+
+**Drift inventory shipped**:
+
+CRITICAL (3):
+
+- **D-15** `/learning` Prisma SQL error esposto in UI → sanitized (codice errore mascherato)
+- **D-18** `/dashboard/capability_graph` "0 widgets" → diagnosi: preset v1 ha 3 elements, \_v2 ha 11 (redirect logic carry-forward S51)
+- **D-9** `/brand-studio` 404 silenzioso → branded RoleForbidden SUPERUSER-locked
+
+HIGH (8 risolti):
+
+- **D-2** "(G6)" sigle leakato in heading 11 preset → DB UPDATE `dashboard_presets.name_it/name_en` strip
+- **D-4** Widget "Current role" undefined data → BrandSuccessionCard defensive guards (safeName/Role/Target/Readiness/Risk/Percent)
+- **D-7** Palette mu-synthesis bicolor fail → diagnosi: user-selected experimental palette (Mu family), no code fix
+- **D-17** MASTER i18n 80% surface inglese → 8 prio pages italian sweep (employees/team/reviews/compensation/admin/audit/admin/users/ontology/learning)
+- **D-20** Admin routes silent redirect → `RoleForbidden` component shared (4 pages refactored)
+- **D-21** active-palette.json project default = mu-architect → reset a `legacy` (canonical L48)
+- **D-5** Palette mu-synthesis user-selected diagnosis (Valentina pref_id in DB)
+- **D-6** Dashboard 7 widget vs mockup 12+ → diagnosi: cardCount metric non affidabile, \_v2 preset ha 11 elements correttamente seedati
+
+MED (5 risolti):
+
+- **D-8** Onboarding mostra email completa → firstName derivata via Prisma `employees.first_name` lookup (fallback chain DB > session > username prefix Title Case)
+- **D-10 + D-11** `/me` inglese + codici interni `DIV-LEGAL`/`MI01` → page italiano + `location_id → locations.name` JOIN + Intl.DateTimeFormat('it-IT')
+- **D-13** `/employees` "Talent registry" + 4 undef → "Registro talenti" italian + sanitized error
+- **D-14** `/reviews` "Performance review" mixed locale → STRINGS.it `Cicli di valutazione`
+- **D-12** Body bg hardcoded → falso positivo (var(--bg) usato correttamente)
+
+LOW (3 risolti):
+
+- **D-1** Wordmark .y aria-tree artifact → `aria-label="Heuresys"` + `aria-hidden="true"` su .y span (3 file)
+- **D-16** /goals "QA Goal" placeholder → DB DELETE row draft
+- **D-19** "DAVIDE IT" placeholder breadcrumb → DB UPDATE 4 preset v1 `persona_label = NULL`
+
+**Conseguenza**:
+
+- 5 commit shipped a `origin/main`: `9d39461` (A) · `d89c0d4` (B) · `58ee0f0` (D) · `e73c5be` (C partial) · `2577a23` (E)
+- VM `oracle-vm-default` rebuilded con `NODE_OPTIONS='--max-old-space-size=6144'` + restart services. HEAD VM = `2577a23` matchato local.
+- HTTPS smoke verified: `/me` italian · `/onboarding` firstName "Valentina" · `/admin/users` "Permessi insufficienti" branded · `/dashboard` "Direzione HR" (no G6 leak) · footer "heuresys.com" clean.
+- **Nuovo componente shipped**: `services/app/src/app/(app)/_components/RoleForbidden.tsx` — branded 403 panel riusabile per role-locked routes (server component, accepts `required` + `currentRole` + optional `hint`).
+- **Carry-forward S51**: (a) sidebar nav RBP filter — link admin nascosti per role insufficient; (b) `/dashboard/[code]` redirect v1→v2 per preset legacy; (c) i18n sweep completa /explorer/\* + /me/sub-pages + /analytics; (d) dashboard widget count audit + `/brand:audit` skill cycle visual; (e) Phase 2 employees vertical-split (carry-forward L60 esistente).
+- **Method learned**: audit visivo browser-based con `claude-in-chrome` > analisi statica via Explore agents. Le 2 false-positive smoking gun in Phase 1 hanno mostrato che il drift inventory deve essere build osservando il prodotto live, non leggendo il codice.
+
+**Verification proof**: 5 surface verified post-deploy via `mcp__claude-in-chrome__navigate` + `javascript_tool`. Computed `--primary #3b82f6` + `--accent #a855f7` bicolor distinto su palette legacy canonical. RoleForbidden render "403 · ACCESSO NEGATO / Permessi insufficienti". Onboarding heading "Benvenuto su Heuresys, Valentina" (firstName derivata DB).
