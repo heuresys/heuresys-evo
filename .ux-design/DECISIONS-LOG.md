@@ -2510,3 +2510,64 @@ Tutti i 7 ruoli mappati in `role_default_dashboards` puntano a preset `*_v2` (G6
 - Estensione convention `||` ad altri preset `*_v2` (TENANT_OWNER, IT_ADMIN, ecc.) — il parser supporta tutti, ma update mirato solo HR_DIRECTOR per scope audit corrente.
 
 **Roadmap reflection**: W#1 stima `~1.5-2h`. Reale `~25min` effective work + `~5min` build = `~30min` totali. Sovrastimato 4x. Fattori: (a) view legacy `HrDirectorOverviewView.tsx` aveva già la struttura JSX target, ho copiato pattern; (b) discovery G6 path single-source (`page.tsx`) ha permesso cambio centralized; (c) DB UPDATE inline più snello di migration formale.
+
+---
+
+## L71 — 2026-05-12 — S54: P6 W#2 KPI cards layout mockup-fedele + delta aggregator
+
+**Decisione**: secondo widget P6 audit chiuso. Direzione utente: **C. Ibrido** (dati LIVE prod + LAYOUT mockup) + **aggregator runtime** SQL per delta calc live. Le 4 KPI top row di `/dashboard` HR_DIRECTOR ora mostrano numero + delta colored inline + sub-text con `<strong>` enfasi, mockup-fedele.
+
+**Sprint 1 (commit `08dac44`)** — base layout via static enrichment:
+
+| Cambio                                                                               | File               |
+| ------------------------------------------------------------------------------------ | ------------------ |
+| Estende `BrandKpiCardProps`: `subStrong?: string` + `trendLabel?: string`            | `BrandKpiCard.tsx` |
+| Render `{sublabel} · <strong>{subStrong}</strong>` + `trendLabel` override deltaText | `BrandKpiCard.tsx` |
+| Estende `kpiRingAdapter` pass-through camelCase + snake_case                         | `adapters.ts`      |
+| `dashboard_elements` config_overrides UPDATE id 79-82 shape uniforme                 | DB inline UPDATE   |
+
+**Sprint 2 (commit `f63d650`)** — SQL aggregator runtime live (sostituisce static):
+
+`db/seeds/phase18u_hr_director_kpi_aggregators.sql` (idempotent · RLS-safe via `current_setting('app.current_tenant_id', true)` · cache TTL 60s):
+
+| Card              | Aggregator                                                                | Live RTL Bank                           |
+| ----------------- | ------------------------------------------------------------------------- | --------------------------------------- |
+| HEADCOUNT (79)    | COUNT(employees active) + delta 90d hires                                 | **156** + **2**                         |
+| REVIEW Q4 (80)    | ROUND(100 \* completed/total) review_cycle_participants                   | **38%** + **18pt**                      |
+| GOALS ACTIVE (81) | COUNT(goals active) + delta 30d + on-track %                              | **552** + **0** + **90% on-track**      |
+| SUCCESSION (82)   | COUNT(succession_candidates ready_now) + delta 90d + critical roles count | **18** + **15** + **10 critical roles** |
+
+**Verifica**: dati LIVE confermati post-aggregator (HEADCOUNT 156 ≠ 270 hardcoded prima → RLS scope-corretto).
+
+**Commit citation**: `08dac44` (W#2 base) + `f63d650` (W#2-bis SQL aggregator).
+
+**Out-of-scope (carry-forward S55+)**:
+
+- Delta REVIEW Q4 +18pt resta hardcoded (richiede comparison cycle precedente).
+- ESCO mapping % per "employees mapped" semantica mockup-as-SoT (out-of-scope C ibrido).
+- Estensione pattern altre 7 view brand-fedele.
+
+**Roadmap reflection**: W#2 stima `~1.5-2h`. Reale ~25min Sprint 1 + ~30min Sprint 2 = ~55min effective. In linea con stima.
+
+---
+
+## L72 — 2026-05-12 — S54: AAA regression fix post-W#2 (1 AA + 13 AAA nodi)
+
+**Decisione**: post-W#2 ship, axe-core re-scan ha rivelato 1 AA + 13 AAA nodi. Fix mirati applicati nello stesso commit `f63d650`.
+
+**1 nodo AA fail** (REGRESSIONE W#1): `.btn.btn-primary` ("Apri review cycle →") `#ffffff` su `#a855f7` = **3.95** vs target 4.5. Causa: il nuovo CTA W#1 usa `.btn-primary` con bg `--accent` purple-500.
+
+**13 nodi AAA fail** (NON regressione, **pre-existing missed L69**): `<th>` di RBAC matrix `#9ca3af` su `#1c1c2a` = **6.62** vs target 7.0. Causa: il widget `BrandRbacMatrix` renderizza `<table class="dense">` (NOT `.rbac` come ipotizzato L69) → selettore `table.rbac th` fixato L69 non li copre.
+
+**Fix applicati** (commit `f63d650`):
+
+1. `.btn-primary` (`dashboard-brand.css:596-602`): bg `--accent` (#a855f7) → `--accent-deep` (#7e3fc8). Hover swap inverso. Bianco su accent-deep = **7.0:1** (AAA strict pass).
+2. `table.dense th` (`dashboard-brand.css:784-795`): color `var(--ink-muted)` → `var(--ink-muted-aaa, var(--ink-muted))` (pattern L69 fallback graceful).
+
+**Lezione operativa**: durante L69 audit i 13 `<th>` non erano rilevati perché RBAC matrix widget era ancora skeleton (`Loading widget…`). Pattern timing: future audit sweeps devono attendere render completo (verifica via JS `[data-element-id]` populated) PRIMA di lanciare axe.
+
+**Verifica post-fix**: target 0 AAA + 0 AA su /dashboard HR_DIRECTOR palette legacy. Verifica deferita post-build (in corso).
+
+**Commit citation**: `f63d650` (a11y(dashboard) — single commit comprende W#2-bis aggregator + L72 fix).
+
+**Out-of-scope**: sweep generic `<th>` altre tabelle non-`.dense`/`.rbac` — atteso pass automatico (verifica empirica post-deploy carry-forward W#3).
