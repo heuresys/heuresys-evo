@@ -52,12 +52,21 @@ export function BrandSuccessionCard({
   readyBy,
   candidateAvatarUrl,
 }: BrandSuccessionCardProps) {
-  const initials = deriveInitials(candidateName);
+  const safeName = candidateName?.trim() || 'Candidato da assegnare';
+  const safeRole = currentRole?.trim() || '—';
+  const safeTarget = targetRole?.trim() || 'TBD';
+  const safeReadiness: SuccessionReadiness =
+    readiness && READINESS_LABEL[readiness] ? readiness : 'ready-now';
+  const safeRisk: SuccessionRisk = risk && RISK_PILL[risk] ? risk : 'low';
+  const safePercent = Number.isFinite(readinessPercent)
+    ? Math.max(0, Math.min(100, readinessPercent))
+    : 0;
+  const initials = deriveInitials(safeName);
 
   return (
     <article className="succession-card">
-      <div className="role">{currentRole}</div>
-      <h3>{candidateName}</h3>
+      <div className="role">{safeRole}</div>
+      <h3>{safeName}</h3>
       <div
         style={{
           fontFamily: 'JetBrains Mono, monospace',
@@ -67,10 +76,10 @@ export function BrandSuccessionCard({
           textTransform: 'uppercase',
         }}
       >
-        TARGET · <span style={{ color: 'var(--accent)' }}>{targetRole}</span>
+        TARGET · <span style={{ color: 'var(--accent)' }}>{safeTarget}</span>
       </div>
-      <div className="candidates" aria-label={`${candidateName} successor stack`}>
-        <div className="candidate top" title={candidateName}>
+      <div className="candidates" aria-label={`${safeName} successor stack`}>
+        <div className="candidate top" title={safeName}>
           {candidateAvatarUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -91,14 +100,14 @@ export function BrandSuccessionCard({
         <div className="more">+0</div>
       </div>
       <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
-        <span className={`pill ${RISK_PILL[risk]}`}>{risk.toUpperCase()} RISK</span>
-        <span className="pill pill-info" title={`Readiness: ${READINESS_LABEL[readiness]}`}>
-          {READINESS_LABEL[readiness]}
+        <span className={`pill ${RISK_PILL[safeRisk]}`}>{safeRisk.toUpperCase()} RISK</span>
+        <span className="pill pill-info" title={`Readiness: ${READINESS_LABEL[safeReadiness]}`}>
+          {READINESS_LABEL[safeReadiness]}
         </span>
       </div>
       <div className="meta-row">
         <span>READINESS</span>
-        <strong>{Math.round(readinessPercent)}%</strong>
+        <strong>{Math.round(safePercent)}%</strong>
       </div>
       {readyBy ? (
         <div className="meta-row" style={{ borderTop: 0, paddingTop: 0, marginTop: -4 }}>
