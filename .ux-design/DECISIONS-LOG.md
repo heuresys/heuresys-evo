@@ -1838,6 +1838,8 @@ Ogni tabella: ALTER ADD COLUMN tenant_id UUID + UPDATE backfill + ALTER NOT NULL
 - Schema Prisma updated: `services/{app,api-gateway}/prisma/schema.prisma` (enum rbac_role + widget_catalog @relation cleanup)
 - Verifica DB: enum `rbac_role` 8 valori canonical · 0 role_permissions drift · 0 FK widget_catalog · login canonical 8/8 PASS
 
+**Commit citation** (per `.husky/pre-push` L65): commit `05e603b` (S23-bis).
+
 ---
 
 ## L56 — 2026-05-09 — S23-tris: tenant_id batch 24 tables + drop broken triggers + $queryRawUnsafe parametrize
@@ -1887,6 +1889,8 @@ Ogni tabella: ALTER ADD COLUMN tenant_id UUID + UPDATE backfill + ALTER NOT NULL
 - SQL deliverables S23-tris: `phase16f_tenant_id_batch_employee.sql` · `phase16g_tenant_id_batch_learning_recruiting.sql` · `phase16h_drop_broken_audit_triggers.sql`
 - Code: `services/api-gateway/src/db/pool.ts` · `services/app/src/lib/db.ts` · `db/README.md` advisory sections
 - Verifica: 30 tabelle pilot+batch tenant_id NOT NULL · 0 trigger broken · 0 funzione `audit_permission_changes` · login canonical 8/8 PASS · 853 test verdi
+
+**Commit citation** (per `.husky/pre-push` L65): commit `8129451` (S23-tris).
 
 ---
 
@@ -2261,3 +2265,60 @@ LOW (3 risolti):
 - 0 drift fra employees (view) e employees_core (table)
 
 **Lesson learned**: prima di pianificare migration DDL "deferred", verificare sempre lo stato live del DB. L60 documentava "deferred" basato su transaction rollback, ma una successiva sessione (non loggata) ha completato la migration con successo. Documentation drift cross-session è un rischio reale; STATE.md + DECISIONS-LOG L<X> devono essere updated immediatamente dopo ogni shipping di DDL significativo.
+
+**Commit citation** (per `.husky/pre-push` gate L65): commit `bf18e573842aec8688a0d4574257221a495bc78e` (short `bf18e57`).
+
+---
+
+## L64 — 2026-05-12 — S52: audit retroattivo commit DDL orphan + entry-by-entry citation
+
+**Decisione**: audit programmatico ha rilevato **9 commit DDL/migration storici orphan** (no pairing in DECISIONS-LOG.md). Producti tutti gli entry retroattivi qui sotto. Da questa entry in poi, ogni commit DDL ha un short hash citato esplicitamente, soddisfacendo il `.husky/pre-push` gate introdotto in L65.
+
+**Contesto**: utente ha osservato "perché employees vertical-split ricorre così frequentemente dopo task di modifica?" L'investigation S52 (L63) aveva tracciato il pattern al commit `bf18e57` (S32) orfano. Audit retroattivo S52 extended ha rilevato **altri 8 orphans** oltre a `bf18e57`. Script audit:
+
+```bash
+for sha in $(git log --all --format=%H | grep DDL_pattern); do
+  if commit_does_not_touch_DECISIONS-LOG.md && short_hash_not_in_log; then
+    echo "ORPHAN: $sha"
+  fi
+done
+```
+
+**Conseguenza — orphan entries shipped**:
+
+| Short hash | Subject                                                                                 | Context retroattivo                                                                                                                                            |
+| ---------- | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `5f08439`  | `feat(eskap): phase18f Knowledge Graph master + ESCO catalog + RTL projection`          | S35.5: scaffold del Knowledge Graph master + ESCO catalog tables + RTL Bank projection seed. Parte della pipeline CASCADIA ESKAP.                              |
+| `58d372e`  | `feat(cascadia): S35.3 M5 + M7 + phase18e regulatory frameworks`                        | S35.3 M5+M7: regulatory frameworks (GDPR/CCNL/AML) tables seeded come parte della pilot RTL Bank CASCADIA pipeline.                                            |
+| `ff0bd45`  | `migration(db): phase18d ITLAB tables — sindacati + linkages + CCNL COMM levels`        | S35.1 ITLAB: 3 nuove tables (`sindacati`, `tenant_sindacato_links`, CCNL `commerce` levels) per Italian Labor domain.                                          |
+| `d26883e`  | `schema(app): add role_default_dashboards Prisma model`                                 | Phase 15.A: aggiunto modello Prisma `role_default_dashboards` per role→preset mapping data-driven. Schema-only change (table already existed).                 |
+| `bf18e57`  | `feat(db): S32 phase16o APPLIED on PROD — employees vertical-split Phase 2 closed`      | **S32: phase16o applied (root cause documentation drift L60→L63). Coverage retroattiva: L63.** Single transaction COMMIT 7-stage PASS, 488 test PASS.          |
+| `b035d8a`  | `chore: S31 handoff — phase16o pipeline-v3 apply-ready (opzione B+)`                    | S31 handoff: artifacts SQL pipeline-v3 (refined dopo L60 fail) caricati per apply S32. Non-applicativo (artifacts only).                                       |
+| `6a0b7bb`  | `chore: S30 handoff — P1 phase16o pre-flight artifacts + STATE.md`                      | S30 handoff: pre-flight artifacts (backup script + drift check). Non-applicativo (preparation only).                                                           |
+| `7ac676d`  | `migration(db): G6 hierarchical preset smoke (org_systems_v2, hr_director_overview_v2)` | Phase G6: smoke test dei 2 preset hierarchical `_v2` (`org_systems_v2` + `hr_director_overview_v2`). Seeded `dashboard_elements` con layout containers nested. |
+| `2ed436b`  | `migration(db): G4 dashboard_elements hierarchy + variant`                              | Phase G4: aggiunte colonne `parent_element_id` (self-FK) + `variant` (varchar) a `dashboard_elements`. Sblocca G6 hierarchical preset rendering.               |
+
+**Verification**: post-aggiornamento L64, audit script `for sha in $orphans; do grep $short DECISIONS-LOG.md; done` → tutti 9 short hashes ora citati. `.husky/pre-push` gate (vedi L65) accetta tutti i commit storici via grep -F sui short hashes.
+
+**Lesson reinforced**: cita SEMPRE il short hash del commit DDL nell'entry pairata. Il pre-push hook (L65) verifica la presenza letterale del short hash; senza, anche entries esistenti che spiegano la migration possono essere classificate orphan.
+
+---
+
+## L65 — 2026-05-12 — S52: pre-push hook DDL → DECISIONS-LOG gate shipped
+
+**Decisione**: shipped `.husky/pre-push` hook (99 LOC POSIX shell) che rifiuta push contenenti commit DDL senza paired entry in `DECISIONS-LOG.md`. Detection: subject regex `(feat|fix|refactor|chore)(db|migration|schema)` + file regex `db/{seeds,migrations}/*.sql` + `services/*/prisma/migrations/*`. Pairing: il commit stesso modifica il log OR un altro commit nello stesso push range cita il short hash nel body.
+
+**Contesto**: pattern S32→L63 (commit phase16o shipped senza L entry, propagato fantasma per 4 handoff) richiede prevention going-forward. L64 ha chiuso il debt retroattivo; L65 chiude il vettore prospettico. Commit hash shipped: `f380be9`.
+
+**Conseguenza**:
+
+- Da S53 in poi, ogni push contenente commit DDL viene rifiutato se manca pairing → forza l'autore a creare L entry nello stesso push.
+- Bypass via `git push --no-verify` resta possibile per emergency (es. backfill di log entry in push successivo immediato), ma è friction-tax-on-evasion: tracciabile via push log.
+- Logica idempotente: hook si applica solo a commit nel push range corrente. Commit storici (incluso `bf18e57`) non re-validati retroattivamente — già covered da L64.
+
+**Verification**: hook validato su 2 scenari live:
+
+1. **Push reale S52 handoff** (range `c309904..f1e34ea`): subject `chore:` no DDL, file changes md+txt no SQL → exit 0 (passa).
+2. **Simulated S32 orphan replay** (range `bf18e57~1..bf18e57`): subject `feat(db):` DDL detected, no log touch, no log citation → exit 1 con stderr actionable + reference a L63.
+
+**Commit citation**: `f380be9` (pre-push hook shipped).
