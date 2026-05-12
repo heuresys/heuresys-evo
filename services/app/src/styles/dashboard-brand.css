@@ -247,7 +247,7 @@
 .tenant-mini .t-avatar.bordered {
   background: var(--bg);
   border: 2px solid var(--brand-blue);
-  color: var(--accent);
+  color: var(--accent-aaa, var(--accent));
 }
 .tenant-mini .t-info {
   min-width: 0;
@@ -265,7 +265,7 @@
 .tenant-mini .t-info .t-meta {
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
-  color: var(--ink-muted);
+  color: var(--ink-muted-aaa, var(--ink-muted));
   letter-spacing: 0.5px;
   margin-top: 2px;
 }
@@ -410,7 +410,7 @@
 .user-card .avatar.bordered-inverse {
   background: var(--bg);
   border: 2px solid var(--accent);
-  color: var(--brand-blue);
+  color: var(--primary-aaa, var(--brand-blue));
 }
 .user-card .info {
   flex: 1;
@@ -426,7 +426,7 @@
 }
 .user-card .info .role {
   font-size: 11px;
-  color: var(--ink-muted);
+  color: var(--ink-muted-aaa, var(--ink-muted));
   font-family: 'JetBrains Mono', monospace;
   letter-spacing: 0.5px;
 }
@@ -841,7 +841,7 @@ table.dense tr:last-child td {
 }
 .pill-ok {
   background: rgba(95, 184, 122, 0.15);
-  color: var(--semantic-success);
+  color: var(--semantic-success-aaa, var(--semantic-success));
 }
 .pill-info {
   background: var(--accent-soft);
@@ -915,7 +915,7 @@ table.dense tr:last-child td {
   font-size: 10px;
   letter-spacing: 1px;
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--accent-aaa, var(--accent));
   font-weight: 600;
 }
 .activity-head .live::before {
@@ -959,7 +959,7 @@ table.dense tr:last-child td {
 .activity-item .who {
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
-  color: var(--accent);
+  color: var(--accent-aaa, var(--accent));
   margin-top: 4px;
 }
 
@@ -1575,7 +1575,7 @@ table.dense tr:last-child td {
   font-size: 16px;
 }
 .panel-head h2 em {
-  color: var(--accent);
+  color: var(--accent-aaa, var(--accent));
   font-style: normal;
   font-weight: 600;
 }
@@ -1602,7 +1602,7 @@ table.rbac th {
   font-size: 9px;
   letter-spacing: 1.5px;
   text-transform: uppercase;
-  color: var(--ink-muted);
+  color: var(--ink-muted-aaa, var(--ink-muted));
   font-weight: 600;
   background: var(--surface-2);
   border-bottom: 1px solid var(--rule);
@@ -1629,7 +1629,7 @@ table.rbac td:first-child {
   padding-left: 18px;
   font-family: 'Inter', sans-serif;
   font-weight: 600;
-  color: var(--accent);
+  color: var(--accent-aaa, var(--accent));
 }
 table.rbac td.scope {
   text-align: left;

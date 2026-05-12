@@ -72,6 +72,14 @@
   --accent-soft: #2a1a44;
   --primary: #3b82f6;
 
+  /* WCAG 2.2 AAA enhanced contrast variants (L69 S54 — 7:1 ratio target).
+   * Use only for small text (<18pt) on dark surfaces. Brand identity (--accent,
+   * --primary, --semantic-success) preserved for non-text usage. */
+  --accent-aaa: #c084fc;
+  --primary-aaa: #60a5fa;
+  --ink-muted-aaa: #b0b5c0;
+  --semantic-success-aaa: #4ade80;
+
   --gradient: linear-gradient(135deg, #3b82f6 0%, #a855f7 100%);
   --glow: 0 0 60px rgba(168, 85, 247, 0.35);
 
@@ -163,6 +171,14 @@
   --accent-hover: #b878f8;
   --accent-soft: #2a1a44;
   --primary: #3b82f6;
+
+  /* WCAG 2.2 AAA enhanced contrast variants (L69 S54 — 7:1 ratio target).
+   * Use only for small text (<18pt) on dark surfaces. Brand identity (--accent,
+   * --primary, --semantic-success) preserved for non-text usage. */
+  --accent-aaa: #c084fc;
+  --primary-aaa: #60a5fa;
+  --ink-muted-aaa: #b0b5c0;
+  --semantic-success-aaa: #4ade80;
 
   --gradient: linear-gradient(135deg, #3b82f6 0%, #a855f7 100%);
   --glow: 0 0 60px rgba(168, 85, 247, 0.35);
