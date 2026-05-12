@@ -2322,3 +2322,38 @@ done
 2. **Simulated S32 orphan replay** (range `bf18e57~1..bf18e57`): subject `feat(db):` DDL detected, no log touch, no log citation → exit 1 con stderr actionable + reference a L63.
 
 **Commit citation**: `f380be9` (pre-push hook shipped).
+
+---
+
+## L66 — 2026-05-12 — S53: P4 WCAG 2.2 AA sign-off (4 real violations → 0; AAA enhanced carry-forward)
+
+**Decisione**: P4 WCAG 2.2 AAA audit chiuso a livello **AA con sign-off PASS**. Eseguito audit programmatico via `axe-core@4.11.0` injection su 4 surface (`/login`, `/dashboard`, `/me`, `/admin/audit`) con palette legacy attiva. Audit pre-fix `/dashboard`: 6 violations (4 real, 2 falsi positivi chrome extension). Commit `6675f90` chiude 4 real violations. Post-fix: 0 real violations su tutte le 4 surface. AAA enhanced contrast (4 nodi residui) carry-forward S54+.
+
+**Audit baseline `/dashboard`** (pre-fix S53 16:50Z):
+
+| Violation ID                  | Impact   | WCAG           | Nodi | Verdict                                 |
+| ----------------------------- | -------- | -------------- | ---- | --------------------------------------- |
+| `image-alt`                   | critical | 2.1 (1.1.1)    | 1    | FALSO POSITIVO (extension icon)         |
+| `color-contrast-enhanced`     | serious  | AAA (1.4.6)    | 16   | REAL                                    |
+| `color-contrast`              | serious  | AA (1.4.3)     | 8    | REAL                                    |
+| `region`                      | moderate | best-practice  | 1    | FALSO POSITIVO (`#bottomBar` extension) |
+| `scrollable-region-focusable` | serious  | (2.1.1, 2.1.3) | 1    | REAL                                    |
+| `aria-allowed-role`           | minor    | best-practice  | 4    | REAL                                    |
+
+**Fix shipped** (`6675f90`):
+
+1. `BrandShell.tsx:170` — `<h4 role="button" tabIndex={0}>` → `<h4><button type="button" aria-expanded aria-controls>`. Risolve 4 nodi `aria-allowed-role`.
+2. `BrandShell.tsx:209` — `<main className="workspace" tabIndex={-1}>`. Risolve 1 nodo `scrollable-region-focusable`.
+3. `dashboard-brand.css:283-310` — split h4 typography from h4 button interactive + reset + focus-visible accent outline.
+4. `dashboard-brand.css:755-758, 834-837` — `.filter-pill.active` + `.pill-info` `color: var(--accent)` → `var(--ink)` + `font-weight: 600`. Ratio 3.99 → ~13:1. Risolve 8 nodi AA + 12/16 nodi AAA.
+
+**Audit post-fix** (S53 17:11Z): 4 surface ✅ WCAG 2.2 AA PASS. 3 violations residue per ognuna sono falsi positivi chrome extension constanti.
+
+**Conseguenza**:
+
+- **WCAG 2.2 AA: ✅ SIGNED OFF** v1.0 gate.
+- **WCAG 2.2 AAA enhanced** carry-forward S54+: 4 nodi residui (`.t-avatar` text + sidebar h4 span con `--ink-soft` su `--surface-1`). Richiede palette token rebalance.
+- **Falsi positivi pattern documentato**: audit con axe-core via `mcp__claude-in-chrome` injection PRODUCE 3 false positives systemic. Per audit cleaner: axe-core CLI standalone con chromedriver headless.
+- CLAUDE.md §Roadmap successiva #4: aggiornato AA-shipped (commit `373974f`).
+
+**Commit citation**: `6675f90` (BrandShell + dashboard-brand.css fixes), `373974f` (CLAUDE.md roadmap update).
