@@ -1,15 +1,17 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-12T05:33Z · S47 closed + idempotency PASS + live smoke test PROD PASS
+> Updated: 2026-05-12T05:48Z · S47 closed + idempotency PASS + live smoke test PROD PASS · S48 carry-forward fixed (Phase 2 verified closed in DB)
 
 ## Last session brief
 
 S47: ciclo iterativo perf carry-forward chiuso (phase18t audit_logs idx + G6 prefetch instrumentation + pgBouncer 1.25.2 transaction mode :6432). Bench 30s × 20 conn from VM: `/org_systems` -61% (2234→874ms), `/employee_journey` -57% (1606→690ms), `/skills_heatmap` -26%, `/dashboard` G6 -19%. **8/9 routes within realistic P95 ≤ 1000ms target**. Idempotency check VM↔locale: 4/4 PASS (git HEAD + 35 migrations + 4 file hashes + 4 services active). Live smoke test `https://evo.heuresys.com` via Chrome MCP: **5/5 view PASS** (login + 4 dashboard, 2 personas, zero blocking errors).
 
+S48 (in corso): carry-forward cleanup — § 1.2 employees vertical-split Phase 2 verified ALREADY CLOSED on prod DB (S32 commit `bf18e57`, 2026-05-11T00:44:19Z). Evidence: `employees` relkind=`v` (view) · `employees_core` relkind=`r` (table) · 3 satellite tables 270/270/270 rows · 3 INSTEAD OF triggers active · VIEW count 270. STATE.md fixed to remove obsolete carry-forward.
+
 ## Top priorities (remaining)
 
-1. **§ 1.2 employees vertical-split Phase 2** (~15-25h, architectural multi-sessione) — DROP COLUMN ×77 + 65 view dependency refactor.
-2. **Brand v1.0 promotion** (~16-25h, 2-3 sessioni) — 8 categorie asset checklist (`.ux-design/08-promotion/v1.0-checklist.md`).
+1. **Brand v1.0 promotion** (~16-25h, 2-3 sessioni) — 8 categorie asset checklist (`.ux-design/08-promotion/v1.0-checklist.md`).
+2. **`/dashboard` G6 marginal sub-1000ms** (~2-4h, opzionale) — DashboardRenderer per-widget cache layer.
 
 ## Open questions
 

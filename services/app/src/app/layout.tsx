@@ -5,6 +5,7 @@ import './globals.css';
 import '../styles/active-theme.css';
 import '../styles/theme-framework/palette-framework.css';
 import '../styles/dashboard-brand.css';
+import '../styles/motion.css';
 import { ThemePreviewInjector } from './_components/ThemePreviewInjector';
 import { LocaleProvider } from '@/lib/i18n';
 import { readActivePalette } from '@/lib/theme-framework/active-palette-store';

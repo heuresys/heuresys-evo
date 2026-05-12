@@ -1,0 +1,141 @@
+/* Heuresys motion library — Phase 8 canonical pattern presets (L24)
+ * SoT: .ux-design/04-motion-language/motion-final.md
+ *
+ * 5 canonical patterns + auxiliary patterns. CSS-driven utility classes
+ * pair with Framer Motion variants in src/lib/motion/variants.ts.
+ *
+ * Token reference: --ease-* and --dur-* in active-theme.css.
+ * prefers-reduced-motion enforced globally in active-theme.css.
+ */
+
+/* ============================================================
+ * Keyframes — canonical pattern engines
+ * ============================================================ */
+
+/* Pattern 1: Wordmark glow breathing (hero/landing only — never chrome) */
+@keyframes wordmark-glow-breathing {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 0.6rem rgba(168, 85, 247, 0.2));
+  }
+  50% {
+    filter: drop-shadow(0 0 1.2rem rgba(168, 85, 247, 0.35));
+  }
+}
+
+/* Skeleton shimmer — loading placeholder */
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* KPI sparkline draw stroke-dasharray reveal */
+@keyframes sparkline-draw {
+  from {
+    stroke-dashoffset: var(--sparkline-length, 1000);
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Scroll reveal — one-shot enter */
+@keyframes scroll-reveal-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================================
+ * Utility classes — CSS-driven patterns
+ * ============================================================ */
+
+/* Pattern 1: Wordmark glow (apply to hero surfaces only) */
+.motion-wordmark-glow {
+  animation: wordmark-glow-breathing var(--dur-loop-glow) var(--ease-in-out) infinite;
+}
+
+/* Pattern 2: Gradient/theme transitions — color tokens only, no layout */
+.motion-theme-transition,
+.motion-theme-transition * {
+  transition:
+    background-color var(--dur-chart) var(--ease-out),
+    color var(--dur-chart) var(--ease-out),
+    border-color var(--dur-chart) var(--ease-out);
+}
+
+/* Pattern 4: KPI sparkline draw */
+.motion-sparkline-draw path {
+  stroke-dasharray: var(--sparkline-length, 1000);
+  animation: sparkline-draw var(--dur-chart) var(--ease-out) forwards;
+}
+
+/* Pattern 5: Scroll reveal — pair with IntersectionObserver to toggle .is-revealed */
+.motion-scroll-reveal {
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity var(--dur-standard) var(--ease-out),
+    transform var(--dur-standard) var(--ease-out);
+}
+.motion-scroll-reveal.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Auxiliary: Button press */
+.motion-button-press {
+  transition: transform var(--dur-instant) var(--ease-in-out);
+}
+.motion-button-press:active {
+  transform: scale(0.97);
+}
+
+/* Auxiliary: Card lift */
+.motion-card-lift {
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out);
+}
+.motion-card-lift:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+}
+
+/* Auxiliary: Skeleton */
+.motion-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--surface-2) 0%,
+    var(--surface-3) 50%,
+    var(--surface-2) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s linear infinite;
+  opacity: 0.6;
+}
+
+/* ============================================================
+ * Reduced motion — enforced globally in active-theme.css;
+ * pattern-level override for animation-driven utilities.
+ * ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .motion-wordmark-glow,
+  .motion-sparkline-draw path,
+  .motion-skeleton {
+    animation: none !important;
+  }
+  .motion-scroll-reveal {
+    opacity: 1;
+    transform: none;
+  }
+}

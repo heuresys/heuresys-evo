@@ -82,9 +82,19 @@
   --radius-4: 10px;
   --radius-5: 16px;
   --radius-pill: 999px;
-  /* Motion */
-  --ease-default: cubic-bezier(0.4, 0, 0.2, 1);
-  --duration-fast: 120ms;
+  /* Motion — SoT: .ux-design/04-motion-language/motion-final.md (L24) */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.45, 0, 0.55, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-default: cubic-bezier(0.4, 0, 0.2, 1); /* legacy alias retained for back-compat */
+  --dur-instant: 100ms;
+  --dur-fast: 150ms;
+  --dur-standard: 300ms;
+  --dur-slow: 600ms;
+  --dur-chart: 200ms;
+  --dur-loop-glow: 4s;
+  --duration-fast: 120ms; /* legacy alias retained for back-compat */
   --duration-base: 200ms;
   --duration-slow: 320ms;
 }
