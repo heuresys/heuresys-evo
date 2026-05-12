@@ -55,9 +55,20 @@ interface CacheEntry {
 const cache = new Map<string, CacheEntry>();
 const MAX_CACHE_ENTRIES = 500;
 
-function cacheKey(elementId: string | number | bigint, tenantId: string | null): string {
-  return `${tenantId ?? 'platform'}::${String(elementId)}`;
+function cacheKey(
+  elementId: string | number | bigint,
+  tenantId: string | null,
+  employeeId: string | null | undefined
+): string {
+  // S46 perf: include employeeId in cache key — widgets like ProfileHero render
+  // per-employee data; without this, cache would leak data across users.
+  return `${tenantId ?? 'platform'}::${employeeId ?? '-'}::${String(elementId)}`;
 }
+
+// S46 perf: default cache TTL when widget_catalog.cache_ttl_seconds and
+// config.ttl are both unset. Was 0 (no caching) which forced every G6 widget
+// to round-trip DB on every request.
+const DEFAULT_TTL_SECONDS = 60;
 
 function evictIfFull(): void {
   if (cache.size < MAX_CACHE_ENTRIES) return;
@@ -81,8 +92,8 @@ export async function fetchWidgetData(args: FetchArgs): Promise<FetchResult> {
     return { data: null, source: null, cached: false, fetchedAt: now };
   }
 
-  const ttlMs = (config.ttl ?? ttlSeconds ?? 0) * 1000;
-  const key = cacheKey(elementId, ctx.tenantId);
+  const ttlMs = (config.ttl ?? ttlSeconds ?? DEFAULT_TTL_SECONDS) * 1000;
+  const key = cacheKey(elementId, ctx.tenantId, ctx.employeeId);
 
   if (ttlMs > 0) {
     const hit = cache.get(key);
