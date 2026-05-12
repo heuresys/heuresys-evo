@@ -11,9 +11,13 @@ import { UserMenu } from './UserMenu';
 import { ThemeToggle } from './ThemeToggle';
 import { PaletteSwitcher } from './PaletteSwitcher';
 
+/** P6 W#6 (L74): roleLevel optional per render '{role} · level {N}' user-card. */
 export interface BrandShellUser {
   username: string;
   role: string;
+  /** P6 W#6 (L74): canonical role level (-1=SUPERUSER, 0=TENANT_OWNER, ..., 6=EMPLOYEE).
+   * Null per ruoli non mappati. Render `{role} · level {N}` user-card quando presente. */
+  roleLevel?: number | null;
   displayName: string;
   initials: string;
 }
@@ -204,12 +208,15 @@ export function BrandShell({
             </div>
           ))}
 
-          {/* User card bottom */}
-          <div className="user-card" title={user.displayName}>
+          {/* User card bottom (P6 W#6 L74: full name primary + role · level secondary) */}
+          <div className="user-card" title={user.username}>
             <div className="avatar bordered-inverse">{user.initials}</div>
             <div className="info">
               <div className="name">{user.displayName}</div>
-              <div className="role">{user.role}</div>
+              <div className="role">
+                {user.role}
+                {typeof user.roleLevel === 'number' ? ` · level ${user.roleLevel}` : null}
+              </div>
             </div>
           </div>
         </aside>
@@ -285,6 +292,17 @@ export function BrandShell({
           <span className="ctx-item">
             <span className="ft-dot info" aria-hidden />
             ROLE <strong>{user.role}</strong>
+          </span>
+          {/* P6 W#7 (L74): brand metric pill — CYCLE corrente + REVIEWS%.
+              Hardcoded Q1 2026 + 86% per ora; carry-forward S55 fetch live
+              da review_cycles + review_cycle_participants aggregator. */}
+          <span className="ctx-item">
+            <span className="ft-dot ok" aria-hidden />
+            CYCLE <strong>Q1 2026</strong>
+          </span>
+          <span className="ctx-item">
+            <span className="ft-dot ok" aria-hidden />
+            REVIEWS <strong>86%</strong>
           </span>
           {buildHash ? (
             <span className="ctx-item">

@@ -502,72 +502,55 @@
         <div class="t-avatar bordered">RB</div>
         <div class="t-info">
           <div class="t-name">RTL Bank</div>
-          <div class="t-meta">banking · prod</div>
+          <!-- W#5 (L74): tenant meta format prod-as-shipped: '{tenant.code} · {tenant.status}' -->
+          <div class="t-meta">rtl-bank · active</div>
         </div>
       </div>
     </div>
 
+    <!-- W#5 (L74): sidebar voci nav mockup-as-prod (9 voci IT ricche + Processi 4 + Ontologia 3 + Sistema).
+         Replicates BrandShell sections from getNavForUser(session) — keeps mockup
+         aligned to live /dashboard HR_DIRECTOR shown post-S54 rendering. -->
     <div class="sidebar-section">
       <h4 onclick="toggleSection(this)">Workspace <span class="chev">▾</span></h4>
-      <div class="sidebar-link active">
-        <svg class="glyph" viewBox="0 0 16 16" fill="none" stroke="currentColor"><rect x="2" y="2" width="5" height="5" stroke-width="1.5"/><rect x="9" y="2" width="5" height="5" stroke-width="1.5"/><rect x="2" y="9" width="5" height="5" stroke-width="1.5"/><rect x="9" y="9" width="5" height="5" stroke-width="1.5"/></svg>
-        Overview<span class="num">live</span>
-      </div>
-      <div class="sidebar-link">
-        <svg class="glyph" viewBox="0 0 16 16" fill="none" stroke="currentColor"><circle cx="8" cy="5" r="2.5" stroke-width="1.5"/><path d="M 3,14 Q 8,9 13,14" stroke-width="1.5" stroke-linecap="round"/></svg>
-        Talent registry<span class="num">1.247</span>
-      </div>
-      <div class="sidebar-link">
-        <svg class="glyph" viewBox="0 0 16 16" fill="none" stroke="currentColor"><line x1="2" y1="13" x2="2" y2="6" stroke-width="1.5"/><line x1="6" y1="13" x2="6" y2="3" stroke-width="1.5"/><line x1="10" y1="13" x2="10" y2="8" stroke-width="1.5"/><line x1="14" y1="13" x2="14" y2="5" stroke-width="1.5"/></svg>
-        Skill gap analysis<span class="num">47</span>
-      </div>
-      <div class="sidebar-link">
-        <svg class="glyph" viewBox="0 0 16 16" fill="none" stroke="currentColor"><path d="M 3,13 L 13,13 L 13,3" stroke-width="1.5"/><circle cx="3" cy="13" r="1" fill="currentColor"/><circle cx="8" cy="9" r="1" fill="currentColor"/><circle cx="13" cy="3" r="1" fill="currentColor"/></svg>
-        Career bridging
-      </div>
-      <div class="sidebar-link">
-        <svg class="glyph" viewBox="0 0 16 16" fill="none" stroke="currentColor"><circle cx="8" cy="8" r="6" stroke-width="1.5"/><path d="M 8,4 L 8,8 L 11,10" stroke-width="1.5" stroke-linecap="round"/></svg>
-        Review cycle Q1<span class="num">86%</span>
-      </div>
-    </div>
-
-    <!-- Ontology · 5 capability glyphs -->
-    <div class="sidebar-section">
-      <h4 onclick="toggleSection(this)">Ontology · 5 capability <span class="chev">▾</span></h4>
-      <div class="sidebar-link">
-        <svg class="glyph" viewBox="0 0 16 16" fill="none" stroke="var(--cap-process)"><circle cx="8" cy="8" r="6" stroke-width="1" opacity="0.4"/><path d="M 4,5 L 12,5 M 4,8 L 12,8 M 4,11 L 12,11" stroke-width="1.5" stroke-linecap="round"/></svg>
-        Process<span class="num">P</span>
-      </div>
-      <div class="sidebar-link">
-        <svg class="glyph" viewBox="0 0 16 16" fill="none" stroke="var(--cap-structure)"><circle cx="8" cy="8" r="6" stroke-width="1" opacity="0.4"/><rect x="4" y="4" width="8" height="8" stroke-width="1.5"/><line x1="4" y1="8" x2="12" y2="8" stroke-width="1"/><line x1="8" y1="4" x2="8" y2="12" stroke-width="1"/></svg>
-        Structure<span class="num">S</span>
-      </div>
-      <div class="sidebar-link">
-        <svg class="glyph" viewBox="0 0 16 16" fill="var(--cap-role)" stroke="var(--cap-role)"><circle cx="8" cy="8" r="6" stroke-width="1.5"/><path d="M 5,7 L 7,9 L 11,5" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Role<span class="num">●</span>
-      </div>
-      <div class="sidebar-link">
-        <svg class="glyph" viewBox="0 0 16 16" fill="none" stroke="var(--cap-competence)"><circle cx="8" cy="8" r="6" stroke-width="1" opacity="0.4"/><path d="M 4,11 L 6,7 L 8,9 L 10,5 L 12,11" stroke-width="1.5" stroke-linejoin="round"/></svg>
-        Competency<span class="num">C</span>
-      </div>
-      <div class="sidebar-link">
-        <svg class="glyph" viewBox="0 0 16 16" fill="none" stroke="var(--cap-performance)"><circle cx="8" cy="8" r="6" stroke-width="1" opacity="0.4"/><path d="M 4,12 L 7,9 L 9,11 L 12,5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M 9,5 L 12,5 L 12,8" stroke-width="1.5" stroke-linecap="round"/></svg>
-        Performance<span class="num">P</span>
-      </div>
+      <div class="sidebar-link active">Dashboard</div>
+      <div class="sidebar-link">Vista HR Director</div>
+      <div class="sidebar-link">Registro talenti</div>
+      <div class="sidebar-link">Mappa competenze</div>
+      <div class="sidebar-link">Valutazioni</div>
+      <div class="sidebar-link">Obiettivi</div>
+      <div class="sidebar-link">Percorsi formativi</div>
+      <div class="sidebar-link">Stipendi e bonus</div>
+      <div class="sidebar-link">Analitiche workforce</div>
     </div>
 
     <div class="sidebar-section">
-      <h4 onclick="toggleSection(this)">System <span class="chev">▾</span></h4>
-      <div class="sidebar-link"><span class="num" style="margin-left: 0;">⚙</span>Settings</div>
-      <div class="sidebar-link"><span class="num" style="margin-left: 0;">↗</span>Audit log</div>
+      <h4 onclick="toggleSection(this)">Processi <span class="chev">▾</span></h4>
+      <div class="sidebar-link">Funnel recruiting</div>
+      <div class="sidebar-link">Flusso onboarding</div>
+      <div class="sidebar-link">Ciclo performance</div>
+      <div class="sidebar-link">Percorsi formativi</div>
     </div>
 
-    <!-- User profile -->
+    <div class="sidebar-section">
+      <h4 onclick="toggleSection(this)">Ontologia <span class="chev">▾</span></h4>
+      <div class="sidebar-link">Consulente</div>
+      <div class="sidebar-link">Albero ESCO</div>
+      <div class="sidebar-link">Grafo conoscenza</div>
+    </div>
+
+    <div class="sidebar-section">
+      <h4 onclick="toggleSection(this)">Sistema <span class="chev">▾</span></h4>
+    </div>
+
+    <!-- W#6 (L74): user-card mockup-as-aligned a prod (canonical RTL Bank HR_DIRECTOR
+         user = Valentina Conti). Format: full name + 'ROLE · level N' (vs prev
+         CHRO Maria Conti placeholder). -->
     <div class="user-card">
-      <div class="avatar bordered-inverse">MC</div>
+      <div class="avatar bordered-inverse">VC</div>
       <div class="info">
-        <div class="name">Maria Conti</div>
-        <div class="role">CHRO · level 2</div>
+        <div class="name">Valentina Conti</div>
+        <div class="role">HR_DIRECTOR · level 2</div>
       </div>
     </div>
   </aside>

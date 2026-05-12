@@ -2633,3 +2633,54 @@ Root cause: tutti i 18 ready_now hanno `critical_role_id` orphan (puntano a plan
 - W#6 user card + W#7 footer — gap minori.
 
 **Roadmap reflection**: W#3 stima ~30min-3h. Reale ~50min effective (mockup edit + phase18v 2 retry per data quality + verify).
+
+---
+
+## L74 — 2026-05-13 — S54: P6 W#5+W#6+W#7 sweep batch chiusura audit
+
+**Decisione**: chiusura P6 audit al 100% via sweep batch dei 3 widget restanti. Direzioni utente case-by-case:
+
+- **W#5 sidebar tenant pill**: mantieni prod (`rtl-bank · active`) → aggiorna mockup HTML.
+- **W#5 sidebar voci nav**: mantieni prod (9 voci IT ricche + Processi 4 + Ontologia 3 + Sistema) → aggiorna mockup HTML.
+- **W#6 user card**: adotta mockup format (`Valentina Conti · HR_DIRECTOR · level 2`) → modifica prod.
+- **W#7 footer**: ibrido — mantieni env/role operational + aggiungi metric brand (`CYCLE Q1 2026 · REVIEWS 86%`).
+
+**Cambi applicati**:
+
+1. **Mockup HTML sidebar** (`hr-director-overview.html` linee 510-572): sostituzione blocco sidebar per match prod live (`.t-meta` formato + 9 voci Workspace IT + Processi 4 + Ontologia 3 + Sistema + user-card Valentina Conti).
+
+2. **`layout.tsx`** (W#6): aggiunto helper `nameFromEmail(email)` per derivare full name da convention `first.last@domain` → `First Last`. Aggiunto `ROLE_LEVELS` map. `displayName` chain priority: `u.name ?? emailDerivedName ?? u.username ?? u.email`. Pass `roleLevel` come nuovo prop a `BrandShell.user`.
+
+3. **`BrandShell.tsx`** (W#6+W#7):
+   - `BrandShellUser` interface: aggiunto `roleLevel?: number | null`.
+   - `.user-card .role` render: `{role}` + ` · level {roleLevel}` quando presente.
+   - Footer ft-dynamic: aggiunto 2 ctx-item brand metric `CYCLE Q1 2026` + `REVIEWS 86%` (hardcoded; carry-forward S55 fetch live da `review_cycles` aggregator).
+
+**Verifica post-deploy attesa**:
+
+- User card: `valentina.conti@rtl-bank.org` → `Valentina Conti` + `HR_DIRECTOR · level 2`
+- Footer: `... ENV PROD · TENANT 0c54b84a · ROLE HR_DIRECTOR · CYCLE Q1 2026 · REVIEWS 86%`
+- axe AAA + AA: 0 (no nuovi selettori)
+
+**Carry-forward S55+**:
+
+- W#7 footer metric live (CYCLE/REVIEWS) — aggregator pattern phase18u/v estendibile.
+- Data quality cleanup orphan succession_candidates (carry da L73).
+- Bundle perf optimization (carry da inizio sessione S54).
+
+**P6 audit closure W#1→W#7**:
+
+| Widget                 | Direzione utente                | Status          |
+| ---------------------- | ------------------------------- | --------------- |
+| W#1 Header             | A. Mockup-as-SoT                | ✅ L70          |
+| W#2 KPI cards          | C. Ibrido + aggregator runtime  | ✅ L71+L72      |
+| W#3 Body left (RBAC)   | B. Prod-as-shipped              | ✅ L73          |
+| W#3 #88 SuccessionCard | A. SQL aggregator real          | ✅ L73          |
+| W#4 Activity feed      | B. Prod-as-shipped              | ✅ L73          |
+| W#5 Sidebar            | B. Prod-as-shipped              | ✅ L74 (questo) |
+| W#6 User card          | Mockup format full name + level | ✅ L74 (questo) |
+| W#7 Footer             | Hybrid: prod ops + brand metric | ✅ L74 (questo) |
+
+**Commit citation**: pending (mockup HTML + layout.tsx + BrandShell.tsx + DECISIONS-LOG entry).
+
+**Roadmap reflection**: W#5+W#6+W#7 sweep batch stima ~30-60min. Reale ~30min effective (mockup ~10min + layout/BrandShell ~15min + verify ~5min). Pattern shipping batch funziona quando le decisioni sono già prese e i file source sono noti.
