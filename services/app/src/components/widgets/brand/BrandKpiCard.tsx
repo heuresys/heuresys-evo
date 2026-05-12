@@ -7,10 +7,17 @@ export interface BrandKpiCardProps {
   label?: string;
   /** Sublabel below the number (e.g. "cross-tenant · all 4 tenants"). */
   sublabel?: string;
+  /** P6 W#2 (L71): Optional <strong> emphasis appended to sublabel inline.
+   * Renders as `{sublabel} · <strong>{subStrong}</strong>`. */
+  subStrong?: string;
   /** Optional unit suffix (e.g. "%"). */
   unit?: string;
   /** Trend value (positive/negative). Renders as colored delta. */
   trend?: number;
+  /** P6 W#2 (L71): Override default `+X.X%` formatter with custom string
+   * (e.g. "+243", "+12,3pt", "+8"). When set, replaces auto-formatted delta text.
+   * Direction (up/down/flat) still derives from `trend` numeric sign. */
+  trendLabel?: string;
   /** Footer left text (defaults to a derived "vs target" hint). */
   footLeft?: React.ReactNode;
   /** Footer right text (typically the accent value). */
@@ -28,8 +35,10 @@ export function BrandKpiCard({
   value,
   label,
   sublabel,
+  subStrong,
   unit,
   trend,
+  trendLabel,
   footLeft,
   footRight,
   icon,
@@ -49,7 +58,8 @@ export function BrandKpiCard({
   const deltaText =
     trend === undefined || trend === null
       ? null
-      : `${trend > 0 ? '+' : ''}${trend.toLocaleString('it-IT', { maximumFractionDigits: 1 })}%`;
+      : (trendLabel ??
+        `${trend > 0 ? '+' : ''}${trend.toLocaleString('it-IT', { maximumFractionDigits: 1 })}%`);
 
   return (
     <article className="kpi-card">
@@ -62,7 +72,13 @@ export function BrandKpiCard({
         {unit ? <span style={{ fontSize: '20px', fontWeight: 600 }}> {unit}</span> : null}
         {deltaCls && deltaText ? <span className={deltaCls}>{deltaText}</span> : null}
       </div>
-      {sublabel ? <div className="kpi-sub">{sublabel}</div> : null}
+      {sublabel || subStrong ? (
+        <div className="kpi-sub">
+          {sublabel ?? ''}
+          {sublabel && subStrong ? ' · ' : null}
+          {subStrong ? <strong>{subStrong}</strong> : null}
+        </div>
+      ) : null}
       {footLeft || footRight ? (
         <div className="kpi-foot">
           <span>{footLeft ?? ''}</span>

@@ -66,6 +66,11 @@ export const kpiRingAdapter: WidgetAdapter = (raw) => {
   if (label !== null) props.label = label;
   const sublabel = asString(row.sublabel);
   if (sublabel !== null) props.sublabel = sublabel;
+  // P6 W#2 (L71): subStrong + trendLabel — pass-through ai brand props
+  const subStrong = asString(row.subStrong ?? row.sub_strong);
+  if (subStrong !== null) props.subStrong = subStrong;
+  const trendLabel = asString(row.trendLabel ?? row.trend_label);
+  if (trendLabel !== null) props.trendLabel = trendLabel;
   const unit = asString(row.unit);
   if (unit !== null) props.unit = unit;
   const trend = typeof row.trend === 'number' ? row.trend : null;
