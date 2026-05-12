@@ -1,7 +1,16 @@
 /**
  * /dashboard view — Employee Journey (preset_code = 'employee_journey' · LINE_MANAGER + EMPLOYEE).
  * Brand-fedele al mockup .ux-design/06-mockups/dashboards/employee-journey.html.
+ *
+ * S41 W4-final: profile-hero + career-arc + review-history + bridge-grid bound to
+ * Prisma (employees + employee_timeline + performance_reviews + succession_candidates).
+ * Skill-trend polyline + capability-radar SVG remain layout-driven fixtures
+ * (require historical aggregation + target enrichment — carry-forward S42+).
  */
+import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/db';
+import { fetchEmployeeJourneyData } from '@/lib/dashboard-views/employee-journey-data';
+
 export default async function EmployeeJourneyView({
   role,
   username,
@@ -11,20 +20,95 @@ export default async function EmployeeJourneyView({
   username: string;
   tenantName: string;
 }) {
-  const initials = username
-    .split(/[.\s_-]/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((s) => s[0]?.toUpperCase() ?? '')
-    .join('');
+  const session = await auth();
+  const tenantId = (session?.user as { tenantId?: string } | undefined)?.tenantId ?? null;
+  const userId = (session?.user as { id?: string } | undefined)?.id ?? null;
 
-  const stages = [
-    { id: '1', label: 'Data Analyst Intern', year: 'Q3 2023', status: 'past' as const },
-    { id: '2', label: 'Quant Analyst Junior', year: 'Q1 2024', status: 'past' as const },
-    { id: '3', label: 'Quant Analyst Senior', year: 'Q1 2026', status: 'current' as const },
-    { id: '4', label: 'Risk Modelling Lead', year: 'Q3 2026 →', status: 'future' as const },
-    { id: '5', label: 'Head Risk Quant', year: '2029+', status: 'future' as const },
-  ];
+  // Resolve employee_id via users.employee_id link
+  let employeeId: string | null = null;
+  if (userId) {
+    const u = await prisma.users.findUnique({
+      where: { id: userId },
+      select: { employee_id: true },
+    });
+    employeeId = u?.employee_id ?? null;
+  }
+
+  const live = await fetchEmployeeJourneyData(tenantId, employeeId);
+
+  const initials =
+    live.profile?.initials ??
+    username
+      .split(/[.\s_-]/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((s) => s[0]?.toUpperCase() ?? '')
+      .join('');
+
+  const displayName = live.profile?.fullName ?? username;
+  const subLine = live.profile
+    ? `e/${live.profile.id.slice(0, 4)} · ${live.profile.jobTitle ?? '—'}${live.profile.department ? ` · ${live.profile.department}` : ''}`
+    : 'e/2011 · Quant Analyst Junior · Risk Modelling';
+  const tenureLabel = live.profile
+    ? `${live.profile.tenureYears}y ${live.profile.tenureMonths}m tenure`
+    : '2y 4m tenure';
+  const levelLabel = live.profile?.level
+    ? `Level ${live.profile.level} · ${role}`
+    : `Level 6 · ${role}`;
+
+  const stages =
+    live.stages.length > 0
+      ? live.stages
+      : [
+          { id: '1', label: 'Data Analyst Intern', year: 'Q3 2023', status: 'past' as const },
+          { id: '2', label: 'Quant Analyst Junior', year: 'Q1 2024', status: 'past' as const },
+          { id: '3', label: 'Quant Analyst Senior', year: 'Q1 2026', status: 'current' as const },
+          { id: '4', label: 'Risk Modelling Lead', year: 'Q3 2026 →', status: 'future' as const },
+          { id: '5', label: 'Head Risk Quant', year: '2029+', status: 'future' as const },
+        ];
+
+  const reviews =
+    live.reviews.length > 0
+      ? live.reviews
+      : ([
+          { cycle: 'Q1 2026', goal: 4.2, comp: 4.1, overall: 4.2, outcome: 'meets' },
+          { cycle: 'Q4 2025', goal: 4.0, comp: 3.9, overall: 4.0, outcome: 'meets' },
+          { cycle: 'Q3 2025', goal: 3.8, comp: 4.0, overall: 3.9, outcome: 'meets' },
+          { cycle: 'Q2 2025', goal: 3.6, comp: 3.7, overall: 3.7, outcome: 'grow' },
+        ] as const);
+
+  const bridges =
+    live.bridges.length > 0
+      ? live.bridges.map((b) => ({
+          role: b.role,
+          readiness: b.readiness,
+          gaps: b.gaps.length > 0 ? b.gaps : ['Skill gap +18pt', 'Lead 0-1 +8pt', 'Risk an. +12pt'],
+        }))
+      : [
+          {
+            role: 'Quant Analyst Senior',
+            readiness: 68,
+            gaps: ['Stress testing +18pt', 'Risk an. SQL +12pt', 'Lead 0-1 +8pt'],
+          },
+          {
+            role: 'Data Scientist · Risk',
+            readiness: 54,
+            gaps: ['ML applicato +24pt', 'Python +12pt', 'Risk an. +18pt'],
+          },
+          {
+            role: 'Risk Reporting Lead',
+            readiness: 42,
+            gaps: ['Reporting tools +28pt', 'Lead +20pt', 'Comms +14pt'],
+          },
+        ];
+
+  const skillMapped = live.skillStats.mapped > 0 ? live.skillStats.mapped : 14;
+  const skillTotal = live.skillStats.total > 0 ? live.skillStats.total : 18;
+  const reviewAvg =
+    live.reviews.length > 0
+      ? +(live.reviews.reduce((a, r) => a + r.overall, 0) / live.reviews.length).toFixed(1)
+      : 4.2;
+  const readinessNext = live.skillStats.readinessNext > 0 ? live.skillStats.readinessNext : 68;
 
   return (
     <>
@@ -52,30 +136,35 @@ export default async function EmployeeJourneyView({
       <div className="profile-hero">
         <div className="profile-avatar">{initials || '??'}</div>
         <div className="profile-meta">
-          <h2 className="profile-name">{username}</h2>
-          <div className="profile-sub">e/2011 · Quant Analyst Junior · Risk Modelling</div>
+          <h2 className="profile-name">{displayName}</h2>
+          <div className="profile-sub">{subLine}</div>
           <div className="profile-badges">
-            <span className="pbadge pbadge-role">Level 6 · {role}</span>
-            <span className="pbadge pbadge-dept">Risk Modelling Dept</span>
-            <span className="pbadge pbadge-tenure">2y 4m tenure</span>
+            <span className="pbadge pbadge-role">{levelLabel}</span>
+            <span className="pbadge pbadge-dept">
+              {live.profile?.department ?? 'Risk Modelling Dept'}
+            </span>
+            <span className="pbadge pbadge-tenure">{tenureLabel}</span>
           </div>
         </div>
         <div className="profile-stats">
           <div className="profile-stat">
             <div className="stat-num">
-              14<span className="unit">/18</span>
+              {skillMapped}
+              <span className="unit">/{skillTotal}</span>
             </div>
             <div className="stat-lbl">SKILL MAPPED</div>
           </div>
           <div className="profile-stat">
             <div className="stat-num">
-              4,2<span className="unit">/5</span>
+              {reviewAvg.toFixed(1).replace('.', ',')}
+              <span className="unit">/5</span>
             </div>
             <div className="stat-lbl">REVIEW SCORE</div>
           </div>
           <div className="profile-stat">
             <div className="stat-num">
-              68<span className="unit">%</span>
+              {readinessNext}
+              <span className="unit">%</span>
             </div>
             <div className="stat-lbl">READINESS NEXT</div>
           </div>
@@ -87,7 +176,7 @@ export default async function EmployeeJourneyView({
           <h2>
             Career <em>arc</em>
           </h2>
-          <span className="meta">5-stage timeline</span>
+          <span className="meta">{stages.length}-stage timeline</span>
         </div>
         <div className="career-arc" role="list" aria-label="Career arc">
           {stages.map((s, i) => (
@@ -250,40 +339,37 @@ export default async function EmployeeJourneyView({
           <h2>
             Review <em>history</em>
           </h2>
-          <span className="meta">last 4 cycles</span>
+          <span className="meta">last {reviews.length} cycles</span>
         </div>
         <table className="dense">
           <thead>
             <tr>
               <th>Cycle</th>
-              <th>Self score</th>
-              <th>Manager score</th>
-              <th>Calibration</th>
+              <th>Goal score</th>
+              <th>Competency</th>
+              <th>Overall</th>
               <th className="right">Outcome</th>
             </tr>
           </thead>
           <tbody>
-            {[
-              { cyc: 'Q1 2026', self: 4.2, mgr: 4.1, cal: 4.2, out: 'meets' as const },
-              { cyc: 'Q4 2025', self: 4.0, mgr: 3.9, cal: 4.0, out: 'meets' as const },
-              { cyc: 'Q3 2025', self: 3.8, mgr: 4.0, cal: 3.9, out: 'meets' as const },
-              { cyc: 'Q2 2025', self: 3.6, mgr: 3.7, cal: 3.7, out: 'grow' as const },
-            ].map((r) => (
-              <tr key={r.cyc}>
-                <td style={{ fontWeight: 600 }}>{r.cyc}</td>
-                <td className="mono">{r.self.toFixed(1).replace('.', ',')}</td>
-                <td className="mono">{r.mgr.toFixed(1).replace('.', ',')}</td>
+            {reviews.map((r) => (
+              <tr key={r.cycle}>
+                <td style={{ fontWeight: 600 }}>{r.cycle}</td>
+                <td className="mono">{r.goal.toFixed(1).replace('.', ',')}</td>
+                <td className="mono">{r.comp.toFixed(1).replace('.', ',')}</td>
                 <td>
                   <div className="bar-track">
                     <div
-                      className={`bar-fill ${r.cal >= 4.0 ? 'fill-ok' : 'fill-warn'}`}
-                      style={{ width: `${(r.cal / 5) * 100}%` }}
+                      className={`bar-fill ${r.overall >= 4.0 ? 'fill-ok' : 'fill-warn'}`}
+                      style={{ width: `${(r.overall / 5) * 100}%` }}
                     />
                   </div>
                 </td>
                 <td className="right">
-                  <span className={`pill pill-${r.out === 'meets' ? 'ok' : 'warn'}`}>
-                    {r.out.toUpperCase()}
+                  <span
+                    className={`pill pill-${r.outcome === 'meets' || r.outcome === 'exceeds' ? 'ok' : 'warn'}`}
+                  >
+                    {r.outcome.toUpperCase()}
                   </span>
                 </td>
               </tr>
@@ -296,26 +382,10 @@ export default async function EmployeeJourneyView({
         <h2>
           Bridge to next <em>roles</em>
         </h2>
-        <span className="meta">3 candidate trajectories · readiness ring</span>
+        <span className="meta">{bridges.length} candidate trajectories · readiness ring</span>
       </div>
       <div className="bridge-grid">
-        {[
-          {
-            role: 'Quant Analyst Senior',
-            readiness: 68,
-            gaps: ['Stress testing +18pt', 'Risk an. SQL +12pt', 'Lead 0-1 +8pt'],
-          },
-          {
-            role: 'Data Scientist · Risk',
-            readiness: 54,
-            gaps: ['ML applicato +24pt', 'Python +12pt', 'Risk an. +18pt'],
-          },
-          {
-            role: 'Risk Reporting Lead',
-            readiness: 42,
-            gaps: ['Reporting tools +28pt', 'Lead +20pt', 'Comms +14pt'],
-          },
-        ].map((b) => (
+        {bridges.map((b) => (
           <article key={b.role} className="bridge-card">
             <div className="role">{b.role}</div>
             <div className="readiness">

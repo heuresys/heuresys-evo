@@ -1,12 +1,19 @@
 import { fetchOrgSystemsData } from '@/lib/dashboard-views/org-systems-data';
+import { fetchIntegrationsHealth } from '@/lib/dashboard-views/integrations-data';
 
 /**
  * /dashboard view — Org & Systems (preset_code = 'org_systems' · IT_ADMIN).
  * Brand-fedele al mockup .ux-design/06-mockups/dashboards/org-systems.html.
  * Data live: tenants · audit_logs · rbac counts · employees count.
+ *
+ * S41 W4-final: integration health section bound to integrations table
+ * (replaces 7-item hardcoded list).
  */
 export default async function OrgSystemsView({ role }: { role: string }) {
-  const data = await fetchOrgSystemsData();
+  const [data, integrationsLive] = await Promise.all([
+    fetchOrgSystemsData(),
+    fetchIntegrationsHealth(7),
+  ]);
 
   const platformTenant = data.tenants.find((t) => t.isPlatform);
   const customerTenants = data.tenants.filter((t) => !t.isPlatform);
@@ -194,52 +201,22 @@ export default async function OrgSystemsView({ role }: { role: string }) {
         <div className="panel">
           <div className="panel-head">
             <h2>Integration health</h2>
-            <span className="meta">7 active · 1 warn</span>
+            <span className="meta">
+              {integrationsLive.length} active ·{' '}
+              {integrationsLive.filter((i) => i.status !== 'ok').length} warn
+            </span>
           </div>
-          {[
-            {
-              name: 'ESCO ontology feed',
-              meta: 'v1.2.0 · sync 2h ago · 312 skill',
-              status: 'ok' as const,
-              color: 'var(--accent)',
-            },
-            {
-              name: 'Azure AD · SSO',
-              meta: 'SAML 2.0 · 1.524 users provisioned',
-              status: 'ok' as const,
-              color: 'var(--brand-blue)',
-            },
-            {
-              name: 'Workday · payroll sync',
-              meta: 'REST · 3× daily · last 06:42',
-              status: 'ok' as const,
-              color: 'var(--brand-blue)',
-            },
-            {
-              name: 'SmartFood · ATECO sync',
-              meta: '14h lag · last attempt 02:14',
-              status: 'warn' as const,
-              color: 'var(--semantic-warning)',
-            },
-            {
-              name: 'SAP HCM · org sync',
-              meta: 'Hourly · last 14:32',
-              status: 'ok' as const,
-              color: 'var(--semantic-success)',
-            },
-            {
-              name: 'Slack · notifications',
-              meta: 'webhook · 142 events today',
-              status: 'ok' as const,
-              color: 'var(--accent)',
-            },
-            {
-              name: 'SCIM 2.0 · provisioning',
-              meta: 'enabled per tenant · last reconcile 22:00',
-              status: 'ok' as const,
-              color: 'var(--ink-soft)',
-            },
-          ].map((it) => (
+          {(integrationsLive.length > 0
+            ? integrationsLive
+            : [
+                {
+                  name: 'No integrations configured',
+                  meta: 'integrations table empty for this tenant',
+                  status: 'warn' as const,
+                  color: 'var(--semantic-warning)',
+                },
+              ]
+          ).map((it) => (
             <div key={it.name} className="int-row">
               <div className="icon">
                 <svg viewBox="0 0 16 16" fill="none" stroke={it.color} strokeWidth="1.5">

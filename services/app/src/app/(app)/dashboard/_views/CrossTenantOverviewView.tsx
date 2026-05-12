@@ -1,12 +1,24 @@
-import { fetchOrgSystemsData } from '@/lib/dashboard-views/org-systems-data';
-
 /**
  * /dashboard view — Cross-tenant overview (preset_code = 'cross_tenant_overview' · SUPERUSER).
  * Brand-fedele al mockup .ux-design/06-mockups/dashboards/cross-tenant-overview.html.
+ *
+ * S41 W4-final: per-tenant aggregations (headcount, skill coverage, performance,
+ * succession) bound to fetchCrossTenantData. Integration health bound to
+ * fetchIntegrationsHealth. Workforce 12-month trend SVG remains layout fixture
+ * (requires monthly_employee_snapshot aggregation — carry-forward S42+).
  */
+import { fetchCrossTenantData } from '@/lib/dashboard-views/cross-tenant-data';
+import { fetchIntegrationsHealth } from '@/lib/dashboard-views/integrations-data';
+
 export default async function CrossTenantOverviewView({ role }: { role: string }) {
-  const data = await fetchOrgSystemsData();
-  const employeesFmt = new Intl.NumberFormat('it-IT').format(data.totalEmployees);
+  const [data, integrationsLive] = await Promise.all([
+    fetchCrossTenantData(),
+    fetchIntegrationsHealth(7),
+  ]);
+  const nf = new Intl.NumberFormat('it-IT');
+  const employeesFmt = nf.format(data.totals.employees);
+  const tenants = data.tenants;
+  const totals = data.totals;
 
   return (
     <>
@@ -20,7 +32,7 @@ export default async function CrossTenantOverviewView({ role }: { role: string }
         <div className="actions">
           <div className="scope-pill">
             <span className="dot" />
-            <span>scope · platform · {data.tenants.length} tenants</span>
+            <span>scope · platform · {totals.tenants} tenants</span>
           </div>
           <a className="btn btn-ghost" href="#csv">
             CSV export
@@ -35,40 +47,40 @@ export default async function CrossTenantOverviewView({ role }: { role: string }
         <div className="kpi-card">
           <div className="kpi-label">EMPLOYEES TOT</div>
           <div className="kpi-num">{employeesFmt}</div>
-          <div className="kpi-sub">cross-tenant · all {data.tenants.length} tenants</div>
+          <div className="kpi-sub">cross-tenant · all {totals.tenants} tenants</div>
         </div>
         <div className="kpi-card">
           <div className="kpi-label">SKILL COVERAGE AVG</div>
-          <div className="kpi-num">73,2%</div>
+          <div className="kpi-num">{totals.skillCoverageAvg}%</div>
           <div className="kpi-sub">
-            +6,1pt vs Q4 · <strong>ESCO 1.2.0</strong>
+            customer tenants · <strong>ESCO 1.2.0</strong>
           </div>
         </div>
         <div className="kpi-card">
           <div className="kpi-label">PERFORMANCE AVG</div>
-          <div className="kpi-num">3,84</div>
+          <div className="kpi-num">{totals.performanceAvg.toFixed(2).replace('.', ',')}</div>
           <div className="kpi-sub">
-            scale 1-5 · <strong>+0,12 vs Q4</strong>
+            scale 1-5 · <strong>customer avg</strong>
           </div>
         </div>
         <div className="kpi-card">
           <div className="kpi-label">SUCCESSION READY</div>
-          <div className="kpi-num">147</div>
+          <div className="kpi-num">{totals.successionReady}</div>
           <div className="kpi-sub">
-            ready-now / 1-2y · <strong>52 critical roles</strong>
+            ready-now / 1y · <strong>cross-tenant</strong>
           </div>
         </div>
       </div>
 
       <div className="section-head">
         <h2>
-          Tenant <em>fleet</em> · {data.tenants.length} active
+          Tenant <em>fleet</em> · {tenants.length} active
         </h2>
         <span className="meta">workforce headcount + capability metrics</span>
       </div>
       <div className="tenant-grid">
-        {data.tenants.map((t) => (
-          <article key={t.id} className={`tenant-card${t.isPlatform ? ' platform' : ''}`}>
+        {tenants.map((t) => (
+          <article key={t.tenantId} className={`tenant-card${t.isPlatform ? ' platform' : ''}`}>
             <span className={`tag ${t.isPlatform ? 'tag-platform' : 'tag-tenant'}`}>
               {t.isPlatform ? 'Platform' : 'Customer'}
             </span>
@@ -89,18 +101,18 @@ export default async function CrossTenantOverviewView({ role }: { role: string }
             </div>
             <div className="row">
               <span className="lbl">Headcount</span>
-              <span className="val">{new Intl.NumberFormat('it-IT').format(t.employees)}</span>
+              <span className="val">{nf.format(t.employees)}</span>
             </div>
             <div className="row">
               <span className="lbl">Skill cov</span>
-              <span className="val">
-                {t.isPlatform ? '—' : `${65 + ((t.employees * 7) % 25)},${t.employees % 9}%`}
-              </span>
+              <span className="val">{t.isPlatform ? '—' : `${t.skillCoveragePct}%`}</span>
             </div>
             <div className="row">
               <span className="lbl">Performance</span>
               <span className="val">
-                {t.isPlatform ? '—' : `${(38 + (t.employees % 10)) / 10}`}
+                {t.isPlatform || t.performanceAvg === 0
+                  ? '—'
+                  : t.performanceAvg.toFixed(2).replace('.', ',')}
               </span>
             </div>
             <div className="health">
@@ -174,58 +186,24 @@ export default async function CrossTenantOverviewView({ role }: { role: string }
               letterSpacing: '1px',
             }}
           >
-            <span>
-              <span
-                style={{
-                  display: 'inline-block',
-                  width: 10,
-                  height: 10,
-                  background: '#a855f7',
-                  marginRight: 6,
-                  verticalAlign: 'middle',
-                }}
-              />
-              RTL BANK
-            </span>
-            <span>
-              <span
-                style={{
-                  display: 'inline-block',
-                  width: 10,
-                  height: 10,
-                  background: '#3b82f6',
-                  marginRight: 6,
-                  verticalAlign: 'middle',
-                }}
-              />
-              SMARTFOOD
-            </span>
-            <span>
-              <span
-                style={{
-                  display: 'inline-block',
-                  width: 10,
-                  height: 10,
-                  background: '#5fb87a',
-                  marginRight: 6,
-                  verticalAlign: 'middle',
-                }}
-              />
-              ECONOVA
-            </span>
-            <span>
-              <span
-                style={{
-                  display: 'inline-block',
-                  width: 10,
-                  height: 10,
-                  background: '#f59e0b',
-                  marginRight: 6,
-                  verticalAlign: 'middle',
-                }}
-              />
-              HEURESYS
-            </span>
+            {tenants.slice(0, 4).map((t, i) => {
+              const colors = ['#a855f7', '#3b82f6', '#5fb87a', '#f59e0b'];
+              return (
+                <span key={t.tenantId}>
+                  <span
+                    style={{
+                      display: 'inline-block',
+                      width: 10,
+                      height: 10,
+                      background: colors[i],
+                      marginRight: 6,
+                      verticalAlign: 'middle',
+                    }}
+                  />
+                  {t.code.toUpperCase()}
+                </span>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -240,10 +218,38 @@ export default async function CrossTenantOverviewView({ role }: { role: string }
           </div>
           <div className="gauge-grid">
             {[
-              { lbl: 'SKILL MAPPED', val: 73, unit: '%', tone: 'accent' },
-              { lbl: 'REVIEW DONE Q1', val: 77, unit: '%', tone: 'success' },
-              { lbl: 'GOALS ACTIVE', val: 84, unit: '%', tone: 'success' },
-              { lbl: 'LEARNING ENROLL', val: 62, unit: '%', tone: 'warn' },
+              {
+                lbl: 'SKILL MAPPED',
+                val: totals.skillCoverageAvg,
+                unit: '%',
+                tone: 'accent' as const,
+              },
+              {
+                lbl: 'PERF AVG (× 20)',
+                val: Math.round(totals.performanceAvg * 20),
+                unit: '%',
+                tone: 'success' as const,
+              },
+              {
+                lbl: 'SUCCESSION RATIO',
+                val:
+                  totals.employees > 0
+                    ? Math.round((totals.successionReady / totals.employees) * 100)
+                    : 0,
+                unit: '%',
+                tone: 'success' as const,
+              },
+              {
+                lbl: 'TENANT ACTIVE',
+                val:
+                  totals.tenants > 0
+                    ? Math.round(
+                        (tenants.filter((t) => t.status === 'active').length / totals.tenants) * 100
+                      )
+                    : 0,
+                unit: '%',
+                tone: 'warn' as const,
+              },
             ].map((g) => (
               <div key={g.lbl} className="gauge-card">
                 <div className="lbl">{g.lbl}</div>
@@ -254,7 +260,7 @@ export default async function CrossTenantOverviewView({ role }: { role: string }
                 <div className="gauge-bar">
                   <div
                     className={`bar-fill fill-${g.tone === 'accent' ? 'info' : g.tone === 'success' ? 'ok' : 'warn'}`}
-                    style={{ width: `${g.val}%` }}
+                    style={{ width: `${Math.min(100, g.val)}%` }}
                   />
                 </div>
               </div>
@@ -265,24 +271,25 @@ export default async function CrossTenantOverviewView({ role }: { role: string }
         <div className="panel">
           <div className="panel-head">
             <h2>Integration health</h2>
-            <span className="meta">7 active · 1 warn</span>
+            <span className="meta">
+              {integrationsLive.length} active ·{' '}
+              {integrationsLive.filter((i) => i.status !== 'ok').length} warn
+            </span>
           </div>
-          {[
-            { name: 'ESCO ontology feed', meta: 'v1.2.0 · sync 2h ago', status: 'ok' as const },
-            { name: 'Azure AD · SSO', meta: 'SAML · 1.524 users', status: 'ok' as const },
-            { name: 'Workday · payroll', meta: 'REST · last 06:42', status: 'ok' as const },
-            { name: 'SmartFood · ATECO', meta: '14h lag', status: 'warn' as const },
-            { name: 'SAP HCM · org sync', meta: 'Hourly · 14:32', status: 'ok' as const },
-            { name: 'Slack · notifications', meta: 'webhook · 142 today', status: 'ok' as const },
-            {
-              name: 'SCIM 2.0 · provisioning',
-              meta: 'last reconcile 22:00',
-              status: 'ok' as const,
-            },
-          ].map((it) => (
+          {(integrationsLive.length > 0
+            ? integrationsLive
+            : [
+                {
+                  name: 'No integrations',
+                  meta: 'integrations table empty',
+                  status: 'warn' as const,
+                  color: 'var(--semantic-warning)',
+                },
+              ]
+          ).map((it) => (
             <div key={it.name} className="int-row">
               <div className="icon">
-                <svg viewBox="0 0 16 16" fill="none" stroke="var(--accent)" strokeWidth="1.5">
+                <svg viewBox="0 0 16 16" fill="none" stroke={it.color} strokeWidth="1.5">
                   <circle cx="8" cy="8" r="6" />
                 </svg>
               </div>
@@ -297,9 +304,12 @@ export default async function CrossTenantOverviewView({ role }: { role: string }
       </div>
 
       <footer className="ws-footer">
-        <span>SOURCE · platform aggregations · 12-month workforce trend · ESCO 1.2.0</span>
         <span>
-          cross_tenant_overview · {role} · phase 9 mockup ·{' '}
+          SOURCE · tenants · employees · employee_skill_assessments · succession_candidates ·
+          integrations
+        </span>
+        <span>
+          cross_tenant_overview · {role} ·{' '}
           <span className="wordmark-foot">
             heures<span className="y">y</span>s
           </span>

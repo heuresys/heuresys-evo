@@ -1,7 +1,13 @@
 /**
  * /dashboard view — Capability Graph (preset_code = 'capability_graph' · DEPT_HEAD).
  * Brand-fedele al mockup .ux-design/06-mockups/dashboards/capability-graph.html.
+ *
+ * S41 W4-final: KPI ring + ontology breakdown + top entities table bound to
+ * kg_nodes/kg_edges/esco_skills/esco_skill_relations. ESCO sync stats remain
+ * fixture (require integration_sync_logs aggregation — carry-forward S42+).
  */
+import { fetchCapabilityGraphData } from '@/lib/dashboard-views/capability-graph-data';
+
 export default async function CapabilityGraphView({
   role,
   tenantName,
@@ -9,16 +15,21 @@ export default async function CapabilityGraphView({
   role: string;
   tenantName: string;
 }) {
-  // Force-directed pseudo-layout: 5 capability clusters + ~24 nodes
-  const clusters = [
-    { id: 'process', label: 'Process', color: 'var(--cap-process)' },
-    { id: 'structure', label: 'Structure', color: 'var(--cap-structure)' },
-    { id: 'role', label: 'Role', color: 'var(--cap-role)' },
-    { id: 'competency', label: 'Competency', color: 'var(--cap-competence)' },
-    { id: 'performance', label: 'Performance', color: 'var(--cap-performance)' },
-  ];
+  const live = await fetchCapabilityGraphData();
 
-  // 24 nodes: positioned on circles per cluster
+  // Force-directed pseudo-layout: same 5 cluster geometry, real counts from DB
+  const clusters =
+    live.clusters.length === 5
+      ? live.clusters
+      : [
+          { id: 'process', label: 'Process', color: 'var(--cap-process)', count: 0 },
+          { id: 'structure', label: 'Structure', color: 'var(--cap-structure)', count: 0 },
+          { id: 'role', label: 'Role', color: 'var(--cap-role)', count: 0 },
+          { id: 'competency', label: 'Competency', color: 'var(--cap-competence)', count: 0 },
+          { id: 'performance', label: 'Performance', color: 'var(--cap-performance)', count: 0 },
+        ];
+
+  // 24 nodes positioned on circles per cluster (visual layout, deterministic)
   const nodes = clusters.flatMap((c, ci) => {
     const cx = 250 + Math.cos((ci / 5) * Math.PI * 2 - Math.PI / 2) * 150;
     const cy = 200 + Math.sin((ci / 5) * Math.PI * 2 - Math.PI / 2) * 120;
@@ -26,7 +37,6 @@ export default async function CapabilityGraphView({
       const angle = (i / 5) * Math.PI * 2;
       return {
         id: `${c.id}-${i}`,
-        label: `${c.label.slice(0, 3)} ${i + 1}`,
         cluster: c.id,
         color: c.color,
         x: cx + Math.cos(angle) * 35,
@@ -39,6 +49,59 @@ export default async function CapabilityGraphView({
     if (i === nodes.length - 1) return [];
     return [{ id: `e-${i}`, source: n, target: nodes[(i + 1) % nodes.length]! }];
   });
+
+  const totalClusterNodes = clusters.reduce((a, c) => a + c.count, 0);
+  const nf = new Intl.NumberFormat('it-IT');
+  const nodesFmt = nf.format(live.totals.nodes);
+  const edgesFmt = nf.format(live.totals.edges);
+  const densityFmt = live.totals.density.toFixed(1).replace('.', ',');
+  const escoFmt = nf.format(live.esco.skillCount);
+
+  const topEntities =
+    live.topEntities.length > 0
+      ? live.topEntities
+      : [
+          {
+            id: 'esco:S1.2.4.1',
+            entity: 'Project management',
+            type: 'role' as const,
+            inDegree: 187,
+            outDegree: 142,
+            centrality: 92,
+          },
+          {
+            id: 'esco:S2.6.1',
+            entity: 'SQL · Python',
+            type: 'competency' as const,
+            inDegree: 156,
+            outDegree: 98,
+            centrality: 84,
+          },
+          {
+            id: 'esco:S1.4.1.2',
+            entity: 'Risk management',
+            type: 'process' as const,
+            inDegree: 142,
+            outDegree: 118,
+            centrality: 78,
+          },
+          {
+            id: 'esco:S2.1.3',
+            entity: 'Communication B2',
+            type: 'competency' as const,
+            inDegree: 132,
+            outDegree: 87,
+            centrality: 72,
+          },
+          {
+            id: 'esco:S1.3.2',
+            entity: 'Financial analysis',
+            type: 'role' as const,
+            inDegree: 118,
+            outDegree: 92,
+            centrality: 68,
+          },
+        ];
 
   return (
     <>
@@ -66,29 +129,23 @@ export default async function CapabilityGraphView({
       <div className="kpi-ring">
         <div className="kpi-card">
           <div className="kpi-label">NODES TOTAL</div>
-          <div className="kpi-num">
-            14.011<span className="delta up">+312</span>
-          </div>
+          <div className="kpi-num">{nodesFmt}</div>
           <div className="kpi-sub">
             ESCO + custom · <strong>v1.2.0</strong>
           </div>
         </div>
         <div className="kpi-card">
           <div className="kpi-label">EDGES TOTAL</div>
-          <div className="kpi-num">
-            42.087<span className="delta up">+1.847</span>
-          </div>
+          <div className="kpi-num">{edgesFmt}</div>
           <div className="kpi-sub">
-            relations + skills · <strong>density 3.0×</strong>
+            relations + skills · <strong>density {densityFmt}×</strong>
           </div>
         </div>
         <div className="kpi-card">
-          <div className="kpi-label">COVERAGE TENANT</div>
-          <div className="kpi-num">
-            82,4%<span className="delta up">+6,1%</span>
-          </div>
+          <div className="kpi-label">ESCO SKILLS</div>
+          <div className="kpi-num">{escoFmt}</div>
           <div className="kpi-sub">
-            mapped employees · <strong>ESCO ↔ ATECO</strong>
+            mapped occupations · <strong>{nf.format(live.esco.relationCount)} rel</strong>
           </div>
         </div>
         <div className="kpi-card">
@@ -109,7 +166,7 @@ export default async function CapabilityGraphView({
               Knowledge Graph <em>topology</em>
             </h2>
             <span className="meta">
-              5 clusters · {nodes.length} nodes · {edges.length} edges
+              {clusters.length} clusters · {nodes.length} nodes · {edges.length} edges
             </span>
           </div>
           <div style={{ padding: 18 }}>
@@ -156,34 +213,24 @@ export default async function CapabilityGraphView({
             <h2>
               Ontology <em>breakdown</em>
             </h2>
-            <span className="meta">5 capability families</span>
+            <span className="meta">{clusters.length} capability families</span>
           </div>
-          {[
-            { name: 'Process · Operational', count: 3.821, pct: 27.3, color: 'var(--cap-process)' },
-            {
-              name: 'Structure · Organizational',
-              count: 2.105,
-              pct: 15.0,
-              color: 'var(--cap-structure)',
-            },
-            { name: 'Role · Functional', count: 4.632, pct: 33.1, color: 'var(--cap-role)' },
-            { name: 'Competency · Skill', count: 2.879, pct: 20.5, color: 'var(--cap-competence)' },
-            {
-              name: 'Performance · Outcome',
-              count: 574,
-              pct: 4.1,
-              color: 'var(--cap-performance)',
-            },
-          ].map((o) => (
-            <div key={o.name} className="ont-row">
-              <div className="glyph-box" style={{ background: o.color, opacity: 0.85 }} />
-              <div className="info">
-                <div className="name">{o.name}</div>
-                <div className="meta">{new Intl.NumberFormat('it-IT').format(o.count)} nodes</div>
+          {clusters.map((c) => {
+            const pct =
+              totalClusterNodes > 0 ? +((c.count / totalClusterNodes) * 100).toFixed(1) : 0;
+            return (
+              <div key={c.id} className="ont-row">
+                <div className="glyph-box" style={{ background: c.color, opacity: 0.85 }} />
+                <div className="info">
+                  <div className="name">
+                    {c.label} · <em>{c.id}</em>
+                  </div>
+                  <div className="meta">{nf.format(c.count)} nodes</div>
+                </div>
+                <span className="ont-pct">{pct.toString().replace('.', ',')}%</span>
               </div>
-              <span className="ont-pct">{o.pct.toString().replace('.', ',')}%</span>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
@@ -191,13 +238,13 @@ export default async function CapabilityGraphView({
         <h2>
           Top entities · <em>by edge density</em>
         </h2>
-        <span className="meta">7 highest centrality nodes</span>
+        <span className="meta">{topEntities.length} highest centrality nodes</span>
       </div>
       <div className="panel" style={{ marginBottom: 24 }}>
         <table className="dense">
           <thead>
             <tr>
-              <th>ESCO ID</th>
+              <th>Node ID</th>
               <th>Entity</th>
               <th>Type</th>
               <th className="right">In</th>
@@ -206,64 +253,7 @@ export default async function CapabilityGraphView({
             </tr>
           </thead>
           <tbody>
-            {[
-              {
-                id: 'esco:S1.2.4.1',
-                entity: 'Project management',
-                type: 'role',
-                i: 187,
-                o: 142,
-                c: 92,
-              },
-              {
-                id: 'esco:S2.6.1',
-                entity: 'SQL · Python',
-                type: 'competency',
-                i: 156,
-                o: 98,
-                c: 84,
-              },
-              {
-                id: 'esco:S1.4.1.2',
-                entity: 'Risk management',
-                type: 'process',
-                i: 142,
-                o: 118,
-                c: 78,
-              },
-              {
-                id: 'esco:S2.1.3',
-                entity: 'Communication B2',
-                type: 'competency',
-                i: 132,
-                o: 87,
-                c: 72,
-              },
-              {
-                id: 'esco:S1.3.2',
-                entity: 'Financial analysis',
-                type: 'role',
-                i: 118,
-                o: 92,
-                c: 68,
-              },
-              {
-                id: 'esco:S1.5.1',
-                entity: 'Customer relationship',
-                type: 'process',
-                i: 105,
-                o: 78,
-                c: 62,
-              },
-              {
-                id: 'esco:S2.4.1',
-                entity: 'Data analysis',
-                type: 'competency',
-                i: 98,
-                o: 73,
-                c: 58,
-              },
-            ].map((r) => (
+            {topEntities.map((r) => (
               <tr key={r.id}>
                 <td className="mono muted">{r.id}</td>
                 <td style={{ fontWeight: 600 }}>{r.entity}</td>
@@ -274,11 +264,11 @@ export default async function CapabilityGraphView({
                     {r.type.toUpperCase()}
                   </span>
                 </td>
-                <td className="right mono">{r.i}</td>
-                <td className="right mono">{r.o}</td>
+                <td className="right mono">{r.inDegree}</td>
+                <td className="right mono">{r.outDegree}</td>
                 <td>
                   <div className="bar-track">
-                    <div className="bar-fill fill-info" style={{ width: `${r.c}%` }} />
+                    <div className="bar-fill fill-info" style={{ width: `${r.centrality}%` }} />
                   </div>
                 </td>
               </tr>
@@ -345,7 +335,7 @@ export default async function CapabilityGraphView({
       </div>
 
       <footer className="ws-footer">
-        <span>SOURCE · esco_skills · esco_skill_relations · capability_clusters · ESCO 1.2.0</span>
+        <span>SOURCE · kg_nodes · kg_edges · esco_skills · esco_skill_relations · ESCO 1.2.0</span>
         <span>capability_graph · {role}</span>
       </footer>
     </>
