@@ -300,8 +300,8 @@
   color: var(--ink-soft);
 }
 .sidebar-section h4 .chev {
-  font-size: 9px;
-  opacity: 0.5;
+  font-size: 11px;
+  color: var(--ink-soft);
   transition: transform 0.2s;
   display: inline-block;
 }

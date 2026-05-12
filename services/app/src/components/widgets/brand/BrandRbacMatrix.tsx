@@ -78,7 +78,14 @@ export function BrandRbacMatrix({ roles, areas, assignments }: BrandRbacMatrixPr
               >
                 {r.label}
                 {r.level !== undefined ? (
-                  <span style={{ display: 'block', fontSize: 8, opacity: 0.6, marginTop: 2 }}>
+                  <span
+                    style={{
+                      display: 'block',
+                      fontSize: 9,
+                      color: 'var(--ink-soft)',
+                      marginTop: 2,
+                    }}
+                  >
                     L{r.level}
                   </span>
                 ) : null}
