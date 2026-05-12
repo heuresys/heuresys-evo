@@ -2369,3 +2369,43 @@ done
 **Conseguenza**: P5 partial sign-off (3/4 ≥ 90 ✅). Report `scripts/perf/results/lh-login-S53.md`. Carry-forward S54+ bundle optimization. CLAUDE.md §Roadmap successiva #5 aggiornata (commit `fca548c`).
 
 **Commit citation**: `6a30deb` (Lighthouse results), `fca548c` (CLAUDE.md update).
+
+---
+
+## L68 — 2026-05-12 — S54: Open question pgBouncer transaction-mode chiusa + compliance Prisma fix
+
+**Decisione**: open question carry-forward S53 "pgBouncer transaction mode vs Prisma `$transaction` complesse → eventuale `pool_mode=session` su connection-string dedicata" → **CHIUSA**. `pool_mode=session` **NON necessario**. Mantenuto `pool_mode=transaction` (default pgBouncer su VM `oracle-vm-default:6432`). Fix di compliance Prisma applicato in parallelo per sanare gap latenti.
+
+**Evidence raccolta** (5 verifiche):
+
+1. **Helper `$transaction()` reali**: solo 2 helper centralizzano 245 callsites — `withTenant()` (`services/{app,api-gateway}/src/{lib/db.ts,db/pool.ts}`) e `auditedTransaction()` (`services/{app,api-gateway}/src/lib/audit/auditedTransaction.ts`). Entrambi interactive callback async, ma minimali (1-2 query GUC/audit + N callback queries).
+2. **GUC scoping**: tutti i `set_config('app.current_tenant_id', $1, true)` usano `is_local=true` → variabile **transaction-scoped**, svanisce a COMMIT/ROLLBACK con la connessione → 100% compatibile transaction pooling.
+3. **Pattern session-only**: 0 occorrenze nel codebase. No `pg_advisory_lock` cross-transaction, no `LISTEN/NOTIFY`, no `SET SESSION` persistenti, no prepared statement cached cross-tx (Prisma li gestisce internamente).
+4. **pgBouncer config attiva**: `pool_mode=transaction` · `default_pool_size=20` · `reserve_pool_size=5` · `max_client_conn=100` · `server_lifetime=3600` (`/etc/pgbouncer/pgbouncer.ini` su VM).
+5. **Connection string baseline**: `services/{app,api-gateway}/.env` su VM puntavano a `127.0.0.1:6432` ma **senza** flag `pgbouncer=true` né `connection_limit` → gap di compliance Prisma docs (rischio prepared statement silent fail random in transaction pooling).
+
+**Conseguenze applicate** (4 fix in 1 commit `c80f453` + .env VM manuale):
+
+| Fix                                | Dove                                                                    | Razionale                                                                                        |
+| ---------------------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `?pgbouncer=true`                  | `DATABASE_URL` entrambi services VM                                     | Disabilita prepared statement caching client-side Prisma (incompat. transaction pool)            |
+| `&connection_limit=10`             | `DATABASE_URL` entrambi services VM                                     | Evita saturazione pool (4 worker × default Prisma `cpus*2+1` ~9 = potenziale 36 conn vs pool 20) |
+| `DIRECT_URL=...:5432/...`          | `.env` VM + `directUrl = env("DIRECT_URL")` in entrambi `schema.prisma` | Migrazioni Prisma + `pg_advisory_lock` bypassano pgBouncer (scope session-only required)         |
+| `services/app/.env.example` creato | Repo                                                                    | File mancante; coerente con api-gateway                                                          |
+
+**Smoke test post-restart** (entrambi services systemd restart `17:56:28`/`17:57:08` UTC):
+
+| Endpoint                                                                                                                                   | Risultato                             | Time         |
+| ------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------- | ------------ |
+| `GET /` (Next.js SSR + Prisma)                                                                                                             | HTTP 200, 13127b                      | 80ms         |
+| `GET /login` (Next.js SSR + Prisma config)                                                                                                 | HTTP 200, 19666b                      | 541ms        |
+| `GET /api/auth/session`                                                                                                                    | HTTP 200 `{}`                         | 69ms         |
+| `GET /api/auth/csrf`                                                                                                                       | HTTP 200 `{csrfToken:...}`            | 50ms         |
+| `GET :8200/` (api-gateway Express)                                                                                                         | HTTP 404 JSON `{"error":"not_found"}` | 13ms (alive) |
+| `journalctl -u heuresys-app -u heuresys-api-gateway --since 90s` grep `prepared statement\|advisory lock\|prisma.*error\|pgbouncer\|FATAL` | **0 match**                           | —            |
+
+**Commit citation**: `c80f453` (config(db): pgbouncer compliance + DIRECT_URL).
+
+**Backup VM**: `services/{app,api-gateway}/.env.bak-20260512175052` (rollback istantaneo se regressione futura).
+
+**Out-of-scope** (carry-forward potenziale S55+): rimuovere `services/app/.env` e `services/api-gateway/.env` dal `.gitignore` lascia ancora questi 2 file fuori versione → la sincronizzazione setup dev si poggia su `.env.example`. Documentare in `docs/30-developer/setup-local.md` se non già presente.
