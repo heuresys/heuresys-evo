@@ -2357,3 +2357,15 @@ done
 - CLAUDE.md §Roadmap successiva #4: aggiornato AA-shipped (commit `373974f`).
 
 **Commit citation**: `6675f90` (BrandShell + dashboard-brand.css fixes), `373974f` (CLAUDE.md roadmap update).
+
+---
+
+## L67 — 2026-05-12 — S53: P5 Lighthouse bench partial (a11y/bp/seo ≥ 90 ✅, perf 58 → carry-forward)
+
+**Decisione**: P5 Lighthouse ≥ 90 bench chiuso parzialmente. `/login` audited via `lighthouse@13.3.0` headless: 3/4 categories ≥ 90 (a11y 100, BP 100, SEO 100). **Performance 58** sotto target — LCP 12.5s dominante, root cause 8.3s unused JavaScript. TTFB 54ms eccellente → bottleneck client JS bundle. Auth-protected surfaces NON auditate (cookie injection complexity), backup ref S48 G6 P95 705ms HR_DIRECTOR. Optimization perf carry-forward S54+ (~12-20h: bundle analyzer + code splitting + tree-shaking).
+
+**Risultati `/login`** (S53 19:31Z): Perf 58 ❌ · A11y 100 ✅ · BP 100 ✅ · SEO 100 ✅. CWV: FCP 1.2s · LCP 12.5s ❌ · TBT 650ms ⚠️ · CLS 0 · TTFB 54ms.
+
+**Conseguenza**: P5 partial sign-off (3/4 ≥ 90 ✅). Report `scripts/perf/results/lh-login-S53.md`. Carry-forward S54+ bundle optimization. CLAUDE.md §Roadmap successiva #5 aggiornata (commit `fca548c`).
+
+**Commit citation**: `6a30deb` (Lighthouse results), `fca548c` (CLAUDE.md update).
