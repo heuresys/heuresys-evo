@@ -158,9 +158,21 @@ export default async function DashboardPage() {
     // Resolve preset name (localized) for header title — uses cached meta from
     // S48 G6 parallelized lookup above.
     const presetName = presetMeta ? pickBilingual(presetMeta, 'name', DEFAULT_LOCALE) : presetCode;
-    const titleParts = presetName.trim().split(/\s+/);
-    const titleAccent = titleParts.length > 1 ? (titleParts.pop() ?? '') : '';
-    const titlePlain = titleParts.join(' ') || presetName;
+    // Multi-word accent support (S54 W#1 P6 visual audit): if presetName contains
+    // `||`, split into [plain, accent] preserving multi-word accent phrases
+    // ("Talent & capability||al colpo d'occhio" → "Talent & capability" / "al colpo d'occhio").
+    // Fallback to legacy split-last-word for presets without delimiter.
+    let titlePlain: string;
+    let titleAccent: string;
+    if (presetName.includes('||')) {
+      const [plain, accent] = presetName.split('||');
+      titlePlain = (plain ?? '').trim();
+      titleAccent = (accent ?? '').trim();
+    } else {
+      const titleParts = presetName.trim().split(/\s+/);
+      titleAccent = titleParts.length > 1 ? (titleParts.pop() ?? '') : '';
+      titlePlain = titleParts.join(' ') || presetName;
+    }
     const breadcrumb = presetMeta?.persona_label
       ? `DASHBOARD · ${presetMeta.perspective_code ?? role} · ${presetMeta.persona_label}`
       : `DASHBOARD · ${role} · ${presetCode}`;
@@ -187,6 +199,22 @@ export default async function DashboardPage() {
                 scope · {tenantName.toLowerCase()} · {role.toLowerCase()}
               </span>
             </div>
+            {presetCode === 'hr_director_overview_v2' && (
+              <>
+                <a
+                  className="btn btn-ghost"
+                  href="#export-pdf"
+                  aria-disabled="true"
+                  title="Export PDF — coming soon"
+                  style={{ opacity: 0.6, cursor: 'not-allowed', pointerEvents: 'none' }}
+                >
+                  Export PDF
+                </a>
+                <a className="btn btn-primary" href="/reviews">
+                  Apri review cycle →
+                </a>
+              </>
+            )}
           </div>
         </header>
         <DashboardRenderer elements={slots} data={data} />
