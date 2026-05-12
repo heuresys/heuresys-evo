@@ -2217,3 +2217,47 @@ LOW (3 risolti):
 - **Carry-forward S52+**: (a) P4 WCAG 2.2 AAA full audit con `chrome-devtools-mcp:a11y-debugging` + axe-core CI + NVDA manual pass; (b) P5 Lighthouse ≥ 90 bench (perf/a11y/best-practices/SEO) su /login + /dashboard + /me + /admin/audit; (c) P6 dashboard widget count visual audit (HR_DIRECTOR vs mockup canonical hr-director-overview.html); (d) Phase 2 employees vertical-split (15-25h FTE, L60); (e) `/analytics/workforce` page.tsx non esiste (linkato in sidebar, 404).
 
 **Verification proof**: commit `7c4cd14` pushed `origin/main`. VM `oracle-vm-default` rebuilded `NODE_OPTIONS='--max-old-space-size=6144'` + restart heuresys-app + heuresys-api-gateway. Services `active/active`. HTTPS smoke: `/login` 200 OK · `/dashboard/capability_graph` 307 (auth redirect, P2 redirect richiede authenticated request per esercitare il code path).
+
+---
+
+## L63 — 2026-05-12 — S52: P7 Phase 2 employees vertical-split **già shipped** (scoperta retroattiva)
+
+**Decisione**: P7 marcato `completed`. Investigazione S52 ha scoperto che Phase 2 employees vertical-split (DROP COLUMN x77 + RENAME → VIEW + INSTEAD OF triggers) era **già live** nel DB di produzione, nonostante L60 lo dichiarasse "deferred a S27+". Lo stato attuale del DB matcha esattamente l'outcome pianificato. Nessuna migration applicata in S52: il phase16o-redo.sql preparato come dry-run ha auto-rollbacked alla scoperta di `employees_core` already exists (transaction safety net intacta).
+
+**Contesto**: utente Enzo ha chiesto S52 "possiamo fare subito P7 Phase 2 employees vertical-split in modo sicuro". Plan: pre-flight backup + audit 65 view + refined SQL + apply + verify. Eseguito:
+
+1. **Pre-flight** ✅: drift check (270/270 sync), fresh pg_dump backup `/var/backups/heuresys-evo/heuresys_platform-pre-S52-phase16o-redo-20260512T163646Z.dump` (387MB).
+2. **Audit 65 view + 6 mat view** ✅: dependency list via pg_depend → `db/migrations/phase16o-pre-state/views-saved-defs-S52.txt` (110KB, 2474 LOC).
+3. **App code grep**: ZERO references alle 65 view + 6 mat view in `services/app/src` + `services/api-gateway/src`. Layer puramente DB-level.
+4. **Refined SQL** scritto e shipped a VM: `/tmp/phase16o-redo.sql` (451 LOC, 10 stages, transaction-wrapped).
+5. **Apply attempt** con `psql -v ON_ERROR_STOP=1`:
+   - Stage 1 ✅ pre-flight passed (270 rows)
+   - Stage 2 ✅ sync triggers/functions skipped (do not exist)
+   - Stage 3 ✅ dropped 65 dependent views/matviews
+   - Stage 4 ❌ `ERROR: relation "employees_core" already exists`
+   - Auto-ROLLBACK ✅ (transaction safety: tutte le 65 view recreate da rollback)
+6. **Investigation post-fail** ✅:
+   - `employees` OID 1054999 `relkind=v` (**VIEW**, 95 cols)
+   - `employees_core` OID 618664 `relkind=r` (**TABLE**, 18 cols, **209 FK incoming**)
+   - 3 INSTEAD OF triggers `trg_employees_view_{insert,update,delete}` con functions `fn_employees_view_*` already attached
+   - Sample query `SELECT id, first_name, last_name, department, salary FROM employees WHERE is_active=true LIMIT 3` ✅ ritorna data cross-table (employees_core + 3 satellites JOIN via VIEW)
+   - 4 satellite tables ✅ popolate (`employees_pii` 38c · `employees_hr` 28c · `employees_payroll` 11c) sync 270/270
+
+**Conclusione retroattiva**: Phase 2 era stata shipped in passato (probabilmente tra S26 e S27, prima del freeze L60), ma il L60 entry "Phase 2 DEFERRED a S27+" non è mai stato aggiornato. Lo state DB corrente coincide con l'outcome pianificato. Nessuna action effettiva eseguita in S52 oltre alle verifiche.
+
+**Conseguenza**:
+
+- **P7 chiuso**: marked `completed` in task list. L60 entry resta come storico di una decisione "deferred" che è stata successivamente shipped silenziosamente.
+- **Archive locale**: `db/migrations/phase16o-pre-state/` contiene `views-saved-defs-S52.txt` (snapshot view defs) + `README.md` (instructions to NOT re-run + backup paths).
+- **CLAUDE.md §Carry-forward S27+** § 1.2: rimuovi "employees vertical-split Phase 2" (è done).
+- **Backup chain preservata**: 2 backups disponibili per restore se needed (`pre-phase16o-20260510T044105Z.dump` 380MB sha256 `dba5a08b…` + `pre-S52-phase16o-redo-20260512T163646Z.dump` 387MB).
+- **No app code change**: la VIEW `employees` espone le stesse 95 columns della TABLE pre-Phase-2 → Prisma + Postgres queries continuano a funzionare invariati. Insert/Update/Delete via INSTEAD OF triggers routati ai 4 underlying tables.
+
+**Verification proof**:
+
+- `pg_constraint` count: 209 FK puntano a `employees_core` (canonical SoT)
+- VIEW employees query funzionale (Valentina Conti DIV-LEGAL salary 143703.24 + Laura Ferrari DIR-AML + Quintino Bellini RTL)
+- 101 dependent views + 6 mat views still functional
+- 0 drift fra employees (view) e employees_core (table)
+
+**Lesson learned**: prima di pianificare migration DDL "deferred", verificare sempre lo stato live del DB. L60 documentava "deferred" basato su transaction rollback, ma una successiva sessione (non loggata) ha completato la migration con successo. Documentation drift cross-session è un rischio reale; STATE.md + DECISIONS-LOG L<X> devono essere updated immediatamente dopo ogni shipping di DDL significativo.

@@ -1,17 +1,19 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-12T18:35Z · S51 closed · 3 di 7 priorità S50 carry-forward chiuse · VM synced HEAD `7c4cd14`
+> Updated: 2026-05-12T18:55Z · S52 closed · P7 chiuso retroattivamente (Phase 2 già shipped) · VM HEAD `7c4cd14`
 
 ## Last session brief
 
-S51 continuazione S50 brand audit. Utente Enzo ha rinviato verifica visiva finale e chiesto di procedere con Top 7 priorità S51+ (vedi DECISIONS-LOG L62). Chiuse 3/7: **P2** redirect logic v1→v2 in `dashboard/[code]/page.tsx` (sblocca rendering brand-fedele su tutti i preset legacy redirect automatico a `_v2` con 10-12 elements vs 3-4 v1), **P1** filter sidebar nav RBP risolto come diagnosi (SIDEBAR_MAP già filtra correttamente, RoleForbidden S50 copre deep-link), **P3** i18n sweep secondary di 9 file (role-nav-map.ts 61 labels + /explorer/{esco,kg,sap} + /me/{skills,goals,reviews,learning}). Le 3 priorità restanti (**P4 WCAG AAA** · **P5 Lighthouse** · **P6 dashboard widget visual audit**) sono carry-forward S52+ in attesa di verifica visiva. Commit `7c4cd14` pushed, VM rebuilt + restarted, services active.
+S52 dedicata a P7 Phase 2 employees vertical-split. Investigazione ha scoperto che la migration era **già live** nel DB (`employees` è VIEW 95-col su `employees_core` 18-col TABLE + 209 FK + 3 INSTEAD OF triggers + satellites popolate 270/270 sync), nonostante L60 lo dichiarasse "deferred". Apply attempt phase16o-redo.sql ha auto-rollbacked alla scoperta di `employees_core already exists` (transaction safety intacta). Nessuna DDL eseguita in S52 oltre alle verifiche. Vedi DECISIONS-LOG L63 per documentazione retroattiva. CLAUDE.md §Carry-forward S27+ aggiornato: § 1.2 marcata SHIPPED.
+
+S51 brief precedente (carry-forward storico): 3 di 7 priorità S50 chiuse — P2 redirect v1→v2, P1 diagnosi sidebar nav, P3 i18n sweep 9 file. Le 3 priorità restanti (P4 WCAG AAA · P5 Lighthouse · P6 dashboard widget visual audit) sono carry-forward S52+ in attesa di verifica visiva.
 
 ## Top priorities (S52+)
 
 1. **P4 WCAG 2.2 AAA full audit** (~3-5h) — `chrome-devtools-mcp:a11y-debugging` skill + axe-core CI integration su /login + /dashboard + /me + /admin/audit + NVDA manual pass. Sign-off final v1.0 gate.
 2. **P5 Lighthouse ≥ 90 bench** (~1-2h) — `chrome-devtools-mcp:debug-optimize-lcp` su 4 surface (perf/a11y/best-practices/SEO). Carry-forward pre-S50.
 3. **P6 Dashboard widget visual audit** (~2-3h) — `/brand:audit` skill cycle su `/dashboard` HR_DIRECTOR vs mockup canonical hr-director-overview.html side-by-side. Verifica D-6 era diagnosi corretta o c'è effettivo widget missing. Sub-task: distinguere BrandLayoutContainers count vs widget rendered count.
-4. **Phase 2 employees vertical-split** (15-25h FTE, L60 carry-forward) — DROP COLUMN x77 + VIEW + INSTEAD OF triggers. Richiede preliminary audit 65 dependent views.
+4. ~~Phase 2 employees vertical-split~~ ✅ **SHIPPED** (verified S52, L63). employees=VIEW + employees_core=TABLE + 3 satellites + INSTEAD OF triggers + 209 FK + 65 dep views + 6 mat views.
 5. **/analytics/workforce page** (~1h) — route linkato in sidebar ma 404 (no page.tsx). Scope separato.
 6. **Visual smoke 8 ruoli × 9 viste** (~2-3h, plan canonical) — 72 screenshot via claude-in-chrome + role-switcher per acceptance criteria final v1.0.
 
