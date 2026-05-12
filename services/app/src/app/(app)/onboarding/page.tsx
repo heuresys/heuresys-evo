@@ -1,7 +1,27 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
+import { withTenant } from '@/lib/db';
 import { getCachedTenantName } from '@/lib/dashboard-engine/dashboard-meta-cache';
+
+async function fetchFirstName(tenantId: string, userId: string): Promise<string | null> {
+  try {
+    return await withTenant(tenantId, async (tx) => {
+      const u = await tx.users.findUnique({
+        where: { id: userId },
+        select: { employee_id: true },
+      });
+      if (!u?.employee_id) return null;
+      const emp = await tx.employees.findUnique({
+        where: { id: u.employee_id },
+        select: { first_name: true },
+      });
+      return emp?.first_name ?? null;
+    });
+  } catch {
+    return null;
+  }
+}
 
 /**
  * /onboarding — branded 4-step welcome surface (S48 Brand v1.0 Stage D).
@@ -31,14 +51,21 @@ export default async function OnboardingPage({ searchParams }: OnboardingPagePro
   if (!session?.user) redirect('/login?next=/onboarding');
 
   const user = session.user as {
+    id?: string;
     role?: string;
     tenantId?: string;
     name?: string | null;
     username?: string;
   };
   const role = user.role ?? 'EMPLOYEE';
-  const displayName = user.name ?? user.username ?? '';
   const tenantId = user.tenantId ?? null;
+  const firstNameLive = tenantId && user.id ? await fetchFirstName(tenantId, user.id) : null;
+  // Priority: employees.first_name (canonical) > session name > username prefix (no email).
+  const fallbackFromUsername = (user.username ?? '').split('@')[0]?.split('.')[0] ?? '';
+  const fallbackTitleCase = fallbackFromUsername
+    ? fallbackFromUsername.charAt(0).toUpperCase() + fallbackFromUsername.slice(1).toLowerCase()
+    : '';
+  const displayName = firstNameLive ?? user.name ?? fallbackTitleCase;
   const tenantName = tenantId
     ? ((await getCachedTenantName(tenantId)) ?? 'Heuresys System')
     : 'Heuresys System';
