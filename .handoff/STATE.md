@@ -1,50 +1,45 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-12T04:00Z · S44 Lighthouse 100/100 + bulk WCAG palette + perf bench baseline
+> Updated: 2026-05-12T04:05Z · S45 perf optimization batch — 5/9 routes within P95 ≤ 500ms target
 
 ## Last session brief
 
-S44: Lighthouse 100/100 Accessibility raggiunto in production build (post bulk WCAG dark-palette audit). 13 valori `--ink-tertiary` bumped sopra threshold 4.5:1 (palette legacy + alpha + 11 alt). Perf bench autocannon su 9 routes: solo 2/9 entro P95 ≤ 500ms target (`/login` 28ms, `/cross_tenant_overview` 439ms). 7/9 dashboard routes exceed (635-1193ms) — bottleneck identificato: N+1 query patterns + no fetch cache + SSH tunnel latency.
+S45: 3 ottimizzazioni shipped — (1) unstable_cache (Next.js, revalidate=60s) wrapping 6 dashboard fetchers; (2) React 19 cache() in `_shared-cache.ts` per `getTenantById` + `getAllTenants` per-request memoization; (3) mat view `mv_rbac_matrix` (272 rows = 8 roles × 34 areas, phase18q) + refresh_all_mat_views() extended. Re-bench autocannon: **5/9 routes within P95 ≤ 500ms** (up from 2/9 in S44, +150%). Best gains: `hr_director_overview` -57% · `tenant_owner_overview` -56% · `capability_graph` -25%.
 
 ## Top priorities
 
-1. **Perf optimization batch** (~4-5h, carry-forward S45+) — implementare le 5 raccomandazioni del REPORT.md per ridurre P95 sotto 500ms target su 7 routes lente.
-2. **§ 1.2 employees vertical-split Phase 2** (~15-25h, architectural) — DROP COLUMN ×77 + 65 view refactor. Multi-sessione.
-3. **Brand v1.0 promotion** (~16-25h, 2-3 sessioni) — 8 categorie asset checklist.
+1. **DashboardRenderer cache layer** (~1-2h) — `/dashboard` G6 route (P95 844ms) usa `dashboard_elements` SQL queries non cached. Cache layer al renderer + widget-level memoization.
+2. **RbacMatrix widget → mv_rbac_matrix** (~30min) — repoint `dashboard_elements.config_overrides.data_source.query` per BrandRbacMatrix → `SELECT * FROM mv_rbac_matrix`. Atteso -400-600ms su `/org_systems`.
+3. **employee_skill_assessments index** (~30min) — `(employee_id, skill_name)` multi-column index per `/skills_heatmap` matrix JOIN. Atteso -150-200ms.
+4. **§ 1.2 employees vertical-split Phase 2** (~15-25h architectural) — separate scope.
+5. **Brand v1.0 promotion** (~16-25h multi-sessione).
 
 ## Open questions
 
-- **Mat view refresh frequency**: 1-day mat views per workforce trend + RBAC matrix? O 4h come le mat view esistenti (systemd timer)?
-- **unstable_cache vs React 19 cache()**: precedenza? React 19 `cache()` è per-request memoization (intra-render), `unstable_cache` è cross-request (CDN-like). Combinarli su fetcher diversi.
+- **employee_journey cache invalidation**: chiave per-employeeId — quale TTL ottimale? 60s su career data è veloce ma cache miss su new employee_ids è dispendioso.
+- **G6 renderer cache strategy**: per-widget vs per-page? Widget JSON data_source.query potrebbe essere cached individuale + composed.
 
-## Stack snapshot (post-S44)
+## Stack snapshot (post-S45)
 
-- Lighthouse **100/100 a11y** · 100/100 best-practices · 100/100 SEO (production build, snapshot mode, desktop)
-- 36/37 audits passed · 1 non-WCAG agentic-tree skip
-- 13 dark-palette `--ink-tertiary` valori bumped: tutte le palette ora ≥ luminance 0.21
-- 4/4 widget kinds api-bound (post-phase18o)
-- 4 process_*_v2 preset (post-phase18p)
-- 7/7 view Prisma-bound (no fixture residue)
-- typecheck + lint:mock-identities PASS
-- **Perf baseline acquisita**: 2/9 routes within P95 ≤ 500ms target, 7/9 require optimization
+- 6 dashboard fetcher cached via unstable_cache (60s revalidate · tag-based invalidation ready)
+- 2 shared queries cached via React 19 cache() (per-request memo)
+- 6 mat views attive (mv_rbac_matrix nuovo + 5 esistenti) · refresh 4h via systemd timer
+- Lighthouse 100/100 a11y (S44) · 0 errors load test
+- **Perf baseline**: 5/9 routes within target (vs 2/9 baseline) · `/login` 21ms · `/hr_director_overview` 453ms · `/tenant_owner_overview` 459ms · `/capability_graph` 475ms · `/cross_tenant_overview` 451ms
+- Routes still over target: `/dashboard` G6 (844ms) · `/employee_journey` (824ms) · `/skills_heatmap` (627ms) · `/org_systems` (1185ms)
+- typecheck + lint:tenant-id + lint:mock-identities PASS
 
 ## Verification
 
 ```bash
-# Lighthouse production audit (confirm 100/100)
+# Re-bench after carry-forward optimizations
 rm -rf services/app/.next && npm run build --workspace=services/app
 npm run start --workspace=services/app &
-# Open Chrome MCP, login, navigate /dashboard/cross_tenant_overview → lighthouse_audit
+# Re-auth + warmup + autocannon (see docs/_audit/2026-05-12-perf-baseline/POST-OPTIM-results.md)
 
-# Perf bench re-run after optimization
-CSRF=$(curl -s -c /tmp/cookies.txt http://localhost:3200/api/auth/csrf | grep -oP '"csrfToken":"\K[^"]+')
-curl -s -c /tmp/cookies.txt -b /tmp/cookies.txt -X POST \
-  http://localhost:3200/api/auth/callback/credentials \
-  -d "csrfToken=$CSRF&username=sysadmin&password=Heuresys2026!&redirect=false&json=true"
-COOKIE=$(grep "authjs.session-token" /tmp/cookies.txt | awk '{print $7}')
-npx autocannon -c 10 -d 10 -H "Cookie: authjs.session-token=$COOKIE" \
-  http://localhost:3200/dashboard/org_systems
-# Target: P95 ≤ 500ms (current 1193ms)
+# Mat view freshness check
+ssh oracle-vm-default "sudo -u postgres psql -d heuresys_platform -c 'SELECT * FROM refresh_all_mat_views()'"
+# Expected: 6 views, all success
 ```
 
-Riferimenti: `docs/_audit/2026-05-12-w5-visual-baseline/REPORT.md` (a11y baseline) · `docs/_audit/2026-05-12-perf-baseline/REPORT.md` (perf bench + raccomandazioni S45+)
+Riferimenti: `docs/_audit/2026-05-12-perf-baseline/POST-OPTIM-REPORT.md` · `db/migrations/phase18{m,n,o,p,q}*.sql`
