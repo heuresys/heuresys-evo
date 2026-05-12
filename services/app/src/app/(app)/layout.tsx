@@ -53,11 +53,13 @@ export default async function AppGroupLayout({ children }: { children: ReactNode
     };
   }
 
-  // P6 W#6 (L74): displayName preferenza name > nameFromEmail > username > 'User'.
-  // Per utenti Credentials NextAuth (no name su DB), deriva full name dall'email
-  // canonical convention 'first.last@domain' → 'First Last'.
+  // P6 W#6 (L74): displayName preferenza nameFromEmail per email canonical
+  // 'first.last@domain' (NextAuth Credentials popola u.name = email che è
+  // illeggibile in user-card). Cascade: nameFromEmail > nice u.name > username > email.
   const emailDerivedName = u.email ? nameFromEmail(u.email) : null;
-  const displayName = u.name ?? emailDerivedName ?? u.username ?? u.email ?? 'User';
+  const looksLikeEmail = (s: string | null | undefined) => !!s && s.includes('@');
+  const niceUname = !looksLikeEmail(u.name) ? u.name : null;
+  const displayName = emailDerivedName ?? niceUname ?? u.username ?? u.email ?? 'User';
   const userInitials = deriveInitials(displayName);
   const roleLevel = ROLE_LEVELS[u.role ?? 'EMPLOYEE'] ?? null;
 
