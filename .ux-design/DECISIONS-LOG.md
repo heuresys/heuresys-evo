@@ -2459,3 +2459,54 @@ done
 **Commit citation**: `ceea454` (a11y(aaa) rebalance 4 AAA token + 9 selettori dashboard).
 
 **Roadmap reflection**: P4 carry-forward S53 era stimato "~2-3h, 4 nodi residui". Reale: ~30min effective work + 5min build OOM retry = ~35min totali, 22 nodi. Stima iniziale sottostimata 5.5x sui nodi ma sovrastimata 5x sull'effort (token-driven fix scalabilità grande).
+
+---
+
+## L70 — 2026-05-12 — S54: P6 W#1 Header HR_DIRECTOR allineato a mockup canonical
+
+**Decisione**: primo widget di P6 visual audit S54+ chiuso. Direzione confermata utente: **A. Mockup-as-SoT** (allinea prod → mockup completo). Header `.ws-header` di `/dashboard` HR_DIRECTOR (G6 path `hr_director_overview_v2`) ora mostra claim editoriale italiano + 3 right-zone CTA, matching `.ux-design/06-mockups/dashboards/hr-director-overview.html`.
+
+**Discovery architetturale durante audit**:
+
+| Path                                                                     | Status        | Note                                                                                                                           |
+| ------------------------------------------------------------------------ | ------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `services/app/src/app/(app)/dashboard/page.tsx` linee 168-194            | **ATTIVO**    | G6 path data-driven (`_v2` preset). Genera header inline da `presetMeta.name`.                                                 |
+| `services/app/src/app/(app)/dashboard/_views/HrDirectorOverviewView.tsx` | **DEAD CODE** | Path legacy non-`_v2` fallback. Già conforme al mockup ma non raggiunta in prod (preset corrente è `hr_director_overview_v2`). |
+
+Tutti i 7 ruoli mappati in `role_default_dashboards` puntano a preset `*_v2` (G6 path attiva). Gli `_views/*.tsx` sono fallback storico mantenuto per resilienza ma non rendering production.
+
+**Cambi applicati**:
+
+1. **DB UPDATE** (idempotente, no migration): `dashboard_presets` per `code='hr_director_overview_v2'`:
+   - `name_it`: `Direzione HR` → `Talent & capability||al colpo d'occhio`
+   - `name_en`: `HR Director Overview` → `Talent & capability||at a glance`
+   - Convention introdotta: delimitatore `||` separa plain da accent multi-word.
+
+2. **`page.tsx` parsing multi-word accent**: aggiunto branch `if (presetName.includes('||'))` per split plain/accent preservando phrase multi-word. Fallback graceful a logica split-last-word legacy per preset senza delimitatore (zero regressioni altri ruoli).
+
+3. **`page.tsx` HR_DIRECTOR right-zone CTA**: case-specific `if (presetCode === 'hr_director_overview_v2')` aggiunge:
+   - `Export PDF` button stub disabled (`pointerEvents: none`, `opacity: 0.6`, `aria-disabled="true"`, `title="Export PDF — coming soon"`)
+   - `Apri review cycle →` button primary CTA `href="/reviews"` (route esistente verificata)
+
+**Verifica post-deploy** (build `NODE_OPTIONS=--max-old-space-size=4096`, restart VM, hard reload tab `161464859`):
+
+| Check                   | Risultato                                                                        |
+| ----------------------- | -------------------------------------------------------------------------------- |
+| H1 rendering            | `Talent & capability **al colpo d'occhio**` (accent em multi-word) ✅            |
+| Right zone              | 3 elements (scope-pill · Export PDF disabled · Apri review cycle → primary) ✅   |
+| axe-core AAA regression | 0 violations ✅ (post-L69 baseline preservato)                                   |
+| axe-core AA regression  | 0 violations ✅                                                                  |
+| Visual sanity           | brand identity intatta, claim leggibile, CTA primary purple gradient visibile ✅ |
+| Breadcrumb              | invariato (OOS dichiarato) ⚠️                                                    |
+
+**Commit citation**: `1d8c91e` (`ui(dashboard): P6 W#1 header HR_DIRECTOR allineato a mockup canonical`).
+
+**Bonus discovery** (carry-forward W#5 sidebar): screenshot post-deploy mostra sidebar prod con struttura GIÀ RICCA (12 voci WORKSPACE + 4 voci PROCESSI), molto più vicina al mockup di quanto stimato in plan pre-audit. W#5 sidebar audit sarà cheaper del previsto (cambio metric counters inline solo, no struttura nuova).
+
+**Out-of-scope**:
+
+- Breadcrumb `HR DIRECTOR · OVERVIEW · Q1 2026` (mockup) vs current `DASHBOARD · TALENT · Audience: HR_DIRECTOR` — gap minore. Richiederebbe schema migration (campo `breadcrumb_template` su `dashboard_presets`) o convention nuova. Carry-forward W#1-bis o sweep finale P6.
+- Implementazione reale Export PDF (lib client-side jsPDF/html2pdf2 o backend Puppeteer-PDF) — stub funzionalmente passivo accettato.
+- Estensione convention `||` ad altri preset `*_v2` (TENANT_OWNER, IT_ADMIN, ecc.) — il parser supporta tutti, ma update mirato solo HR_DIRECTOR per scope audit corrente.
+
+**Roadmap reflection**: W#1 stima `~1.5-2h`. Reale `~25min` effective work + `~5min` build = `~30min` totali. Sovrastimato 4x. Fattori: (a) view legacy `HrDirectorOverviewView.tsx` aveva già la struttura JSX target, ho copiato pattern; (b) discovery G6 path single-source (`page.tsx`) ha permesso cambio centralized; (c) DB UPDATE inline più snello di migration formale.
