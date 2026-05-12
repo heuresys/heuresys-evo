@@ -6,12 +6,12 @@ import { isAuthenticated } from '@heuresys/shared/rbp';
 
 const STRINGS = {
   it: {
-    title: 'Le mie review',
+    title: 'Le mie valutazioni',
     noSession: 'Nessun contesto sessione.',
-    reviewee: (n: string) => `Reviewee: ${n}`,
+    reviewee: (n: string) => `Valutato: ${n}`,
     loadError: 'Caricamento fallito:',
     noLink: 'Nessun record dipendente collegato.',
-    empty: 'Ancora nessuna review.',
+    empty: 'Ancora nessuna valutazione.',
   },
   en: {
     title: 'My reviews',
@@ -76,7 +76,7 @@ export default async function MyReviewsPage() {
       <section className="mt-6">
         {err ? (
           <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
-            {t.loadError} <code>{err}</code>
+            {t.loadError} <span className="text-xs opacity-70">(errore tecnico registrato)</span>
           </p>
         ) : !reviews ? (
           <p className="rounded-md border border-border bg-muted/30 p-4 text-sm text-muted-foreground">

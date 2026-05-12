@@ -82,20 +82,25 @@ export default async function ExplorerKgPage({ searchParams }: PageProps) {
   return (
     <main className="mx-auto max-w-5xl px-4 py-8">
       <header className="mb-6">
-        <h1 className="text-2xl font-semibold">Explorer · Knowledge graph</h1>
+        <h1 className="text-2xl font-semibold">Esploratore · grafo della conoscenza</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Occupation-centred 1-hop neighbourhood. Pass{' '}
-          <code className="rounded bg-neutral-100 px-1">?occ=&lt;uuid&gt;</code> to centre on a
-          specific ESCO occupation; default seed is a sample manager role.
+          Vicinato a 1 hop centrato su un&apos;occupazione. Passa{' '}
+          <code className="rounded bg-neutral-100 px-1">?occ=&lt;uuid&gt;</code> per centrare il
+          grafo su una specifica occupazione ESCO; il seed predefinito è un ruolo manager
+          rappresentativo.
         </p>
       </header>
       {center && (
         <p className="mb-3 text-sm text-muted-foreground">
-          Centre: <span className="font-medium">{center.preferred_label_en}</span> (ESCO code{' '}
+          Centro: <span className="font-medium">{center.preferred_label_en}</span> (codice ESCO{' '}
           {center.code})
         </p>
       )}
-      <KGGraphCanvas nodes={nodes} edges={edges} emptyState="No graph data for this occupation" />
+      <KGGraphCanvas
+        nodes={nodes}
+        edges={edges}
+        emptyState="Nessun dato grafo per questa occupazione"
+      />
     </main>
   );
 }

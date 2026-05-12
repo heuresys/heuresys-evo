@@ -53,9 +53,9 @@ export default async function MySkillsPage() {
   if (!user?.id || !user?.tenantId) {
     return (
       <main className="mx-auto max-w-4xl p-8">
-        <h1 className="text-3xl font-semibold">My skills</h1>
+        <h1 className="text-3xl font-semibold">Le mie competenze</h1>
         <p className="mt-4 rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
-          Session lacks user/tenant context.
+          Sessione senza contesto utente/tenant.
         </p>
       </main>
     );
@@ -72,26 +72,29 @@ export default async function MySkillsPage() {
   return (
     <main className="mx-auto max-w-4xl p-8">
       <header>
-        <h1 className="text-3xl font-semibold">My skills</h1>
+        <h1 className="text-3xl font-semibold">Le mie competenze</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          ESCO-mapped + freeform — owner: {user.username}
+          Mappate ESCO + freeform — proprietario: {user.username}
         </p>
       </header>
 
       <section className="mt-8">
         {fetchError ? (
           <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
-            Could not load skills: <code>{fetchError}</code>
+            Impossibile caricare le competenze:{' '}
+            <span className="text-xs opacity-70">(errore tecnico registrato)</span>
           </p>
         ) : !data ? (
           <p className="rounded-md border border-border bg-muted/30 p-4 text-sm text-muted-foreground">
-            No employee record linked to this user.
+            Nessun record dipendente collegato a questo utente.
           </p>
         ) : (
           <>
-            <h2 className="mt-4 text-lg font-medium">ESCO-mapped skills</h2>
+            <h2 className="mt-4 text-lg font-medium">Competenze mappate ESCO</h2>
             {data.structured.length === 0 ? (
-              <p className="mt-2 text-sm text-muted-foreground">No structured ESCO mapping yet.</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Nessuna mappatura ESCO strutturata.
+              </p>
             ) : (
               <ul className="mt-2 divide-y divide-border rounded-md border border-border">
                 {data.structured.map((s) => (
@@ -116,7 +119,7 @@ export default async function MySkillsPage() {
                     )}
                     <span className="text-xs text-muted-foreground">
                       {s.years_experience != null
-                        ? `${Number(s.years_experience).toFixed(1)} yrs`
+                        ? `${Number(s.years_experience).toFixed(1)} anni`
                         : '—'}
                     </span>
                   </li>
@@ -124,9 +127,11 @@ export default async function MySkillsPage() {
               </ul>
             )}
 
-            <h2 className="mt-8 text-lg font-medium">Freeform tags</h2>
+            <h2 className="mt-8 text-lg font-medium">Tag freeform</h2>
             {data.freeform.length === 0 ? (
-              <p className="mt-2 text-sm text-muted-foreground">No freeform skills declared.</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Nessuna competenza freeform dichiarata.
+              </p>
             ) : (
               <div className="mt-2 flex flex-wrap gap-2">
                 {data.freeform.map((s) => (

@@ -11,6 +11,10 @@
  *   HR_DIRECTOR (2) → HR_MANAGER (3) → DEPT_HEAD (4) →
  *   LINE_MANAGER (5) → EMPLOYEE (6)
  *
+ * S51 P3: labels italianizzati (sidebar è statica hardcoded, no STRINGS+locale
+ * pattern: il refactor a getServerLocale per nav richiederebbe `'use server'`
+ * o tradurre lato AppShellClient — out-of-scope sprint corrente).
+ *
  * Visual reference: `.ux-design/06-mockups/dashboards/hr-director-overview.html`
  * (HR Director's Workspace + Ontology + System) extended for the other 7 roles.
  */
@@ -25,29 +29,29 @@ import type { NavSection, UserRole } from './types';
  */
 const processSection: NavSection = {
   id: 'process',
-  title: 'Process',
+  title: 'Processi',
   items: [
     {
       id: 'process-recruiting',
-      label: 'Recruiting funnel',
+      label: 'Funnel recruiting',
       href: '/dashboard/process_recruiting_funnel',
       icon: 'analytics',
     },
     {
       id: 'process-onboarding',
-      label: 'Onboarding flow',
+      label: 'Flusso onboarding',
       href: '/dashboard/process_onboarding_flow',
       icon: 'analytics',
     },
     {
       id: 'process-performance',
-      label: 'Performance cycle',
+      label: 'Ciclo performance',
       href: '/dashboard/process_performance_cycle',
       icon: 'analytics',
     },
     {
       id: 'process-learning',
-      label: 'Learning paths',
+      label: 'Percorsi formativi',
       href: '/dashboard/process_learning_paths',
       icon: 'learning',
     },
@@ -56,91 +60,91 @@ const processSection: NavSection = {
 
 const onto: NavSection = {
   id: 'ontology',
-  title: 'Ontology',
+  title: 'Ontologia',
   items: [
-    { id: 'ontology', label: 'Advisor', href: '/ontology', icon: 'ontology' },
-    { id: 'esco', label: 'ESCO tree', href: '/explorer/esco', icon: 'esco' },
-    { id: 'kg', label: 'Knowledge graph', href: '/explorer/kg', icon: 'kg' },
+    { id: 'ontology', label: 'Consulente', href: '/ontology', icon: 'ontology' },
+    { id: 'esco', label: 'Albero ESCO', href: '/explorer/esco', icon: 'esco' },
+    { id: 'kg', label: 'Grafo conoscenza', href: '/explorer/kg', icon: 'kg' },
   ],
 };
 
 /** A constrained subset of `onto` for low-privilege roles (read-only). */
 const ontoLite: NavSection = {
   id: 'ontology',
-  title: 'Ontology',
-  items: [{ id: 'esco', label: 'ESCO tree', href: '/explorer/esco', icon: 'esco' }],
+  title: 'Ontologia',
+  items: [{ id: 'esco', label: 'Albero ESCO', href: '/explorer/esco', icon: 'esco' }],
 };
 
 const systemFull: NavSection = {
   id: 'system',
-  title: 'System',
+  title: 'Sistema',
   items: [
     { id: 'tenants', label: 'Tenants', href: '/admin/tenants', icon: 'tenant' },
-    { id: 'users-admin', label: 'Users', href: '/admin/users', icon: 'users-admin' },
-    { id: 'rbac', label: 'RBAC matrix', href: '/admin/rbac', icon: 'rbac' },
-    { id: 'sap', label: 'SAP sync', href: '/explorer/sap', icon: 'sap' },
+    { id: 'users-admin', label: 'Utenti', href: '/admin/users', icon: 'users-admin' },
+    { id: 'rbac', label: 'Matrice RBAC', href: '/admin/rbac', icon: 'rbac' },
+    { id: 'sap', label: 'Sync SAP', href: '/explorer/sap', icon: 'sap' },
     {
       id: 'integrations',
-      label: 'Integrations',
+      label: 'Integrazioni',
       href: '/admin/integrations',
       icon: 'integrations',
     },
-    { id: 'audit', label: 'Audit log', href: '/admin/audit', icon: 'audit' },
-    { id: 'showcase', label: 'Components', href: '/showcase', icon: 'showcase' },
+    { id: 'audit', label: 'Registro audit', href: '/admin/audit', icon: 'audit' },
+    { id: 'showcase', label: 'Componenti', href: '/showcase', icon: 'showcase' },
   ],
 };
 
 const systemTenant: NavSection = {
   id: 'system',
-  title: 'System',
+  title: 'Sistema',
   items: [
-    { id: 'rbac', label: 'RBAC matrix', href: '/admin/rbac', icon: 'rbac' },
+    { id: 'rbac', label: 'Matrice RBAC', href: '/admin/rbac', icon: 'rbac' },
     {
       id: 'integrations',
-      label: 'Integrations',
+      label: 'Integrazioni',
       href: '/admin/integrations',
       icon: 'integrations',
     },
-    { id: 'audit', label: 'Audit log', href: '/admin/audit', icon: 'audit' },
+    { id: 'audit', label: 'Registro audit', href: '/admin/audit', icon: 'audit' },
   ],
 };
 
 const systemIt: NavSection = {
   id: 'system',
-  title: 'System',
+  title: 'Sistema',
   items: [
-    { id: 'users-admin', label: 'Users', href: '/admin/users', icon: 'users-admin' },
-    { id: 'sap', label: 'SAP sync', href: '/explorer/sap', icon: 'sap' },
+    { id: 'users-admin', label: 'Utenti', href: '/admin/users', icon: 'users-admin' },
+    { id: 'sap', label: 'Sync SAP', href: '/explorer/sap', icon: 'sap' },
     {
       id: 'integrations',
-      label: 'Integrations',
+      label: 'Integrazioni',
       href: '/admin/integrations',
       icon: 'integrations',
     },
-    { id: 'audit', label: 'Audit log', href: '/admin/audit', icon: 'audit' },
+    { id: 'audit', label: 'Registro audit', href: '/admin/audit', icon: 'audit' },
   ],
 };
 
 /** Self-service "Me" section for low-privilege roles. */
 const selfSection: NavSection = {
   id: 'self',
-  title: 'Me',
+  title: 'Personale',
   items: [
-    { id: 'profile', label: 'My profile', href: '/me', icon: 'profile' },
-    { id: 'my-skills', label: 'My skills (ESCO)', href: '/me/skills', icon: 'esco' },
-    { id: 'my-goals', label: 'My goals', href: '/me/goals', icon: 'goals' },
-    { id: 'my-reviews', label: 'My reviews', href: '/me/reviews', icon: 'reviews' },
-    { id: 'my-learning', label: 'My learning', href: '/me/learning', icon: 'learning' },
+    { id: 'profile', label: 'Profilo', href: '/me', icon: 'profile' },
+    { id: 'my-skills', label: 'Competenze (ESCO)', href: '/me/skills', icon: 'esco' },
+    { id: 'my-goals', label: 'Miei obiettivi', href: '/me/goals', icon: 'goals' },
+    { id: 'my-reviews', label: 'Mie valutazioni', href: '/me/reviews', icon: 'reviews' },
+    { id: 'my-learning', label: 'Mia formazione', href: '/me/learning', icon: 'learning' },
   ],
 };
 
 const teamSection: NavSection = {
   id: 'team',
-  title: 'My team',
+  title: 'Il mio team',
   items: [
-    { id: 'team', label: 'Direct reports', href: '/team', icon: 'team' },
-    { id: 'team-reviews', label: 'Team reviews', href: '/team/reviews', icon: 'reviews' },
-    { id: 'team-goals', label: 'Team goals', href: '/team/goals', icon: 'goals' },
+    { id: 'team', label: 'Riporti diretti', href: '/team', icon: 'team' },
+    { id: 'team-reviews', label: 'Valutazioni team', href: '/team/reviews', icon: 'reviews' },
+    { id: 'team-goals', label: 'Obiettivi team', href: '/team/goals', icon: 'goals' },
   ],
 };
 
@@ -153,11 +157,11 @@ export const SIDEBAR_MAP: Record<UserRole, NavSection[]> = {
         { id: 'dashboard', label: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
         {
           id: 'analytics',
-          label: 'Cross-tenant analytics',
+          label: 'Analitiche cross-tenant',
           href: '/dashboard/cross_tenant_overview',
           icon: 'analytics',
         },
-        { id: 'employees', label: 'Employees', href: '/employees', icon: 'employees' },
+        { id: 'employees', label: 'Dipendenti', href: '/employees', icon: 'employees' },
       ],
     },
     onto,
@@ -172,15 +176,20 @@ export const SIDEBAR_MAP: Record<UserRole, NavSection[]> = {
         { id: 'dashboard', label: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
         {
           id: 'org-overview',
-          label: 'Org overview',
+          label: 'Panoramica organizzazione',
           href: '/dashboard/tenant_owner_overview',
           icon: 'org-chart',
         },
-        { id: 'employees', label: 'Employees', href: '/employees', icon: 'employees' },
-        { id: 'compensation', label: 'Compensation', href: '/compensation', icon: 'compensation' },
+        { id: 'employees', label: 'Dipendenti', href: '/employees', icon: 'employees' },
+        {
+          id: 'compensation',
+          label: 'Stipendi e bonus',
+          href: '/compensation',
+          icon: 'compensation',
+        },
         {
           id: 'analytics',
-          label: 'Workforce analytics',
+          label: 'Analitiche workforce',
           href: '/analytics/workforce',
           icon: 'analytics',
         },
@@ -196,7 +205,7 @@ export const SIDEBAR_MAP: Record<UserRole, NavSection[]> = {
       title: 'Workspace',
       items: [
         { id: 'dashboard', label: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
-        { id: 'sap', label: 'SAP sync', href: '/explorer/sap', icon: 'sap' },
+        { id: 'sap', label: 'Sync SAP', href: '/explorer/sap', icon: 'sap' },
       ],
     },
     onto,
@@ -211,24 +220,29 @@ export const SIDEBAR_MAP: Record<UserRole, NavSection[]> = {
         { id: 'dashboard', label: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
         {
           id: 'hr-overview',
-          label: 'HR Director overview',
+          label: 'Vista HR Director',
           href: '/dashboard/hr_director_overview',
           icon: 'analytics',
         },
-        { id: 'employees', label: 'Talent registry', href: '/employees', icon: 'employees' },
+        { id: 'employees', label: 'Registro talenti', href: '/employees', icon: 'employees' },
         {
           id: 'capability',
-          label: 'Capability map',
+          label: 'Mappa competenze',
           href: '/dashboard/capability_graph',
           icon: 'capability',
         },
-        { id: 'reviews', label: 'Reviews', href: '/reviews', icon: 'reviews' },
-        { id: 'goals', label: 'Goals', href: '/goals', icon: 'goals' },
-        { id: 'learning', label: 'Learning paths', href: '/learning', icon: 'learning' },
-        { id: 'compensation', label: 'Compensation', href: '/compensation', icon: 'compensation' },
+        { id: 'reviews', label: 'Valutazioni', href: '/reviews', icon: 'reviews' },
+        { id: 'goals', label: 'Obiettivi', href: '/goals', icon: 'goals' },
+        { id: 'learning', label: 'Percorsi formativi', href: '/learning', icon: 'learning' },
+        {
+          id: 'compensation',
+          label: 'Stipendi e bonus',
+          href: '/compensation',
+          icon: 'compensation',
+        },
         {
           id: 'analytics',
-          label: 'Workforce analytics',
+          label: 'Analitiche workforce',
           href: '/analytics/workforce',
           icon: 'analytics',
         },
@@ -238,10 +252,10 @@ export const SIDEBAR_MAP: Record<UserRole, NavSection[]> = {
     onto,
     {
       id: 'system',
-      title: 'System',
+      title: 'Sistema',
       items: [
-        { id: 'audit', label: 'Audit log', href: '/admin/audit', icon: 'audit' },
-        { id: 'rbac', label: 'RBAC matrix', href: '/admin/rbac', icon: 'rbac' },
+        { id: 'audit', label: 'Registro audit', href: '/admin/audit', icon: 'audit' },
+        { id: 'rbac', label: 'Matrice RBAC', href: '/admin/rbac', icon: 'rbac' },
       ],
     },
   ],
@@ -254,13 +268,18 @@ export const SIDEBAR_MAP: Record<UserRole, NavSection[]> = {
         { id: 'dashboard', label: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
         {
           id: 'employees',
-          label: 'Employees (dept)',
+          label: 'Dipendenti (dipartimento)',
           href: '/employees?scope=dept',
           icon: 'employees',
         },
-        { id: 'reviews', label: 'Reviews', href: '/reviews?scope=dept', icon: 'reviews' },
-        { id: 'goals', label: 'Goals (dept)', href: '/goals?scope=dept', icon: 'goals' },
-        { id: 'learning', label: 'Learning paths', href: '/learning', icon: 'learning' },
+        { id: 'reviews', label: 'Valutazioni', href: '/reviews?scope=dept', icon: 'reviews' },
+        {
+          id: 'goals',
+          label: 'Obiettivi (dipartimento)',
+          href: '/goals?scope=dept',
+          icon: 'goals',
+        },
+        { id: 'learning', label: 'Percorsi formativi', href: '/learning', icon: 'learning' },
       ],
     },
     processSection,
@@ -273,10 +292,10 @@ export const SIDEBAR_MAP: Record<UserRole, NavSection[]> = {
       title: 'Workspace',
       items: [
         { id: 'dashboard', label: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
-        { id: 'team', label: 'My team', href: '/team', icon: 'team' },
+        { id: 'team', label: 'Il mio team', href: '/team', icon: 'team' },
         {
           id: 'capability',
-          label: 'Team capability',
+          label: 'Competenze del team',
           href: '/dashboard/capability_graph?scope=team',
           icon: 'capability',
         },
@@ -293,7 +312,7 @@ export const SIDEBAR_MAP: Record<UserRole, NavSection[]> = {
       title: 'Workspace',
       items: [
         { id: 'dashboard', label: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
-        { id: 'reviews', label: 'My team reviews', href: '/team/reviews', icon: 'reviews' },
+        { id: 'reviews', label: 'Valutazioni del team', href: '/team/reviews', icon: 'reviews' },
       ],
     },
     ontoLite,

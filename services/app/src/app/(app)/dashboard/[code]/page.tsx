@@ -35,6 +35,24 @@ export default async function DashboardCodePage({ params, searchParams }: PagePr
   const role = user.role ?? null;
   const tenantId = user.tenantId ?? null;
 
+  // P2 (L61 carry-forward): se l'URL punta a un preset v1 ma esiste la versione
+  // v2 (G6 adoption, 10-12 elements brand-fedeli), redirect alla v2 preservando
+  // i query params. Evita l'esperienza "0 widget" quando il preset legacy v1 ha
+  // solo 3-4 elements seedati (vs ~11 nei v2).
+  if (!code.endsWith('_v2')) {
+    const v2Preset = await loadDashboardPreset(`${code}_v2`, {
+      tenantId,
+      requirePublished: true,
+    });
+    if (v2Preset) {
+      const qs = new URLSearchParams();
+      if (observer) qs.set('observer', observer);
+      if (lang) qs.set('lang', lang);
+      const suffix = qs.toString();
+      redirect(`/dashboard/${code}_v2${suffix ? `?${suffix}` : ''}`);
+    }
+  }
+
   const preset = await loadDashboardPreset(code, {
     tenantId,
     requirePublished: true,
