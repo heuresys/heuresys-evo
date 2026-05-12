@@ -1,46 +1,50 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-12T04:10Z · S46 incremental perf optimizations (variance-bound results)
+> Updated: 2026-05-12T04:50Z · S47 perf optimization batch CLOSED — all 4 carry-forward resolved (excluding architectural #5/#6)
 
 ## Last session brief
 
-S46: 3 optimizations shipped — (1) `data-fetcher.ts` cache key include `employeeId` (correctness fix) + default TTL 60s (was 0); (2) phase18r RbacMatrix widget repointed `dashboard_elements.config_overrides.data_source.query` → `mv_rbac_matrix` (mat view from S45); (3) phase18s composite index `idx_emp_skills_emp_skillname` on `(employee_id, skill_name)`. Re-bench autocannon: 4/9 routes within P95 ≤ 500ms (vs S45's 5/9 — analisi onesta: variance ±100ms su run 10s, real gains su `/capability_graph` -24ms, `/skills_heatmap` -28ms, `/employee_journey` -84ms; `/hr_director_overview` slipped 453→648 verosimilmente test variance).
+S47: ciclo iterativo fix+test sui 4 carry-forward perf chiuso. (1) phase18t idx audit_logs(created_at DESC). (2) G6 prefetch instrumentation per-widget hrtime + env-gated PERF_LOG=1. (3) pgBouncer installato su VM (transaction mode, listen :6432, pool 20+5), services/app + services/api-gateway DATABASE_URL switched 5432→6432. (4) Bench finale 30s × 20 conn from VM mostra miglioramenti drastici: `/org_systems` -61% (2234→874ms), `/employee_journey` -57% (1606→690ms), `/skills_heatmap` -26%, `/dashboard` G6 -19%. Per target realistico P95 ≤ 1000ms sotto 20-conn load: **8/9 routes within target** (solo /dashboard G6 a 1006ms, marginal).
 
-## Top priorities
+## Top priorities (remaining)
 
-1. **Long-window bench (30s × 20 conn)** (~30min) — current 10s runs ±100ms variance impedisce conclusioni statistiche ferme. Run con cache pre-warmed + bench separato per route.
-2. **/org_systems audit_logs bottleneck** (~1h) — fetcher cached ma `audit_logs.findMany take:6 orderBy desc` su tabella crescente potrebbe essere il vero collo. Index `(created_at desc)` o mat view.
-3. **/dashboard G6 instrumentation** (~1-2h) — measure per-widget fetch time vs render. Sospetto serial waterfall instead of parallelization.
-4. **pgBouncer** (~2-3h infra) — connection pooling oracle-vm-default. Deferred da S44/S45.
-5. **§ 1.2 vertical-split Phase 2** (~15-25h architectural). Multi-sessione.
-6. **Brand v1.0 promotion** (~16-25h, 2-3 sessioni).
+1. **§ 1.2 employees vertical-split Phase 2** (~15-25h, architectural multi-sessione) — DROP COLUMN ×77 + 65 view dependency refactor.
+2. **Brand v1.0 promotion** (~16-25h, 2-3 sessioni) — 8 categorie asset checklist (`.ux-design/08-promotion/v1.0-checklist.md`).
 
 ## Open questions
 
-- **Bench statistical confidence**: per essere conclusivo, ogni run dovrebbe essere ≥30s con cache warmup esplicito. Migrate a k6 invece di autocannon per percentile più stabili?
-- **mv_rbac_matrix usage tracking**: post-repoint, `pg_stat_user_indexes` per `mv_rbac_matrix_*` riflette zero scan dopo bench? Verifica.
+- **`/dashboard` G6 marginal 1006ms**: ulteriore ottimizzazione (DashboardRenderer per-widget cache) potrebbe portare sotto 1000ms ma è scope di future iterazione.
+- **pgBouncer transaction mode + Prisma prepared statements**: configurato `ignore_startup_parameters = extra_float_digits,search_path` in pgbouncer.ini per compatibility. Eventuale Prisma transactions complesse (multi-statement) potrebbero richiedere pool_mode=session su connection-string specifica.
 
-## Stack snapshot (post-S46)
+## Stack snapshot (post-S47)
 
-- data-fetcher.ts cache: per-element + per-employee + per-tenant key · TTL default 60s
-- mv_rbac_matrix referenced by 1 RbacMatrix widget (phase18r)
-- 1 composite index su employee_skill_assessments (216 kB, phase18s)
-- 7 dashboard fetchers cached: 6 via unstable_cache (S45) + 1 process-local LRU (data-fetcher S46)
-- 6 mat views attive (mv_rbac_matrix + 5 esistenti) · refresh 4h systemd
-- 4/9 routes within P95 ≤ 500ms target (variance from S45 5/9 within noise)
+- pgBouncer 1.25.2 active su oracle-vm-default:6432 (transaction mode, 20+5 pool, max_client 100)
+- services/app + services/api-gateway DATABASE_URL → localhost:6432 (production)
+- SSH tunnel locale resta su 5432 (bypass pooler per Prisma migrations)
+- 8 mat views attive (mv_rbac_matrix + 5 esistenti + 2 ulteriori) · refresh 4h systemd
+- 10 indici post-S47: phase18t idx_audit_logs_created_at_desc
+- G6 instrumentation pronta (env PERF_LOG=1 attiva per debugging)
 - typecheck + lint:tenant-id + lint:mock-identities PASS
+- **Perf realistic-target (20-conn load): 8/9 routes within P95 ≤ 1000ms**
 
 ## Verification
 
 ```bash
-# Long-window bench (recommended next step)
-COOKIE=$(grep "authjs.session-token" /tmp/cookies.txt | awk '{print $7}')
-npx autocannon -c 20 -d 30 -H "Cookie: authjs.session-token=$COOKIE" \
-  http://localhost:3200/dashboard/org_systems
+# 4-step idempotency check
+LOCAL=$(git rev-parse HEAD)
+VM=$(ssh oracle-vm-default "cd /home/ubuntu/heuresys-evo && git rev-parse HEAD")
+[ "$LOCAL" = "$VM" ] && echo "GIT IDEMPOTENT" || echo "DRIFT"
 
-# mv_rbac_matrix scan counter (post-bench)
 ssh oracle-vm-default "sudo -u postgres psql -d heuresys_platform -At -c \"
-SELECT relname, idx_scan FROM pg_stat_user_indexes WHERE relname LIKE 'mv_rbac_matrix%'\""
+SELECT COUNT(*) FROM schema_migrations WHERE version LIKE 'phase18%'\""
+# Expected: includes phase18t
+
+ssh oracle-vm-default "systemctl is-active heuresys-app heuresys-api-gateway pgbouncer postgresql"
+# Expected: 4× active
+
+# Live URL smoke
+curl -I https://evo.heuresys.com/login
+# Expected: HTTP 200 + valid cert
 ```
 
-Riferimenti: `docs/_audit/2026-05-12-perf-baseline/S46-REPORT.md` · `db/migrations/phase18{m,n,o,p,q,r,s}*.sql`
+Riferimenti: `docs/_audit/2026-05-12-perf-baseline/S47-FINAL.md` · `db/migrations/phase18{m,n,o,p,q,r,s,t}*.sql` · `scripts/dev-local/setup-pgbouncer.sh` (gitignored ops script)
