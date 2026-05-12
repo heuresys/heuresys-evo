@@ -189,16 +189,19 @@ describe('fetchWidgetData — cache TTL', () => {
   });
 });
 
-describe('fetchWidgetData — unimplemented sources', () => {
+describe('fetchWidgetData — partially implemented sources', () => {
   beforeEach(() => __testing.clearCache());
 
-  it('api source returns explicit "not yet implemented" error', async () => {
+  it('api source without endpoint returns explicit validation error', async () => {
+    // S40 Item3+ shipped `api` source implementation; the test originally
+    // asserted "not yet implemented", but the dispatcher now validates
+    // endpoint presence and surfaces a domain-specific error instead.
     const r = await fetchWidgetData({
       elementId: 1,
       config: { type: 'api' },
       ctx: { tenantId: TENANT },
     });
-    expect(r.error).toContain('not yet implemented');
+    expect(r.error).toContain('endpoint');
     expect(r.data).toBeNull();
   });
 

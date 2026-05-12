@@ -1,3 +1,4 @@
+import { unstable_cache } from 'next/cache';
 import { prisma } from '@/lib/db';
 
 /**
@@ -11,6 +12,10 @@ import { prisma } from '@/lib/db';
  *   2. Platform default row (tenant_id IS NULL).
  *
  * Returns null when neither exists for the given role.
+ *
+ * S48 G6 perf: wrapped with unstable_cache (revalidate=300s). The mapping
+ * role → preset_code is admin-edit cold data; serving from cache removes
+ * a DB round-trip per /dashboard request.
  */
 
 interface ResolverRow {
@@ -29,11 +34,12 @@ export interface ResolvePresetForRoleOptions {
   tenantId: string | null;
 }
 
-export async function resolvePresetCodeForRole(
-  opts: ResolvePresetForRoleOptions
-): Promise<string | null> {
-  const { role, tenantId } = opts;
+const PRESET_RESOLVER_TTL = 300;
 
+async function resolvePresetCodeForRoleUncached(
+  role: string,
+  tenantId: string | null
+): Promise<string | null> {
   const rows = tenantId
     ? await prisma.$queryRaw<ResolverRow[]>`
         SELECT preset_code
@@ -53,6 +59,20 @@ export async function resolvePresetCodeForRole(
       `;
 
   return rows[0]?.preset_code ?? null;
+}
+
+export function resolvePresetCodeForRole(
+  opts: ResolvePresetForRoleOptions
+): Promise<string | null> {
+  const { role, tenantId } = opts;
+  return unstable_cache(
+    () => resolvePresetCodeForRoleUncached(role, tenantId),
+    ['dashboard-preset-for-role', role, tenantId ?? 'platform'],
+    {
+      revalidate: PRESET_RESOLVER_TTL,
+      tags: ['dashboard-meta'],
+    }
+  )();
 }
 
 /**

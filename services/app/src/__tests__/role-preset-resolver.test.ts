@@ -1,5 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+// S48 G6: bypass next/cache.unstable_cache in vitest (no Next.js incremental
+// cache runtime in jsdom). The wrapper becomes a passthrough so resolver
+// behavior tests can assert on the underlying SQL paths.
+vi.mock('next/cache', () => ({
+  unstable_cache:
+    <Args extends unknown[], R>(fn: (...args: Args) => R) =>
+    (...args: Args) =>
+      fn(...args),
+  revalidateTag: vi.fn(),
+}));
+
 vi.mock('@/lib/db', () => {
   const mock = {
     $queryRaw: vi.fn(

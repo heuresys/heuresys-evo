@@ -2,6 +2,10 @@ import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { resolvePresetCodeForRole } from '@/lib/dashboard-engine/role-preset-resolver';
+import {
+  getCachedTenantName,
+  getCachedPresetMeta,
+} from '@/lib/dashboard-engine/dashboard-meta-cache';
 import { prefetchElements } from '@/lib/dashboard-engine/prefetch';
 import { DashboardRenderer, type DashboardRendererSlot } from '@/components/DashboardRenderer';
 import { DEFAULT_LOCALE, pickBilingual } from '@/lib/i18n';
@@ -76,18 +80,13 @@ export default async function DashboardPage() {
   const tenantId = user.tenantId ?? null;
   const username = user.name ?? user.username ?? user.email ?? 'user';
 
-  // Tenant name for views that need branded breadcrumb
-  let tenantName = 'Heuresys System';
-  if (tenantId) {
-    const t = await prisma.tenants.findUnique({
-      where: { id: tenantId },
-      select: { name: true },
-    });
-    if (t?.name) tenantName = t.name;
-  }
-
-  // Resolve preset_code for the logged-in role (data-driven via DB)
-  const presetCode = await resolvePresetCodeForRole({ role, tenantId });
+  // S48 G6 perf: parallelize the 2 independent cold-data lookups.
+  // tenant name (cached 300s) + role → preset_code (cached 300s).
+  const [tenantNameRaw, presetCode] = await Promise.all([
+    tenantId ? getCachedTenantName(tenantId) : Promise.resolve(null),
+    resolvePresetCodeForRole({ role, tenantId }),
+  ]);
+  const tenantName = tenantNameRaw ?? 'Heuresys System';
 
   if (!presetCode) {
     return (
@@ -111,7 +110,11 @@ export default async function DashboardPage() {
   // G6 adoption — DB-driven hierarchical preset (`*_v2`) renders via DashboardRenderer.
   // Original 7 *View.tsx preserved as fallback for non-`_v2` codes (S21 deletion).
   if (presetCode.endsWith('_v2')) {
-    const elements = await loadG6Elements(presetCode, tenantId);
+    // S48 G6 perf: parallelize elements load + cached preset metadata lookup.
+    const [elements, presetMeta] = await Promise.all([
+      loadG6Elements(presetCode, tenantId),
+      getCachedPresetMeta(presetCode),
+    ]);
     if (!elements || elements.length === 0) {
       return (
         <>
@@ -152,11 +155,8 @@ export default async function DashboardPage() {
     const slots = toSlots(elements);
     const data = Object.fromEntries(Object.entries(dataMap).map(([k, v]) => [k, v.data]));
 
-    // Resolve preset name (localized) for header title — replaces hardcoded placeholder.
-    const presetMeta = await prisma.dashboard_presets.findFirst({
-      where: { code: presetCode },
-      select: { name_it: true, name_en: true, perspective_code: true, persona_label: true },
-    });
+    // Resolve preset name (localized) for header title — uses cached meta from
+    // S48 G6 parallelized lookup above.
     const presetName = presetMeta ? pickBilingual(presetMeta, 'name', DEFAULT_LOCALE) : presetCode;
     const titleParts = presetName.trim().split(/\s+/);
     const titleAccent = titleParts.length > 1 ? (titleParts.pop() ?? '') : '';
