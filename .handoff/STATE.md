@@ -1,32 +1,32 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-12T01:05Z · S37→S40 post-CASCADIA remediation closed (13 commit, ~7.5h)
+> Updated: 2026-05-12T02:45Z · S41 W4-final + ProfileHero/CapabilityRadar API binding (1 feature commit, ~2.5h)
 
 ## Last session brief
 
-S40: Item3 (FetchContext.employeeId + `{employeeId}` template in fetchApi + phase18n KgMiniGraph bound 3 elements) + Item4 (`/api/succession/candidates` response shaped per BridgeCard end-to-end + activityFeedAdapter holidays passthrough). 6-Wave remediation roadmap closed: W1+W2+W3+W6 DONE, W4 2/7 view, W5 programmatic PASS.
+S41: 5/5 W4 dashboard view bound a Prisma via helper `lib/dashboard-views/*` (EmployeeJourney + CapabilityGraph + SkillsHeatmap + OrgSystems + CrossTenant). ProfileHero + CapabilityRadar widget binding via 2 nuovi endpoint `/api/employees/{id}/profile` + `/api/capability/aggregate` + migration phase18o. **4/4 target widget classes 100% api-bound** (BridgeCard 1/1 · KgMiniGraph 3/3 · CapabilityRadar 5/5 · ProfileHero 1/1).
 
 ## Top priorities
 
-1. **W4-final 5 view aggregation** (~3-4h) — EmployeeJourney/CapabilityGraph/SkillsHeatmap/OrgSystems/CrossTenant. Pattern blueprint in HrDirectorOverviewView (`2196025`) + TenantOwnerOverviewView (`5458614`).
-2. **W5 Chrome MCP visual walkthrough** (~1-2h) — dev server up + 88 cells screenshot baseline. Sessione live coordinata.
-3. **ProfileHero + CapabilityRadar binding** (~1.5h) — creare `/api/employees/{id}/profile` + `/api/capability/aggregate` + phase18o binding.
+1. **W5 Chrome MCP visual walkthrough** (~1-2h) — dev server + 88-cell screenshot baseline. Sessione live coordinata. Pre-requisito: dev server up su `http://localhost:3200`.
+2. **§ 1.2 employees vertical-split Phase 2** (~15-25h, separate scope) — DROP COLUMN x77 + view + 65 view dependency refactoring. Backup pre-attempt esistente.
+3. **WCAG 2.2 AAA audit + production perf bench** (~6-7h combinato) — axe-core CI + autocannon 8 viste P95 ≤ 500ms.
 
 ## Open questions
 
-- W4 priorità delle 5 view rimanenti — quale per prima? (CrossTenant ha già `fetchOrgSystemsData` parziale, EmployeeJourney più diretto con `employees+history`).
-- § 1.2 employees vertical-split Phase 2 (~15-25h, separate scope) — quando programmare?
+- **Skill-trend polyline + Capability-radar SVG fixtures** in EmployeeJourneyView restano hardcoded (richiedono `employee_skill_history` aggregation by quarter + ESCO target enrichment) — quando promuovere a live?
+- **ESCO sync stats fixture** in CapabilityGraphView (last sync, drift, next sync) — collegare a `integration_sync_logs` quando ESCO integration sarà attiva?
+- **Workforce 12-month trend SVG** in CrossTenant view resta layout-fixture (richiede `monthly_employee_snapshot` materialized view).
 
-## Stack snapshot (post-S40)
+## Stack snapshot (post-S41)
 
-- Prisma schemas in sync DBMS (kg_nodes/kg_edges/sc.tenant_id aggiunti)
-- 6 nuovi API endpoint + 2 enhanced (advisor KG, leaves CCNL)
-- data-fetcher.ts: type:'api' + `{employeeId}` template substitution
-- 2/4 target widgets api-bound (BridgeCard via phase18m · KgMiniGraph via phase18n)
-- 2/7 views Prisma-bound (HrDirector + TenantOwner succession)
-- 2 brand UI components estesi (BridgeCard SLA badge · ActivityFeed Holidays preview)
-- 4-tenant CASCADIA coverage stabile
-- typecheck + lint:tenant-id + lint:mock-identities PASS
+- 4/4 widget kinds api-bound (post-phase18o): ProfileHero 1, KgMiniGraph 3, CapabilityRadar 5, BridgeCard 1
+- 7/7 dashboard view data-bound: HrDirector + TenantOwner (S38) + EmployeeJourney + CapabilityGraph + SkillsHeatmap + OrgSystems + CrossTenant (S41)
+- 5 nuovi data fetcher helper: `lib/dashboard-views/{employee-journey,capability-graph,skills-heatmap,integrations,cross-tenant}-data.ts`
+- 2 nuovi API endpoint: `/api/employees/{id}/profile` + `/api/capability/aggregate?employeeId={id}`
+- Brand UI components estesi: BridgeCard SLA badge, ActivityFeed Holidays preview (S39)
+- Migrations: phase18m (BridgeCard) + phase18n (KgMiniGraph) + phase18o (ProfileHero+CapabilityRadar)
+- typecheck (services/app + api-gateway) + lint:tenant-id + lint:mock-identities PASS
 
 ## Verification
 
@@ -38,7 +38,7 @@ ssh oracle-vm-default "sudo -u postgres psql -d heuresys_platform -At -c \"
 SELECT widget_code, COUNT(*) FILTER (WHERE config_overrides->'data_source'->>'type'='api') AS api_bound, COUNT(*) AS total
 FROM dashboard_elements WHERE widget_code IN ('BridgeCard','KgMiniGraph','CapabilityRadar','ProfileHero')
 GROUP BY widget_code ORDER BY widget_code\""
-# Expected: BridgeCard 1/1 · KgMiniGraph 3/3 · CapabilityRadar 0/5 · ProfileHero 0/1
+# Expected: BridgeCard 1/1 · CapabilityRadar 5/5 · KgMiniGraph 3/3 · ProfileHero 1/1
 ```
 
-Riferimenti: `~/.claude/plans/m15-visual-walkthrough-programmiamo-recursive-graham.md` · `docs/_meta/lexicon.md` · ADR-0028/29/30 · `db/migrations/phase18m_widget_api_binding.sql` · `phase18n_widget_employee_context_binding.sql`
+Riferimenti: ADR-0028/29/30 · `db/migrations/phase18m_widget_api_binding.sql` · `phase18n_widget_employee_context_binding.sql` · `phase18o_widget_profile_capability_binding.sql` · `docs/_meta/lexicon.md` (OPOURSKA · ESKAP · TALPIPE)
