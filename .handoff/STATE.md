@@ -1,65 +1,111 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-13T12:10Z · S57 closed · **CASCADIA + Stage 5 SHIPPED** · HEAD `f893081`
+> Updated: 2026-05-13T16:00Z · S58 closed · **Constraint P11 codificato + Pilot legacy + Finding G6** · HEAD `8bf368f`
 
 ## Last session brief
 
-S57 chiude **Stage 5 — Dashboard Registry empty-state sweep**, ultima carry-forward CASCADIA. Pattern `liveWrapper` resilience preservato, 11 widget fixtures fake data sostituite con empty-state placeholders.
+S58 codifica il constraint **NO-MOCK / SOLO DATI LIVE da DBMS** come P11 sopraordinato. Audit Phase A + Foundation + Pilot legacy refactor completati. **Finding critico**: il view legacy `TenantOwnerOverviewView.tsx` refactored è **path orfano** — la prod usa G6 renderer (`_v2`) per tutti gli utenti canonical. Le **vere fonti di KPI hardcoded** in produzione vivono nel G6 widget engine, non identificate da Phase A inventory.
 
-**Cumulative S55+ → S57 commits** (23 totali · finale `f893081`):
+## Sessione S58 cumulative
 
-- 5 baseline (Open Q + WCAG + bundle audit)
-- 7 handoffs (S55, +1, +2, +3, +4, +5, +6, S57)
-- 10 CASCADIA stages + fixes (L78-L84)
-- 1 Stage 5 final sweep
+| Item | Commit |
+|---|---|
+| salary_bands closure EcoNova + Heuresys (CASCADIA seeding) | `e5cd4df` |
+| salary_band_assignments closure EcoNova + Heuresys (CASCADIA seeding) | `8c3ed98` |
+| toggle-tenant-owners-tmp.mjs (LH cross-tenant tooling) | `c7fc627` |
+| Lighthouse cross-tenant audit report (4 tenant × TENANT_OWNER) | `74159bd` |
+| axe WCAG AAA audit report (12 surface RTL Bank) | `213dcfd` |
+| **Constraint P11 + DataNotAvailable + Pilot legacy** | **`8bf368f`** |
 
-## CASCADIA full closure + Stage 5
+## Constraint P11 — files committati
 
-| Stage | Records / Δ | Verify | Note |
-|---|---:|---|---|
-| 0 Foundation tooling | 0 | n/a | L78 |
-| 1a TALPIPE RTL succession | +18 | 🟢 | L79 |
-| 1b RTL stat sweep | +927 | 🟢 | L80 |
-| 2b H2R onboarding cross-tenant | +24 inst +114 tasks | 🟢 | L81 |
-| 2f bonus + 3 workforce + 2f recruiting | +25 | 🟢 | L82 |
-| 2a-bridge EcoNova templates + 2b EcoNova | +5 tmpl + 5 inst +22 tasks | 🟢 | L83 |
-| 4 EPRA | 0 | 🟢 already 267+267 | discovery L83 |
-| **5 Dashboard registry sweep** | -88 LOC fake-data → empty-state | typecheck OK | **L84** |
-| **TOTAL** | **+1141 records + 136 tasks** + Stage 5 UX | | |
+- `CLAUDE.md` (root): §REGOLA NON NEGOZIABILE + P11 in tabella P1-P11
+- `.claude/CLAUDE.md`: CARD-4 + R18 + direttiva fondante aggiornata
+- `.claude/skills/studio/references/promote-flow.md`: Gate D.2 NO-FIXTURE (PROMOTE_E309_FIXTURE)
+- `.ux-design/BRAND-STATE.md` + `SESSION-RESUME.md` + `08-promotion/v1.0-checklist.md`: disclaimer P11
+- `docs/_audit/2026-05-13-no-mock-inventory.md`: baseline inventory
+- NEW `services/app/src/components/data/DataNotAvailable.tsx` + CSS (variant inline/block/tile, AA-compliant)
+- NEW `services/app/src/lib/data/tenant-owner-queries.ts`: 4 queries Prisma live (KPI/dept/succession/comp)
+- REFACTOR `services/app/src/app/(app)/dashboard/_views/TenantOwnerOverviewView.tsx`: rimossi ~48 hardcoded fixtures
 
-## verify-area FINAL
+## 🚨 Finding critico — Pilot orphan path
 
-**🟢 24/26 · 🟡 2/26 · 🔴 0/26** (cosmetic salary_bands EcoNova+Heuresys 2 yellow)
+`/dashboard` per utenti canonical (federica.marchetti TENANT_OWNER) renderizza via **G6 engine** (`tenant_owner_overview_v2`) tramite `loadG6Elements()` + `DashboardRenderer` (path: `services/app/src/app/(app)/dashboard/page.tsx:112+`). Il view legacy `TenantOwnerOverviewView.tsx` è chiamato SOLO se `presetCode` NON finisce in `_v2` (mai per utenti reali post-S20).
 
-## Stages residue (deferred S58+ on-demand)
+**Conseguenza**: smoke e2e cross-tenant ha confermato che i KPI hardcoded visibili in `/dashboard` (HEADCOUNT 86 · REV/FTE 142 · RETENTION 94% · PERFORMANCE 82% · AVG SALARY 68k · BONUS POOL 420k · EQUITY 1.2M · TOTAL TC 7.4M · ecc.) sono **costanti identiche cross-tenant** = NON provengono dal view legacy refactored ma da:
 
-- salary_bands EcoNova+Heuresys cosmetic (~30min, low ROI)
-- Lighthouse perf re-run cross-tenant (~1h)
-- axe AAA 4-tenant × 12 surface full smoke (~2h)
+- `prefetchElements()` data adapter via `services/app/src/lib/dashboard-engine/prefetch.ts`
+- `services/app/src/components/widgets/brand/*` G6 widget components
+- `dashboard_elements.config_overrides` JSON seed
 
-## Memory updates
+**Phase A inventory incompleto**: l'Explore agent ha categorizzato "app pages 100% compliant" perché nei `.tsx` files non c'erano numeri letterali — ma i numeri vivono nel **runtime widget adapter** + seed JSON, layer non scansionato.
 
-- ✅ `feedback_seed_via_ai.md` (renamed S55+6, content reflects CASCADIA shipped reality)
+## Stato refactor pilot
 
-## Stack snapshot (post-S57)
+- ✅ Pattern **codificato e funzionante**: queries live in `lib/data/*.ts` + `<DataNotAvailable />` + render conditional. Riutilizzabile per qualsiasi futura surface.
+- ✅ Typecheck PASS · build PASS · service restart OK
+- ⚠️ Path orfano: il file refactored non è eseguito in prod. Resta come **reference implementation** del pattern P11.
 
-- 23 commit S55+ shipped (`4964dba` → `f893081`)
-- CASCADIA: 7 stage real shipped + 4 discovered-saturated + Stage 5 dashboard sweep
-- 1141 records + 136 tasks inseriti via pipeline
-- 4 industry tenants coverage uniforme
-- Registry.tsx: 19 widgets resilient + empty-state placeholders
-- DECISIONS-LOG L1→L84
-- 5 stage backups
+## Carry-forward S59+ (priorità rivista)
 
-## Verification
+### S59 — Re-inventory **G6 dashboard engine** (HIGH PRIORITY, riapertura Phase A)
+
+Layer non scansionato in Phase A. Catalogare:
+
+- `services/app/src/lib/dashboard-engine/prefetch.ts` — data fetching widget per widget
+- `services/app/src/components/widgets/brand/*.tsx` (~19 widget secondo registry.tsx)
+- `services/app/src/lib/dashboard-engine/registry.tsx` — widget code → adapter map (post-S57 dichiarato compliant, da riverificare nel rendering live)
+- `dashboard_elements.config_overrides` JSON in DB (è seed o runtime?)
+
+Per ogni widget verificare:
+1. Source data: query Prisma live · static adapter · config_overrides JSON
+2. Fallback path: hardcoded values · DataNotAvailable · empty array
+3. Variance cross-tenant: stessi numeri per tutti? (= hardcoded) o variabili (= live)
+
+Effort stimato: 3-4h (re-inventory thorough on the right layer).
+
+### S60+ — Bonifica widget G6 secondo priorità inventory rivista
+
+Stimata 10-20h sulla base di S59 findings.
+
+### S61+ — Bonifica view legacy residui (`HrDirectorOverviewView`, `CapabilityGraphView`, ecc.)
+
+Pattern già codificato dal pilot. Effort solo se decidiamo di mantenere il fallback path attivo (alternativa: rimuovere fallback + canonicalizzare G6).
+
+### Investigare side-finding S58 #3 (P1 violation)
+
+Cross-tenant data leak su `/compensation` + `/employees` per TENANT_OWNER. RTL Bank vede bonus_plans EcoNova/Heuresys + employees SmartFood/EcoNova mescolati. Possibile bypass RLS o query senza `WHERE tenant_id`. **P1 priority**.
+
+## Verifica handoff
 
 ```bash
-# verify-area cross-tenant
-ssh oracle-vm-default "cd /home/ubuntu/heuresys-evo && export \$(grep -E '^DATABASE_URL=' services/app/.env | head -1) && node scripts/seed-generator/cascadia/verify-area.mjs --all 2>&1 | tail -5"
-# atteso: 🟢 24 · 🟡 2 · 🔴 0
+# Constraint P11 enforced
+grep -n "P11" CLAUDE.md
+grep -n "REGOLA NON NEGOZIABILE" CLAUDE.md
+grep -n "CARD-4" .claude/CLAUDE.md
+grep -n "Gate D.2" .claude/skills/studio/references/promote-flow.md
+grep -n "CONSTRAINT P11" .ux-design/BRAND-STATE.md
 
-# Dashboard live data smoke (logged in HR_DIRECTOR Valentina)
-# Visit https://evo.heuresys.com/dashboard — verify widgets show DB data, fallback empty-state when no data
+# Component shared esiste
+ls services/app/src/components/data/DataNotAvailable.tsx
+ls services/app/src/lib/data/tenant-owner-queries.ts
+
+# Typecheck verde
+cd services/app && npx tsc --noEmit
+
+# Inventory baseline
+ls docs/_audit/2026-05-13-no-mock-inventory.md
+
+# Live deploy attivo
+ssh oracle-vm-default "sudo systemctl status heuresys-app --no-pager | head -8"
 ```
 
-Riferimenti: `~/.claude/plans/l-obiettivo-di-completare-soft-wind.md` · `.ux-design/DECISIONS-LOG.md` L78-L84 · `services/app/src/lib/dashboard-engine/registry.tsx`.
+## Reference plan
+
+`~/.claude/plans/i-dati-attuali-che-gentle-church.md` — approved 2026-05-13.
+
+## Note operative
+
+- I commit `e5cd4df` + `8c3ed98` (CASCADIA seeding) restano legittimi (popolano DBMS, post-INSERT è dato live)
+- `toggle-tenant-owners-tmp.mjs --off` eseguito post-LH audit
+- Sessione lunga (~5h reali) — passaggi salient: 1) richiesta constraint utente → 2) confusione su scope CASCADIA risolta → 3) plan approvato → 4) implementazione + finding orphan path → 5) handoff onesto
