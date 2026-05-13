@@ -17,7 +17,7 @@ const TARGETS = {
   'rtl-bank': 970,
   smartfood: 500,
   econova: 150,
-  'heuresys-system': 25,
+  heuresys: 25,
 };
 
 export async function runStage({ tenant, dryRun }) {

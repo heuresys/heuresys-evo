@@ -26,7 +26,7 @@ const TARGETS = {
   'rtl-bank': 15,
   smartfood: 12,
   econova: 0, // no templates
-  'heuresys-system': 3,
+  heuresys: 3,
 };
 
 const TASK_TEMPLATES = [

@@ -23,7 +23,7 @@ const TENANT_IDS = {
   'rtl-bank': '0c54b84a-db6e-4da4-bc91-af5d480d524e',
   smartfood: '1d7bf448-ceac-4215-917d-45ff13678104',
   econova: 'fb1e866c-e90a-4e25-a146-f68d660a0be8',
-  'heuresys-system': 'd5855519-3ed1-4427-865f-fe75f1e42c4c',
+  heuresys: 'd5855519-3ed1-4427-865f-fe75f1e42c4c',
 };
 
 const AREAS = {

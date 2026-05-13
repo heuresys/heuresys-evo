@@ -23,7 +23,7 @@ const TARGETS = {
   'rtl-bank': 1000,
   smartfood: 500,
   econova: 150,
-  'heuresys-system': 30,
+  heuresys: 30,
 };
 
 const STATUS_TEMPLATES = {
