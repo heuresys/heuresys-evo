@@ -1,11 +1,13 @@
 /**
- * lib/openai-wrapper.mjs — Cost-cap aware OpenAI wrapper for INDOOR research.
+ * lib/openai-wrapper.mjs — Cost-cap aware OpenAI FALLBACK wrapper.
  *
- * Reuses cost-cap mechanism from `services/app/src/lib/ontology/openai-client.ts`
- * (OPENAI_COST_CAP_USD_DAILY, default $5). Model default: gpt-4o-mini.
+ * S55+ autonomous mode: research engine primary = Claude main loop (WebFetch/WebSearch
+ * + reasoning interno, vedi `cascadia/research-bridge.md`). Questo wrapper resta come
+ * fallback opzionale — invocato SOLO da industry-research.mjs#synthesizeIndustryProfileFallback
+ * o per mass-generation ripetitive >1000 rows via engine='openai-mini' flag.
  *
- * Use case: industry profile synthesis from raw research JSON (web research output).
- * Output structured (zod-validated downstream).
+ * Cost cap: OPENAI_COST_CAP_USD_DAILY env, default $5. Model: gpt-4o-mini.
+ * Cache: hit-first per cache_path arg.
  */
 
 const DEFAULT_MODEL = 'gpt-4o-mini';
@@ -61,25 +63,30 @@ export function checkCostCap(estimatedUsd, capUsd = DEFAULT_CAP_USD_DAILY) {
 }
 
 /**
- * Call OpenAI chat completion with cost cap enforcement.
- * Stub for now — actual implementation will use `openai` SDK or fetch directly.
- * Cache hit: if cache file exists, return cached response without API call.
+ * Fallback OpenAI chat completion (gpt-4o-mini, cost-capped).
+ *
+ * USAGE: invocato SOLO se Claude native path non disponibile (rate-limit) o
+ * mass-generation ripetitive >1000 rows con template identico.
+ *
+ * Cache hit: se cache_path esiste, ritorna cached senza API call.
  *
  * @param {{
  *   prompt: string,
  *   system?: string,
  *   model?: string,
  *   max_tokens?: number,
- *   cache_path?: string | null
+ *   cache_path?: string | null,
+ *   responseFormat?: 'json_object' | 'text'
  * }} args
  */
-export async function callOpenAI(args) {
+export async function callOpenAIFallback(args) {
   const {
     prompt,
     system = 'You are an HR strategy expert specializing in Italian labor markets.',
     model = DEFAULT_MODEL,
     max_tokens = 2000,
     cache_path = null,
+    responseFormat = 'json_object',
   } = args;
 
   // Try cache first
@@ -93,20 +100,62 @@ export async function callOpenAI(args) {
     }
   }
 
-  // Estimate cost pre-call
+  // Pre-flight: API key + cost cap
+  if (!process.env.OPENAI_API_KEY) {
+    throw new Error('[openai-wrapper] OPENAI_API_KEY not set — fallback unavailable');
+  }
   const approxInTokens = Math.ceil((system.length + prompt.length) / 4);
   const approxOutTokens = max_tokens;
   const estCost = estimateCostUsd(approxInTokens, approxOutTokens);
-  const check = checkCostCap(estCost);
+  const capUsd = Number(process.env.OPENAI_COST_CAP_USD_DAILY ?? DEFAULT_CAP_USD_DAILY);
+  const check = checkCostCap(estCost, capUsd);
   if (!check.ok) {
     throw new Error(
       `[openai-wrapper] cost cap exceeded: current=${check.current_usd} estimated=${check.estimated_usd} cap=${check.cap_usd}`
     );
   }
 
-  // Actual API call — defer implementation: this stub returns a placeholder.
-  // Real impl: import { OpenAI } from 'openai'; const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY }); ...
-  throw new Error(
-    '[openai-wrapper] live OpenAI call not yet implemented — populate cache_path manually for now'
+  // Live API call (lazy SDK import per evitare hard dep se mai usato)
+  let OpenAI;
+  try {
+    ({ default: OpenAI } = await import('openai'));
+  } catch (err) {
+    throw new Error(
+      `[openai-wrapper] 'openai' package not installed. Run: npm install --no-save openai`
+    );
+  }
+  const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  const completion = await client.chat.completions.create({
+    model,
+    messages: [
+      { role: 'system', content: system },
+      { role: 'user', content: prompt },
+    ],
+    max_tokens,
+    response_format: responseFormat === 'json_object' ? { type: 'json_object' } : undefined,
+  });
+
+  const usage = completion.usage ?? {};
+  const realCost = estimateCostUsd(
+    usage.prompt_tokens ?? approxInTokens,
+    usage.completion_tokens ?? approxOutTokens
   );
+  addDailyCost(realCost);
+
+  const content = completion.choices[0]?.message?.content ?? '';
+  let parsed;
+  try {
+    parsed = responseFormat === 'json_object' ? JSON.parse(content) : { text: content };
+  } catch (e) {
+    throw new Error(`[openai-wrapper] response not valid JSON: ${e.message}`);
+  }
+
+  if (cache_path) {
+    const fs = await import('node:fs/promises');
+    await fs.writeFile(cache_path, JSON.stringify(parsed, null, 2));
+  }
+  return { ...parsed, _meta: { model, cost_usd: realCost, usage } };
 }
+
+// Legacy alias (deprecato — usare callOpenAIFallback)
+export const callOpenAI = callOpenAIFallback;

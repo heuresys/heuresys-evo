@@ -1,42 +1,86 @@
 /**
- * lib/industry-research.mjs — Web research + LLM synthesis for INDOOR cascade.
+ * lib/industry-research.mjs — Industry profile reader + (fallback) synthesizer.
  *
- * Goal: produce `<tenant>_industry_profile.json` deterministico per ognuno dei 4 tenant.
- * Combina web research (ESCO REST, Eurostat, OECD) + LLM synthesis (cost-capped).
- * Cache versionato in `db/seeds/realistic/_research_cache/`.
+ * Path principale (S55+ autonomous mode): Claude main loop produce/aggiorna
+ * `<tenant>_industry_profile.json` via WebSearch/WebFetch + reasoning interno
+ * (vedi `cascadia/research-bridge.md`). Questo modulo si limita a:
+ *   - leggere il profile cached
+ *   - validarlo via lib/zod-schemas#IndustryProfileSchema
+ *   - esporre fallback OpenAI gpt-4o-mini SOLO se invocato esplicitamente
  *
- * Schema output: vedi plan canonical (`~/.claude/plans/in-questa-fase-io-spicy-galaxy.md`)
- * sezione "Industry profile JSON schema".
+ * Cache: `db/seeds/realistic/_research_cache/`.
  */
 
-import { callOpenAI } from './openai-wrapper.mjs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import { callOpenAIFallback } from './openai-wrapper.mjs';
+import { IndustryProfileSchema, validateIndustryProfile } from './zod-schemas.mjs';
 
 const CACHE_DIR = 'db/seeds/realistic/_research_cache';
 
 /**
- * Fetch raw research data for a NACE class.
- * Stub for now — actual implementation will fetch ESCO REST / Eurostat / OECD.
+ * Normalize tenant code (slug) → filename stem.
+ * Convention: tenant codes use hyphen ('rtl-bank'), filenames use underscore
+ * ('rtl_bank_industry_profile.json'). Heuresys System maps to 'heuresys'.
+ */
+function tenantFileStem(tenantCode) {
+  if (tenantCode === 'heuresys-system') return 'heuresys';
+  return tenantCode.replace(/-/g, '_');
+}
+
+/**
+ * Carica profile cached + valida via zod. Throw se mancante o invalid.
+ * Path principale per stage scripts.
+ */
+export async function loadValidatedProfile(tenantCode) {
+  const stem = tenantFileStem(tenantCode);
+  const profilePath = path.join(CACHE_DIR, `${stem}_industry_profile.json`);
+  let raw;
+  try {
+    raw = JSON.parse(await fs.readFile(profilePath, 'utf-8'));
+  } catch (err) {
+    throw new Error(
+      `[industry-research] profile not found at ${profilePath}. ` +
+        `In autonomous mode, Claude main loop must generate it via WebFetch/WebSearch first.`
+    );
+  }
+  const result = validateIndustryProfile(raw);
+  if (!result.ok) {
+    throw new Error(
+      `[industry-research] profile at ${profilePath} failed zod validation:\n${JSON.stringify(result.error, null, 2)}`
+    );
+  }
+  return result.data;
+}
+
+/**
+ * Fetch raw research data per NACE — stub passive (no live fetch).
+ * Riempire via Claude main loop WebFetch/WebSearch e salvare manualmente.
  */
 export async function fetchRawResearch(naceCode, options = {}) {
-  // Plan: curl https://ec.europa.eu/esco/api/... + Eurostat SDMX-JSON + OECD
-  // Output: { esco: {...}, eurostat: {...}, oecd: {...} } JSON
   const cachePath = path.join(CACHE_DIR, `raw_${naceCode}_${dateStamp()}.json`);
   try {
     return JSON.parse(await fs.readFile(cachePath, 'utf-8'));
   } catch {
     throw new Error(
-      `[industry-research] raw research for NACE ${naceCode} not yet cached. Populate ${cachePath} manually or implement live fetch.`
+      `[industry-research] raw research for NACE ${naceCode} not yet cached. ` +
+        `In autonomous mode, populate ${cachePath} via Claude main loop research, ` +
+        `then re-invoke this script.`
     );
   }
 }
 
 /**
- * Synthesize industry profile JSON from raw research via LLM.
+ * FALLBACK synthesizer — usa OpenAI gpt-4o-mini SOLO se invocato con engine='openai-mini'.
+ * Path principale: Claude main loop produce direttamente il profile JSON.
  */
-export async function synthesizeIndustryProfile({ tenant_code, nace_code, raw_research }) {
+export async function synthesizeIndustryProfileFallback({
+  tenant_code,
+  nace_code,
+  raw_research,
+  engine = 'claude-native',
+}) {
   const profilePath = path.join(CACHE_DIR, `${tenant_code}_industry_profile.json`);
 
   // Cache hit
@@ -46,8 +90,15 @@ export async function synthesizeIndustryProfile({ tenant_code, nace_code, raw_re
     // miss
   }
 
+  if (engine !== 'openai-mini') {
+    throw new Error(
+      `[industry-research] no cached profile at ${profilePath} and engine='${engine}'. ` +
+        `Either generate via Claude main loop (preferred) or pass engine='openai-mini' for OpenAI fallback.`
+    );
+  }
+
   const prompt = buildPrompt(tenant_code, nace_code, raw_research);
-  const llmResponse = await callOpenAI({
+  const llmResponse = await callOpenAIFallback({
     prompt,
     system:
       'You are an HR strategy expert specializing in Italian labor markets, ESCO taxonomy, and organizational design.',
@@ -55,7 +106,6 @@ export async function synthesizeIndustryProfile({ tenant_code, nace_code, raw_re
     cache_path: profilePath,
   });
 
-  // Validate + save (zod schema validation TBD)
   await fs.writeFile(profilePath, JSON.stringify(llmResponse, null, 2));
   return llmResponse;
 }
