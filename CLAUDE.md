@@ -244,25 +244,29 @@ VM: `oracle-vm-default` (IP 80.225.82.207). nginx vhosts in `/etc/nginx/sites-av
 
 **Vincolo "estirpazione clean"**: ogni entry in `Test Stage`/`PreOp Stage` DEVE essere rimovibile dal repo evo SENZA conseguenze su stack/oggetti pre-import. Categorie removability tracciate nel CSV (`no-impact`, `embedded-in-existing-file`, `depends-on-X`, `not-yet-used`, `depends-on-DB-seed`).
 
-## Sistema corrente (snapshot 2026-05-10 · post-S24+L59)
+## Sistema corrente (snapshot 2026-05-13 · post-S60+L87)
 
-> Per cronologia sprint shipped (Phase 14 → S24): [`docs/_meta/sprint-history.md`](docs/_meta/sprint-history.md).
+> Per cronologia sprint shipped (Phase 14 → S60): [`docs/_meta/sprint-history.md`](docs/_meta/sprint-history.md).
 > Per session brief: [`.handoff/STATE.md`](.handoff/STATE.md).
 
 **DBMS = SoT** (`heuresys_platform` postgres 16.13 bare-metal `oracle-vm-default:5432`):
 
-- 312 tabelle `tenant_id NOT NULL` · 367 RLS policies attive · **0 FK NO ACTION** (646 CASCADE · 215 SET NULL · 81 RESTRICT)
-- 5 mat views auto-refresh systemd timer ogni 4h UTC
+- 314+ tabelle (2 nuove S60: `tenant_revenue_periods` + `equity_grants`) · **370+ RLS policies attive** · `heuresys` user **NOBYPASSRLS** (S60 hardening)
+- 5 mat views auto-refresh systemd timer ogni 4h UTC + 1 view derived `total_compensation_tenant_aggregated`
 - Backup baseline: `/var/backups/heuresys-evo/heuresys_platform-SoT-baseline-2026-05-07T143000Z.dump` (sha256 `1d1150ced1016638f8ac31c2b85e056752592c9ced0870cfca84fe6328eda46a`) + pre-phase16m: `heuresys_platform-pre-phase16m-20260510T014431Z.dump`
-- Vertical-split satellite tables Phase 1 (additive): `employees_pii`/`employees_hr`/`employees_payroll` populated 270 row + sync trigger + view `employees_full` (Phase 2 DROP COLUMN deferred S26+)
+- Vertical-split satellite tables Phase 1 (additive): `employees_pii`/`employees_hr`/`employees_payroll` populated 270 row + sync trigger + view `employees_full` (Phase 2 DROP COLUMN deferred S26+) — `employees` ora VIEW post phase16o (S52)
+- Migration S58→S60 shipped: phase18p/q/r/s/t/u/v (6 DDL applied via `sudo -u postgres psql` post-NOBYPASSRLS)
 
 **App runtime**:
 
 - Pagine Next.js: 5 base (`/`, `/login`, `/dashboard`, `/showcase`, `/brand-studio`) + 17+ viste in `(app)/` route group con AppShell role-based
-- 7 view brand-fedeli `/dashboard` role-driven via `role_default_dashboards` (Phase 15.A) — preset_code → view component switch
+- **7 preset G6 `_v2` tutti 100% live cross-tenant** (post-S60): tenant_owner_overview · hr_director_overview · skills_heatmap · capability_graph · employee_journey · cross_tenant_overview · org_systems — ~32 KPI Prisma live · 0 hardcoded fixture · 5 KPI unavailable letterali (no source schema)
+- Legacy `_views/*View.tsx` fallback **rimosso S60 CF-5** (path orfano post-G6 adoption). Reference P11 pattern in `services/app/src/lib/data/tenant-owner-queries.ts`
 - Login = `login-aurora` mockup promosso production · AppShell topbar con LocaleSwitcher globale + ThemeToggle + UserMenu
 - API Next.js route handlers: `/api/dashboard/data/[elementId]`, `/api/dashboard/[code]/elements` (PUT), `/api/ontology/advisor`, `/api/explorer/{esco/tree,sap/status,kg/expand}`
-- Endpoint Express: 30 endpoint Pack 1-8 mounted (bypassed in (app)/ via Prisma direct). Cross-service JWT decode shipped (`9f7a283`): `services/api-gateway/src/lib/jwt-v4-decoder.ts` (jose `jwtDecrypt` + HKDF NextAuth v4 info string) + `middleware/auth.ts` bifurcation v4-cookie → fallback Auth.js v5 `getSession()`. 11/11 test green
+- Endpoint Express: 30 endpoint Pack 1-8 mounted (bypassed in (app)/ via Prisma direct). Cross-service JWT decode shipped (`9f7a283`)
+- G6 data-fetcher (`services/app/src/lib/dashboard-engine/data-fetcher.ts`) supports `type:'sql'` con `{employeeId}` placeholder binding parametrico sicuro (S60 CF-1)
+- Shared component `<DataNotAvailable />` (variant inline/block/tile, AA-compliant) per render letterale "Dati Non Disponibili" quando query restituisce null/0/[]
 
 **Auth canonical**:
 

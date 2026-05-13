@@ -10,6 +10,105 @@
 
 ---
 
+## ✅ S58 → S60 close (2026-05-13) — Constraint P11 NO-MOCK + G6 live data full + RLS hardening
+
+**3 sessioni cumulative shipped same day**: S58 (codification + pilot orphan finding) · S59 (P1 cross-tenant leak fix + 5 preset \_v2 bonifica + schema proposal) · S60 (zero carry-forward: 5 CF chiusi in cascata). **DECISIONS-LOG**: L85, L86, L87. **ADR**: 0031 (P11 + RLS hardening).
+
+### Commit chain S58 → S60 (14 commit shipped totali)
+
+| Wave                   | Commit(s)                                         | Scope                                                            |
+| ---------------------- | ------------------------------------------------- | ---------------------------------------------------------------- |
+| Pre-P11 (S58 pre)      | `e5cd4df` `8c3ed98` `c7fc627` `74159bd` `213dcfd` | salary_bands closure + LH cross-tenant + axe AAA audit           |
+| P11 codification       | `8bf368f`                                         | REGOLA NON NEGOZIABILE + DataNotAvailable + view pilot           |
+| Handoff S58            | `d45f736`                                         | Pilot orphan finding documented                                  |
+| G6 live (tenant_owner) | `e500df3` `162658a` `a8f8f5c`                     | phase18p migration + adapter unavailable + L85                   |
+| P1 leak fix + 5 preset | `a233f48`                                         | phase18q bulk + WHERE tenant_id 6 page.tsx + schema proposal     |
+| Zero CF                | `0985a1a`                                         | CF-1-5: {employeeId} + NOBYPASSRLS + schema ext + legacy cleanup |
+| Hotfix auth            | `d7d8d2f` `60064ad`                               | phase18v auth lookup policy + L87 note                           |
+
+### Constraint P11 codificato (sopraordinato a P1-P10)
+
+> Tutto va fatto con riferimento a dati live del db e e2e. SEMPRE. NO MOCK, NO PLACEHOLDERS, NO HARDCODED, NO DEMO, NO RANDOM, NO INVENZIONI, NO HALLUCINATIONS. SOLO DATI REALI LIVE E2E DA DBMS. QUANDO I DATI NON SONO DISPONIBILI DEVE ESSERE RIPORTATO "Dati Non Disponibili".
+
+**Enforcement points**:
+
+- `CLAUDE.md` root §REGOLA NON NEGOZIABILE + P11 in P1-P11 table
+- `.claude/CLAUDE.md`: CARD-4 + R18
+- `.claude/skills/studio/references/promote-flow.md`: Gate D.2 NO-FIXTURE (`PROMOTE_E309_FIXTURE`)
+- `.ux-design/{BRAND-STATE, SESSION-RESUME, 08-promotion/v1.0-checklist}.md`: disclaimer
+- Component `<DataNotAvailable />` shared (variant inline/block/tile, AA-compliant)
+- Inventory baseline: `docs/_audit/2026-05-13-no-mock-inventory*.md`
+- ADR-0031
+
+### Migration shipped (6 DDL applied)
+
+| #        | Migration                                                                    | Effect                          |
+| -------- | ---------------------------------------------------------------------------- | ------------------------------- |
+| phase18p | tenant_owner_overview_v2 static → sql                                        | 7 elements UPDATE               |
+| phase18q | 5 preset \_v2 bulk live + bug fix candidate_employee_id                      | 23 UPDATE                       |
+| phase18r | capability_graph + employee_journey unlock                                   | 8 UPDATE via `{employeeId}`     |
+| phase18s | NEW schema: tenant_revenue_periods + equity_grants + total_compensation view | 2 tables + 1 view               |
+| phase18t | tenants permissive lookup policy                                             | RLS hotfix CASCADIA bootstrap   |
+| phase18u | REV/FTE + EQUITY + TOTAL TC live                                             | 2 UPDATE preset 102 + 110       |
+| phase18v | users auth lookup policy                                                     | RLS hotfix NextAuth pre-context |
+
+### Stato G6 preset \_v2 (post-S60)
+
+| Preset                     | Coverage                                   | Cross-tenant variance verificato     |
+| -------------------------- | ------------------------------------------ | ------------------------------------ |
+| `tenant_owner_overview_v2` | 8 KPI live + ActivityFeed + SuccessionCard | RTL 156 emp · Heuresys 1 emp · ecc.  |
+| `hr_director_overview_v2`  | 4 KPI + SuccessionCard                     | live (pre-S58)                       |
+| `skills_heatmap_v2`        | 4 KPI + Histogram                          | live                                 |
+| `cross_tenant_overview_v2` | 4 KPI + Histogram                          | live platform-wide                   |
+| `org_systems_v2`           | 4 KPI                                      | live (tenants/rbp_roles/pg_policies) |
+| `capability_graph_v2`      | 4 KPI via `{employeeId}`                   | live employee-scope                  |
+| `employee_journey_v2`      | 4 KPI via `{employeeId}`                   | live employee-scope                  |
+
+**Totale**: ~32 KPI live · 0 hardcoded fixture · 5 KPI unavailable letterali (no source schema)
+
+### Schema extension shipped (S60 CF-4)
+
+- `tenant_revenue_periods` (monthly revenue per tenant, RLS, FK CASCADE)
+- `equity_grants` (per-employee, RLS, FK employees_core)
+- `total_compensation_tenant_aggregated` view (base + bonus + equity)
+- CASCADIA seed `smerto/80_revenue_equity.mjs` realistic banking Italia (RTL €460M revenue 2025 · Heuresys €2M ARR · 6 equity grants total)
+
+### RLS hardening (S60 CF-2)
+
+- `ALTER ROLE heuresys NOBYPASSRLS` applied via postgres superuser
+- 3 permissive policies aggiunte (lookup pre-context): `tenants.tenant_lookup_when_no_context` + `users.user_auth_lookup_when_no_context` (+ `tenant_revenue_periods` + `equity_grants` con isolation)
+- Defense-in-depth: 6 page.tsx con `WHERE tenant_id` esplicito (compensation, employees, reviews, goals, learning, admin/integrations)
+- Pattern ops: migration DDL post-NOBYPASSRLS richiede `sudo -u postgres psql`
+
+### Cross-tenant variance LIVE verificata production
+
+| Tenant    | HEADCOUNT | REV/FTE | EQUITY | TOTAL TC |
+| --------- | --------: | ------: | -----: | -------: |
+| RTL Bank  |       156 |   2016k |      — |     9.0M |
+| SmartFood |        82 |    683k |      — |     3.4M |
+| EcoNova   |        25 |    736k |   407k |     2.7M |
+| Heuresys  |         1 |   1410k |   500k |     0.8M |
+
+### Cleanup S60 CF-5
+
+7 file `_views/*View.tsx` orfani rimossi (TenantOwnerOverviewView, HrDirectorOverviewView, OrgSystemsView, CrossTenantOverviewView, SkillsHeatmapView, CapabilityGraphView, EmployeeJourneyView) + switch fallback in `dashboard/page.tsx` + 7 imports. Reference P11 pattern preservato in `services/app/src/lib/data/tenant-owner-queries.ts` (orfano ma documentato).
+
+### Memory updates
+
+- nuovo file `docs/_audit/2026-05-13-no-mock-inventory.md` (Phase A baseline)
+- nuovo file `docs/_audit/2026-05-13-no-mock-inventory-G6.md` (Phase A2 G6 layer)
+- nuovo file `docs/_audit/2026-05-13-schema-extension-proposal-revfte-equity-totaltc.md` (S59 proposal, closed S60)
+- nuovo ADR-0031 (questo cycle)
+
+### Lessons learned
+
+1. **Phase A inventory missed G6 layer** — text-based grep di `.tsx` files non cattura JSON `config_overrides` seed-resident. Future audit: include DB-resident config.
+2. **RLS bypass è worst-of-both** — security architecturally corretta ma user app con `rolbypassrls=true` disabilita tutto. Pattern hardening: NOBYPASSRLS + permissive lookup policies (vs NOBYPASSRLS singolo che rompe auth).
+3. **Defense in depth obbligatorio** anche con RLS attivo — `employees` è VIEW post-S52 vertical-split, RLS non si applica. Explicit `WHERE tenant_id` filter mandatory.
+4. **Schema seed realistic > synthetic random** — CASCADIA seeding pattern: usare benchmark realistic (banking Italia €460M revenue) anziché numeri inventati per case study production-grade.
+
+---
+
 ## ✅ S55+ → S57 close (2026-05-13) — CASCADIA pipeline full closure + Stage 5 dashboard registry sweep
 
 **8 sessioni autonomous chained (S55, S55+1, +2, +3, +4, +5, +6, S57). Plan canonical**: `~/.claude/plans/l-obiettivo-di-completare-soft-wind.md`. **ADR**: 0028 → accepted-implemented. **DECISIONS-LOG**: L77-L84.

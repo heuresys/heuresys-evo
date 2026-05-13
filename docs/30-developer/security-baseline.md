@@ -43,7 +43,7 @@
 +------------------------------------------------------------+
 ```
 
-## P1-P10 enforcement rules
+## P1-P11 enforcement rules
 
 I 10 principi (`CLAUDE.md` root sezione "Principi P1-P10") concretizzati in regole di codice. Validati in code review + tooling automatico (lint, typecheck, test, security scan).
 
@@ -217,12 +217,75 @@ Vitest test: `services/api-gateway/src/middleware/__tests__/security.test.ts`
 
 E2E security headers: `tests/e2e/security.spec.ts` (post-B5).
 
+## P11 — Production data fidelity (NO MOCK) — sopraordinato a P1-P10
+
+> **Vietato**: mock / placeholder / hardcoded / random / demo / inventato in UI / mockup brand / test e2e / brand-studio sperimentale. **SOLO query Prisma live da DBMS**. Dato non disponibile → letterale "Dati Non Disponibili" via `<DataNotAvailable />`. Eccezione: **CASCADIA seeding tools** (`scripts/seed-generator/*`) sono ESCLUSI (loro scope è popolare DBMS, post-INSERT i record sono dato live).
+
+**Enforcement**:
+
+- `CLAUDE.md` root §REGOLA NON NEGOZIABILE — testo letterale costraint utente
+- `.claude/CLAUDE.md`: CARD-4 + R18
+- `.claude/skills/studio/references/promote-flow.md`: Gate D.2 NO-FIXTURE (errore `PROMOTE_E309_FIXTURE`)
+- `.ux-design/{BRAND-STATE, SESSION-RESUME, 08-promotion/v1.0-checklist}.md`: disclaimer top-of-file
+- Component `<DataNotAvailable />`: `services/app/src/components/data/DataNotAvailable.tsx` (variant inline/block/tile, AA-compliant)
+- Adapter `kpiRingAdapter` + `BrandKpiCard` + `BrandCompCard`: flag `unavailable` per surface DataNotAvailable invece di demo 0
+- ADR-0031 (P11 + RLS hardening rationale)
+
+**Check pre-promote** (`/studio:promote` Gate D.2):
+
+```bash
+# Pattern 1: numeri letterali in JSX KPI
+grep -rn -E '(value|count|rating|amount|total|n)=\{[0-9]+' staging/<route>/
+
+# Pattern 2: array hardcoded > 2 elementi inline
+grep -rn -E 'const [A-Z_]+ = \[\{.{200,}' staging/<route>/
+
+# Pattern 3: variabili mock/fixture
+grep -rn -iE '(MOCK_|DEMO_|FIXTURE_|STUB_)' staging/<route>/
+
+# Pattern 4: fallback senza DataNotAvailable
+grep -rn -E '(\?\?|\|\|)\s*\[\{' staging/<route>/
+```
+
+Violation → blocker. Fix path: query Prisma live in `services/app/src/lib/data/*.ts` + render `<DataNotAvailable />` quando query restituisce null/0/[].
+
+**Source mancante** → CREARE prima (query/route/migration) poi data fetching. Le interpretazioni passate di stack/dati/logiche vanno **trasformate in oggetti reali**. Mai dedurre/interpretare/inventare.
+
+## RLS hardening (S60 CF-2)
+
+**Stato post-2026-05-13**:
+
+- `heuresys` DB user: `rolbypassrls = false` (ALTER ROLE NOBYPASSRLS applied via postgres superuser)
+- 367+ RLS policies attive tutte enforced (era bypass silente con BYPASSRLS=true)
+- Permissive lookup policies per bootstrap flow:
+  - `tenants.tenant_lookup_when_no_context` — `USING (current_tenant_id() IS NULL)` per CASCADIA `getTenantIdByCode` pre-context
+  - `users.user_auth_lookup_when_no_context` — `USING (current_tenant_id() IS NULL)` per NextAuth Credentials login pre-context
+
+**Defense in depth obbligatorio**:
+
+`employees` è VIEW (post phase16o vertical-split S52) → RLS NON applicabile a VIEW. Tutte le query Prisma su `employees` DEVONO avere `WHERE tenant_id: tenantId` esplicito. Verify-by-grep:
+
+```bash
+# Cercare findMany/aggregate/count su employees senza filtro
+grep -rn -E '(employees|bonus_plans|performance_reviews|goals|learning_paths|course_enrollments)\.(findMany|aggregate|count|findFirst)\(' services/app/src/app/\(app\) | grep -v 'tenant_id'
+# Expected: zero match
+```
+
+**Pattern operativo post-hardening**:
+
+- Migration DDL/UPDATE su tabelle con RLS attivo richiede `sudo -u postgres psql` (heuresys user non passa policy)
+- CASCADIA scripts continuano a funzionare via `withTenantTx` (set_config GUC prima di INSERT) — policies hanno `WITH CHECK (tenant_id = current_tenant_id())` compatibile
+- App runtime usa `withTenant(tenantId, fn)` helper che setta GUC in transaction — policies enforced
+
 ## References
 
 - [`../decisions/0012-security-baseline.md`](../decisions/0012-security-baseline.md) — ADR-0012
 - [`../decisions/0007-auth-dual-system.md`](../decisions/0007-auth-dual-system.md) — ADR-0007
 - [`../decisions/0008-multi-tenant-rls-evo.md`](../decisions/0008-multi-tenant-rls-evo.md) — ADR-0008
 - [`../decisions/0021-branch-protection-rebalanced.md`](../decisions/0021-branch-protection-rebalanced.md) — ADR-0021 (S11)
+- [`../decisions/0031-p11-no-mock-rls-hardening.md`](../decisions/0031-p11-no-mock-rls-hardening.md) — ADR-0031 (S60)
+- [`../../_audit/2026-05-13-no-mock-inventory.md`](../../_audit/2026-05-13-no-mock-inventory.md) — P11 baseline inventory
+- [`../../_audit/2026-05-13-no-mock-inventory-G6.md`](../../_audit/2026-05-13-no-mock-inventory-G6.md) — G6 layer inventory
 - [`../20-architecture/overview.md`](../20-architecture/overview.md) — cross-cutting concerns table
 - OWASP CSRF Prevention Cheat Sheet
 - Helmet docs: https://helmetjs.github.io
