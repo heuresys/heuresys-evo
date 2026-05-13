@@ -121,9 +121,11 @@ export async function runStage({ tenant, dryRun }) {
 
   let result;
   await withTenantTx(pool, tenantId, async (client) => {
+    // Partial unique index su (survey_id, employee_id) WHERE employee_id IS NOT NULL.
+    // Dedupe già fatto application-side via 'existing' set; uso ON CONFLICT DO NOTHING senza target.
     result = await dryRunBatchInsert(client, 'engagement_survey_responses', recordsToInsert, {
       dryRun,
-      onConflict: 'ON CONFLICT (survey_id, employee_id) DO NOTHING',
+      onConflict: 'ON CONFLICT DO NOTHING',
     });
     console.log('[pulsar/41] insert result:', result);
   });

@@ -46,7 +46,7 @@ export async function runStage({ tenant, dryRun }) {
   // Pull active employees + their skill assessments aggregated
   const { rows: empData } = await pool.query(
     `SELECT e.id as employee_id, e.first_name||' '||e.last_name as full_name, e.job_title,
-            COALESCE(AVG(esa.proficiency_level)::numeric(4,2), 0) as avg_proficiency,
+            COALESCE(AVG(esa.assessed_level)::numeric(4,2), 0) as avg_proficiency,
             COUNT(esa.id) as assessment_count
        FROM employees e
        LEFT JOIN employee_skill_assessments esa ON esa.employee_id = e.id

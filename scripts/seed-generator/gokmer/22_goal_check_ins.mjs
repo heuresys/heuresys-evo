@@ -87,7 +87,7 @@ export async function runStage({ tenant, dryRun }) {
 
   // Pull active goals
   const { rows: goals } = await pool.query(
-    `SELECT id, employee_id, progress_percentage, status, target_date FROM goals
+    `SELECT id, employee_id, progress_percent AS progress_percentage, status, target_date FROM goals
       WHERE tenant_id = $1 AND status IN ('active', 'in_progress')
       ORDER BY id`,
     [tenantId]
