@@ -398,6 +398,15 @@
   --accent-hover: #fff85a;
   --accent-soft: #2a2810;
   --primary: #e85a3f;
+
+  /* WCAG 2.2 AAA enhanced contrast variants (L76 S55 batch — 15-palette sweep).
+   * Stesso paradigma palette legacy L69 + alpha L75-bis: 4 token --*-aaa per
+   * testo small (<18pt) su dark surfaces. Brand identity (--accent, --primary,
+   * --semantic-success) preservata per usi non-textual (icons, fills, borders). */
+  --accent-aaa: #d8b4fe;
+  --primary-aaa: #60a5fa;
+  --ink-muted-aaa: #b0b5c0;
+  --semantic-success-aaa: #4ade80;
   --gradient: linear-gradient(135deg, #c4361b 0%, #fff200 100%);
   --glow: 0 0 50px rgba(232, 90, 63, 0.3);
   --highlight: #fff200;
@@ -483,6 +492,15 @@
   --accent-hover: #f5d075;
   --accent-soft: #3a2e10;
   --primary: #4d8fc8;
+
+  /* WCAG 2.2 AAA enhanced contrast variants (L76 S55 batch — 15-palette sweep).
+   * Stesso paradigma palette legacy L69 + alpha L75-bis: 4 token --*-aaa per
+   * testo small (<18pt) su dark surfaces. Brand identity (--accent, --primary,
+   * --semantic-success) preservata per usi non-textual (icons, fills, borders). */
+  --accent-aaa: #d8b4fe;
+  --primary-aaa: #60a5fa;
+  --ink-muted-aaa: #b0b5c0;
+  --semantic-success-aaa: #4ade80;
   --gradient: linear-gradient(135deg, #1a4d7a 0%, #d8a213 100%);
   --glow: 0 0 50px rgba(216, 162, 19, 0.25);
   --blueprint: #4d8fc8;
@@ -570,6 +588,15 @@
   --accent-hover: #ff8533;
   --accent-soft: #3a1f10;
   --primary: #d63068;
+
+  /* WCAG 2.2 AAA enhanced contrast variants (L76 S55 batch — 15-palette sweep).
+   * Stesso paradigma palette legacy L69 + alpha L75-bis: 4 token --*-aaa per
+   * testo small (<18pt) su dark surfaces. Brand identity (--accent, --primary,
+   * --semantic-success) preservata per usi non-textual (icons, fills, borders). */
+  --accent-aaa: #d8b4fe;
+  --primary-aaa: #60a5fa;
+  --ink-muted-aaa: #b0b5c0;
+  --semantic-success-aaa: #4ade80;
   --gradient: linear-gradient(135deg, #d63068 0%, #ff6900 100%);
   --glow: 0 0 50px rgba(255, 105, 0, 0.3);
   --magenta-ft: #d63068;
@@ -654,6 +681,15 @@
   --accent-hover: #ffe5c0;
   --accent-soft: #3a2818;
   --primary: #8b6dff;
+
+  /* WCAG 2.2 AAA enhanced contrast variants (L76 S55 batch — 15-palette sweep).
+   * Stesso paradigma palette legacy L69 + alpha L75-bis: 4 token --*-aaa per
+   * testo small (<18pt) su dark surfaces. Brand identity (--accent, --primary,
+   * --semantic-success) preservata per usi non-textual (icons, fills, borders). */
+  --accent-aaa: #d8b4fe;
+  --primary-aaa: #60a5fa;
+  --ink-muted-aaa: #b0b5c0;
+  --semantic-success-aaa: #4ade80;
   --gradient: linear-gradient(135deg, #8b6dff 0%, #ffd4a8 100%);
   --glow: 0 0 60px rgba(255, 212, 168, 0.3);
   --highlight: #ffd4a8;
@@ -728,6 +764,15 @@
   --accent-hover: #8e9866;
   --accent-soft: #2a2e1c;
   --primary: #e87850;
+
+  /* WCAG 2.2 AAA enhanced contrast variants (L76 S55 batch — 15-palette sweep).
+   * Stesso paradigma palette legacy L69 + alpha L75-bis: 4 token --*-aaa per
+   * testo small (<18pt) su dark surfaces. Brand identity (--accent, --primary,
+   * --semantic-success) preservata per usi non-textual (icons, fills, borders). */
+  --accent-aaa: #d8b4fe;
+  --primary-aaa: #60a5fa;
+  --ink-muted-aaa: #b0b5c0;
+  --semantic-success-aaa: #4ade80;
   --gradient: linear-gradient(135deg, #e87850 0%, #7a8455 100%);
   --glow: 0 0 50px rgba(122, 132, 85, 0.3);
   --terracotta: #e87850;
@@ -814,6 +859,15 @@
   --accent-hover: #f87171;
   --accent-soft: #2a0e0e;
   --primary: #ffffff;
+
+  /* WCAG 2.2 AAA enhanced contrast variants (L76 S55 batch — 15-palette sweep).
+   * Stesso paradigma palette legacy L69 + alpha L75-bis: 4 token --*-aaa per
+   * testo small (<18pt) su dark surfaces. Brand identity (--accent, --primary,
+   * --semantic-success) preservata per usi non-textual (icons, fills, borders). */
+  --accent-aaa: #d8b4fe;
+  --primary-aaa: #60a5fa;
+  --ink-muted-aaa: #b0b5c0;
+  --semantic-success-aaa: #4ade80;
   --gradient: linear-gradient(135deg, #ffffff 0%, #ef4444 100%);
   --glow: 0 0 50px rgba(239, 68, 68, 0.3);
   --highlight: #ef4444;
@@ -886,6 +940,15 @@
   --accent-hover: #22d3ee;
   --accent-soft: #0c2a32;
   --primary: #8b5cf6;
+
+  /* WCAG 2.2 AAA enhanced contrast variants (L76 S55 batch — 15-palette sweep).
+   * Stesso paradigma palette legacy L69 + alpha L75-bis: 4 token --*-aaa per
+   * testo small (<18pt) su dark surfaces. Brand identity (--accent, --primary,
+   * --semantic-success) preservata per usi non-textual (icons, fills, borders). */
+  --accent-aaa: #d8b4fe;
+  --primary-aaa: #60a5fa;
+  --ink-muted-aaa: #b0b5c0;
+  --semantic-success-aaa: #4ade80;
   --gradient: linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%);
   --glow: 0 0 60px rgba(6, 182, 212, 0.3);
   --gen-1: #8b5cf6;
@@ -969,6 +1032,15 @@
   --accent-hover: #f5d075;
   --accent-soft: #3a2e10;
   --primary: #4d8fc8;
+
+  /* WCAG 2.2 AAA enhanced contrast variants (L76 S55 batch — 15-palette sweep).
+   * Stesso paradigma palette legacy L69 + alpha L75-bis: 4 token --*-aaa per
+   * testo small (<18pt) su dark surfaces. Brand identity (--accent, --primary,
+   * --semantic-success) preservata per usi non-textual (icons, fills, borders). */
+  --accent-aaa: #d8b4fe;
+  --primary-aaa: #60a5fa;
+  --ink-muted-aaa: #b0b5c0;
+  --semantic-success-aaa: #4ade80;
   --gradient: linear-gradient(135deg, #4d8fc8 0%, #d4a017 100%);
   --glow: 0 0 50px rgba(212, 160, 23, 0.25);
   --blueprint: #4d8fc8;
@@ -1039,6 +1111,15 @@
   --accent-hover: #e8b88a;
   --accent-soft: #3a2a1c;
   --primary: #d8688a;
+
+  /* WCAG 2.2 AAA enhanced contrast variants (L76 S55 batch — 15-palette sweep).
+   * Stesso paradigma palette legacy L69 + alpha L75-bis: 4 token --*-aaa per
+   * testo small (<18pt) su dark surfaces. Brand identity (--accent, --primary,
+   * --semantic-success) preservata per usi non-textual (icons, fills, borders). */
+  --accent-aaa: #d8b4fe;
+  --primary-aaa: #60a5fa;
+  --ink-muted-aaa: #b0b5c0;
+  --semantic-success-aaa: #4ade80;
   --gradient: linear-gradient(135deg, #d8688a 0%, #d8a878 100%);
   --glow: 0 0 50px rgba(216, 168, 120, 0.28);
   --highlight: #d8688a;
@@ -1112,6 +1193,15 @@
   --accent-hover: #f87171;
   --accent-soft: #2a0e0e;
   --primary: #4d8fc8;
+
+  /* WCAG 2.2 AAA enhanced contrast variants (L76 S55 batch — 15-palette sweep).
+   * Stesso paradigma palette legacy L69 + alpha L75-bis: 4 token --*-aaa per
+   * testo small (<18pt) su dark surfaces. Brand identity (--accent, --primary,
+   * --semantic-success) preservata per usi non-textual (icons, fills, borders). */
+  --accent-aaa: #d8b4fe;
+  --primary-aaa: #60a5fa;
+  --ink-muted-aaa: #b0b5c0;
+  --semantic-success-aaa: #4ade80;
   --gradient: linear-gradient(135deg, #4d8fc8 0%, #ef4444 100%);
   --glow: 0 0 50px rgba(239, 68, 68, 0.25);
   --blueprint: #4d8fc8;
@@ -1187,6 +1277,15 @@
   --accent-hover: #c0ffd0;
   --accent-soft: #1e2e22;
   --primary: #5e69d1;
+
+  /* WCAG 2.2 AAA enhanced contrast variants (L76 S55 batch — 15-palette sweep).
+   * Stesso paradigma palette legacy L69 + alpha L75-bis: 4 token --*-aaa per
+   * testo small (<18pt) su dark surfaces. Brand identity (--accent, --primary,
+   * --semantic-success) preservata per usi non-textual (icons, fills, borders). */
+  --accent-aaa: #d8b4fe;
+  --primary-aaa: #60a5fa;
+  --ink-muted-aaa: #b0b5c0;
+  --semantic-success-aaa: #4ade80;
   --gradient: linear-gradient(135deg, #5e69d1 0%, #a4ffba 100%);
   --glow: 0 0 50px rgba(164, 255, 186, 0.25);
   --token-label: #a4ffba;
@@ -1263,6 +1362,15 @@
   --accent-hover: #c585e8;
   --accent-soft: #251a35;
   --primary: #8a48b8;
+
+  /* WCAG 2.2 AAA enhanced contrast variants (L76 S55 batch — 15-palette sweep).
+   * Stesso paradigma palette legacy L69 + alpha L75-bis: 4 token --*-aaa per
+   * testo small (<18pt) su dark surfaces. Brand identity (--accent, --primary,
+   * --semantic-success) preservata per usi non-textual (icons, fills, borders). */
+  --accent-aaa: #d8b4fe;
+  --primary-aaa: #60a5fa;
+  --ink-muted-aaa: #b0b5c0;
+  --semantic-success-aaa: #4ade80;
   --gradient: linear-gradient(135deg, #8a48b8 0%, #b370e0 100%);
   --glow: 0 0 60px rgba(179, 112, 224, 0.3);
   --highlight: #b370e0;
@@ -1334,6 +1442,15 @@
   --accent-hover: #5896f7;
   --accent-soft: #14202e;
   --primary: #22c55e;
+
+  /* WCAG 2.2 AAA enhanced contrast variants (L76 S55 batch — 15-palette sweep).
+   * Stesso paradigma palette legacy L69 + alpha L75-bis: 4 token --*-aaa per
+   * testo small (<18pt) su dark surfaces. Brand identity (--accent, --primary,
+   * --semantic-success) preservata per usi non-textual (icons, fills, borders). */
+  --accent-aaa: #d8b4fe;
+  --primary-aaa: #60a5fa;
+  --ink-muted-aaa: #b0b5c0;
+  --semantic-success-aaa: #4ade80;
   --gradient: linear-gradient(135deg, #22c55e 0%, #3b82f6 100%);
   --glow: 0 0 50px rgba(59, 130, 246, 0.25);
   --semantic-warning: #f59e0b;
@@ -1409,6 +1526,15 @@
   --accent-hover: #8e93c1;
   --accent-soft: #1e1f2e;
   --primary: #5e69d1;
+
+  /* WCAG 2.2 AAA enhanced contrast variants (L76 S55 batch — 15-palette sweep).
+   * Stesso paradigma palette legacy L69 + alpha L75-bis: 4 token --*-aaa per
+   * testo small (<18pt) su dark surfaces. Brand identity (--accent, --primary,
+   * --semantic-success) preservata per usi non-textual (icons, fills, borders). */
+  --accent-aaa: #d8b4fe;
+  --primary-aaa: #60a5fa;
+  --ink-muted-aaa: #b0b5c0;
+  --semantic-success-aaa: #4ade80;
   --gradient: linear-gradient(135deg, #5e69d1 0%, #7a7fad 100%);
   --glow: 0 0 50px rgba(122, 127, 173, 0.25);
   --semantic-success: #5fb87a;
@@ -1483,6 +1609,15 @@
   --accent-hover: #8e93c1;
   --accent-soft: #1e1f2e;
   --primary: #5e69d1;
+
+  /* WCAG 2.2 AAA enhanced contrast variants (L76 S55 batch — 15-palette sweep).
+   * Stesso paradigma palette legacy L69 + alpha L75-bis: 4 token --*-aaa per
+   * testo small (<18pt) su dark surfaces. Brand identity (--accent, --primary,
+   * --semantic-success) preservata per usi non-textual (icons, fills, borders). */
+  --accent-aaa: #d8b4fe;
+  --primary-aaa: #60a5fa;
+  --ink-muted-aaa: #b0b5c0;
+  --semantic-success-aaa: #4ade80;
   --gradient: linear-gradient(135deg, #5e69d1 0%, #7a7fad 100%);
   --glow: 0 0 40px rgba(122, 127, 173, 0.25);
   --semantic-success: #5fb87a;
