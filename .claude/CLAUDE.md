@@ -12,7 +12,7 @@ sot: docs/_meta/operating-baseline.md (full operating rules)
 
 ## Direttiva fondante
 
-**SEMPLICITÀ + ROBUSTEZZA**. Officina, non università. Strumento più semplice che funziona, non pattern più elegante. Safety non negoziabile (P1-P10, secret hygiene, accountability, git safety). Cerimonia bandita.
+**SEMPLICITÀ + ROBUSTEZZA**. Officina, non università. Strumento più semplice che funziona, non pattern più elegante. Safety non negoziabile (P1-P11, secret hygiene, accountability, git safety, **NO MOCK in UI/test/mockup**). Cerimonia bandita.
 
 ## Lingua
 
@@ -44,6 +44,15 @@ I tre comandamenti che attraversano tutte le regole.
 - PR-driven solo se richiesta esplicita o cambio strutturale critico
 - Pattern ripetuto >2 volte → segnalo per automazione, NON implemento
 
+### CARD-4: DATI LIVE E2E — NO MOCK OVUNQUE (UI/MOCKUP/TEST/STUDIO)
+
+- UI prod / mockup brand / brand-studio sperimentale / test e2e → SOLO query Prisma reali su DBMS live
+- Source non esiste? → CREARE PRIMA (query/route Prisma in `services/app/src/lib/data/*.ts`), poi data fetching
+- Le deduzioni/interpretazioni di stack/dati/logiche vanno TRASFORMATE in oggetti reali (query/routes/sources). Mai inventare/dedurre/hallucinare
+- CASCADIA seeding tools (`scripts/seed-generator/*`) → ESCLUSI (loro scope è popolare DBMS, post-INSERT i record sono dato live)
+- Dato non disponibile → letterale "Dati Non Disponibili" via `<DataNotAvailable />`, mai sostituire con fittizio
+- heuresys-evo è case study production-grade con RTL Bank come tenant ref. Vedi `CLAUDE.md` root §REGOLA NON NEGOZIABILE + P11
+
 ## Comportamento
 
 - Prima di operazioni file: piano + approvazione esplicita
@@ -62,27 +71,28 @@ I tre comandamenti che attraversano tutte le regole.
 - No duplicare output tool — sintetizzare
 - Codice in fenced block con language hint
 
-## Regole globali (R1-R17, riferimento `~/.claude/CLAUDE.md` machine-local)
+## Regole globali (R1-R18, riferimento `~/.claude/CLAUDE.md` machine-local)
 
-Sub-set heuresys-evo (15 regole, esclusi R7 PowerShell OS-only e R13 Cowork legacy):
+Sub-set heuresys-evo (16 regole, esclusi R7 PowerShell OS-only e R13 Cowork legacy):
 
-| #   | Regola                             | Sintesi                                                       |
-| --- | ---------------------------------- | ------------------------------------------------------------- |
-| R1  | PENSA PRIMA, AGISCI DOPO           | Piano in 2 frasi. Modo più semplice                           |
-| R2  | ISTRUZIONI ALLA LETTERA            | "Tutti" = tutti. No reinterpretazione                         |
-| R3  | CORREGGERE OGNI ERRORE             | No "pre-esistente". Codebase migliore                         |
-| R4  | ACCOUNTABILITY                     | Errore → riconoscimento + correttivo                          |
-| R5  | TEST-BEFORE-CLAIM                  | Asserzione negativa → verified-by stamp                       |
-| R6  | NO-DELEGA SE HAI TOOL              | Tool esiste → uso io                                          |
-| R8  | EFFICIENZA / TOKEN HYGIENE         | Parallelismo. No re-read. Grep/Glob > Read per localize       |
-| R9  | NO-HALLUCINATION                   | "Non lo so, verifico". Mai inventare                          |
-| R10 | SECRET HYGIENE                     | Mai loggare credenziali. Pre-commit gitleaks scan             |
-| R11 | GIT SAFETY + WORKFLOW SNELLO       | Direct push main default, no PR. No `--no-verify`             |
-| R12 | STRATEGIA MULTI-TOOL / SUBAGENT    | Atomico → tool diretto. Esplorazione → Agent                  |
-| R14 | ANTI-BIAS COGNITIVI                | Cerca evidenza contraria. >30min → stop                       |
-| R15 | OCCHIO PER L'AUTOMAZIONE           | Pattern >2 volte → segnalo. Non implemento autonomo           |
-| R16 | CLIENT PASTE QUIRK                 | claude.ai trasforma `nome.ext` in link. Variabili nei comandi |
-| R17 | RESPONSABILITÀ TOTALE — SOLE CODER | Mai "non l'ho fatto io". Vigilanza pre-merge                  |
+| #   | Regola                             | Sintesi                                                                                                                                                              |
+| --- | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| R1  | PENSA PRIMA, AGISCI DOPO           | Piano in 2 frasi. Modo più semplice                                                                                                                                  |
+| R2  | ISTRUZIONI ALLA LETTERA            | "Tutti" = tutti. No reinterpretazione                                                                                                                                |
+| R3  | CORREGGERE OGNI ERRORE             | No "pre-esistente". Codebase migliore                                                                                                                                |
+| R4  | ACCOUNTABILITY                     | Errore → riconoscimento + correttivo                                                                                                                                 |
+| R5  | TEST-BEFORE-CLAIM                  | Asserzione negativa → verified-by stamp                                                                                                                              |
+| R6  | NO-DELEGA SE HAI TOOL              | Tool esiste → uso io                                                                                                                                                 |
+| R8  | EFFICIENZA / TOKEN HYGIENE         | Parallelismo. No re-read. Grep/Glob > Read per localize                                                                                                              |
+| R9  | NO-HALLUCINATION                   | "Non lo so, verifico". Mai inventare                                                                                                                                 |
+| R10 | SECRET HYGIENE                     | Mai loggare credenziali. Pre-commit gitleaks scan                                                                                                                    |
+| R11 | GIT SAFETY + WORKFLOW SNELLO       | Direct push main default, no PR. No `--no-verify`                                                                                                                    |
+| R12 | STRATEGIA MULTI-TOOL / SUBAGENT    | Atomico → tool diretto. Esplorazione → Agent                                                                                                                         |
+| R14 | ANTI-BIAS COGNITIVI                | Cerca evidenza contraria. >30min → stop                                                                                                                              |
+| R15 | OCCHIO PER L'AUTOMAZIONE           | Pattern >2 volte → segnalo. Non implemento autonomo                                                                                                                  |
+| R16 | CLIENT PASTE QUIRK                 | claude.ai trasforma `nome.ext` in link. Variabili nei comandi                                                                                                        |
+| R17 | RESPONSABILITÀ TOTALE — SOLE CODER | Mai "non l'ho fatto io". Vigilanza pre-merge                                                                                                                         |
+| R18 | DATI LIVE E2E (P11)                | NO mock/hardcoded/random in UI/mockup/test/studio. Source mancante → crearlo. Dato assente → "Dati Non Disponibili". Vedi CARD-4 + CLAUDE.md §REGOLA NON NEGOZIABILE |
 
 ## Pipeline plan-test-code-retest-fix
 

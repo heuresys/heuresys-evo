@@ -1,6 +1,6 @@
-# Promote flow — 5-gate flow + 2 fail-safe
+# Promote flow — 6-gate flow + 2 fail-safe
 
-Documenta il flusso bloccante di `/studio:promote` con 5 gate obbligatori (A-E) e 2 fail-safe esecutivi (F-G).
+Documenta il flusso bloccante di `/studio:promote` con 6 gate obbligatori (A-E + D.2) e 2 fail-safe esecutivi (F-G).
 
 ## Diagramma
 
@@ -38,6 +38,18 @@ USER: /studio:promote <route> <TS>
 │ Skill: superpowers:verification-before-completion            │
 │ Atteso: Self-Integrity Check 5/5                             │
 │ Errore: PROMOTE_E306 se any "no" → BLOCCA                    │
+└──────────────────────────────────────────────────────────────┘
+  │
+  ▼
+┌──────────────────────────────────────────────────────────────┐
+│ GATE D.2 — NO-FIXTURE CHECK (heuresys-evo P11)               │
+│ La staging candidate NON deve contenere mock/hardcoded/random│
+│ - Numeri letterali in JSX KPI (`value={86}` ❌)              │
+│ - const/array fixture > 2 elementi inline                    │
+│ - Demo data come fallback senza percorso live Prisma         │
+│ - Source query non esiste? → CREARE prima, poi promotion     │
+│ Atteso: zero violation pattern + fallback = `<DataNotAvailable />` │
+│ Errore: PROMOTE_E309_FIXTURE → BLOCCA                        │
 └──────────────────────────────────────────────────────────────┘
   │
   ▼
@@ -96,15 +108,16 @@ USER: /studio:promote <route> <TS>
 
 ## Tabella riassuntiva gate
 
-| Gate          | Scope        | Skill/Comando                                  | Esito atteso                    | Errore se fail                            | Bypass possibile?                    |
-| ------------- | ------------ | ---------------------------------------------- | ------------------------------- | ----------------------------------------- | ------------------------------------ |
-| A             | Motivazione  | `superpowers:brainstorming` (in /studio:clone) | README § Motivazione compilata  | `PROMOTE_E310` (warning)                  | Sì (warning, non blocca)             |
-| B             | Brand audit  | `/brand:audit <url>`                           | score ≥ 7, P0 = 0               | `PROMOTE_E304` (bloccante)                | Skip esplicito → warning in MANIFEST |
-| C             | Anti-slop    | `/brand:anti-slop`                             | Tutti PASS                      | `PROMOTE_E305` (bloccante)                | NO                                   |
-| D             | Verification | `superpowers:verification-before-completion`   | 5/5 self-integrity              | `PROMOTE_E306` (bloccante)                | NO                                   |
-| E             | User confirm | dry-run preview + esplicito "yes"              | Conferma testuale               | `PROMOTE_E307` (bloccante)                | NO                                   |
-| F (fail-safe) | Repo clean   | `git diff --quiet`                             | working tree clean su prod-path | `PROMOTE_E302` (bloccante pre-script)     | NO                                   |
-| G (fail-safe) | Husky        | husky pre-commit hook                          | hook PASS                       | `PROMOTE_E308` (bloccante post-overwrite) | NO (mai `--no-verify`)               |
+| Gate          | Scope            | Skill/Comando                                       | Esito atteso                    | Errore se fail                            | Bypass possibile?                    |
+| ------------- | ---------------- | --------------------------------------------------- | ------------------------------- | ----------------------------------------- | ------------------------------------ |
+| A             | Motivazione      | `superpowers:brainstorming` (in /studio:clone)      | README § Motivazione compilata  | `PROMOTE_E310` (warning)                  | Sì (warning, non blocca)             |
+| B             | Brand audit      | `/brand:audit <url>`                                | score ≥ 7, P0 = 0               | `PROMOTE_E304` (bloccante)                | Skip esplicito → warning in MANIFEST |
+| C             | Anti-slop        | `/brand:anti-slop`                                  | Tutti PASS                      | `PROMOTE_E305` (bloccante)                | NO                                   |
+| D             | Verification     | `superpowers:verification-before-completion`        | 5/5 self-integrity              | `PROMOTE_E306` (bloccante)                | NO                                   |
+| D.2           | NO-FIXTURE (P11) | grep fixture pattern + check `<DataNotAvailable />` | zero hardcoded/mock/random      | `PROMOTE_E309_FIXTURE` (bloccante)        | NO                                   |
+| E             | User confirm     | dry-run preview + esplicito "yes"                   | Conferma testuale               | `PROMOTE_E307` (bloccante)                | NO                                   |
+| F (fail-safe) | Repo clean       | `git diff --quiet`                                  | working tree clean su prod-path | `PROMOTE_E302` (bloccante pre-script)     | NO                                   |
+| G (fail-safe) | Husky            | husky pre-commit hook                               | hook PASS                       | `PROMOTE_E308` (bloccante post-overwrite) | NO (mai `--no-verify`)               |
 
 ## Stato del filesystem dopo ogni gate
 
@@ -114,6 +127,7 @@ USER: /studio:promote <route> <TS>
 | B                             | NO             | NO                     | NO             |
 | C                             | NO             | NO                     | NO             |
 | D                             | NO             | NO                     | NO             |
+| D.2                           | NO             | NO                     | NO             |
 | E (post dry-run, no confirm)  | NO             | NO                     | NO             |
 | E (post dry-run, confirm yes) | imminente      | imminente              | imminente      |
 | F (clean check pass)          | NO             | NO                     | NO             |
@@ -130,6 +144,48 @@ USER: /studio:promote <route> <TS>
 | Gate F fail → repo dirty pre-promote      | `git stash` o commit pendenti, poi rilancia /studio:promote                                                                       |
 | Drift detect (`PROMOTE_E303`)             | nuovo `/studio:clone <route>` (preferito), oppure `--accept-drift` (sconsigliato)                                                 |
 | Errore inatteso post-overwrite            | `/studio:restore <route> <BKP_TS>-pre-promote` immediato                                                                          |
+
+## Gate D.2 — NO-FIXTURE CHECK (heuresys-evo P11)
+
+**Scope**: enforcement constraint **SOLO DATI LIVE da DBMS** (CLAUDE.md §REGOLA NON NEGOZIABILE).
+
+**Esecuzione check pre-promotion**:
+
+```bash
+# Pattern 1: numeri letterali in JSX (KPI hardcoded)
+grep -rn -E '(value|count|rating|amount|total|n)=\{[0-9]+' .ux-design/10-staging/<route>/<TS>/
+
+# Pattern 2: array hardcoded > 2 elementi
+grep -rn -E 'const [A-Z_]+ = \[\{.{200,}' .ux-design/10-staging/<route>/<TS>/
+
+# Pattern 3: variabili mock/fixture
+grep -rn -iE '(MOCK_|DEMO_|FIXTURE_|STUB_)' .ux-design/10-staging/<route>/<TS>/
+
+# Pattern 4: fallback senza DataNotAvailable
+grep -rn -E '(\?\?|\|\|)\s*\[\{' .ux-design/10-staging/<route>/<TS>/
+```
+
+**Se VIOLATION rilevata** → blocker `PROMOTE_E309_FIXTURE` → utente deve:
+
+1. Verificare se query Prisma live esiste in `services/app/src/lib/data/*.ts`
+   - **SÌ** → sostituire fixture con `await fetchXxx(tenantId)` + render con `<DataNotAvailable />` fallback
+   - **NO** → CREARE prima la query (mai dedurre/inventare), poi rilanciare `/studio:promote`
+2. Rimuovere ogni demo/random/hardcoded
+3. Rilanciare `/studio:promote <route> <TS>` da Gate A
+
+**Esclusioni legittime**:
+
+- i18n strings (UI labels IT/EN, ARIA strings)
+- CSS class names letterali
+- Layout numerici (column counts, grid spans)
+- Constanti di config UI (animation durations, breakpoints)
+
+**Reference**:
+
+- CLAUDE.md root: §REGOLA NON NEGOZIABILE + P11
+- `.claude/CLAUDE.md`: CARD-4 + R18
+- Component: `services/app/src/components/data/DataNotAvailable.tsx`
+- Inventory baseline: `docs/_audit/2026-05-13-no-mock-inventory.md`
 
 ## Riferimenti
 

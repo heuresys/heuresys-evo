@@ -3093,3 +3093,85 @@ table.dept .bar-cell {
   width: 160px;
   height: 160px;
 }
+
+/* ===================================================================
+   P11 — Constraint DATI LIVE: <DataNotAvailable /> placeholder styling
+   AA-compliant (no opacity composited), full-alpha muted color tokens.
+   Shipped S58 (2026-05-13) — see CLAUDE.md §REGOLA NON NEGOZIABILE.
+   =================================================================== */
+
+.data-not-available {
+  color: var(--ink-soft);
+  font-family: var(--font-sans, inherit);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.data-not-available__icon {
+  color: var(--ink-tertiary, var(--ink-soft));
+  font-weight: 600;
+  font-size: 1.1em;
+  line-height: 1;
+}
+
+.data-not-available__label {
+  font-size: 0.9em;
+  letter-spacing: 0.02em;
+}
+
+/* Inline variant: single-value placeholder (e.g. inside KpiTile value slot) */
+.data-not-available--inline {
+  font-style: italic;
+  font-size: 0.95em;
+}
+
+/* Block variant: centered area for empty widget body (table/list/feed) */
+.data-not-available--block {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 32px 16px;
+  min-height: 120px;
+  text-align: center;
+  border: 1px dashed var(--border-soft, var(--ink-soft));
+  border-radius: 8px;
+  background: var(--surface-1);
+}
+
+.data-not-available--block .data-not-available__icon {
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.data-not-available--block .data-not-available__label {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Tile variant: KpiTile-shaped placeholder preserving grid layout */
+.data-not-available--tile {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px 16px;
+  min-height: 100px;
+  background: var(--surface-1);
+  border: 1px dashed var(--border-soft, var(--ink-soft));
+  border-radius: 12px;
+  text-align: center;
+}
+
+.data-not-available--tile .data-not-available__icon {
+  font-size: 24px;
+  margin-bottom: 6px;
+}
+
+.data-not-available--tile .data-not-available__label {
+  font-size: 13px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}

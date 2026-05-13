@@ -1,5 +1,15 @@
 # `.ux-design/` — Brand State
 
+## ⚠️ CONSTRAINT P11 — DATI LIVE OBBLIGATORI (heuresys-evo case study)
+
+Ogni mockup generato in `.ux-design/` (anche sperimentale, anche non destinato a produzione) DEVE usare **dati live dal DBMS**. Vietato hardcoded/mock/random. Se la source manca → CREARE prima la query/route in `services/app/src/lib/data/*.ts`, poi data fetching. Dato non disponibile → letterale `Dati Non Disponibili` via `<DataNotAvailable />`.
+
+**Riferimenti**: [`../CLAUDE.md`](../CLAUDE.md) §REGOLA NON NEGOZIABILE · [`../.claude/CLAUDE.md`](../.claude/CLAUDE.md) CARD-4 + R18 · [`../.claude/skills/studio/references/promote-flow.md`](../.claude/skills/studio/references/promote-flow.md) Gate D.2 NO-FIXTURE · [`../docs/_audit/2026-05-13-no-mock-inventory.md`](../docs/_audit/2026-05-13-no-mock-inventory.md) baseline inventory.
+
+**Eccezione legittima**: mockup HTML statici esistenti `.ux-design/06-mockups/*.html` restano come **design reference inspiration** (non sono renderizzati in produzione). Da bonificare in Phase C carry-forward S59+ (tradotti come tsx live, oppure archiviati come "legacy NOT promotable").
+
+---
+
 > **Single Source of Truth** per stato corrente del workstream brand identity. Aggiorna questo file ogni volta che cambia phase, viene presa una decisione, o si producono asset significativi. Per la cronologia completa cronologica, vedi `DECISIONS-LOG.md`.
 >
 > **Last update**: 2026-05-10 (**S23 + S23-bis + S23-tris + S23-quater · L54-L57** · forensic audit L53 closure 77% · 4 commit pushed `929aa1e`/`05e603b`/`8129451`/`8a98486` · 312 tabelle tenant_id NOT NULL · 367 RLS policies · 0 trigger broken · auditedTransaction helper + bcrypt rotation + enrichment consent + lint rule shipped · 683 test verdi · login canonical 8/8 PASS).

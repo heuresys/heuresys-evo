@@ -119,6 +119,34 @@ Naming convention:
 
 Piattaforma SaaS B2B di Organizational Intelligence & Workforce Orchestration. Layer ontologico tra ERP/HR/BI per governare processi, struttura, ruoli, competenze e performance via Knowledge Graph ESCO bilingue (IT/EN).
 
+## REGOLA NON NEGOZIABILE — DATI LIVE (P0 sopraordinato)
+
+> Tutto va fatto con riferimento a dati live del db e e2e. SEMPRE.
+> NO MOCK, NO PLACEHOLDERS, NO HARDCODED, NO DEMO, NO RANDOM, NO INVENZIONI, NO HALLUCINATIONS.
+> SOLO DATI REALI LIVE E2E DA DBMS.
+> QUANDO I DATI NON SONO DISPONIBILI DEVE ESSERE RIPORTATO "Dati Non Disponibili"
+> E NON DEVE ESSERE OFFERTO NESSUN DATO FITTIZIO IN SOSTITUZIONE.
+
+heuresys-evo è case study production-grade con **RTL Bank come tenant di riferimento**. Trattamento da piattaforma in produzione, non da playground.
+
+**Scope applicazione**:
+
+- UI prod (`services/app/src/app/(app)/*`, dashboard views) → solo query Prisma live
+- Mockup brand `.ux-design/06-mockups/` → da bonificare tutti (tradurre o archiviare come legacy NOT promotable)
+- Brand/studio sperimentale (anche non destinato a produzione) → dati live obbligatori
+- Test e2e → dati live, no fixtures
+- CASCADIA `scripts/seed-generator/*` → **ESCLUSO** (è il tool che popola DBMS, post-INSERT i record sono dato live)
+
+**Quando source non esiste**: CREARE prima (query/route Prisma in `services/app/src/lib/data/*.ts`), poi data fetching. **MAI dedurre/interpretare/inventare**. Le interpretazioni passate di stack/dati/logiche vanno **trasformate in oggetti reali** (query/routes/sources).
+
+**Enforcement**:
+
+- `P11` (tabella P1-P11 sotto)
+- `CARD-4` (`.claude/CLAUDE.md` behavioral defaults)
+- Gate F NO-FIXTURE in `/studio:promote` (`.claude/skills/studio/references/promote-flow.md`)
+- Component shared `<DataNotAvailable />` (`services/app/src/components/data/DataNotAvailable.tsx`)
+- Inventory baseline: [`docs/_audit/2026-05-13-no-mock-inventory.md`](docs/_audit/2026-05-13-no-mock-inventory.md)
+
 ## Stack
 
 | Layer       | Tech                                                            |
@@ -155,20 +183,21 @@ cd services/app && npx prisma migrate status              # drift check
 
 VM: `oracle-vm-default` (IP 80.225.82.207). nginx vhosts in `/etc/nginx/sites-available/`.
 
-## Principi P1-P10 (vincolanti)
+## Principi P1-P11 (vincolanti)
 
-| #   | Principio                      | Enforcement                                                                |
-| --- | ------------------------------ | -------------------------------------------------------------------------- |
-| P1  | Multi-tenant always            | `tenantId` in ogni query Prisma su tabelle tenant-scoped                   |
-| P2  | Auth-required default          | Endpoint pubblici = eccezioni esplicite                                    |
-| P3  | RBP enforced                   | `requirePermission(area, action)` middleware. Mai `requireRole`            |
-| P4  | Audit logged                   | `audit_logs` insert per ogni write, atomico via `auditedTransaction()`     |
-| P5  | RLS DB-level                   | Policy attiva su tabelle tenant-scoped + `SET LOCAL app.current_tenant_id` |
-| P6  | No raw SQL injection + secrets | Prisma + tagged template `$queryRaw`. No hardcode                          |
-| P7  | Validated input                | Zod schema su ogni boundary HTTP/file/IPC                                  |
-| P8  | Error logged                   | Pino + Sentry. No `console.log` in prod path                               |
-| P9  | Everything data-driven         | Ruoli/permessi/navigazione/perspective in DB                               |
-| P10 | Multi-level Platform/Tenant    | Config supporta `tenantId NULL` (Platform) e `tenantId <uuid>`             |
+| #   | Principio                      | Enforcement                                                                                                                                                                         |
+| --- | ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| P1  | Multi-tenant always            | `tenantId` in ogni query Prisma su tabelle tenant-scoped                                                                                                                            |
+| P2  | Auth-required default          | Endpoint pubblici = eccezioni esplicite                                                                                                                                             |
+| P3  | RBP enforced                   | `requirePermission(area, action)` middleware. Mai `requireRole`                                                                                                                     |
+| P4  | Audit logged                   | `audit_logs` insert per ogni write, atomico via `auditedTransaction()`                                                                                                              |
+| P5  | RLS DB-level                   | Policy attiva su tabelle tenant-scoped + `SET LOCAL app.current_tenant_id`                                                                                                          |
+| P6  | No raw SQL injection + secrets | Prisma + tagged template `$queryRaw`. No hardcode                                                                                                                                   |
+| P7  | Validated input                | Zod schema su ogni boundary HTTP/file/IPC                                                                                                                                           |
+| P8  | Error logged                   | Pino + Sentry. No `console.log` in prod path                                                                                                                                        |
+| P9  | Everything data-driven         | Ruoli/permessi/navigazione/perspective in DB                                                                                                                                        |
+| P10 | Multi-level Platform/Tenant    | Config supporta `tenantId NULL` (Platform) e `tenantId <uuid>`                                                                                                                      |
+| P11 | Production data fidelity       | UI/mockup/test/brand-studio usano solo query Prisma live. Mai mock/hardcoded/random. Dato assente → "Dati Non Disponibili" via `<DataNotAvailable />`. Vedi §REGOLA NON NEGOZIABILE |
 
 ## Multi-tenant & RBP (sintesi)
 

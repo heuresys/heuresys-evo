@@ -1,5 +1,13 @@
 # `.ux-design/` — Session Resume Protocol
 
+## ⚠️ CONSTRAINT P11 — DATI LIVE OBBLIGATORI (top-of-file)
+
+Ogni mockup/staging generato in `.ux-design/` (anche sperimentale) DEVE usare **dati live dal DBMS**. NO mock/placeholder/hardcoded/random. Source mancante → CREARE prima query in `services/app/src/lib/data/*.ts`. Dato assente → `<DataNotAvailable />`.
+
+Reference: [`../CLAUDE.md`](../CLAUDE.md) §REGOLA NON NEGOZIABILE · `.claude/CLAUDE.md` CARD-4+R18 · `promote-flow.md` Gate D.2 NO-FIXTURE.
+
+---
+
 > **Scopo**: protocollo per riprendere il workstream brand identity in una sessione fresca. Quando l'utente dice "lavoriamo sul brand" / "riprendiamo il design" / "continuiamo con la ux" / accenna a logo/palette/typography/dashboard, **segui questo file dall'inizio alla fine prima di rispondere**.
 
 ## Quick start (3 modi alternativi per attivare)
