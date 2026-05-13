@@ -1,55 +1,81 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-13T00:55Z · S55 closed · Open Q1+Q2 fixed · Priority #2 shipped (15 palette AAA) · Priority #1 audit baseline · Priority #3 partial · HEAD `dd0ede9`
+> Updated: 2026-05-13T01:42Z · S55+1 closed · CASCADIA Stage 0 shipped · HEAD `946af24`
 
 ## Last session brief
 
-S55 ha chiuso **2 Open Questions + Priority #2 full + Priority #1 baseline audit + Priority #3 partial (HR_DIRECTOR 9/9)**. 4 commit shipped:
+S55+1 ha completato **CASCADIA Stage 0 (tooling foundation)** secondo plan approvato `~/.claude/plans/l-obiettivo-di-completare-soft-wind.md`. Decisione architetturale chiave: **Claude main loop = research engine primary** (WebFetch + WebSearch + reasoning Opus 4.7), OpenAI gpt-4o-mini fallback opzionale. Cost CASCADIA full closure stimato $0 (Claude native) vs ~$2.50 (OpenAI mix).
 
-- `4964dba` deps lock canonical (`@next/bundle-analyzer` aggiunto a `services/app/devDep`)
-- `7cf611f` Open Q1+Q2 fix (workforce SQL `org_unit_id` + `workforce_plan_scenarios` correzione tabella · Turbopack-native `next experimental-analyze -o` script + heap 4GB)
-- `1c94acb` L76 WCAG AAA 15-palette batch sweep (beta, gamma, delta, epsilon, zeta, eta, theta, iota, kappa, lambda, mu-architect, mu-art-director, mu-pragmatic, mu-synthesis, mu-data-dense)
-- `dd0ede9` L77 bundle perf audit doc + recommendations (`docs/_audit/2026-05-13-bundle-perf-audit-s55.md`)
+5 commit S55+ shipped total:
 
-**Workforce KPI live**: HEADCOUNT 156 · DEPARTMENTS 22 · PLANNING 9 · NEW HIRES 2 (RTL Bank, browser-verified valentina.conti).
-**AAA palette**: 17/17 dark-base palette ora hanno tokens `--*-aaa` resolved (DOM verified 100%).
-**Bundle baseline**: 6.82 MB shared first-load JS identificato come root cause Lighthouse Perf 58 / LCP 12.5s.
+- `4964dba` deps lock `@next/bundle-analyzer`
+- `7cf611f` Open Q1+Q2 workforce KPI fix + Turbopack-native analyzer
+- `1c94acb` L76 WCAG AAA 15-palette batch
+- `dd0ede9` L77 bundle perf audit
+- `b696150` S55 handoff
+- `946af24` **L78 CASCADIA Stage 0 tooling foundation** (8 files, 945 insertions)
+
+**Stage 0 deliverables** (`scripts/seed-generator/`):
+
+- `cascadia/run-stage.mjs` — orchestrator universal `--stage <sigla>/<NN> --tenant <slug> --dry-run --engine claude-native|openai-mini`
+- `cascadia/verify-area.mjs` — 25-area SQL verification per-tenant + classification 🟢/🟡/🔴
+- `cascadia/research-bridge.md` — workflow Claude-native + fallback rules
+- `indoor/00_research.mjs` — template stage script Claude-native pattern
+- `lib/zod-schemas.mjs` — IndustryProfileSchema + 5 record schemas + dual-key drift handling
+- `lib/dry-run.mjs` — wrapper intercept INSERT/UPDATE
+- `lib/industry-research.mjs` — riscritto Claude-native primary
+- `lib/openai-wrapper.mjs` — semplificato fallback con live API + cost cap
+
+**Acceptance Stage 0 PASS**: 4/4 tenant profile validati zod · orchestrator dry-run 4/4 OK · tenant code↔file stem mapping functional.
 
 ## Top priorities (S56+)
 
-1. **Bundle perf implementation** (~12-20h, multi-sessione) — applicare audit recommendations: BrandShell dynamic import + palette-framework.css lazy load (pre-auth) + Prisma externals verify + brand-dashboard.css lazy. Target shared bundle <3 MB (-55%), Lighthouse Perf ≥ 90, LCP < 4s. Tool `npm run analyze` Turbopack-native già funziona end-to-end.
-2. **Visual smoke matrix completion** (~2-3h) — estendere `tests/e2e/dashboard-rbp-matrix.spec.ts` per coprire le 9 navigation SURFACE (non solo i 9 dashboard codes già passing 100/100). 7 ruoli mancanti × 9 surface = 63 cases.
-3. **Workforce seed enrichment AI-driven** (~3-5h) — popolare `workforce_plan_scenarios` per EcoNova (0) + SmartFood (0) + Heuresys (0). Vincolo permanente: seed via OpenAI con full DBMS context (vedi memoria `feedback_seed_via_openai.md`).
-4. **AAA light-theme variants** (~2-3h) — 15 palette shippate solo dark-base. Light theme `--*-aaa` con valori dark-text-on-light (es. `#7e3fc8`, `#2452c8`, `#6a6a78`, `#16a34a`).
+> Stage map autonomous mode (vedi `~/.claude/plans/l-obiettivo-di-completare-soft-wind.md`)
+
+1. **Stage 1 — RTL Bank pilot consolidamento** (~6-8h, 1-2 sessioni)
+   - Sub-stage 1a TALPIPE: succession_candidates 15→40 + internal_mobility ~20 + mentorships ~12 (Claude reasoning per ≥70% skill coverage gate)
+   - Sub-stage 1b SKILGRO+PULSAR+GOKMER: learning_recommendations ~270 + skill_gap_analyses ~270 + engagement_responses ~970 + check_ins ~540 + goal_check_ins ~1100
+   - Backup pre-stage + verify-area post-INSERT
+2. **Stage 2 — Cross-tenant priority-first sweep** (~10-12h, 2-3 sessioni)
+   - Profile refresh SmartFood/EcoNova/Heuresys via Claude WebFetch/WebSearch
+   - H2R-Onboarding sweep + GOKMER reviews + TALPIPE succession non-RTL + SKILGRO enrollments + SMERTO bonus + recruiting + ESKAP EcoNova KG repair
+3. **Stage 3-4 — DGOV+PROGOV+EPRA sweep** (~6-7h, 2 sessioni)
+4. **Stage 5 — Dashboard binding sweep + mat views** (~4h, 1 sessione)
+5. **Stage 6 — Verification finale + ADR-0028 closure** (~3h, 1 sessione)
+
+**Effort cumulativo**: 29-34h residue · 7-9 sessioni stimate.
 
 ## Open questions
 
-- CF#1 chunk duplicate-size 4 MB × 2: confermare hypothesis RSC+browser dup via interactive Turbopack analyzer (no `-o`, UI esplorativa).
-- AAA palette light variants: paradigma esistente legacy + alpha non ha light AAA. Decision: estendere o solo dark?
+- Schema drift profile JSON tra tenant (RTL `title`/`name`/`ccnl_reference_code` vs altri `title_it`/`name_it`/`ccnl_code`) — Zod schema gestisce entrambi via union+refine. Harmonization opzionale in Stage 2a profile refresh.
+- Sindacati FK linkage SmartFood/EcoNova/Heuresys — ITLAB shipped solo 4 anchor CCNL (CRED_2024, ALIMENTARI, ELETTRICI, COMM_2024). Verifica Stage 2c pre-INSERT.
 
-## Stack snapshot (post-S55)
+## Stack snapshot (post-S55+1)
 
-- 4 commit S55 shipped (`4964dba` → `dd0ede9`)
-- WCAG 2.2 AAA: ✅ 17/17 palette dark-base con `--*-aaa` tokens
-- Lighthouse `/login`: invariato S53 baseline (Perf 58, LCP 12.5s — bundle perf carry-forward S56+)
-- Bundle baseline misurato: 6.82 MB first-load shared chunk + 2× 4 MB duplicate-size vendor chunks
-- DECISIONS-LOG L1→L77, 0 orphans
-- Nuovi files: `docs/_audit/2026-05-13-bundle-perf-audit-s55.md`
-- `services/app/next.config.ts` ripulito (no withBundleAnalyzer wrap, Turbopack-native)
-- `services/app/package.json` `analyze` script + NODE_OPTIONS heap 4GB su build
-- Visual smoke HR_DIRECTOR 9/9 verified · altri 7 ruoli carry-forward (Playwright extension)
+- 6 commit S55+ shipped (`4964dba` → `946af24`)
+- CASCADIA infrastruttura 95%→100%: lib helpers + zod + orchestrator + verify pronti
+- Research engine: Claude native primary, OpenAI fallback gpt-4o-mini con cost cap $5/day
+- 4 industry profile JSON validati: RTL Bank (22 roles K.64.19) · SmartFood (28 roles C.10) · EcoNova (14 roles D.35) · Heuresys (5 roles J.62)
+- DECISIONS-LOG L1→L78, 0 orphans
+- Nuovi files: `scripts/seed-generator/cascadia/*` + `scripts/seed-generator/indoor/00_research.mjs` + 2 nuovi lib helper
 
 ## Memory updates
 
-- `feedback_seed_via_openai.md` (nuova): vincolo permanente seed enrichment AI-driven con DBMS context. Cross-link CASCADIA pipeline S35.2-7.
+- `feedback_seed_via_openai.md` (esistente) → da rinominare `feedback_seed_via_ai.md` in Stage 6 verification handoff (Claude native è il path primary, non OpenAI)
 
 ## Verification
 
 ```bash
+# Smoke Stage 0 acceptance:
 LOCAL=$(git rev-parse HEAD); VM=$(ssh oracle-vm-default "cd /home/ubuntu/heuresys-evo && git rev-parse HEAD")
-# Workforce: HEADCOUNT 156 · DEPARTMENTS 22 · PLANNING 9 · NEW HIRES 2 (HR_DIRECTOR valentina.conti)
-# AAA: getComputedStyle html con data-palette=mu-architect → --accent-aaa #d8b4fe
-# Bundle: cd services/app && npm run analyze → cat .next/diagnostics/route-bundle-stats.json
+node scripts/seed-generator/cascadia/run-stage.mjs --tenant=rtl-bank --stage=indoor/00_research --dry-run --engine=claude-native
+# atteso: "research delegated to Claude main loop" + exit 0
+
+# Validate zod su 4 profile:
+node --experimental-vm-modules -e "import('./scripts/seed-generator/lib/zod-schemas.mjs').then(async (m)=>{const fs=await import('node:fs/promises');for(const t of ['rtl_bank','smartfood','econova','heuresys']){const raw=JSON.parse(await fs.readFile('db/seeds/realistic/_research_cache/'+t+'_industry_profile.json','utf-8'));const r=m.validateIndustryProfile(raw);console.log(t, r.ok?'OK':'FAIL')}});"
+
+# Verify-area smoke (requires DATABASE_URL):
+DATABASE_URL=postgresql://... node scripts/seed-generator/cascadia/verify-area.mjs --area=career_succession
 ```
 
-Riferimenti: `.ux-design/DECISIONS-LOG.md` L76+L77 · `docs/_audit/2026-05-13-bundle-perf-audit-s55.md` · `services/app/{next.config.ts, package.json}` · `services/app/src/styles/theme-framework/palette-framework.css` · `services/app/src/app/(app)/analytics/workforce/page.tsx`.
+Riferimenti: `~/.claude/plans/l-obiettivo-di-completare-soft-wind.md` · `.ux-design/DECISIONS-LOG.md` L78 · `scripts/seed-generator/cascadia/research-bridge.md` · `scripts/seed-generator/lib/zod-schemas.mjs`.

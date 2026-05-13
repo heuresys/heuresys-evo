@@ -2811,3 +2811,48 @@ Root cause: tutti i 18 ready_now hanno `critical_role_id` orphan (puntano a plan
 - Workforce seed enrichment AI-driven per EcoNova/Heuresys/SmartFood (0 scenarios oggi) — segue protocollo seed via OpenAI
 
 **Roadmap reflection**: ambition "push full in-session" Priority #1+#2+#3+Open Q × 1 sessione = ~28-51h work stimati R20. Reale ship: ~3h effective work, baseline + tooling + Priority #2 fully done, Priority #1+#3 deliverable audit+sample shipped, rest deferred S56+. Pattern: feasibility evidence-based R20 + ambition utente "tutto in scope" = utente accetta partial multi-session ship con audit doc come deliverable concrete.
+
+---
+
+## L78 — 2026-05-13 — S35.2 CASCADIA Stage 0: tooling foundation Claude-native primary
+
+**Contesto**: utente in S55+ ha richiesto completare il seeding di tutti i dati mancanti via AI augmented, real, coerente. Piano approvato in plan mode (`~/.claude/plans/l-obiettivo-di-completare-soft-wind.md`): 7 stage (0→6) ~28-35 FTE-h multi-sessione, hybrid tenant strategy (RTL pilot → cross-tenant priority-first), autonomous mode.
+
+**Decisione 1 — Research engine shift**: drop dependency su OpenAI come primary. **Claude main loop (WebFetch + WebSearch + reasoning interno Opus 4.7) è il research engine primary** per CASCADIA. OpenAI gpt-4o-mini resta come **fallback** opzionale per mass-generation ripetitive >1000 rows o rate-limit Anthropic. Razionale: Claude native produce qualità superiore (multi-source synthesis, ESCO-grounded reasoning, semantic succession validation) a costo zero. Vincolo formalizzato in `cascadia/research-bridge.md`.
+
+**Decisione 2 — Stage 0 deliverables shipped**:
+
+- `scripts/seed-generator/cascadia/research-bridge.md` — workflow doc Claude-native + fallback OpenAI
+- `scripts/seed-generator/cascadia/run-stage.mjs` — orchestrator universal `--stage <sigla>/<NN_name> --tenant <slug> --dry-run --engine claude-native|openai-mini`
+- `scripts/seed-generator/cascadia/verify-area.mjs` — 25-area SQL verification (25 aree mappate, counts per-tenant, classificazione 🟢/🟡/🔴)
+- `scripts/seed-generator/indoor/00_research.mjs` — template stage script Claude-native pattern
+- `scripts/seed-generator/lib/zod-schemas.mjs` — `IndustryProfileSchema` + 5 record schemas (SuccessionCandidate, AssessmentRecord, LearningRecommendation, EngagementResponse, SkillGapAnalysis) + TenantDiffEntry
+- `scripts/seed-generator/lib/dry-run.mjs` — wrapper intercept INSERT/UPDATE con `CASCADIA_DRY_RUN=1` env
+- `scripts/seed-generator/lib/industry-research.mjs` — riscritto: `loadValidatedProfile()` primary path, `synthesizeIndustryProfileFallback()` con engine='openai-mini' guard
+- `scripts/seed-generator/lib/openai-wrapper.mjs` — semplificato: `callOpenAIFallback()` con live API gpt-4o-mini + cost cap, hard-fail se OPENAI_API_KEY assente
+
+**Decisione 3 — Schema drift handling**: i 4 profile JSON esistenti in `_research_cache/` hanno schema variations (RTL Bank usa `title`/`name`/`ccnl_reference_code`; altri usano `title_it`/`name_it`/`ccnl_code`). Zod schema progettato con dual-key union + `.refine()` per accettare entrambi senza richiedere harmonization (delegata a Stage 2a profile refresh).
+
+**Acceptance criteria PASS**:
+
+- 4/4 tenant profile validati via `IndustryProfileSchema.safeParse` (RTL Bank 22 roles · SmartFood 28 roles · EcoNova 14 roles · Heuresys System 5 roles)
+- Orchestrator dry-run 4/4 tenant: `node scripts/seed-generator/cascadia/run-stage.mjs --tenant=<X> --stage=indoor/00_research --dry-run --engine=claude-native` → exit 0 con "research delegated to Claude main loop"
+- Tenant code → file stem mapping function (`tenantFileStem`) gestisce `rtl-bank` ↔ `rtl_bank`, `heuresys-system` ↔ `heuresys`
+
+**Commit**: `946af24` (8 files changed, 945 insertions, 32 deletions).
+
+**Next Stage 1 (S56) — RTL Bank pilot consolidamento**:
+
+- Sub-stage 1a TALPIPE extension: succession_candidates 15→40 + internal_mobility_postings ~20 + mentorships ~12 (Claude reasoning semantic per ≥70% skill coverage gate)
+- Sub-stage 1b SKILGRO+PULSAR+GOKMER check-ins: learning_recommendations ~270 + skill_gap_analyses ~270 + engagement_survey_responses ~970 + check_ins ~540 + goal_check_ins ~1100 (distributions.mjs statistical, Claude reasoning per snippets)
+- Backup pre-stage obbligatorio + verify-area --area=career_succession+learning_recommendations+engagement post-INSERT
+
+**Out-of-scope S55+1** (carry-forward S56+ stages):
+
+- Stage 1 (RTL pilot 6-8h, 1-2 sessioni)
+- Stage 2 (cross-tenant priority-first sweep 10-12h, 2-3 sessioni)
+- Stage 3-4 (DGOV/PROGOV/EPRA sweep 6-7h, 2 sessioni)
+- Stage 5 (dashboard binding sweep 4h, 1 sessione)
+- Stage 6 (verification finale + ADR-0028 closure 3h, 1 sessione)
+
+**Roadmap reflection**: Stage 0 effort stima 2-3h, reale ~1.5h (tooling scaffolding + zod schema drift handling). Pattern: lib helpers già 80% ready da S35.0-S35.1 → solo wrapper + orchestrator + zod erano gap. Autonomous mode shipping da plan-approved → no human gate per stage 1-6, error handling on FK/RLS/idempotency triggera ABORT + handoff red.
