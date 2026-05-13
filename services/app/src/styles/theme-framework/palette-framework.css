@@ -75,7 +75,7 @@
   /* WCAG 2.2 AAA enhanced contrast variants (L69 S54 — 7:1 ratio target).
    * Use only for small text (<18pt) on dark surfaces. Brand identity (--accent,
    * --primary, --semantic-success) preserved for non-text usage. */
-  --accent-aaa: #c084fc;
+  --accent-aaa: #d8b4fe;
   --primary-aaa: #60a5fa;
   --ink-muted-aaa: #b0b5c0;
   --semantic-success-aaa: #4ade80;
@@ -175,7 +175,7 @@
   /* WCAG 2.2 AAA enhanced contrast variants (L69 S54 — 7:1 ratio target).
    * Use only for small text (<18pt) on dark surfaces. Brand identity (--accent,
    * --primary, --semantic-success) preserved for non-text usage. */
-  --accent-aaa: #c084fc;
+  --accent-aaa: #d8b4fe;
   --primary-aaa: #60a5fa;
   --ink-muted-aaa: #b0b5c0;
   --semantic-success-aaa: #4ade80;
@@ -300,7 +300,7 @@
    * Stesso paradigma palette legacy L69: 4 token --*-aaa per testo small (<18pt)
    * su dark surfaces. Brand identity (--accent, --primary, --semantic-success)
    * preservata per usi non-textual (icons, fills, borders, glows). */
-  --accent-aaa: #c084fc;
+  --accent-aaa: #d8b4fe;
   --primary-aaa: #60a5fa;
   --ink-muted-aaa: #b0b5c0;
   --semantic-success-aaa: #4ade80;

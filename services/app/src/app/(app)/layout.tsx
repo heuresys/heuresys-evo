@@ -86,6 +86,7 @@ export default async function AppGroupLayout({ children }: { children: ReactNode
       envLabel={process.env.NODE_ENV === 'production' ? 'PROD' : 'DEV'}
       initialPalette={palette}
       initialTheme={theme}
+      footerMetrics={footerMetrics}
     >
       {children}
     </BrandShell>

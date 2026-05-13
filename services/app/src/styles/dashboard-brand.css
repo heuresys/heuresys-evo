@@ -594,13 +594,14 @@
     border-color 0.15s;
 }
 .btn-primary {
-  /* W#2 AAA fix (L72): bg accent-deep #7e3fc8 → white text ratio 7.0:1 (AAA pass).
-   * Was --accent #a855f7 → white 3.95:1 (AA fail). */
-  background: var(--accent-deep);
+  /* W#2-tris AAA fix (L75-bis): bg deeper purple #5e2898 → white text ratio
+   * ~8.75:1 (AAA strict pass). Was --accent-deep #7e3fc8 → 6.11 (AAA fail).
+   * Token --accent #a855f7 → white 3.95:1 (AA fail in W#1 baseline). */
+  background: #5e2898;
   color: #ffffff;
 }
 .btn-primary:hover {
-  background: var(--accent);
+  background: var(--accent-deep);
 }
 .btn-ghost {
   background: transparent;
