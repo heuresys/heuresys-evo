@@ -396,11 +396,11 @@ If any check fails, regenerate the offending region.
 
 | Surface              | Persona target | Sidebar tenant | Scope         |
 | -------------------- | -------------- | -------------- | ------------- |
-| HR Director Overview | Maria CHRO     | RTL Bank       | strategic     |
-| Capability Graph     | Davide IT      | RTL Bank       | technical     |
-| Skills Heatmap       | Maria CHRO     | RTL Bank       | tactical      |
-| Employee Journey     | Andrea EMP     | RTL Bank       | self-service  |
-| Org & Systems        | Davide IT      | Heuresys Sys   | platform-wide |
+| HR Director Overview | HR Director    | RTL Bank       | strategic     |
+| Capability Graph     | IT Admin       | RTL Bank       | technical     |
+| Skills Heatmap       | HR Director    | RTL Bank       | tactical      |
+| Employee Journey     | Employee       | RTL Bank       | self-service  |
+| Org & Systems        | IT Admin       | Heuresys Sys   | platform-wide |
 
 **Shared structure**:
 

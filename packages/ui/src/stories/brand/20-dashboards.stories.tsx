@@ -23,7 +23,7 @@ export const HrDirectorOverview: Story = {
   args: {
     src: '06-mockups/dashboards/hr-director-overview.html',
     title:
-      'HR Director Overview — Maria CHRO · RTL Bank · KPI ring + skill gap matrix + activity feed',
+      'HR Director Overview — Audience: HR_DIRECTOR · KPI ring + skill gap matrix + activity feed',
     height: H,
   },
 };
@@ -31,7 +31,8 @@ export const HrDirectorOverview: Story = {
 export const CapabilityGraph: Story = {
   args: {
     src: '06-mockups/dashboards/capability-graph.html',
-    title: 'Capability Graph — Davide IT · KG topology SVG + ontology breakdown + ESCO sync',
+    title:
+      'Capability Graph — Audience: IT_ADMIN · KG topology SVG + ontology breakdown + ESCO sync',
     height: H,
   },
 };
@@ -39,7 +40,8 @@ export const CapabilityGraph: Story = {
 export const SkillsHeatmap: Story = {
   args: {
     src: '06-mockups/dashboards/skills-heatmap.html',
-    title: 'Skills Heatmap — Maria CHRO · matrice 8 dept × 12 skill + filters + distribution',
+    title:
+      'Skills Heatmap — Audience: HR_MANAGER · matrice 8 dept × 12 skill + filters + distribution',
     height: H,
   },
 };
@@ -48,7 +50,7 @@ export const EmployeeJourney: Story = {
   args: {
     src: '06-mockups/dashboards/employee-journey.html',
     title:
-      'Employee Journey — Andrea EMP · career arc 5 stage + skill evolution + capability radar',
+      'Employee Journey — Audience: LINE_MANAGER + EMPLOYEE · career arc 5 stage + skill evolution + capability radar',
     height: H,
   },
 };
@@ -57,7 +59,7 @@ export const OrgSystems: Story = {
   args: {
     src: '06-mockups/dashboards/org-systems.html',
     title:
-      'Org & Systems — Davide IT · 4 tenant fleet + RBAC matrix + integration health + audit log',
+      'Org & Systems — Audience: IT_ADMIN · 4 tenant fleet + RBAC matrix + integration health + audit log',
     height: H,
   },
 };

@@ -4,7 +4,7 @@
 
 ## Profilo
 
-**Maria Bianchi**, 47 anni, **Chief HR Officer** in **RTL Bank** (corporate banking italiano, ~3.200 dipendenti, 18 sedi). 18 anni di carriera HR di cui 7 nel ruolo attuale. Master in HR management + esecutivo strategico SDA Bocconi.
+**HR Director**, 47 anni, **Chief HR Officer** in **RTL Bank** (corporate banking italiano, ~3.200 dipendenti, 18 sedi). 18 anni di carriera HR di cui 7 nel ruolo attuale. Master in HR management + esecutivo strategico SDA Bocconi.
 
 Riporta al CEO. Gestisce un team di 22 persone (HR Business Partner, comp&ben, talent, learning). Sponsor budget IT per HR ~€2.5M/anno.
 

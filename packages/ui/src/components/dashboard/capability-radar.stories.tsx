@@ -64,7 +64,7 @@ export const SevenAxes: Story = {
         { id: 'f', label: 'Delivery' },
         { id: 'g', label: 'Quality' },
       ]}
-      series={[{ id: 'maria', label: 'Maria CHRO', values: [88, 75, 92, 82, 65, 78, 85] }]}
+      series={[{ id: 'hr_director', label: 'HR Director', values: [88, 75, 92, 82, 65, 78, 85] }]}
       size={320}
     />
   ),

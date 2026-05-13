@@ -41,7 +41,7 @@ Vuole anche un canale strutturato per fare richiesta hire al CHRO: 7 open req ne
 1. **Reviews scoped to dept** (`/reviews?scope=dept`): 141 review filtrate al proprio dept · status (draft · in_progress · completed) · rating distribution · outliers calibration auto-flagged
 2. **Goals scoped to dept** (`/goals?scope=dept`): OKR cascaded dal Head di dept ai senior poi ai junior · progress %
 3. **Skill heatmap dept**: matrice 12 ruoli × 12 skill specialistiche · gap visibili a colpo d'occhio · drill-down employee single
-4. **Hire request workflow**: bottone "request hire" che apre un form precompilato con (a) capability gap rationale (b) headcount budget impact (c) onboarding timeline expected — il form viene reindirizzato a Maria CHRO
+4. **Hire request workflow**: bottone "request hire" che apre un form precompilato con (a) capability gap rationale (b) headcount budget impact (c) onboarding timeline expected — il form viene reindirizzato a HR Director
 
 ## Voce per parlare a Federica
 

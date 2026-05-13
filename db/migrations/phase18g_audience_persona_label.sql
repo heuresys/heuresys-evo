@@ -1,8 +1,9 @@
 -- Phase 18g (S35.6 F-008) — Dashboard persona_label rename to Audience: <ROLE>
 --
 -- Goal: rinominare persona_label degli 11 dashboard_presets attivi (7 `_v2` brand-fedeli
--- + 4 process_* secondary nav HR) da mock identities ("Maria CHRO", "Davide IT", ...)
--- al canonical pattern `Audience: <ROLE>` allineato alla matrice role_default_dashboards.
+-- + 4 process_* secondary nav HR) da mock persona labels cycle 1 (now removed, see S62
+-- cycle 2 reset ADR-0032) al canonical pattern `Audience: <ROLE>` allineato alla matrice
+-- role_default_dashboards.
 --
 -- Mapping role → preset (derivato da role_default_dashboards priority=0 + secondary):
 --   cross_tenant_overview_v2     → SUPERUSER

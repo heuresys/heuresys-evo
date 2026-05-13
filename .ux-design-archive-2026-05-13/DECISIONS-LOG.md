@@ -428,13 +428,13 @@ Persistenza garantita: tutti i file in git, sincronizzati cross-machine. Skill l
 
 **Conseguenza · 5 dashboard surface complete**:
 
-| #   | File                        | Persona              | Tenant       | Scope         | Highlight                                                                                                 |
-| --- | --------------------------- | -------------------- | ------------ | ------------- | --------------------------------------------------------------------------------------------------------- |
-| 01  | `hr-director-overview.html` | Maria CHRO · level 2 | RTL Bank     | strategic     | KPI ring · skill gap matrix · activity feed live · succession ready 8 ruoli                               |
-| 02  | `capability-graph.html`     | Davide IT · level 1  | RTL Bank     | technical     | KG topology SVG hero · ontology breakdown 5 capability · top entities by edge density · ESCO sync         |
-| 03  | `skills-heatmap.html`       | Maria CHRO · level 2 | RTL Bank     | tactical      | matrice 8 dept × 12 ESCO skill · heat critical→OK · filters · distribution histogram · top P0 critical    |
-| 04  | `employee-journey.html`     | Andrea EMP · level 6 | RTL Bank     | self-service  | profile hero · career arc 5 stage · skill evolution 4q · capability radar 5-axis · 3 bridging suggestions |
-| 05  | `org-systems.html`          | Davide IT · level 1  | Heuresys Sys | platform-wide | 4 tenant fleet · RBAC matrix 8 roles × 33 areas · integration health · audit log live · system metrics    |
+| #   | File                        | Persona               | Tenant       | Scope         | Highlight                                                                                                 |
+| --- | --------------------------- | --------------------- | ------------ | ------------- | --------------------------------------------------------------------------------------------------------- |
+| 01  | `hr-director-overview.html` | HR Director · level 2 | RTL Bank     | strategic     | KPI ring · skill gap matrix · activity feed live · succession ready 8 ruoli                               |
+| 02  | `capability-graph.html`     | IT Admin · level 1    | RTL Bank     | technical     | KG topology SVG hero · ontology breakdown 5 capability · top entities by edge density · ESCO sync         |
+| 03  | `skills-heatmap.html`       | HR Director · level 2 | RTL Bank     | tactical      | matrice 8 dept × 12 ESCO skill · heat critical→OK · filters · distribution histogram · top P0 critical    |
+| 04  | `employee-journey.html`     | Employee · level 6    | RTL Bank     | self-service  | profile hero · career arc 5 stage · skill evolution 4q · capability radar 5-axis · 3 bridging suggestions |
+| 05  | `org-systems.html`          | IT Admin · level 1    | Heuresys Sys | platform-wide | 4 tenant fleet · RBAC matrix 8 roles × 33 areas · integration health · audit log live · system metrics    |
 
 **Shared structure** (tutti 5):
 

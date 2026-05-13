@@ -31,7 +31,7 @@ Edit a un file \`.ux-design/...\` → refresh Storybook → cambio visibile. Sor
 | Categoria | Stories |
 |---|---|
 | Foundations / Strategy | 4 (brand-foundations, voice-tone, audience-positioning, dashboard-architecture) |
-| Foundations / Personas | 4 (Maria CHRO, Davide IT, Stefania LM, Andrea EMP) |
+| Foundations / Personas | 4 (HR Director, IT Admin, Line Manager, Employee) |
 | Aesthetic / Docs | 4 (heuresys-current-style, moodboard, direction-final, logo-standard) |
 | Aesthetic / Critiques | 4 (iota, kappa, lambda, mu-data-dense) |
 | Aesthetic / Direction Explorations | 35 (5 set × 4 + index + Set 5 Legacy ×2 + Legacy Overlay ×15) |

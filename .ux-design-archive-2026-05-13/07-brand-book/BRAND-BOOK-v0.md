@@ -64,7 +64,7 @@ Personas illustrative, non utenti reali. **8 personas = 1:1 mapping con i ruoli 
 
 | #   | Persona                            | Età | RBP role         | Org · ruolo                       | Capability bisogni / surface chiave                                                              |
 | --- | ---------------------------------- | --- | ---------------- | --------------------------------- | ------------------------------------------------------------------------------------------------ |
-| 1   | **Maria · CHRO**                   | 47  | HR_DIRECTOR (2)  | RTL Bank · Chief HR Officer       | Skill gap matrix · succession ready · perf calibration · capability radar                        |
+| 1   | **HR Director**                    | 47  | HR_DIRECTOR (2)  | RTL Bank · Chief HR Officer       | Skill gap matrix · succession ready · perf calibration · capability radar                        |
 | 2   | **Davide · IT Architect**          | 38  | IT_ADMIN (1)     | RTL Bank · IT Architect           | RBAC governance · integrations health · audit live · KG sync · SAP HCM                           |
 | 3   | **Stefania · Line Manager**        | 41  | LINE_MANAGER (5) | RTL Bank · Head Credit Risk Mod.  | Team capability · review cycles · 1:1 OKR · talent retention                                     |
 | 4   | **Andrea · Employee**              | 29  | EMPLOYEE (6)     | RTL Bank · Quant Analyst Junior   | Self-service career arc · ESCO mapping · learning paths                                          |
@@ -311,15 +311,15 @@ Regola **4-elementi data-driven** (Phase 9):
 
 ### Inventory mockup `06-mockups/dashboards/` (5 surface)
 
-| File                         | Persona              | Perspective | Widget core                                                                                    |
-| ---------------------------- | -------------------- | ----------- | ---------------------------------------------------------------------------------------------- |
-| `hr-director-overview.html`  | Maria CHRO           | TALENT      | KpiRing · SkillHeatmap · activity feed · SuccessionCard                                        |
-| `capability-graph.html`      | Davide IT            | ENTERPRISE  | KgMiniGraph hero · ontology breakdown · ESCO sync                                              |
-| `skills-heatmap.html`        | Maria CHRO           | TALENT      | matrice 8 dept × 12 skill · filters · distribution histogram                                   |
-| `employee-journey.html`      | Andrea EMP           | TALENT      | profile hero · CareerArc 5-stage · CapabilityRadar · KgMiniGraph                               |
-| `org-systems.html`           | Davide IT (platform) | ENTERPRISE  | 4 tenant fleet · RbacMatrix · IntegrationHealthPill · audit log                                |
-| `cross-tenant-overview.html` | SUPERUSER            | ENTERPRISE  | Cross-tenant analytics · workforce trend chart · capability gauges (Phase 14.SH carry-forward) |
-| `tenant-owner-overview.html` | TENANT_OWNER         | ENTERPRISE  | Org snapshot · 8-dept breakdown · compensation plan · succession (Phase 14.SH carry-forward)   |
+| File                         | Persona             | Perspective | Widget core                                                                                    |
+| ---------------------------- | ------------------- | ----------- | ---------------------------------------------------------------------------------------------- |
+| `hr-director-overview.html`  | HR Director         | TALENT      | KpiRing · SkillHeatmap · activity feed · SuccessionCard                                        |
+| `capability-graph.html`      | IT Admin            | ENTERPRISE  | KgMiniGraph hero · ontology breakdown · ESCO sync                                              |
+| `skills-heatmap.html`        | HR Director         | TALENT      | matrice 8 dept × 12 skill · filters · distribution histogram                                   |
+| `employee-journey.html`      | Employee            | TALENT      | profile hero · CareerArc 5-stage · CapabilityRadar · KgMiniGraph                               |
+| `org-systems.html`           | IT Admin (platform) | ENTERPRISE  | 4 tenant fleet · RbacMatrix · IntegrationHealthPill · audit log                                |
+| `cross-tenant-overview.html` | SUPERUSER           | ENTERPRISE  | Cross-tenant analytics · workforce trend chart · capability gauges (Phase 14.SH carry-forward) |
+| `tenant-owner-overview.html` | TENANT_OWNER        | ENTERPRISE  | Org snapshot · 8-dept breakdown · compensation plan · succession (Phase 14.SH carry-forward)   |
 
 ### 4 mockup PROCESS (Phase 13.D)
 

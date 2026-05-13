@@ -31,7 +31,7 @@ VALUES
    'CHRO view with capability KPI + skill gap matrix + live activity feed + succession ready.',
    'TALENT',
    '.ux-design/06-mockups/dashboards/hr-director-overview.html',
-   'Maria CHRO · RTL Bank',
+   'Audience: HR_DIRECTOR',
    TRUE, 10),
 
   ('capability_graph',
@@ -41,7 +41,7 @@ VALUES
    'ESCO KG topology + ontology breakdown + top entities by edge density + ESCO sync status.',
    'ENTERPRISE',
    '.ux-design/06-mockups/dashboards/capability-graph.html',
-   'Davide IT · RTL Bank',
+   'Audience: IT_ADMIN',
    TRUE, 20),
 
   ('skills_heatmap',
@@ -51,7 +51,7 @@ VALUES
    '8 dept × 12 skill matrix with filters + distribution histogram + critical list.',
    'TALENT',
    '.ux-design/06-mockups/dashboards/skills-heatmap.html',
-   'Maria CHRO · RTL Bank',
+   'Audience: HR_MANAGER',
    TRUE, 30),
 
   ('employee_journey',
@@ -61,7 +61,7 @@ VALUES
    'Profile hero + 5-stage career arc + 4q skill evolution + capability radar + bridging suggestions.',
    'TALENT',
    '.ux-design/06-mockups/dashboards/employee-journey.html',
-   'Andrea EMP · RTL Bank',
+   'Audience: LINE_MANAGER + EMPLOYEE',
    TRUE, 40),
 
   ('org_systems',
@@ -71,7 +71,7 @@ VALUES
    '4 tenant fleet + RBAC matrix + integration health + live audit log + system metrics.',
    'ENTERPRISE',
    '.ux-design/06-mockups/dashboards/org-systems.html',
-   'Davide IT · Heuresys System',
+   'Audience: SUPERUSER',
    TRUE, 50),
 
   -- 4 PROCESS placeholder (Phase 13.D pending, NOT published)

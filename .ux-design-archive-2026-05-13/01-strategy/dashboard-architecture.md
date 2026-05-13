@@ -89,7 +89,7 @@ La dashboard **non è statica**: la sua composizione viene determinata a runtime
 
 | Utente         | Ruolo (RBP)      | Dashboard accessibile                         | Permessi                            |
 | -------------- | ---------------- | --------------------------------------------- | ----------------------------------- |
-| Maria Bianchi  | HR_DIRECTOR (2)  | `dash-hr-strategic` + `dash-capability-graph` | Read all + write capability rubric  |
+| HR Director    | HR_DIRECTOR (2)  | `dash-hr-strategic` + `dash-capability-graph` | Read all + write capability rubric  |
 | Davide Conti   | IT_ADMIN (1)     | `dash-system-health` + `dash-audit`           | Read all + write integration config |
 | Stefania Greco | LINE_MANAGER (5) | `dash-team-overview` + `dash-review-cycle`    | Read team + write review            |
 | Andrea Rossi   | EMPLOYEE (6)     | `dash-my-profile` + `dash-my-path`            | Read own + write self-assessment    |
