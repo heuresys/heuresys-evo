@@ -2954,3 +2954,49 @@ Root cause: tutti i 18 ready_now hanno `critical_role_id` orphan (puntano a plan
 - Stage 3-6 (DGOV/PROGOV/EPRA + dashboard binding + verification)
 
 **Roadmap reflection**: Stage 1b stima 4h, reale ~30min effective (3 script writing + 3 retry per schema drift + verify). Pattern shift to deterministic statistical generation = enorme accelerazione per mass-data. Schema drift handling (3 col rinames in-flight) = inevitabile con DBMS legacy, mitigation: inspect schema before write — Stage 2+ adottare preflight schema-introspect step.
+
+---
+
+## L81 — 2026-05-13 — S35.4 CASCADIA Stage 2b: H2R-Onboarding cross-tenant sweep
+
+**Contesto**: Stage 2 priority-first sweep start. Discovery onboarding: solo RTL Bank ha 4 instances; SmartFood (82 employees recent hire) + EcoNova (0 hires recent) + Heuresys (4 employees only) = 0 instances. SmartFood ha 5 templates pronti ma 0 instances usage. Templates esistono per 3/4 tenant (EcoNova non ne ha).
+
+**Decisione — Cross-tenant onboarding seeding**:
+
+- Target proporzionato per tenant: RTL +11 (4→15), SmartFood +12 (0→12), Heuresys +3 (0→3, limited candidate pool), EcoNova skip (no templates)
+- Per ogni instance: 4-6 tasks generati da pool template-canonical (IT setup, HR docs, compliance training, welcome, buddy intro, goal setting)
+- Distribuzione status: 50% completed (past start_date, full progress), 30% in_progress (mid-progress), 20% pending (future start_date)
+- Statistical seedable via `mulberry32(seedFromString('h2r-onboard-${tenant}'))` per reproducibility
+
+**Stage 2b deliverables**:
+
+- `scripts/seed-generator/h2r/45_onboarding.mjs` (271 LOC) — TARGETS per tenant + TASK_TEMPLATES pool 6 entries + statistical instance generator + tasks insert nested
+
+**Fix in-flight**:
+
+- Tenant code drift: `'heuresys-system'` ≠ DB `heuresys`. Batch fix 5 files (TARGETS in pulsar/gokmer/skilgro/h2r/talpipe + TENANT_IDS in verify-area). Convention adopted: usare DB-native tenant.code values (heuresys, non heuresys-system).
+
+**Acceptance criteria PASS**:
+
+- RTL Bank: onboarding_instances 4 → 15 (+11) · onboarding_tasks +56
+- SmartFood: 0 → 12 (+12) · onboarding_tasks +54
+- Heuresys: 0 → 1 (gap=3 ma solo 1 employee candidate eligible) · onboarding_tasks +4
+- EcoNova: skip (no templates active)
+- TOTAL: +24 instances · +114 tasks
+- `verify-area --area=onboarding` → 🟢 GREEN (3/4 tenant ≥1, 1 skipped)
+- Backup `heuresys_platform-pre-S35.4.2-20260513T021207Z.dump`
+
+**Commits**:
+
+- `70b5f44` — h2r/45_onboarding.mjs (271 insertions)
+- `a8cd470` — tenant code fix batch (5 files, 5/5 substitutions)
+
+**Out-of-scope S55+4** (carry-forward S56+):
+
+- EcoNova onboarding_templates seeding (gate to Stage 2a profile refresh first)
+- Stage 2c GOKMER reviews non-RTL (apply same statistical pattern Stage 1b)
+- Stage 2d TALPIPE succession non-RTL (Claude reasoning grounded)
+- Stage 2e-2g (SKILGRO + SMERTO + ESKAP EcoNova KG repair)
+- Stage 3-6 (DGOV/PROGOV/EPRA + dashboard binding + verification)
+
+**Roadmap reflection**: Stage 2b stima ~2h, reale ~30min effective (script writing + 1 tenant-code fix + 4 tenant execution). Pattern emerso confermato: statistical+template generation è il workhorse per mass-data cross-tenant. Tenant code drift fix è "one-time canonical": established convention `heuresys` (no -system). Schema drift bilateral fixes (h2r preflight da subquery NOT IN funziona OK).
