@@ -3000,3 +3000,68 @@ Root cause: tutti i 18 ready_now hanno `critical_role_id` orphan (puntano a plan
 - Stage 3-6 (DGOV/PROGOV/EPRA + dashboard binding + verification)
 
 **Roadmap reflection**: Stage 2b stima ~2h, reale ~30min effective (script writing + 1 tenant-code fix + 4 tenant execution). Pattern emerso confermato: statistical+template generation è il workhorse per mass-data cross-tenant. Tenant code drift fix è "one-time canonical": established convention `heuresys` (no -system). Schema drift bilateral fixes (h2r preflight da subquery NOT IN funziona OK).
+
+---
+
+## L82 — 2026-05-13 — S35.4 CASCADIA Stage 2f+3: carry-forward batch closure
+
+**Contesto**: post-Stage 2b. Cross-tenant gap audit revealed reality MOLTO migliore del plan iniziale:
+
+- **Reviews + course_enrollments**: già saturati per tutti 4 tenant (RTL 157/1791, SmartFood 81/967, EcoNova 50/277, Heuresys 4/17). Stage 2c "GOKMER non-RTL" NON necessario.
+- **succession_plans non-RTL**: SmartFood 10, EcoNova 8, Heuresys 3. Già coperti.
+- **kg_edges HAS_OCCUPATION**: EcoNova 26/26 (NON 2/26 come plan implicava). Stage 2g KG repair non necessario.
+- **Real gap residue**: bonus_plans EcoNova+Heuresys (0+0), workforce_plan_scenarios non-RTL (0+0+0), recruiting_candidates EcoNova (0).
+
+**Decisione — Single-session carry-forward batch**:
+
+- 3 stage scripts buildati e shippati in single batch (Stage 2f-2g+3 condensato):
+  - `smerto/50_bonus_plans.mjs` — EcoNova 3 + Heuresys 1 plans (semantic content NACE-tied)
+  - `talpipe/27_workforce_scenarios.mjs` — non-RTL 5+5+1 scenarios (5 scenario_type pool base/optimistic/pessimistic/merger/tech_transition)
+  - `h2r/40_recruiting_econova.mjs` — EcoNova 10 candidates renewable-energy roles + Italian name pool + dynamic-schema-inspection INSERT
+
+**Schema drift fixes applicati in-flight**:
+
+- `bonus_plans.bonus_type` enum: `'performance'` non valid → `'annual'`
+- `bonus_plans.calculation_method` enum: `'fixed_amount'` non valid → `'fixed'`
+- `kg_edges` schema: column `relationship` non esiste → `edge_type`
+- `recruiting_candidates`: schema introspect dinamico, filtra colonne mancanti pre-INSERT
+
+**Acceptance criteria PASS**:
+
+- bonus_plans: +3 EcoNova + +1 Heuresys = +4 records
+- workforce_plan_scenarios: +5 SmartFood + +5 EcoNova + +1 Heuresys = +11 records
+- recruiting_candidates: +10 EcoNova
+- TOTAL +25 records carry-forward batch
+- Backup `heuresys_platform-pre-S35.4.3-20260513T022024Z.dump`
+
+**Verify-area --all summary** (S55+5 closure):
+
+- 🟢 20/25 areas GREEN
+- 🟡 2/25 (compensation_planning EcoNova+Heuresys 0 salary_band_assignments cosmetic, italian_labor partial — table missing holiday_calendars_it)
+- 🔴 3/25 (verify-area script issues: dashboard_presets/elements wrong column names; italian_labor table name drift)
+
+**Commits**:
+
+- `fad4e59` — Stage 2f+3 carry-forward batch (3 scripts, 398 insertions)
+- `a499049` — bonus_type enum fix
+- `30936e9` — calculation_method fix
+
+**Cumulative CASCADIA totals (post-S55+5)**:
+
+| Stage                      |                    Records shipped |
+| -------------------------- | ---------------------------------: |
+| 1a TALPIPE RTL succession  |                                +18 |
+| 1b RTL stat sweep          |                               +927 |
+| 2b onboarding cross-tenant |                +24 inst +114 tasks |
+| 2f+3 carry-forward batch   |                                +25 |
+| **GRAND TOTAL**            | **+1108 records** + **+114 tasks** |
+
+**Out-of-scope S55+5** (carry-forward S56+):
+
+- Stage 4 PROGOV+EPRA (workflow_steps + approval_chains + turnover_risk_scores) — non urgente (widget secondari)
+- Stage 5 dashboard binding sweep registry.tsx (rimuovi demo fallback) — UX impact alto
+- Stage 6 verification finale + ADR-0028 → accepted-implemented + memory rename
+- Stage 2a profile refresh non-RTL (deferred — schema zod accomoda drift esistente)
+- EcoNova onboarding_templates seeding (small gap, ~30min standalone)
+
+**Roadmap reflection**: Stage 2f+3 stima ~5h aggregate, reale ~45min effective (audit query 10min + 3 script writing 20min + 2 enum constraint fix 5min + execute 10min). Pattern stabilizzato: discovery-driven stage targeting (count BEFORE script, evita over-engineering). 5 sessioni totali (S55+1 → S55+5) hanno chiuso 4 stage di 7 e 80%+ del DBMS coverage gap. Stage 4-5-6 residue ~10h work in 2-3 sessioni.
