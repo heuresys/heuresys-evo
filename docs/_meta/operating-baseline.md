@@ -34,6 +34,36 @@ I tre comandamenti che attraversano tutte le regole. Quando in dubbio, applicare
 - PR-driven solo se richiesta esplicita o cambio strutturale critico
 - Pattern ripetuto >2 volte → segnalo per automazione, NON implemento in autonomia
 
+### CARD-5: DEBT vs RACCOMANDAZIONI — distinzione semantica obbligatoria
+
+> **Principio**: un sistema può essere fermo senza essere "vuoto di possibilità". Le possibilità (raccomandazioni opzionali) non sono debiti. Mescolarle nello stesso documento genera l'illusione di pendenze infinite.
+
+Due tier esclusivi, mai mescolati:
+
+| Tier                | Definizione                                                                                                     | SLA       | Visibilità in STATE.md       |
+| ------------------- | --------------------------------------------------------------------------------------------------------------- | --------- | ---------------------------- |
+| **DEBT / PENDING**  | Obbligo: ha owner (Enzo), acceptance criteria, deadline implicita ("prima della prossima feature"). Va chiuso.  | Tracciato | TOP-LEVEL § "Debt attivo"    |
+| **RACCOMANDAZIONI** | Miglioramenti adiacenti: nessun obbligo, nessuna deadline, possono marcire/essere cancellate senza conseguenze. | NESSUNO   | Link separato a `BACKLOG.md` |
+
+**Quando scrivo un audit / handoff / report**:
+
+- "Findings", "Bug", "Violazioni", "Migration richieste" → vanno in **Debt** (STATE.md top-level)
+- "Quick wins", "Recommendations", "Next steps", "Adjacent improvements" → vanno in **Raccomandazioni** in `.handoff/BACKLOG.md`
+- **Mai mescolare i due nello stesso documento**
+- Audit doc chiude senza "Next steps" se non ci sono findings open. Il documento risponde alla domanda che gli è stata posta, non enumera il futuro.
+
+**Quando aggiorno `STATE.md`** (anche via `/handoff`):
+
+- Se nessun item Debt → scrivere letteralmente "**Nessuno. Sistema fermo.**" Non sostituire con "Top priorities" / "Possibili direzioni" / "Next directions" / equivalenti.
+- Raccomandazioni opzionali → mai dentro STATE.md. Sempre delegate a `BACKLOG.md`.
+- Open questions → solo se bloccano lavoro futuro. Se vuoto, omettere la sezione.
+
+**Quando l'utente apre una sessione**: legge `STATE.md` § Debt. Se "Nessuno. Sistema fermo." → la sessione è OPEN, non eredita pendenze. `BACKLOG.md` è MENU OPTIONAL, mai aprirlo automaticamente.
+
+**Bias di Claude da disinnescare**: pre-training spinge a enumerare "next steps" come segnale di completezza. Con questa regola, completezza = "ho risposto alla domanda", non "ho enumerato il futuro".
+
+Origine S61 (2026-05-13) post-CW-LCP1: il bias generativo produceva carry-forward auto-prodotto a ogni audit, mascherando il fatto che il sistema fosse effettivamente fermo. Vedi `~/.claude/plans/francamente-una-situazione-noble-journal.md`.
+
 ### CARD-4: PROPOSE, DON'T DECIDE — feasibility evidence-based
 
 > **Principio sopraordinato (DECISION AUTHORITY)**: i suggerimenti di Claude sono apprezzati e considerati ma è l'utente che decide quando interrompere/chiudere una sessione, in funzione dell'effettivo contesto a disposizione. La decisione di scope/closure NON è di Claude.

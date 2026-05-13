@@ -37,59 +37,52 @@ Note: handoff workflow assumes user already committed code/docs changes during t
 
 ### Step 2 — Update `.handoff/STATE.md` (overwrite)
 
-Compact format, ~30-50 lines target. Required sections (canonical example: see git log of `.handoff/STATE.md`):
+Compact format, ~30-50 lines target. **Template canonical post-S61 reform** (vedi `docs/_meta/operating-baseline.md` § CARD-5):
 
 ````markdown
 # heuresys-evo — Current State
 
-> Updated: <ISO timestamp UTC> · <sprint name> closed · <one-line summary>
+> Updated: <ISO timestamp UTC> · <sprint name> closed · HEAD `<sha>`
 
-## Last session brief (<sprint>)
+## Debt attivo
 
-<3-6 lines: what shipped, key commits, key metrics>
-
-## Top priorities (<next sprint>)
-
-1. **`[severity]` <title>** (~effort) — <1-2 line context + ref files>
-2. ...
-3. ...
-4. ...
+<bullet-list di obblighi con acceptance criteria. SE VUOTO: scrivere letteralmente "Nessuno. Sistema fermo.">
 
 ## Open questions
 
-- <items needing decision before next session can proceed, or "nessuna">
+<solo domande che bloccano lavoro futuro. SE VUOTO: omettere intera sezione.>
 
-## Stack snapshot (changed this session)
+## Stack snapshot delta
 
-- DBMS: <key invariants verified>
-- Code: <NEW/MOD files high-level>
-- Infra: <changes>
-- Docs: <key additions>
-- Tests: <count + green>
+<descrittivo: cosa è cambiato in questa sessione/sprint>
 
 ## Verification
 
 ```bash
 <3-5 commands the next session can run to confirm baseline>
 ```
+
+## References
+
+<plan file · audit doc · DECISIONS-LOG entry · operating-baseline section>
 ````
 
-Riferimenti: <plan file, audit doc, DECISIONS-LOG entry>
+**Hard rules sul template (S61 reform)**:
 
-````
-
-**Severity tags**: `[HIGH]` `[MEDIUM]` `[LOW]` `[INFRA]` `[ARCH]` `[ARCH-S<N>]`.
+- **Sezione "Debt attivo"** sostituisce "Top priorities" / "Possibili direzioni" / "Next session" / equivalenti. Se vuota → letterale "**Nessuno. Sistema fermo.**" — non riempire con "menu of options" o "next directions".
+- **Raccomandazioni opzionali** (quick wins, recommendations, next steps, adjacent improvements) → vanno in `.handoff/BACKLOG.md`, mai dentro STATE.md.
+- **Severity tags** solo dentro § "Debt attivo" se la sezione non è vuota: `[HIGH]` `[MEDIUM]` `[LOW]` `[INFRA]` `[ARCH]`.
 
 ### Step 3 — Sync global project docs (only if not already done in-session)
 
 Check if these need updating based on session changes:
 
-| File | When to update |
-|---|---|
+| File                                                                                                   | When to update                                                                                                                                                                                                                                                                                                           |
+| ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `CLAUDE.md` (§ Sistema corrente l. ~169 / § Roadmap successiva l. ~212 / § Carry-forward S25+ l. ~224) | Snapshot operativo cambiato (DB count, test count, app routes, FK state, mat views), oppure priorità roadmap/carry-forward shiftate. Per cronologia sprint shipped (Phase X.Y close, S<N> close) → append a `docs/_meta/sprint-history.md` (archive append-only, ordine cronologico decrescente), NO inline in CLAUDE.md |
-| `.ux-design/DECISIONS-LOG.md` | Decision/architectural choice taken this session → append L-NN entry |
-| `.ux-design/BRAND-STATE.md` | Brand workstream active + phase advancement / new asset / decision |
-| `.handoff/legacy-import-registry.csv` | Import legacy occurred this session |
+| `.ux-design/DECISIONS-LOG.md`                                                                          | Decision/architectural choice taken this session → append L-NN entry                                                                                                                                                                                                                                                     |
+| `.ux-design/BRAND-STATE.md`                                                                            | Brand workstream active + phase advancement / new asset / decision                                                                                                                                                                                                                                                       |
+| `.handoff/legacy-import-registry.csv`                                                                  | Import legacy occurred this session                                                                                                                                                                                                                                                                                      |
 
 Skip if already synced in earlier commits this session.
 
@@ -106,6 +99,7 @@ Body 3-5 bullets, distilled from STATE.md "Last session brief" + key metrics + c
 Show proposed commit. Ask: "Eseguo, oppure preferisci farlo tu?". If user agrees → stage relevant files + commit.
 
 **Hard rules**:
+
 - Never `--no-verify` (gitleaks + commitlint enforced)
 - Never `--amend` on pushed commits
 - Never `git push --force` on main
@@ -115,7 +109,7 @@ Show proposed commit. Ask: "Eseguo, oppure preferisci farlo tu?". If user agrees
 
 ```bash
 git push origin main
-````
+```
 
 Single paragraph confirmation:
 
@@ -143,9 +137,9 @@ If a session genuinely needs one of the above (rare), do it OUTSIDE this skill, 
 
 At session start, agent must:
 
-1. Read `.handoff/STATE.md` — get plan + open questions
+1. Read `.handoff/STATE.md` § "Debt attivo". If "**Nessuno. Sistema fermo.**" → session is OPEN, no inherited pending. **Never auto-open `BACKLOG.md`** (menu opzionale).
 2. Run `git status -sb` (clean? in sync `origin/main`?)
-3. Greet user: 1-line state recap + top 3 priorities + open questions if relevant
+3. Greet user: 1-line state recap + Debt status (empty vs items) + open questions if relevant. If Debt empty → "Sistema fermo, dimmi cosa facciamo."
 4. Wait for explicit user direction before touching code
 
 This is **not part of this skill** — it lives in project root `CLAUDE.md` § Session start protocol.

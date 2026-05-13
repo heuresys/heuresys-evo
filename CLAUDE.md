@@ -6,14 +6,16 @@
 
 ## Session start protocol
 
-1. Leggi `.handoff/STATE.md`
+1. Leggi `.handoff/STATE.md` § "Debt attivo". Se "**Nessuno. Sistema fermo.**" → la sessione è OPEN, non eredita pendenze. `.handoff/BACKLOG.md` è menu opzionale, **mai aprirlo automaticamente**.
 2. `git status -sb` (clean? in sync con `origin/main`?)
-3. Saluta: 1-line recap + top 3 priorities + open questions se rilevanti
-4. Aspetta direzione esplicita prima di toccare codice
+3. Saluta: 1-line recap + stato Debt (vuoto vs items) + open questions se rilevanti. Se Debt vuoto → "Sistema fermo, dimmi cosa facciamo." Niente enumerazione di "possibili direzioni".
+4. Aspetta direzione esplicita prima di toccare codice.
 
 Eccezione: skip se utente apre con comando diretto self-contained.
 
 A fine sessione, `/handoff` aggiorna `.handoff/STATE.md` + commit + push direct main.
+
+**Policy audit/handoff (S61 reform, vedi `docs/_meta/operating-baseline.md` § CARD-5)**: audit doc chiude su findings effettivi; raccomandazioni adiacenti ("next steps", "quick wins", "recommendations") vivono SOLO in `.handoff/BACKLOG.md`, mai dentro audit/STATE. Distinzione semantica Debt vs Raccomandazioni è obbligatoria.
 
 ## Brand workstream (active)
 

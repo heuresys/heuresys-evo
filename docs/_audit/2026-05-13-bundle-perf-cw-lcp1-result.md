@@ -67,14 +67,6 @@ npx lighthouse https://evo.heuresys.com/login --quiet --chrome-flags="--headless
 jq '.audits["largest-contentful-paint"].displayValue, .categories.performance.score' /tmp/login.lh
 ```
 
-## Next quick wins (L77 recommendations remaining)
-
-1. ~~**Lazy-load palette-framework.css**~~ ✅ **SHIPPED** (this fix)
-2. **Investigation chunk duplicate 2× 4 MB** (~2h, LOW risk) — capire se i due chunk identici da 4.01 MB sono dedupabili → potenziale -4 MB su tutte le route
-3. **Dynamic import BrandShell** (~1-2h, MEDIUM risk) — split client island da server layout in `(app)/layout.tsx`
-4. **Lazy-load dashboard-brand.css** (3177 LOC, ~190 KB raw) — solo route `/dashboard/*` ne ha bisogno, attualmente in root layout
-5. **Server-only Prisma boundary** (~16h, HIGH effort) — strict `import 'server-only'` per evitare leak Prisma in client bundle
-
 ## Verifica reproducible
 
 ```bash
