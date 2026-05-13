@@ -18,7 +18,7 @@
     "test:unit": "vitest run"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.93.0",
+    "@anthropic-ai/sdk": "^0.95.2",
     "@heuresys/shared": "*",
     "bullmq": "^5.13.0",
     "ioredis": "^5.4.1",
@@ -26,7 +26,7 @@
     "zod": "^3.24.0"
   },
   "devDependencies": {
-    "@types/node": "25.6.0",
+    "@types/node": "25.7.0",
     "@vitest/coverage-v8": "^4.1.0",
     "tsx": "4.21.0",
     "typescript": "6.0.3",
