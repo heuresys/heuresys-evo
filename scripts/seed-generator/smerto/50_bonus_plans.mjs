@@ -13,7 +13,7 @@ const PLANS_BY_TENANT = {
   econova: [
     {
       name: 'Performance Bonus 2026 — Energy Transition Targets',
-      bonus_type: 'performance',
+      bonus_type: 'annual',
       description:
         'Bonus annuale legato ai target di efficienza energetica + safety KPI. Eligible per tutto il personale full-time post-probation.',
       calculation_method: 'percentage',
@@ -42,7 +42,7 @@ const PLANS_BY_TENANT = {
   heuresys: [
     {
       name: 'Platform Performance Bonus 2026',
-      bonus_type: 'performance',
+      bonus_type: 'annual',
       description:
         'Bonus annuale legato a OKR raggiunti + uptime SLA piattaforma. Eligible platform team + senior platform engineers.',
       calculation_method: 'percentage',
