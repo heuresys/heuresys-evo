@@ -6,7 +6,8 @@
   "description": "Heuresys SaaS dashboard (services/app) â€” Next.js 16 + NextAuth v5",
   "scripts": {
     "dev": "next dev --port 3200",
-    "build": "next build && cp -r public .next/standalone/services/app/ 2>/dev/null; mkdir -p .next/standalone/services/app/.next && cp -r .next/static .next/standalone/services/app/.next/ 2>/dev/null; true",
+    "build": "NODE_OPTIONS='--max-old-space-size=4096' next build && cp -r public .next/standalone/services/app/ 2>/dev/null; mkdir -p .next/standalone/services/app/.next && cp -r .next/static .next/standalone/services/app/.next/ 2>/dev/null; true",
+    "analyze": "NODE_OPTIONS='--max-old-space-size=4096' next experimental-analyze -o",
     "start": "next start --port 3200",
     "lint": "echo '@heuresys/app: lint via tsc only (next lint deprecato in Next.js 16, ESLint flat config TBD)' && exit 0",
     "typecheck": "tsc --noEmit",

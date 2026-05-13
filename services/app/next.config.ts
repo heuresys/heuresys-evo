@@ -1,12 +1,9 @@
 import type { NextConfig } from 'next';
-import withBundleAnalyzerImport from '@next/bundle-analyzer';
 
-// CF#1 (L75): bundle analyzer wrapper. Activate via `ANALYZE=true npm run build`
-// per generare report HTML/JSON in .next/analyze/ — usato per identificare top
-// contributors al bundle size (target Lighthouse Perf >=90 carry-forward Sprint 2).
-const withBundleAnalyzer = withBundleAnalyzerImport({
-  enabled: process.env.ANALYZE === 'true',
-});
+// Bundle analysis path (S55 L76): Next.js 16 default è Turbopack. `@next/bundle-analyzer`
+// è webpack-only e incompatibile con Turbopack builds. Per analizzare il bundle si usa
+// `npm run analyze` che chiama `next experimental-analyze -o` (Turbopack-nativo) →
+// scrive report in `.next/analyze/` senza richiedere wrapping della config.
 
 const config: NextConfig = {
   // Standalone output for systemd-managed deploy (RTG Phase 5 task 5.2).
@@ -29,4 +26,4 @@ const config: NextConfig = {
   },
 };
 
-export default withBundleAnalyzer(config);
+export default config;

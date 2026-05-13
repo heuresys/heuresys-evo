@@ -36,11 +36,11 @@ async function fetchWorkforceKpis(tenantId: string | null): Promise<WorkforceKpi
              WHERE tenant_id = current_setting('app.current_tenant_id', true)::uuid
                AND is_active = true
                AND created_at >= NOW() - INTERVAL '90 days') AS new_hires_90d,
-          (SELECT COUNT(DISTINCT department_id)::int FROM employees
+          (SELECT COUNT(DISTINCT org_unit_id)::int FROM employees
              WHERE tenant_id = current_setting('app.current_tenant_id', true)::uuid
                AND is_active = true
-               AND department_id IS NOT NULL) AS departments,
-          (SELECT COUNT(*)::int FROM workforce_planning_scenarios
+               AND org_unit_id IS NOT NULL) AS departments,
+          (SELECT COUNT(*)::int FROM workforce_plan_scenarios
              WHERE tenant_id = current_setting('app.current_tenant_id', true)::uuid) AS scenarios
       `;
       const r = rows[0] ?? { headcount: 0, new_hires_90d: 0, departments: 0, scenarios: 0 };
