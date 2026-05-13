@@ -140,6 +140,44 @@ export async function fetchWidgetData(args: FetchArgs): Promise<FetchResult> {
   return { data, source: config.type, cached: false, fetchedAt: now };
 }
 
+/**
+ * Placeholder substitution for SQL `data_source` (S60 CF-1 extension).
+ *
+ * Supports `{employeeId}` token in the query string. Replaced with `$1` parameter
+ * and bound via `$queryRawUnsafe(query, value)` for safe parameterized execution
+ * (avoids SQL injection vs string interpolation).
+ *
+ * If the query references `{employeeId}` but `ctx.employeeId` is missing
+ * (e.g. platform users without an employee record), the call throws so the
+ * widget surfaces a fetch error instead of returning rows for an undefined user.
+ *
+ * Note: `{tenantId}` substitution is intentionally NOT supported — RLS via
+ * `app.current_tenant_id` GUC (set by `withTenant`) handles tenant scoping.
+ * Queries should use `NULLIF(current_setting('app.current_tenant_id', true), '')::uuid`
+ * inline when filtering by tenant explicitly.
+ */
+function substituteSqlPlaceholders(
+  query: string,
+  ctx: FetchContext
+): {
+  sql: string;
+  params: unknown[];
+} {
+  const params: unknown[] = [];
+  let sql = query;
+  if (sql.includes('{employeeId}')) {
+    if (!ctx.employeeId) {
+      throw new Error(
+        'sql data source references {employeeId} but FetchContext.employeeId is unset'
+      );
+    }
+    params.push(ctx.employeeId);
+    const placeholder = `$${params.length}`;
+    sql = sql.replace(/\{employeeId\}/g, placeholder);
+  }
+  return { sql, params };
+}
+
 async function fetchSql(config: DataSourceConfig, ctx: FetchContext): Promise<unknown> {
   if (!config.query || !config.query.trim()) {
     throw new Error('sql data source requires non-empty "query" field');
@@ -150,8 +188,10 @@ async function fetchSql(config: DataSourceConfig, ctx: FetchContext): Promise<un
     throw new Error('sql data source allows SELECT/WITH only (no mutations)');
   }
 
+  const { sql, params } = substituteSqlPlaceholders(trimmed, ctx);
+
   return withTenant(ctx.tenantId, async (tx) => {
-    return tx.$queryRawUnsafe(trimmed);
+    return tx.$queryRawUnsafe(sql, ...params);
   });
 }
 

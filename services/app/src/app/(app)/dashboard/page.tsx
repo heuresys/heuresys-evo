@@ -10,13 +10,9 @@ import { prefetchElements } from '@/lib/dashboard-engine/prefetch';
 import { DashboardRenderer, type DashboardRendererSlot } from '@/components/DashboardRenderer';
 import { DEFAULT_LOCALE, pickBilingual } from '@/lib/i18n';
 
-import OrgSystemsView from './_views/OrgSystemsView';
-import CrossTenantOverviewView from './_views/CrossTenantOverviewView';
-import TenantOwnerOverviewView from './_views/TenantOwnerOverviewView';
-import HrDirectorOverviewView from './_views/HrDirectorOverviewView';
-import SkillsHeatmapView from './_views/SkillsHeatmapView';
-import CapabilityGraphView from './_views/CapabilityGraphView';
-import EmployeeJourneyView from './_views/EmployeeJourneyView';
+// S60 CF-5: legacy _views/*View.tsx fallback path removed.
+// All role_default_dashboards rows map to `*_v2` presets (G6 renderer).
+// Reference P11 pattern preserved in `services/app/src/lib/data/tenant-owner-queries.ts`.
 
 type DashboardElementG4 =
   Awaited<ReturnType<typeof loadG6Elements>> extends (infer T)[] | null ? T : never;
@@ -222,38 +218,24 @@ export default async function DashboardPage() {
     );
   }
 
-  // Switch to the right brand-fedele view (non-`_v2` fallback path · S20+ deletion)
-  switch (presetCode) {
-    case 'org_systems':
-      return <OrgSystemsView role={role} />;
-    case 'cross_tenant_overview':
-      return <CrossTenantOverviewView role={role} />;
-    case 'tenant_owner_overview':
-      return <TenantOwnerOverviewView role={role} tenantName={tenantName} />;
-    case 'hr_director_overview':
-      return <HrDirectorOverviewView role={role} tenantName={tenantName} />;
-    case 'skills_heatmap':
-      return <SkillsHeatmapView role={role} tenantName={tenantName} />;
-    case 'capability_graph':
-      return <CapabilityGraphView role={role} tenantName={tenantName} />;
-    case 'employee_journey':
-      return <EmployeeJourneyView role={role} username={username} tenantName={tenantName} />;
-    default:
-      return (
-        <>
-          <header className="ws-header">
-            <div className="title-block">
-              <div className="breadcrumb">DASHBOARD · {role}</div>
-              <h1>
-                Preset <em>{presetCode}</em> non ancora migrato
-              </h1>
-            </div>
-          </header>
-          <p style={{ fontSize: 14, color: 'var(--ink-soft)', maxWidth: 600 }}>
-            Il preset <code>{presetCode}</code> non ha una view brand-fedele dedicata. Visita{' '}
-            <code>/dashboard/{presetCode}</code> per il rendering generico via Dashboard Engine.
-          </p>
-        </>
-      );
-  }
+  // S60 CF-5: non-_v2 preset is unexpected post-S58 (role_default_dashboards all map to _v2).
+  // Surface as anomaly instead of falling back to deleted legacy views.
+  return (
+    <>
+      <header className="ws-header">
+        <div className="title-block">
+          <div className="breadcrumb">DASHBOARD · {role}</div>
+          <h1>
+            Preset <em>{presetCode}</em> non riconosciuto
+          </h1>
+        </div>
+      </header>
+      <p style={{ fontSize: 14, color: 'var(--ink-soft)', maxWidth: 600 }}>
+        Il preset <code>{presetCode}</code> non termina in <code>_v2</code> e i fallback legacy sono
+        stati rimossi (S60 CF-5). Verifica <code>role_default_dashboards</code> e seed{' '}
+        <code>db/seeds/phase15g6_full_preset_layouts.sql</code>. Tutti i preset attivi devono avere
+        suffix <code>_v2</code>.
+      </p>
+    </>
+  );
 }

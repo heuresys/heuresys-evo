@@ -3220,3 +3220,39 @@ Phase A2 (re-inventory G6) ha trovato che il seed `phase15g6_full_preset_layouts
 - `ALTER ROLE heuresys NOBYPASSRLS` (security hardening DBMS-level)
 - Schema extension REV/FTE + EQUITY + TOTAL TC (decisione brand-prodotto)
 - Defense-in-depth completo: audit 8 file `.tsx` residui non auditati (admin/users, admin/audit, team, me/\*)
+
+---
+
+## L87 — 2026-05-13 — S60: zero carry-forward — 5 CF chiusi in cascata
+
+**Decisione**: chiusura totale dei carry-forward S59. Tutti i 5 CF risolti in una sessione cumulative.
+
+**CF-1 + CF-1b — `{employeeId}` placeholder in fetchSql** (`data-fetcher.ts:143`): estesa `fetchSql` con substitution → `$1` binding parametrico via `$queryRawUnsafe(sql, ...params)`. Throw se placeholder presente ma `ctx.employeeId` unset. Migration `phase18r` sblocca 8 KPI: capability_graph_v2 (TEAM SIZE / CAPABILITY / GAP COUNT / ROLE COVERAGE via `manager_id={employeeId}`) + employee_journey_v2 (CAPABILITY / GOALS Q4 / TENURE / NEXT REVIEW via `employee_id={employeeId}`).
+
+**CF-2 — `ALTER ROLE heuresys NOBYPASSRLS`**: applicato via sudo postgres. CASCADIA + api-gateway usano `withTenant`/`withTenantTx` → safe. Production HTTP 200 + variance verified. Fix laterale `phase18t`: policy permissiva `tenant_lookup_when_no_context` su `tenants` per bootstrap lookup CASCADIA. Workflow ops: migration DDL post-NOBYPASSRLS richiede `sudo -u postgres`.
+
+**CF-3 — Defense-in-depth audit**: 10 file residui auditati. Tutti compliant (admin/users tenant_id filter; admin/audit tenant_id filter; team manager_id user-scoped; me/\* employee_id user-scoped; analytics/workforce $queryRaw with tenant_id; onboarding no findMany). Zero changes necessari.
+
+**CF-4 — Schema extension REV/FTE + EQUITY + TOTAL TC** (Opzione A): migration `phase18s` (tenant_revenue_periods + equity_grants + total_compensation view) + `phase18u` (UPDATE preset 102 + 110 da unavailable → sql live). CASCADIA seed `smerto/80_revenue_equity.mjs` realistic banking benchmark.
+
+Cross-tenant variance verificata:
+
+| Tenant    | REV/FTE | EQUITY | TOTAL TC |
+| --------- | ------: | -----: | -------: |
+| RTL Bank  |   2016k |   null |     9.0M |
+| SmartFood |    683k |   null |     3.4M |
+| EcoNova   |    736k |   407k |     2.7M |
+| Heuresys  |   1410k |   500k |     0.8M |
+
+**CF-5 — Legacy `_views/*View.tsx` cleanup**: zero preset non-`_v2` mappati (verified via `role_default_dashboards`). Rimossi 7 view file + switch fallback (33 LOC) + 7 imports. Surface "non-\_v2" preset → "Preset non riconosciuto" anomaly. Reference P11 pattern preserved in `services/app/src/lib/data/tenant-owner-queries.ts`.
+
+**Stato G6 preset \_v2 finale post-S60**:
+
+- 7 preset attivi: **TUTTI 100% live**
+- 0 KPI unavailable hardcoded residui
+- 0 fake fixture
+- Cross-tenant variance verificata 4 tenant
+- RLS hardening attivo (heuresys NOBYPASSRLS)
+- Defense-in-depth in tutti i page.tsx auditati
+
+**Zero carry-forward residui.**
