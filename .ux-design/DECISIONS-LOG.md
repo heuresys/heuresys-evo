@@ -3186,3 +3186,37 @@ Phase A2 (re-inventory G6) ha trovato che il seed `phase15g6_full_preset_layouts
 - Side-finding S58 #3 (P1): cross-tenant data leak su `/compensation` + `/employees` (RTL vede dati altri tenant) — investigare RLS bypass o query senza tenant_id
 
 **Commits**: `8bf368f` (constraint + DataNotAvailable + view legacy pilot orphan) · `e500df3` (G6 live SQL migration phase18p + adapter/widget extension).
+
+---
+
+## L86 — 2026-05-13 — S59: P1 cross-tenant leak fix + bonifica 5 preset \_v2 + schema proposal
+
+**Decisione**: chiusura sessione S59 con 3 obiettivi cumulative.
+
+1. **P1 violation fix** (cross-tenant leak su /compensation /employees /reviews /goals /learning /admin/integrations):
+
+   **Root cause**: utente DB `heuresys` ha `rolbypassrls=true` → bypassa TUTTE le policies RLS. Le policy `tenant_isolation` su tabelle critiche (bonus_plans, performance_reviews, goals, course_enrollments, learning_paths, audit_logs, ecc.) sono architetturalmente corrette ma disabilitate per app user. `employees` è inoltre VIEW (post phase16o vertical-split) senza RLS.
+
+   **Fix app-level (defense in depth)**: aggiunto `WHERE tenant_id: tenantId` esplicito in 6 query Prisma su 6 page.tsx. Sicuro anche con RLS bypassata.
+
+   **Carry-forward S70+ DBMS**: `ALTER ROLE heuresys NOBYPASSRLS` — richiede risk assessment CASCADIA scripts.
+
+2. **Bonifica 5 preset \_v2 residui** via `phase18q_v2_presets_bulk_live.sql` (23 UPDATE):
+   - `skills_heatmap_v2`: 4 KPI + Histogram tenant-scoped live
+   - `cross_tenant_overview_v2`: 4 KPI + Histogram platform-wide live
+   - `org_systems_v2`: 4 KPI platform-wide live (tenants/rbp_roles/pg_policies)
+   - `capability_graph_v2`: 4 KPI unavailable=true (employeeId scope, fetchSql limit)
+   - `employee_journey_v2`: 4 KPI unavailable=true (idem)
+
+   `hr_director_overview_v2` già live S58 pre-existing.
+
+   **Bug fix**: phase18p element 111 SuccessionCard usava `sc.employee_id` invece di `sc.candidate_employee_id`. Fixato in phase18q.
+
+3. **Schema extension proposal** (`docs/_audit/2026-05-13-schema-extension-proposal-revfte-equity-totaltc.md`): 3 opzioni per REV/FTE + EQUITY + TOTAL TC. Raccomandazione A (new tables) — 6-8h S60-S61. **Decisione brand-prodotto richiesta**.
+
+**Carry-forward S60+**:
+
+- `{employeeId}` placeholder support in `fetchSql` (extends data-fetcher.ts:143) per sbloccare capability_graph_v2 + employee_journey_v2 (8 KPI personal-scope)
+- `ALTER ROLE heuresys NOBYPASSRLS` (security hardening DBMS-level)
+- Schema extension REV/FTE + EQUITY + TOTAL TC (decisione brand-prodotto)
+- Defense-in-depth completo: audit 8 file `.tsx` residui non auditati (admin/users, admin/audit, team, me/\*)

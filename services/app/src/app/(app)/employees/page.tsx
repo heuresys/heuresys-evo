@@ -26,9 +26,12 @@ async function fetchEmployees(tenantId: string | null, opts: { scope?: 'dept' } 
       },
     });
   }
+  // P11 + defense-in-depth (S59 P1 fix): WHERE tenant_id esplicito.
+  // L'utente DB `heuresys` ha rolbypassrls=true → RLS disabled. Filtro esplicito mandatory.
   return withTenant(tenantId, (tx) =>
     tx.employees.findMany({
       where: {
+        tenant_id: tenantId,
         is_active: true,
         deleted_at: null,
         ...(opts.scope === 'dept'

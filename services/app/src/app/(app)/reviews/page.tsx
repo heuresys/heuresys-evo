@@ -34,9 +34,11 @@ const STRINGS = {
 } as const;
 
 async function fetchReviews(tenantId: string) {
+  // P11 + S59 P1 fix: WHERE tenant_id esplicito.
+  // L'utente DB `heuresys` ha rolbypassrls=true → RLS bypassed. Filtro mandatory.
   return withTenant(tenantId, (tx) =>
     tx.performance_reviews.findMany({
-      where: {},
+      where: { tenant_id: tenantId },
       orderBy: { review_period_end: 'desc' },
       take: 100,
       select: {

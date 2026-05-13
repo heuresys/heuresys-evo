@@ -34,10 +34,14 @@ const STRINGS = {
 } as const;
 
 async function fetchCompensation(tenantId: string) {
+  // P11 + defense-in-depth (S59 P1 fix): WHERE tenant_id esplicito in OGNI query.
+  // Background: l'utente DB app (`heuresys`) ha `rolbypassrls=true`, quindi le RLS
+  // policies su bonus_plans/employees_core sono DISABILITATE. withTenant() setta
+  // il GUC ma da solo non basta. Filtro esplicito è l'unica difesa garantita.
   return withTenant(tenantId, async (tx) => {
     const [plans, salaryAgg] = await Promise.all([
       tx.bonus_plans.findMany({
-        where: {},
+        where: { tenant_id: tenantId },
         orderBy: { period_start: 'desc' },
         take: 20,
         select: {
@@ -51,7 +55,12 @@ async function fetchCompensation(tenantId: string) {
         },
       }),
       tx.employees.aggregate({
-        where: { is_active: true, deleted_at: null, salary: { not: null } },
+        where: {
+          tenant_id: tenantId,
+          is_active: true,
+          deleted_at: null,
+          salary: { not: null },
+        },
         _avg: { salary: true },
         _min: { salary: true },
         _max: { salary: true },

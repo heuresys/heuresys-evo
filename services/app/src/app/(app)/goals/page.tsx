@@ -24,9 +24,10 @@ const STRINGS = {
 } as const;
 
 async function fetchGoals(tenantId: string) {
+  // P11 + S59 P1 fix: WHERE tenant_id esplicito (RLS bypassed by app user).
   return withTenant(tenantId, (tx) =>
     tx.goals.findMany({
-      where: {},
+      where: { tenant_id: tenantId },
       orderBy: { start_date: 'desc' },
       take: 100,
       select: {

@@ -1,125 +1,105 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-13T16:30Z · S58-ext closed · **P11 + tenant_owner_overview_v2 LIVE verified cross-tenant** · HEAD `162658a`
+> Updated: 2026-05-13T17:00Z · S59 closed · **P1 leak fix + 5 preset _v2 live + schema proposal** · HEAD pending
 
 ## Last session brief
 
-S58 sessione lunga (5+h) chiude **3 obiettivi concatenati**:
+S59 chiude **3 obiettivi P11**:
 
-1. **Constraint P11 codificato** — NO MOCK/HARDCODED/RANDOM in UI/mockup/test/brand-studio (CASCADIA seeding ESCLUSO). Sopraordinato a P1-P10. Inviolabile.
-2. **Pattern shipped riutilizzabile** — `<DataNotAvailable />` component + adapter extension (`unavailable` flag) + `BrandKpiCard`/`BrandCompCard` rendering conditional.
-3. **Pilot `tenant_owner_overview_v2` LIVE verificato cross-tenant** — RTL Bank vs Heuresys System mostrano numeri DIVERSI per la prima volta (vedi tabella sotto).
+1. **P1 cross-tenant data leak fix** (HIGH security) — root cause: `rolbypassrls=true` su user app `heuresys`. Fix app-level con `WHERE tenant_id` esplicito in 6 page.tsx (compensation, employees, reviews, goals, learning, admin/integrations). Defense-in-depth: DBMS hardening carry-forward.
+2. **Bonifica 5 preset _v2 residui** via migration `phase18q` (23 UPDATE elements). 3 preset platform-wide live · 2 preset unavailable=true (richiede `{employeeId}` support in fetchSql, S60+).
+3. **Schema extension proposal** documentata per REV/FTE + EQUITY + TOTAL TC. Decisione brand-prodotto richiesta.
 
-## Commits S58 cumulative (10)
+## Commits S58+S59 cumulative
 
 | Item | Commit |
 |---|---|
-| salary_bands closure EcoNova + Heuresys (CASCADIA seeding) | `e5cd4df` |
-| salary_band_assignments closure EcoNova + Heuresys (CASCADIA seeding) | `8c3ed98` |
-| toggle-tenant-owners-tmp.mjs (LH cross-tenant tooling) | `c7fc627` |
-| Lighthouse cross-tenant audit report (4 tenant × TENANT_OWNER) | `74159bd` |
-| axe WCAG AAA audit report (12 surface RTL Bank) | `213dcfd` |
-| **Constraint P11 + DataNotAvailable + legacy view pilot** | **`8bf368f`** |
-| Handoff intermedio | `d45f736` |
-| **G6 phase18p migration + adapter/widget extension** | **`e500df3`** |
+| salary_bands closure EcoNova+Heuresys (CASCADIA) | `e5cd4df` |
+| salary_band_assignments closure (CASCADIA) | `8c3ed98` |
+| Lighthouse cross-tenant audit | `74159bd` |
+| axe WCAG AAA audit | `213dcfd` |
+| Constraint P11 + DataNotAvailable + legacy view pilot | `8bf368f` |
+| Handoff S58 intermedio | `d45f736` |
+| **G6 phase18p tenant_owner_overview_v2 live** | `e500df3` |
 | DECISIONS-LOG L85 | `162658a` |
+| Handoff S58-ext | `a8f8f5c` |
+| **S59 P1 fix + phase18q + schema proposal + L86** | **pending** |
 
-## ✅ Cross-tenant variance LIVE (verificato via chrome-devtools-mcp)
+## Stato G6 preset _v2 (7 presets, post S59)
 
-`/dashboard` (preset `tenant_owner_overview_v2`) come TENANT_OWNER:
-
-| KPI | RTL Bank (federica.marchetti) | Heuresys System (admin) | Status |
+| Preset | KPI live | KPI unavailable | Stato |
 |---|---:|---:|---|
-| HEADCOUNT | **156** | **1** | ✅ live (employees count) |
-| REV/FTE | Dati Non Disponibili | Dati Non Disponibili | ✅ honest (no source) |
-| RETENTION | 100% | 100% | ✅ live (12m rolling) — invariant perché 0 terminations |
-| PERFORMANCE | **69%** | **91%** | ✅ live (avg overall_rating/5*100) |
-| AVG SALARY | **48 k€** | **201 k€** | ✅ live (salary_band_assignments) |
-| BONUS POOL | **1600 k€** | **60 k€** | ✅ live (bonus_plans.total_budget) |
-| EQUITY | Dati Non Disponibili | Dati Non Disponibili | ✅ honest |
-| TOTAL TC | Dati Non Disponibili | Dati Non Disponibili | ✅ honest |
-| ActivityFeed | 5 audit_logs reali RTL | 2 audit_logs reali Heuresys | ✅ live |
+| `tenant_owner_overview_v2` | HEADCOUNT, RETENTION, PERFORMANCE, AVG SALARY, BONUS POOL, ActivityFeed, SuccessionCard | REV/FTE, EQUITY, TOTAL TC | ✅ live |
+| `hr_director_overview_v2` | 4 KPI + SuccessionCard | 0 | ✅ live (pre-S58) |
+| `skills_heatmap_v2` | 3 KPI + Histogram | CERTIFICATIONS | ✅ live |
+| `cross_tenant_overview_v2` | 2 KPI + Histogram | INTEGRATIONS, PLATFORM UPTIME | ✅ live |
+| `org_systems_v2` | 3 KPI | SYSTEM UPTIME | ✅ live |
+| `capability_graph_v2` | 0 | 4 KPI (employeeId scope) | ⏸ unavailable (S60+ employeeId support) |
+| `employee_journey_v2` | 0 | 4 KPI (employeeId scope) | ⏸ unavailable (S60+) |
 
-## Files canonical P11 enforcement
+**Totale**: 21 KPI live · 11 KPI unavailable letterali · 0 hardcoded fixture rimasti.
 
-- `CLAUDE.md` (root): §REGOLA NON NEGOZIABILE + P11 tabella P1-P11
+## P1 fix — 6 page.tsx con `WHERE tenant_id` esplicito
+
+| File | Bug | Fix |
+|---|---|---|
+| `compensation/page.tsx` | `bonus_plans.findMany({where:{}})` | `where: {tenant_id: tenantId}` |
+| `employees/page.tsx` | `employees.findMany(where: {is_active, deleted_at})` | added `tenant_id: tenantId` |
+| `reviews/page.tsx` | `performance_reviews.findMany({where:{}})` | `where: {tenant_id: tenantId}` |
+| `goals/page.tsx` | `goals.findMany({where:{}})` | `where: {tenant_id: tenantId}` |
+| `learning/page.tsx` | `learning_paths.findMany({where:{deleted_at:null}}) + course_enrollments.count()` | added `tenant_id: tenantId` ad entrambi |
+| `admin/integrations/page.tsx` | `employees.count({where:{pernr,is_active}})` | added `tenant_id: tenantId` |
+
+Tutti i 6 file mantengono `withTenant(tenantId, ...)` wrap (GUC setter) come defense, MA non si affidano più solo a RLS.
+
+## Files canonical S58+S59 P11 enforcement
+
+- `CLAUDE.md` (root): §REGOLA NON NEGOZIABILE + P11
 - `.claude/CLAUDE.md`: CARD-4 + R18
-- `.claude/skills/studio/references/promote-flow.md`: Gate D.2 NO-FIXTURE (`PROMOTE_E309_FIXTURE`)
-- `.ux-design/{BRAND-STATE,SESSION-RESUME,08-promotion/v1.0-checklist}.md`: disclaimer top-of-file
-- `docs/_audit/2026-05-13-no-mock-inventory.md`: Phase A baseline (incompleto su G6)
-- `docs/_audit/2026-05-13-no-mock-inventory-G6.md`: Phase A2 G6 layer thorough
-- `services/app/src/components/data/DataNotAvailable.tsx` + CSS AA-compliant
-- `services/app/src/lib/data/tenant-owner-queries.ts`: 4 queries Prisma (legacy view, orphan path)
-- `db/migrations/phase18p_tenant_owner_overview_v2_live_data.sql`: production migration UPDATE 7 elements
-- `services/app/src/lib/dashboard-engine/adapters.ts`: `kpiRingAdapter` esteso con `unavailable`
-- `services/app/src/components/widgets/brand/BrandKpiCard.tsx`: render `<DataNotAvailable/>` se unavailable
-- `services/app/src/components/widgets/brand/BrandCompCard.tsx`: per-item `unavailable` support
-- `scripts/perf/test-tenant-owner-v2-variance.mjs`: verification harness cross-tenant
+- `.claude/skills/studio/references/promote-flow.md`: Gate D.2 NO-FIXTURE
+- `.ux-design/{BRAND-STATE, SESSION-RESUME, 08-promotion/v1.0-checklist}.md`: disclaimer
+- `docs/_audit/2026-05-13-no-mock-inventory.md`: Phase A baseline
+- `docs/_audit/2026-05-13-no-mock-inventory-G6.md`: Phase A2 G6 layer
+- `docs/_audit/2026-05-13-schema-extension-proposal-revfte-equity-totaltc.md`: S59 schema proposal
+- `services/app/src/components/data/DataNotAvailable.tsx` + CSS
+- `services/app/src/lib/data/tenant-owner-queries.ts` (reference implementation)
+- `db/migrations/phase18p_tenant_owner_overview_v2_live_data.sql` (S58)
+- `db/migrations/phase18q_v2_presets_bulk_live.sql` (S59, 23 UPDATE)
+- `services/app/src/lib/dashboard-engine/adapters.ts`: kpiRingAdapter unavailable flag
+- `services/app/src/components/widgets/brand/BrandKpiCard.tsx`: DataNotAvailable rendering
+- `services/app/src/components/widgets/brand/BrandCompCard.tsx`: per-item unavailable
+- `scripts/perf/test-tenant-owner-v2-variance.mjs`: harness cross-tenant
 
-## Carry-forward S59+ (priorità)
+## Carry-forward S60+ priorità
 
-### S59 — Bonifica 6 preset _v2 residui (P0)
+| # | Item | Effort | Priority |
+|---|---|---|---|
+| 1 | `{employeeId}` placeholder support in `fetchSql` → sblocca capability_graph_v2 + employee_journey_v2 (8 KPI personal-scope) | ~3h | HIGH |
+| 2 | DBMS hardening: `ALTER ROLE heuresys NOBYPASSRLS` + risk assessment CASCADIA scripts | ~4h | HIGH (security) |
+| 3 | Defense-in-depth audit: aggiungere `WHERE tenant_id` esplicito nei 8 file .tsx residui non auditati (admin/users, admin/audit, team, me/*) | ~2h | MEDIUM |
+| 4 | Schema extension REV/FTE + EQUITY + TOTAL TC | ~6-8h | DECISIONE BRAND-PRODOTTO |
+| 5 | Legacy view fallback cleanup (7 `_views/*.tsx` orfani in prod) | ~2h | LOW |
 
-Stesso pattern migration `phase18p` per:
-
-| Preset | Effort |
-|---|---|
-| `hr_director_overview_v2` | ~2h |
-| `skills_heatmap_v2` | ~2h |
-| `capability_graph_v2` | ~2h |
-| `employee_journey_v2` | ~2h |
-| `cross_tenant_overview_v2` | ~1.5h |
-| `org_systems_v2` | ~1.5h |
-
-Pattern obbligatorio: ogni query `WHERE tenant_id = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid` esplicito perché `employees` è VIEW senza RLS (post S52 vertical-split).
-
-### S60 — Investigare P1 violation (HIGH)
-
-Side-finding S58 #3: **cross-tenant data leak** su `/compensation` + `/employees` per TENANT_OWNER. RTL Bank vede dati EcoNova/SmartFood mescolati. Possibile bypass RLS o query Prisma senza `WHERE tenant_id`. **Priority HIGH** (RGPD risk).
-
-### S61+ — Schema extension per source unavailable
-
-- REV/FTE: serve tabella `revenue` o `financial_kpis`
-- EQUITY: serve tabella `equity_grants` o `total_compensation`
-- TOTAL TC: derivato (base + variable + equity)
-
-Decisione brand-prodotto richiesta prima dello sviluppo.
-
-### S62+ — CapabilityRadar `/api/capability/aggregate` validation
-
-Già `type:'api'` ma endpoint da verificare se ritorna dato live o stub.
-
-### S63+ — Legacy view cleanup (LOW)
-
-7 `_views/*.tsx` (TenantOwnerOverviewView, HrDirectorOverviewView, ecc.) sono **path orfano** in produzione (G6 `_v2` ha precedenza in `dashboard/page.tsx:112+`). Refactor pilot del view legacy (commit `8bf368f`) resta come **reference implementation** del pattern P11 (queries in `lib/data/tenant-owner-queries.ts` riutilizzabili). Decisione: rimuovere fallback o mantenere come reference?
-
-## Verification handoff
+## Verifica handoff
 
 ```bash
-# P11 enforcement codificato
+# P11 enforcement
 grep -n "P11" CLAUDE.md
-grep -n "CARD-4" .claude/CLAUDE.md
 grep -A 10 "Gate D.2" .claude/skills/studio/references/promote-flow.md
 
-# Migration applicata
-ssh oracle-vm-default 'cd /home/ubuntu/heuresys-evo && export $(grep -E "^DATABASE_URL=" services/app/.env | head -1) && node -e "..." # verifica config_overrides.data_source.type = sql per IDs 101-104,109,110,111'
+# Migrations applied
+ssh oracle-vm-default 'cd /home/ubuntu/heuresys-evo && export $(grep -E "^DATABASE_URL=" services/app/.env | head -1) && node -e "..."' # verify config_overrides.data_source.type for all _v2 elements
 
-# Cross-tenant variance verified
-ssh oracle-vm-default 'cd /home/ubuntu/heuresys-evo && export $(grep -E "^DATABASE_URL=" services/app/.env | head -1) && node scripts/perf/test-tenant-owner-v2-variance.mjs'
-# Expected: numbers differ across RTL/SmartFood/EcoNova/Heuresys
+# Cross-tenant variance verified (tenant_owner_overview_v2)
+ssh oracle-vm-default 'node scripts/perf/test-tenant-owner-v2-variance.mjs'
 
-# Live deploy attivo
-ssh oracle-vm-default "curl -s -o /dev/null -w 'HTTP %{http_code}\n' http://localhost:3200"
+# P1 fix verified: federica@rtl-bank /compensation should NOT see EcoNova/Heuresys bonus plans
+# E2E browser via chrome-devtools-mcp
 
-# Browser smoke: login federica@rtl-bank → /dashboard → HEADCOUNT 156 (non più 86)
+# Typecheck
+cd services/app && npx tsc --noEmit
 ```
 
 ## Reference plan
 
-`~/.claude/plans/i-dati-attuali-che-gentle-church.md` (approved 2026-05-13) — completato Phase A + B + Pilot + Phase A2 G6 + G6 refactor live.
-
-## Note operative
-
-- Commit S58 CASCADIA seeding (`e5cd4df`, `8c3ed98`) restano legittimi (popolano DBMS quando vuoto).
-- `toggle-tenant-owners-tmp.mjs --off` eseguito post-smoke (3 legacy TENANT_OWNERS riattivati e ri-disattivati).
-- Sessione complessiva ~6h reali. Apprendimenti chiave salient in DECISIONS-LOG L85.
+`~/.claude/plans/i-dati-attuali-che-gentle-church.md` (approved 2026-05-13) — sessione lunga S58+S59 completata oltre original scope.

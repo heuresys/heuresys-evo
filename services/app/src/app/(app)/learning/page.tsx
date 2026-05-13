@@ -26,15 +26,16 @@ const STRINGS = {
 } as const;
 
 async function fetchLearning(tenantId: string) {
+  // P11 + S59 P1 fix: WHERE tenant_id esplicito (RLS bypassed by app user).
   return withTenant(tenantId, async (tx) => {
     const [paths, enrollments] = await Promise.all([
       tx.learning_paths.findMany({
-        where: { deleted_at: null },
+        where: { tenant_id: tenantId, deleted_at: null },
         orderBy: { code: 'asc' },
         take: 50,
         select: { id: true, code: true, title: true, target_role: true, status: true },
       }),
-      tx.course_enrollments.count(),
+      tx.course_enrollments.count({ where: { tenant_id: tenantId } }),
     ]);
     return { paths, total_enrollments: enrollments };
   });

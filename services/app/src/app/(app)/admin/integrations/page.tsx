@@ -86,8 +86,9 @@ export default async function IntegrationsPage() {
   try {
     if (user?.tenantId) {
       sapStatus = await withTenant(user.tenantId, async (tx) => {
+        // P11 + S59 P1 fix: WHERE tenant_id esplicito (employees è VIEW senza RLS).
         const count = await tx.employees.count({
-          where: { pernr: { not: null }, is_active: true },
+          where: { tenant_id: user.tenantId, pernr: { not: null }, is_active: true },
         });
         return { sync_count: count, last_sync_at: null };
       });
