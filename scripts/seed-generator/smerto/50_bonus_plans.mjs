@@ -25,7 +25,7 @@ const PLANS_BY_TENANT = {
       bonus_type: 'spot',
       description:
         'Bonus one-shot per completion progetto Solar Farm Lombardia entro target date. Eligible team progetto + engineering support.',
-      calculation_method: 'fixed_amount',
+      calculation_method: 'fixed',
       total_budget: 75000,
       payout_quarter: 'Q3_2026',
     },
@@ -34,7 +34,7 @@ const PLANS_BY_TENANT = {
       bonus_type: 'retention',
       description:
         'Bonus retention 18-month vesting per senior engineers in renewable & green-tech roles. Mitigation talent flight high-demand segment.',
-      calculation_method: 'fixed_amount',
+      calculation_method: 'fixed',
       total_budget: 120000,
       payout_quarter: 'Q4_2026',
     },
