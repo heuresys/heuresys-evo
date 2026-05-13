@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { DataNotAvailable } from '@/components/data/DataNotAvailable';
 
 export interface BrandKpiCardProps {
   /** Numeric KPI value (formatted with locale tabular nums). */
@@ -24,6 +25,9 @@ export interface BrandKpiCardProps {
   footRight?: React.ReactNode;
   /** SVG icon node for the head-right slot. */
   icon?: React.ReactNode;
+  /** Constraint P11 — when true, renders <DataNotAvailable /> instead of value.
+   * Used when DBMS source does not exist for the requested KPI. */
+  unavailable?: boolean;
 }
 
 /**
@@ -42,7 +46,26 @@ export function BrandKpiCard({
   footLeft,
   footRight,
   icon,
+  unavailable,
 }: BrandKpiCardProps) {
+  if (unavailable) {
+    return (
+      <article className="kpi-card">
+        <div className="kpi-head">
+          <span className="kpi-label">{label ?? 'KPI'}</span>
+          {icon ? <span className="kpi-icon">{icon}</span> : null}
+        </div>
+        <div className="kpi-num">
+          <DataNotAvailable
+            variant="inline"
+            reason={sublabel ?? 'source not implemented in schema'}
+          />
+        </div>
+        {sublabel ? <div className="kpi-sub">{sublabel}</div> : null}
+      </article>
+    );
+  }
+
   const numberStr = new Intl.NumberFormat('it-IT', {
     maximumFractionDigits: 0,
   }).format(value);

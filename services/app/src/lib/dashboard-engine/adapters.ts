@@ -52,16 +52,21 @@ function asBoolean(v: unknown): boolean | null {
 }
 
 /**
- * KpiRing — `{ value, label?, sublabel?, unit?, trend?, max?, min?, thresholds? }`.
- * Required: value (number).
+ * KpiRing — `{ value, label?, sublabel?, unit?, trend?, max?, min?, thresholds?, unavailable? }`.
+ * Required: value (number) OR unavailable=true (constraint P11 — see CLAUDE.md
+ * §REGOLA NON NEGOZIABILE). When unavailable=true the widget surface renders
+ * <DataNotAvailable /> instead of a fake 0/demo value.
  */
 export const kpiRingAdapter: WidgetAdapter = (raw) => {
   const row = firstRow(raw);
   if (!row) return null;
+  const unavailable = row.unavailable === true || row.unavailable === 'true';
   const value = asNumber(row.value);
-  if (value === null) return null;
+  if (value === null && !unavailable) return null;
 
-  const props: Record<string, unknown> = { value };
+  const props: Record<string, unknown> = unavailable
+    ? { value: 0, unavailable: true }
+    : { value: value as number };
   const label = asString(row.label);
   if (label !== null) props.label = label;
   const sublabel = asString(row.sublabel);
