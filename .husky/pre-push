@@ -2,10 +2,11 @@
 # DDL/migration → DECISIONS-LOG L<N> gate
 #
 # Refuses pushes that include DDL or DB migration commits without a paired
-# entry in `.ux-design/DECISIONS-LOG.md`. Either the DDL commit itself must
-# touch the log, OR a subsequent commit in the same push must mention the
-# DDL commit's short hash in the log body. Bypass via `--no-verify` (use
-# sparingly; the audit trail is the point).
+# entry in `.ux-design/DECISIONS-LOG-v2.md` (cycle 2 post-S62 reset 2026-05-13;
+# v1 path was `.ux-design/DECISIONS-LOG.md`, now archived). Either the DDL
+# commit itself must touch the log, OR a subsequent commit in the same push
+# must mention the DDL commit's short hash in the log body. Bypass via
+# `--no-verify` (use sparingly; the audit trail is the point).
 #
 # Triggers (subject regex):  feat|fix|refactor|migration|chore (db|migration|schema)
 # Triggers (file regex):     db/seeds/*.sql | db/migrations/*.sql |
@@ -21,7 +22,7 @@
 
 set -eu
 
-LOG_PATH=".ux-design/DECISIONS-LOG.md"
+LOG_PATH=".ux-design/DECISIONS-LOG-v2.md"
 ORPHANS=$(mktemp)
 trap 'rm -f "$ORPHANS"' EXIT
 
