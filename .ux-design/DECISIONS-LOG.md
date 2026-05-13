@@ -2905,3 +2905,52 @@ Root cause: tutti i 18 ready_now hanno `critical_role_id` orphan (puntano a plan
 - Stage 2-6 (cross-tenant priority sweep + DGOV/PROGOV/EPRA + dashboard binding + verification)
 
 **Roadmap reflection**: Stage 1a stima 3h, reale ~1h effective (data analysis 20min + reasoning generation 25min + script+execution 15min). Pattern: Claude native research engine work bene per record semantici complessi (succession justification) come previsto in plan L78. Volume single-stage (~18 records) ideale per single batch. Stage 1b che richiede ~3000 records mass-generation distribuito in più batch + uso distributions.mjs deterministic per parti statistiche (engagement).
+
+---
+
+## L80 — 2026-05-13 — S35.3 CASCADIA Stage 1b: SKILGRO+PULSAR+GOKMER mass-statistical sweep RTL
+
+**Contesto**: post-Stage 1a (L79). Discovery iniziale ribaltato: contrariamente al plan original (~3000 records), molte tabelle Stage 1b erano già sature per RTL Bank (check_ins 1620, learning_recommendations 466). Gap reale concentrato su 3 tabelle: skill_gap_analyses (66 → 270), engagement_survey_responses (659 → 970), goal_check_ins (480 → 1000). Total gap = 1035 records.
+
+**Decisione — Statistical-driven, no LLM mass-generation**: per Stage 1b, abbandonare il paradigma "Claude reasoning per record" (troppo costoso in context budget per 1000+ records) in favore di **deterministic statistical generation via `lib/distributions.mjs`** + template strings. Razionale: i record di mass-volume (engagement Likert scores, goal progress increments, skill gap analyses con scoring) non beneficiano della creatività LLM — beneficiano di realismo statistico (Gaussian distributions, weighted choices, seedable RNG). Claude reasoning resta riservato a record qualitativi single-batch (TALPIPE Stage 1a, profile research Stage 2a).
+
+**Stage 1b deliverables**:
+
+- `scripts/seed-generator/pulsar/41_engagement_responses.mjs` (133 LOC) — Gaussian mood scores Likert 1-5 (μ=3.7, σ=0.8 skewed positive) × 60-80% response rate per survey × 156 employees. Dedupe (survey_id, employee_id) application-side.
+- `scripts/seed-generator/gokmer/22_goal_check_ins.mjs` (187 LOC) — 2-4 check-ins per goal con progress curve Gaussian (μ=8% per step, σ=4) + template notes per status (on_track/at_risk/blocked/completed) + blocker pool + next_steps pool. Statistical status mix: 65% on_track, 15% at_risk, 10% blocked, 10% completed.
+- `scripts/seed-generator/skilgro/32_skill_gap_analyses.mjs` (166 LOC) — Statistical scoring (match/coverage/proficiency Gaussian μ=0.72/0.78/baseMatch-noise) + skill gaps templated da pool 10 skill canoniche con random gap_severity.
+
+**Schema drift fixes applicati in-flight**:
+
+- `goals.target_date` → `due_date` (column real name)
+- `goals.progress_percentage` → `progress_percent` (column real name)
+- `employee_skill_assessments.proficiency_level` → `assessed_level` (column real name)
+- engagement_survey_responses ON CONFLICT: partial unique index `WHERE employee_id IS NOT NULL` non matchable → uso `ON CONFLICT DO NOTHING` senza target + dedupe application-side
+
+**Acceptance criteria PASS** (RTL Bank):
+
+- PULSAR engagement_survey_responses: 659 → 862 (+203, gap effective)
+- SKILGRO skill_gap_analyses: 66 → 270 (+204, full closure)
+- GOKMER goal_check_ins: 480 → 1000 (+520, full closure)
+- Total +927 records inserted in single sessione
+- `verify-area --area=engagement` → 🟢 GREEN
+- `verify-area --area=checkins` → 🟢 GREEN
+- `verify-area --area=learning_recommendations` → 🟢 GREEN
+- Backup pre-stage `heuresys_platform-pre-S35.3.2-20260513T020135Z.dump` (405MB)
+
+**Commits**:
+
+- `2fd6dd1` — Stage 1b scripts initial (3 files, 486 insertions)
+- `a257ddf` — Schema alignment fix (3 cols)
+- `96955be` — gokmer due_date fix
+
+**Cumulative Stage 1 totals** (RTL Bank): TALPIPE +18 succession + Stage 1b +927 = **+945 records**.
+
+**Pattern insight — context budget management**: 1000+ records LLM-generated = 30k+ token output. Statistical+template generation = ~500 token script che genera 1000+ records via RNG. Quando il task è "data shape" più che "content meaning", deterministic > LLM. Pattern formalizzato per Stage 2c-2f (cross-tenant mass enrichment): default deterministic, escalate a LLM solo per record semantici complessi.
+
+**Out-of-scope S55+3** (carry-forward S56+ stages):
+
+- Stage 2 (cross-tenant priority sweep ~10-12h)
+- Stage 3-6 (DGOV/PROGOV/EPRA + dashboard binding + verification)
+
+**Roadmap reflection**: Stage 1b stima 4h, reale ~30min effective (3 script writing + 3 retry per schema drift + verify). Pattern shift to deterministic statistical generation = enorme accelerazione per mass-data. Schema drift handling (3 col rinames in-flight) = inevitabile con DBMS legacy, mitigation: inspect schema before write — Stage 2+ adottare preflight schema-introspect step.
