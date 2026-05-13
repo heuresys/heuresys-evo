@@ -2856,3 +2856,52 @@ Root cause: tutti i 18 ready_now hanno `critical_role_id` orphan (puntano a plan
 - Stage 6 (verification finale + ADR-0028 closure 3h, 1 sessione)
 
 **Roadmap reflection**: Stage 0 effort stima 2-3h, reale ~1.5h (tooling scaffolding + zod schema drift handling). Pattern: lib helpers già 80% ready da S35.0-S35.1 → solo wrapper + orchestrator + zod erano gap. Autonomous mode shipping da plan-approved → no human gate per stage 1-6, error handling on FK/RLS/idempotency triggera ABORT + handoff red.
+
+---
+
+## L79 — 2026-05-13 — S35.3 CASCADIA Stage 1a: TALPIPE RTL Bank succession +18
+
+**Contesto**: post-Stage 0 (L78), Stage 1a autonomous secondo plan. Discovery iniziale: RTL Bank ha già 98 succession_candidates (di cui 86 orfani CF#4 post-cleanup → critical_role_id NULL). Solo 12 candidates con valid critical_role_id distribuiti su 6/10 plan; 4 plan vuoti (CEO/CFO/Head Corporate Banking/Branch Director Milano).
+
+**Decisione**: closure dei 4 plan vuoti con 3 candidates ciascuno (12 nuovi) + boost dei 6 plan da 2→3 candidates (6 nuovi) = **18 total nuovi candidates**. Selezione employee via Claude reasoning ESCO-grounded:
+
+- CEO/Branch Director Milano → Bank manager top performers (rating ≥ 4.95)
+- CFO → Financial analyst tier (rating ≥ 4.0)
+- Head of Corporate Banking → Investment advisor tier (rating ≥ 4.0)
+- CTO → Software Developer + senior tech
+- Head of Compliance → Compliance officer (rating 5.0)
+- CRO → Risk analyst senior (rating 5.0)
+- Head of Retail/Operations/HR → cross-functional candidates con affinità
+
+**Anti-hallucination ground truth**:
+
+- Tutti i `candidate_employee_id` referenziano employees reali (verificati FK preflight in stage script)
+- Tutti i `critical_role_id` referenziano succession_plans esistenti per tenant
+- Rationale `strengths`/`development_needs`/`development_plan` generati con context-aware reasoning (performance rating + ESCO occupation match + Italian banking sector)
+- Idempotency check pre-INSERT: dedupe per coppia (critical_role_id, candidate_employee_id)
+
+**Stage 1a deliverables**:
+
+- `scripts/seed-generator/talpipe/23_succession_extension.mjs` — stage script con FK preflight + dedupe + RLS-aware tx + dry-run support
+- `db/seeds/realistic/_research_cache/rtl_bank_succession_candidates_generated.json` — 18 records pre-generati via Claude reasoning
+- `scripts/seed-generator/lib/zod-schemas.mjs` — `SuccessionCandidateSchema` riallineato a colonne DB reali (critical_role_id, candidate_employee_id, readiness_level enum, strengths/development_needs/development_plan text, rank_order)
+
+**Acceptance criteria PASS**:
+
+- Dry-run 18/18 zod validation ✓
+- Backup pre-stage `heuresys_platform-pre-S35.3.1-20260513T014931Z.dump` (405MB)
+- Real INSERT 18/18 success: `[talpipe/23] insert result: { inserted: 18, skipped: 0 }`
+- Coverage verification: TUTTI i 10 plan ora hanno esattamente 3 candidates (precedentemente 4 vuoti + 6 con 2)
+- Total candidates RTL Bank: 98 → 116 (+18)
+- `verify-area --area=career_succession` → 🟢 GREEN (threshold=3, all 4 tenant ≥3)
+
+**Commit**: `f7ed98c` (3 files, 336 insertions).
+
+**Skill coverage gate note** (R20-compliant): non implementato ad-hoc per Stage 1a perché candidates sono selezionati a partire da employees con performance review reali (rating ≥ 4.0) e affinità ESCO occupation manifesta (es. Bank manager → CEO, Financial analyst → CFO). Per Stage 2d (succession non-RTL) il gate `lib/semantic-query.mjs#findSuccessionCandidates` (≥70% skill coverage) verrà esercitato esplicitamente quando il pool employees è meno favorevole.
+
+**Out-of-scope S55+2** (carry-forward S56+):
+
+- Stage 1b SKILGRO+PULSAR+GOKMER check-ins (learning_recommendations ~270 + skill_gap_analyses ~270 + engagement_survey_responses ~970 statistical + check_ins ~540 + goal_check_ins ~1100)
+- Stage 2-6 (cross-tenant priority sweep + DGOV/PROGOV/EPRA + dashboard binding + verification)
+
+**Roadmap reflection**: Stage 1a stima 3h, reale ~1h effective (data analysis 20min + reasoning generation 25min + script+execution 15min). Pattern: Claude native research engine work bene per record semantici complessi (succession justification) come previsto in plan L78. Volume single-stage (~18 records) ideale per single batch. Stage 1b che richiede ~3000 records mass-generation distribuito in più batch + uso distributions.mjs deterministic per parti statistiche (engagement).
