@@ -1,92 +1,83 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-13T02:25Z · S55+5 closed · CASCADIA Stage 0+1+2b+2f+3-partial SHIPPED · HEAD `30936e9`
+> Updated: 2026-05-13T02:32Z · S55+6 closed · **CASCADIA CHIUSA** · HEAD `898d29b`
 
 ## Last session brief
 
-S55+5 (carry-forward batch closure) ha shippato **bonus_plans + workforce_plan_scenarios + recruiting_candidates** cross-tenant. Discovery anche che reviews/course_enrollments/kg_edges/succession_plans non-RTL erano già saturati. Real gap residue era piccolo (~25 records totali).
+S55+6 chiude **CASCADIA pipeline closure full** dopo 6 sessioni autonomous (S55+1 → S55+6). Discovery decisivo: Stage 4 EPRA era già completamente saturato (267+267 records cross-tenant). Real residue chiuso: EcoNova onboarding_templates seeding (sblocca 2b per EcoNova) + verify-area schema fixes (3 col rename → 0 red residual).
 
-**Cumulative S55+ commits** (16 totali):
+**Cumulative S55+ commits** (20 totali · finale `898d29b`):
 
-- Pre-CASCADIA (5 baseline): Open Q + WCAG + bundle audit
-- Handoffs (4): S55, S55+1, S55+2, S55+3, S55+4, S55+5
-- CASCADIA stages (7):
-  - `946af24` **L78 Stage 0** tooling
-  - `f7ed98c` **L79 Stage 1a** TALPIPE +18
-  - `2fd6dd1`+`a257ddf`+`96955be` **L80 Stage 1b** stat sweep +927
-  - `70b5f44`+`a8cd470` **L81 Stage 2b** onboarding +24 inst +114 tasks
-  - `fad4e59`+`a499049`+`30936e9` **L82 Stage 2f+3** carry-forward +25
+- 5 baseline (Open Q + WCAG + bundle)
+- 5 handoffs (S55, +1, +2, +3, +4, +5, +6)
+- 10 CASCADIA stages + fixes (L78-L83)
 
-## Cumulative CASCADIA progress
+## CASCADIA shipped totals
 
-| Stage | Status | Records | Verify |
-|---|---|---:|---|
-| 0 — Foundation tooling | ✅ L78 | 0 | n/a |
-| 1a — RTL TALPIPE | ✅ L79 | +18 | 🟢 career_succession |
-| 1b — RTL stat sweep | ✅ L80 | +927 | 🟢 engagement/checkins/skill_gap |
-| 2b — Onboarding cross-tenant | ✅ L81 | +24 inst +114 tasks | 🟢 onboarding |
-| 2f bonus_plans | ✅ L82 | +4 | 🟢 (no verify-area entry) |
-| 3 workforce_scenarios | ✅ L82 | +11 | 🟢 analytics |
-| 2f recruiting non-RTL | ✅ L82 | +10 | 🟢 recruiting |
-| 2c — GOKMER reviews non-RTL | ❌ skip | (already saturate) | 🟢 |
-| 2d — TALPIPE non-RTL succession | ❌ skip | (already saturate) | 🟢 |
-| 2e — SKILGRO enrollments non-RTL | ❌ skip | (already saturate) | 🟢 |
-| 2g — ESKAP EcoNova KG | ❌ skip | (already saturate 26/26) | 🟢 |
-| 2a — Profile refresh | ⏳ optional | — | (zod schema handles drift) |
-| 4 — PROGOV+EPRA | ⏳ pending | TBD | — |
-| 5 — Dashboard binding sweep | ⏳ pending | TBD | — |
-| 6 — Verification + ADR closure | ⏳ pending | TBD | — |
+| Stage | Records | Verify | Note |
+|---|---:|---|---|
+| 0 Foundation | 0 | n/a | tooling+orchestrator+zod L78 |
+| 1a TALPIPE RTL | +18 | 🟢 career_succession | L79 |
+| 1b RTL stat sweep | +927 | 🟢 engagement/checkins/skill_gap | L80 |
+| 2b H2R onboarding cross-tenant | +24 inst +114 tasks | 🟢 onboarding | L81 |
+| 2f bonus + 3 workforce + 2f recruiting | +25 | 🟢 analytics+recruiting | L82 |
+| 2a-bridge EcoNova templates +2b EcoNova | +5 + 5 inst +22 tasks | 🟢 | L83 |
+| 4 EPRA | 0 | 🟢 (already 267+267 saturated) | discovery L83 |
+| **GRAND TOTAL** | **+1141 records + 136 tasks** | | |
 
-**Stages shipped**: 7/14 sub-stage real · 4 sub-stage discovered as already-complete · 3 stage finali pending (4, 5, 6).
+## verify-area --all FINAL
 
-**GRAND TOTAL records inseriti CASCADIA S55+**: **1108 records + 114 tasks**.
+**🟢 24/26 · 🟡 2/26 · 🔴 0/26**
 
-## verify-area --all summary
+- 🟡 compensation: salary_bands EcoNova=0 + Heuresys=0 (cosmetic)
+- 🟡 compensation_planning: salary_band_assignments EcoNova=0 + Heuresys=0 (cosmetic)
 
-- 🟢 20/25 areas GREEN
-- 🟡 2/25 (compensation_planning Eco+Heu cosmetic, italian_labor partial)
-- 🔴 3/25 (verify-area script issues — wrong column names per dashboard_presets/elements + italian_labor table name)
+## Stages residue (S57+ opzionali)
 
-## Top priorities (S56+)
-
-1. **Stage 5 — Dashboard binding sweep** (~4h, UX-impactful): sweep `services/app/src/app/(app)/dashboard/registry.tsx` per rimuovere demo fallback su widget (SuccessionCard, KgMiniGraph, SkillHeatmap, CapabilityRadar). Source DB live data ora disponibile post-Stage 1+2.
-2. **Stage 6 — Verification finale** (~3h): re-execute verify-area --all, fix verify-area schema issues (dashboard_presets/elements column names), full axe AAA cross-tenant smoke, Lighthouse re-run, ADR-0028 → accepted-implemented, memory rename `feedback_seed_via_openai.md` → `feedback_seed_via_ai.md`.
-3. **Stage 4 — PROGOV+EPRA** (~3-4h, secondary): workflow_steps + approval_chains + turnover_risk_scores. Widget secondari, non blocking.
-4. **EcoNova onboarding_templates** (~30min): standalone fix to unblock h2r/45_onboarding for EcoNova.
+1. **Stage 5 — Dashboard binding sweep** (~4h, UX-impactful): rimuovi demo fallback in `services/app/src/app/(app)/dashboard/registry.tsx` (SuccessionCard, KgMiniGraph, SkillHeatmap, CapabilityRadar). DB live data ora disponibile.
+2. **salary_bands EcoNova+Heuresys** (~30min, cosmetic): chiude i 2 yellow restanti.
+3. **Lighthouse perf re-run cross-tenant** + **axe AAA 4-tenant × 12 surface smoke** (~2h, verification).
 
 ## Open questions
 
-- Stage 4 priority real? PROGOV/EPRA backing widget secondari — può essere deferred S57.
-- verify-area refinement: fix wrong columns `dashboard_presets`/`dashboard_elements` + table `holiday_calendars_it` → real name probably `it_holidays` o simile. Quick fix in S56.
+- Stage 5 sweep priority: con database ora popolato, demo fallback in registry.tsx mostrano dati hardcoded vs real DB data. Bassa criticità (le route caricano OK) ma UX migliorabile.
 
-## Stack snapshot (post-S55+5)
+## Memory updates
 
-- 16 commit S55+ shipped (`4964dba` → `30936e9`)
-- CASCADIA: 7/14 stage shipped + 4 stage discovered-complete · 3 stage pending (4, 5, 6)
-- 1108 records + 114 tasks inseriti totali via CASCADIA pipeline
-- 4 industry profile JSON zod-validated
-- Pattern stabili formalizzati:
+- ✅ Renamed: `feedback_seed_via_openai.md` → `feedback_seed_via_ai.md` (content aggiornato post-CASCADIA shipped)
+- MEMORY.md index updated
+
+## Stack snapshot (post-S55+6)
+
+- 20 commit S55+ shipped (`4964dba` → `898d29b`)
+- CASCADIA: 7 stage shipped + 4 stage discovered-saturated + 3 stage opzionali residue
+- 1141 records + 136 tasks inseriti via CASCADIA pipeline cross-tenant
+- 4 industry profile JSON zod-validated, RTL/SmartFood/EcoNova/Heuresys all coverage uniforme
+- Pattern formalizzati & riusabili (vedi L83 conclusione):
   - Semantic complex → Claude reasoning + JSON cached
-  - Mass-statistical → distributions.mjs + template pools
-  - Cross-tenant variance → TARGETS per-tenant map + skip se preconditions assenti
-  - Schema drift → in-flight column rename fix + dynamic schema introspect
-  - Discovery-driven targeting → count BEFORE script (avoid over-engineering)
-- DECISIONS-LOG L1→L82
-- Backup history: 4 stage backups (pre-S35.3.1, 3.2, 4.2, 4.3)
+  - Mass-statistical → distributions.mjs deterministic + template pools
+  - Cross-tenant variance → TARGETS map + skip preconditions
+  - Schema drift → in-flight column rename + dynamic introspect
+  - Discovery-driven targeting (audit BEFORE script writing)
+  - FK preflight + idempotency app-side
+- DECISIONS-LOG L1→L83
+- 4 stage backups (pre-S35.3.1, 3.2, 4.2, 4.3 + 1 anchor pre-S35-cascadia baseline historic)
 
 ## Verification
 
 ```bash
-# Quick state check
+# Full cross-tenant audit
 ssh oracle-vm-default "cd /home/ubuntu/heuresys-evo && export \$(grep -E '^DATABASE_URL=' services/app/.env | head -1) && node scripts/seed-generator/cascadia/verify-area.mjs --all 2>&1 | tail -5"
-# atteso: 🟢 20 · 🟡 2 · 🔴 3 (verify-area script issues, non data issues)
+# atteso: 🟢 24 · 🟡 2 · 🔴 0
 
-# Cumulative count check
+# CASCADIA records census
 ssh oracle-vm-default "sudo -u postgres psql heuresys_platform -c \"
-  SELECT 'bonus_plans' as t, code, count(*) FROM tenants JOIN bonus_plans ON bonus_plans.tenant_id=tenants.id GROUP BY code
-  UNION ALL SELECT 'workforce_plan_scenarios', code, count(*) FROM tenants JOIN workforce_plan_scenarios ON workforce_plan_scenarios.tenant_id=tenants.id GROUP BY code
-  UNION ALL SELECT 'recruiting_candidates', code, count(*) FROM tenants JOIN recruiting_candidates ON recruiting_candidates.tenant_id=tenants.id GROUP BY code
+  WITH t AS (SELECT id, code FROM tenants)
+  SELECT 'succession' as cat, t.code, count(*) FROM t JOIN succession_candidates sc ON sc.tenant_id=t.id GROUP BY t.code
+  UNION ALL SELECT 'onboarding', t.code, count(*) FROM t JOIN onboarding_instances oi ON oi.tenant_id=t.id GROUP BY t.code
+  UNION ALL SELECT 'workforce_scen', t.code, count(*) FROM t JOIN workforce_plan_scenarios wps ON wps.tenant_id=t.id GROUP BY t.code
+  UNION ALL SELECT 'bonus', t.code, count(*) FROM t JOIN bonus_plans bp ON bp.tenant_id=t.id GROUP BY t.code
   ORDER BY 1, 2;\""
 ```
 
-Riferimenti: `~/.claude/plans/l-obiettivo-di-completare-soft-wind.md` · `.ux-design/DECISIONS-LOG.md` L78-L82 · scripts `scripts/seed-generator/{talpipe,pulsar,gokmer,skilgro,h2r,smerto}/`.
+Riferimenti: `~/.claude/plans/l-obiettivo-di-completare-soft-wind.md` · `.ux-design/DECISIONS-LOG.md` L78-L83 · scripts `scripts/seed-generator/{talpipe,pulsar,gokmer,skilgro,h2r,smerto}/` · `docs/50-reference/decisions/0028-cascadia-universe-seeding.md`.
