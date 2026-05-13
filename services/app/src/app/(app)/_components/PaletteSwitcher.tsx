@@ -19,7 +19,7 @@ interface Props {
  * 3-swatch identity strip [bg | primary | accent].
  *   - As trigger: inherits CSS vars from <html data-palette> (current palette).
  *   - As popover grid item: scoped via data-palette attribute → each item
- *     resolves its own palette's CSS vars from palette-framework.css.
+ *     resolves its own palette's CSS vars from palette-variants.css.
  */
 function SwatchStrip({ size = 'sm' }: { size?: 'sm' | 'md' }) {
   const dim = size === 'md' ? 14 : 10;

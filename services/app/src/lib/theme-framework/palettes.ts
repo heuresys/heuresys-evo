@@ -5,8 +5,10 @@
  * PALETTES catalog, ported to TS for typed consumption in /brand-studio.
  *
  * Token data (--primary, --accent, --bg, ...) is defined in
- * `services/app/src/styles/theme-framework/palette-framework.css`. This file
- * is the metadata + UI-presentation layer (id, label, family, swatch).
+ * `services/app/src/styles/theme-framework/palette-core.css` (`:root` defaults)
+ * + `palette-variants.css` (17 palette × 2 mode blocks, lazy-loaded for `(app)`
+ * + `/brand-studio` only — see S60 CW-LCP1). This file is the metadata + UI-
+ * presentation layer (id, label, family, swatch).
  */
 
 export type PaletteId =

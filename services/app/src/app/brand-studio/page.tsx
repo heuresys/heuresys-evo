@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import '../../styles/theme-framework/palette-variants.css';
 import { auth } from '@/lib/auth';
 import { readActivePalette } from '@/lib/theme-framework/active-palette-store';
 import { RoleForbidden } from '@/app/(app)/_components/RoleForbidden';

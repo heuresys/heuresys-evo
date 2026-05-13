@@ -1,0 +1,146 @@
+/*
+  heuresys-palette-framework.css
+  ============================================================================
+  Framework multi-palette per mockup brand identity Heuresys.
+  Source: merge di tutte le direction-explorations + Set 5 legacy overlay.
+
+  Inventario: 17 palette × 2 modi (dark + light) = 34 blocchi.
+   - 8 primarie:  alpha · beta · gamma · delta · epsilon · zeta · eta · theta
+   - 3 tempered:  iota · kappa · lambda
+   - 5 mu:        architect · art-director · pragmatic · synthesis · data-dense
+   - 1 legacy:    Set 5 (heuresys.com current capture 2026-05-04)
+
+  Convenzione attivazione (consumer-side):
+      <html data-palette="alpha" data-theme="dark">
+   - data-palette default: "legacy"
+   - data-theme   default: "dark"
+
+  TIPOGRAFIA: il framework NON definisce font-family / font-size / font-weight.
+  La tipografia della pagina ospite resta intoccata. I token --tabular / --serif
+  / --mono delle direction originali sono preservati a livello di host page.
+
+  CASCADE: ogni blocco palette ha specificità [attribute=value] (0,0,1,0).
+  La modalità light usa selettore composto [data-palette][data-theme="light"]
+  (0,0,2,0) per battere il dark default. Nessun !important: l'ordine di load
+  è sufficiente quando il framework è incluso prima dell'inline <style> della
+  pagina, oppure dopo se serve override esplicito.
+
+  Token canonici comuni a tutte le palette:
+    Foundation:  --bg --paper --surface --surface-1 --surface-2 --surface-3
+                 --ink --ink-soft --ink-muted --ink-tertiary
+                 --rule --rule-strong --border --border-strong
+    Brand:       --brand-blue --brand-blue-deep
+                 --accent --accent-deep --accent-hover --accent-soft --primary
+    Effects:     --gradient --glow
+    Capability:  --cap-process --cap-structure --cap-role --cap-competence
+                 --cap-performance
+    Semantic:    --semantic-success --semantic-warning --semantic-info
+                 --semantic-error --token-label
+    Aliases:     --terracotta --terracotta-deep --clay --moss --sand
+                 --blueprint --blueprint-deep --grid-line
+                 --engineering-yellow --safety-orange
+                 --magenta-ft --orange-ft
+                 --gen-1 --gen-2 --gen-3 --gen-4 --gen-5
+                 --highlight --paper-line --accent-secondary
+  ============================================================================
+*/
+
+/* =============================================================================
+   0. ROOT FALLBACK (no data-palette set → legacy dark)
+   ============================================================================= */
+:root {
+  --bg: #0a0d18;
+  --paper: #14182a;
+  --surface: #14182a;
+  --surface-1: #14182a;
+  --surface-2: #1c2138;
+  --surface-3: #252b48;
+  --ink: #f4f5f7;
+  --ink-soft: #c8cad2;
+  --ink-muted: #a4a8b3;
+  --ink-tertiary: #8a8d96;
+  --rule: #232838;
+  --rule-strong: #3a4055;
+  --border: #232838;
+  --border-strong: #3a4055;
+
+  --brand-blue: #3b82f6;
+  --brand-blue-deep: #2452c8;
+  --accent: #a855f7;
+  --accent-deep: #7e3fc8;
+  --accent-hover: #b878f8;
+  --accent-soft: #2a1a44;
+  --primary: #3b82f6;
+
+  /* WCAG 2.2 AAA enhanced contrast variants (L69 S54 — 7:1 ratio target).
+   * Use only for small text (<18pt) on dark surfaces. Brand identity (--accent,
+   * --primary, --semantic-success) preserved for non-text usage. */
+  --accent-aaa: #d8b4fe;
+  --primary-aaa: #60a5fa;
+  --ink-muted-aaa: #b0b5c0;
+  --semantic-success-aaa: #4ade80;
+
+  --gradient: linear-gradient(135deg, #3b82f6 0%, #a855f7 100%);
+  --glow: 0 0 60px rgba(168, 85, 247, 0.35);
+
+  --cap-process: #3b82f6;
+  --cap-structure: #6c5ce7;
+  --cap-role: #a855f7;
+  --cap-competence: #5fb87a;
+  --cap-performance: #f59e0b;
+
+  --semantic-success: #5fb87a;
+  --semantic-warning: #f59e0b;
+  --semantic-info: #3b82f6;
+  --semantic-error: #ef4444;
+  --token-label: #5fffa3;
+
+  --terracotta: #a855f7;
+  --terracotta-deep: #7e3fc8;
+  --clay: #3b82f6;
+  --moss: #5fb87a;
+  --sand: #1c2138;
+  --blueprint: #3b82f6;
+  --blueprint-deep: #2452c8;
+  --grid-line: #1c2138;
+  --engineering-yellow: #a855f7;
+  --safety-orange: #3b82f6;
+  --magenta-ft: #a855f7;
+  --orange-ft: #3b82f6;
+  --gen-1: #3b82f6;
+  --gen-2: #6c5ce7;
+  --gen-3: #a855f7;
+  --gen-4: #5fb87a;
+  --gen-5: #f59e0b;
+  --highlight: #a855f7;
+  --paper-line: #232838;
+  --accent-secondary: #6c5ce7;
+}
+
+[data-theme='light']:not([data-palette]) {
+  --bg: #f4f5f7;
+  --paper: #ffffff;
+  --surface: #ffffff;
+  --surface-1: #ffffff;
+  --surface-2: #ebecf0;
+  --surface-3: #e0e2e8;
+  --ink: #0a0d18;
+  --ink-soft: #2a2d38;
+  --ink-muted: #6a6d75;
+  --ink-tertiary: #9ea0a8;
+  --rule: #d8dae0;
+  --rule-strong: #b6b9c2;
+  --border: #d8dae0;
+  --border-strong: #b6b9c2;
+
+  --brand-blue: #2452c8;
+  --brand-blue-deep: #1e3fa0;
+  --accent: #7e3fc8;
+  --accent-deep: #5e2898;
+  --accent-hover: #9354d8;
+  --accent-soft: #ede0fa;
+  --primary: #2452c8;
+
+  --gradient: linear-gradient(135deg, #2452c8 0%, #7e3fc8 100%);
+  --glow: 0 0 40px rgba(126, 63, 200, 0.18);
+}

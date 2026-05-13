@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { redirect } from 'next/navigation';
+import '../../styles/theme-framework/palette-variants.css';
 import { auth } from '@/lib/auth';
 import { prisma, withTenant } from '@/lib/db';
 import { getNavForUser } from '@/lib/navigation';

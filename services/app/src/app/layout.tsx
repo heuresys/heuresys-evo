@@ -3,7 +3,7 @@ import { Inter, Exo_2, JetBrains_Mono } from 'next/font/google';
 import { cookies } from 'next/headers';
 import './globals.css';
 import '../styles/active-theme.css';
-import '../styles/theme-framework/palette-framework.css';
+import '../styles/theme-framework/palette-core.css';
 import '../styles/dashboard-brand.css';
 import '../styles/motion.css';
 import { ThemePreviewInjector } from './_components/ThemePreviewInjector';
