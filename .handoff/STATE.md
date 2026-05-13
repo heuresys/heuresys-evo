@@ -1,12 +1,16 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-13T16:00Z · S58 closed · **Constraint P11 codificato + Pilot legacy + Finding G6** · HEAD `8bf368f`
+> Updated: 2026-05-13T16:30Z · S58-ext closed · **P11 + tenant_owner_overview_v2 LIVE verified cross-tenant** · HEAD `162658a`
 
 ## Last session brief
 
-S58 codifica il constraint **NO-MOCK / SOLO DATI LIVE da DBMS** come P11 sopraordinato. Audit Phase A + Foundation + Pilot legacy refactor completati. **Finding critico**: il view legacy `TenantOwnerOverviewView.tsx` refactored è **path orfano** — la prod usa G6 renderer (`_v2`) per tutti gli utenti canonical. Le **vere fonti di KPI hardcoded** in produzione vivono nel G6 widget engine, non identificate da Phase A inventory.
+S58 sessione lunga (5+h) chiude **3 obiettivi concatenati**:
 
-## Sessione S58 cumulative
+1. **Constraint P11 codificato** — NO MOCK/HARDCODED/RANDOM in UI/mockup/test/brand-studio (CASCADIA seeding ESCLUSO). Sopraordinato a P1-P10. Inviolabile.
+2. **Pattern shipped riutilizzabile** — `<DataNotAvailable />` component + adapter extension (`unavailable` flag) + `BrandKpiCard`/`BrandCompCard` rendering conditional.
+3. **Pilot `tenant_owner_overview_v2` LIVE verificato cross-tenant** — RTL Bank vs Heuresys System mostrano numeri DIVERSI per la prima volta (vedi tabella sotto).
+
+## Commits S58 cumulative (10)
 
 | Item | Commit |
 |---|---|
@@ -15,97 +19,107 @@ S58 codifica il constraint **NO-MOCK / SOLO DATI LIVE da DBMS** come P11 sopraor
 | toggle-tenant-owners-tmp.mjs (LH cross-tenant tooling) | `c7fc627` |
 | Lighthouse cross-tenant audit report (4 tenant × TENANT_OWNER) | `74159bd` |
 | axe WCAG AAA audit report (12 surface RTL Bank) | `213dcfd` |
-| **Constraint P11 + DataNotAvailable + Pilot legacy** | **`8bf368f`** |
+| **Constraint P11 + DataNotAvailable + legacy view pilot** | **`8bf368f`** |
+| Handoff intermedio | `d45f736` |
+| **G6 phase18p migration + adapter/widget extension** | **`e500df3`** |
+| DECISIONS-LOG L85 | `162658a` |
 
-## Constraint P11 — files committati
+## ✅ Cross-tenant variance LIVE (verificato via chrome-devtools-mcp)
 
-- `CLAUDE.md` (root): §REGOLA NON NEGOZIABILE + P11 in tabella P1-P11
-- `.claude/CLAUDE.md`: CARD-4 + R18 + direttiva fondante aggiornata
-- `.claude/skills/studio/references/promote-flow.md`: Gate D.2 NO-FIXTURE (PROMOTE_E309_FIXTURE)
-- `.ux-design/BRAND-STATE.md` + `SESSION-RESUME.md` + `08-promotion/v1.0-checklist.md`: disclaimer P11
-- `docs/_audit/2026-05-13-no-mock-inventory.md`: baseline inventory
-- NEW `services/app/src/components/data/DataNotAvailable.tsx` + CSS (variant inline/block/tile, AA-compliant)
-- NEW `services/app/src/lib/data/tenant-owner-queries.ts`: 4 queries Prisma live (KPI/dept/succession/comp)
-- REFACTOR `services/app/src/app/(app)/dashboard/_views/TenantOwnerOverviewView.tsx`: rimossi ~48 hardcoded fixtures
+`/dashboard` (preset `tenant_owner_overview_v2`) come TENANT_OWNER:
 
-## 🚨 Finding critico — Pilot orphan path
+| KPI | RTL Bank (federica.marchetti) | Heuresys System (admin) | Status |
+|---|---:|---:|---|
+| HEADCOUNT | **156** | **1** | ✅ live (employees count) |
+| REV/FTE | Dati Non Disponibili | Dati Non Disponibili | ✅ honest (no source) |
+| RETENTION | 100% | 100% | ✅ live (12m rolling) — invariant perché 0 terminations |
+| PERFORMANCE | **69%** | **91%** | ✅ live (avg overall_rating/5*100) |
+| AVG SALARY | **48 k€** | **201 k€** | ✅ live (salary_band_assignments) |
+| BONUS POOL | **1600 k€** | **60 k€** | ✅ live (bonus_plans.total_budget) |
+| EQUITY | Dati Non Disponibili | Dati Non Disponibili | ✅ honest |
+| TOTAL TC | Dati Non Disponibili | Dati Non Disponibili | ✅ honest |
+| ActivityFeed | 5 audit_logs reali RTL | 2 audit_logs reali Heuresys | ✅ live |
 
-`/dashboard` per utenti canonical (federica.marchetti TENANT_OWNER) renderizza via **G6 engine** (`tenant_owner_overview_v2`) tramite `loadG6Elements()` + `DashboardRenderer` (path: `services/app/src/app/(app)/dashboard/page.tsx:112+`). Il view legacy `TenantOwnerOverviewView.tsx` è chiamato SOLO se `presetCode` NON finisce in `_v2` (mai per utenti reali post-S20).
+## Files canonical P11 enforcement
 
-**Conseguenza**: smoke e2e cross-tenant ha confermato che i KPI hardcoded visibili in `/dashboard` (HEADCOUNT 86 · REV/FTE 142 · RETENTION 94% · PERFORMANCE 82% · AVG SALARY 68k · BONUS POOL 420k · EQUITY 1.2M · TOTAL TC 7.4M · ecc.) sono **costanti identiche cross-tenant** = NON provengono dal view legacy refactored ma da:
+- `CLAUDE.md` (root): §REGOLA NON NEGOZIABILE + P11 tabella P1-P11
+- `.claude/CLAUDE.md`: CARD-4 + R18
+- `.claude/skills/studio/references/promote-flow.md`: Gate D.2 NO-FIXTURE (`PROMOTE_E309_FIXTURE`)
+- `.ux-design/{BRAND-STATE,SESSION-RESUME,08-promotion/v1.0-checklist}.md`: disclaimer top-of-file
+- `docs/_audit/2026-05-13-no-mock-inventory.md`: Phase A baseline (incompleto su G6)
+- `docs/_audit/2026-05-13-no-mock-inventory-G6.md`: Phase A2 G6 layer thorough
+- `services/app/src/components/data/DataNotAvailable.tsx` + CSS AA-compliant
+- `services/app/src/lib/data/tenant-owner-queries.ts`: 4 queries Prisma (legacy view, orphan path)
+- `db/migrations/phase18p_tenant_owner_overview_v2_live_data.sql`: production migration UPDATE 7 elements
+- `services/app/src/lib/dashboard-engine/adapters.ts`: `kpiRingAdapter` esteso con `unavailable`
+- `services/app/src/components/widgets/brand/BrandKpiCard.tsx`: render `<DataNotAvailable/>` se unavailable
+- `services/app/src/components/widgets/brand/BrandCompCard.tsx`: per-item `unavailable` support
+- `scripts/perf/test-tenant-owner-v2-variance.mjs`: verification harness cross-tenant
 
-- `prefetchElements()` data adapter via `services/app/src/lib/dashboard-engine/prefetch.ts`
-- `services/app/src/components/widgets/brand/*` G6 widget components
-- `dashboard_elements.config_overrides` JSON seed
+## Carry-forward S59+ (priorità)
 
-**Phase A inventory incompleto**: l'Explore agent ha categorizzato "app pages 100% compliant" perché nei `.tsx` files non c'erano numeri letterali — ma i numeri vivono nel **runtime widget adapter** + seed JSON, layer non scansionato.
+### S59 — Bonifica 6 preset _v2 residui (P0)
 
-## Stato refactor pilot
+Stesso pattern migration `phase18p` per:
 
-- ✅ Pattern **codificato e funzionante**: queries live in `lib/data/*.ts` + `<DataNotAvailable />` + render conditional. Riutilizzabile per qualsiasi futura surface.
-- ✅ Typecheck PASS · build PASS · service restart OK
-- ⚠️ Path orfano: il file refactored non è eseguito in prod. Resta come **reference implementation** del pattern P11.
+| Preset | Effort |
+|---|---|
+| `hr_director_overview_v2` | ~2h |
+| `skills_heatmap_v2` | ~2h |
+| `capability_graph_v2` | ~2h |
+| `employee_journey_v2` | ~2h |
+| `cross_tenant_overview_v2` | ~1.5h |
+| `org_systems_v2` | ~1.5h |
 
-## Carry-forward S59+ (priorità rivista)
+Pattern obbligatorio: ogni query `WHERE tenant_id = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid` esplicito perché `employees` è VIEW senza RLS (post S52 vertical-split).
 
-### S59 — Re-inventory **G6 dashboard engine** (HIGH PRIORITY, riapertura Phase A)
+### S60 — Investigare P1 violation (HIGH)
 
-Layer non scansionato in Phase A. Catalogare:
+Side-finding S58 #3: **cross-tenant data leak** su `/compensation` + `/employees` per TENANT_OWNER. RTL Bank vede dati EcoNova/SmartFood mescolati. Possibile bypass RLS o query Prisma senza `WHERE tenant_id`. **Priority HIGH** (RGPD risk).
 
-- `services/app/src/lib/dashboard-engine/prefetch.ts` — data fetching widget per widget
-- `services/app/src/components/widgets/brand/*.tsx` (~19 widget secondo registry.tsx)
-- `services/app/src/lib/dashboard-engine/registry.tsx` — widget code → adapter map (post-S57 dichiarato compliant, da riverificare nel rendering live)
-- `dashboard_elements.config_overrides` JSON in DB (è seed o runtime?)
+### S61+ — Schema extension per source unavailable
 
-Per ogni widget verificare:
-1. Source data: query Prisma live · static adapter · config_overrides JSON
-2. Fallback path: hardcoded values · DataNotAvailable · empty array
-3. Variance cross-tenant: stessi numeri per tutti? (= hardcoded) o variabili (= live)
+- REV/FTE: serve tabella `revenue` o `financial_kpis`
+- EQUITY: serve tabella `equity_grants` o `total_compensation`
+- TOTAL TC: derivato (base + variable + equity)
 
-Effort stimato: 3-4h (re-inventory thorough on the right layer).
+Decisione brand-prodotto richiesta prima dello sviluppo.
 
-### S60+ — Bonifica widget G6 secondo priorità inventory rivista
+### S62+ — CapabilityRadar `/api/capability/aggregate` validation
 
-Stimata 10-20h sulla base di S59 findings.
+Già `type:'api'` ma endpoint da verificare se ritorna dato live o stub.
 
-### S61+ — Bonifica view legacy residui (`HrDirectorOverviewView`, `CapabilityGraphView`, ecc.)
+### S63+ — Legacy view cleanup (LOW)
 
-Pattern già codificato dal pilot. Effort solo se decidiamo di mantenere il fallback path attivo (alternativa: rimuovere fallback + canonicalizzare G6).
+7 `_views/*.tsx` (TenantOwnerOverviewView, HrDirectorOverviewView, ecc.) sono **path orfano** in produzione (G6 `_v2` ha precedenza in `dashboard/page.tsx:112+`). Refactor pilot del view legacy (commit `8bf368f`) resta come **reference implementation** del pattern P11 (queries in `lib/data/tenant-owner-queries.ts` riutilizzabili). Decisione: rimuovere fallback o mantenere come reference?
 
-### Investigare side-finding S58 #3 (P1 violation)
-
-Cross-tenant data leak su `/compensation` + `/employees` per TENANT_OWNER. RTL Bank vede bonus_plans EcoNova/Heuresys + employees SmartFood/EcoNova mescolati. Possibile bypass RLS o query senza `WHERE tenant_id`. **P1 priority**.
-
-## Verifica handoff
+## Verification handoff
 
 ```bash
-# Constraint P11 enforced
+# P11 enforcement codificato
 grep -n "P11" CLAUDE.md
-grep -n "REGOLA NON NEGOZIABILE" CLAUDE.md
 grep -n "CARD-4" .claude/CLAUDE.md
-grep -n "Gate D.2" .claude/skills/studio/references/promote-flow.md
-grep -n "CONSTRAINT P11" .ux-design/BRAND-STATE.md
+grep -A 10 "Gate D.2" .claude/skills/studio/references/promote-flow.md
 
-# Component shared esiste
-ls services/app/src/components/data/DataNotAvailable.tsx
-ls services/app/src/lib/data/tenant-owner-queries.ts
+# Migration applicata
+ssh oracle-vm-default 'cd /home/ubuntu/heuresys-evo && export $(grep -E "^DATABASE_URL=" services/app/.env | head -1) && node -e "..." # verifica config_overrides.data_source.type = sql per IDs 101-104,109,110,111'
 
-# Typecheck verde
-cd services/app && npx tsc --noEmit
-
-# Inventory baseline
-ls docs/_audit/2026-05-13-no-mock-inventory.md
+# Cross-tenant variance verified
+ssh oracle-vm-default 'cd /home/ubuntu/heuresys-evo && export $(grep -E "^DATABASE_URL=" services/app/.env | head -1) && node scripts/perf/test-tenant-owner-v2-variance.mjs'
+# Expected: numbers differ across RTL/SmartFood/EcoNova/Heuresys
 
 # Live deploy attivo
-ssh oracle-vm-default "sudo systemctl status heuresys-app --no-pager | head -8"
+ssh oracle-vm-default "curl -s -o /dev/null -w 'HTTP %{http_code}\n' http://localhost:3200"
+
+# Browser smoke: login federica@rtl-bank → /dashboard → HEADCOUNT 156 (non più 86)
 ```
 
 ## Reference plan
 
-`~/.claude/plans/i-dati-attuali-che-gentle-church.md` — approved 2026-05-13.
+`~/.claude/plans/i-dati-attuali-che-gentle-church.md` (approved 2026-05-13) — completato Phase A + B + Pilot + Phase A2 G6 + G6 refactor live.
 
 ## Note operative
 
-- I commit `e5cd4df` + `8c3ed98` (CASCADIA seeding) restano legittimi (popolano DBMS, post-INSERT è dato live)
-- `toggle-tenant-owners-tmp.mjs --off` eseguito post-LH audit
-- Sessione lunga (~5h reali) — passaggi salient: 1) richiesta constraint utente → 2) confusione su scope CASCADIA risolta → 3) plan approvato → 4) implementazione + finding orphan path → 5) handoff onesto
+- Commit S58 CASCADIA seeding (`e5cd4df`, `8c3ed98`) restano legittimi (popolano DBMS quando vuoto).
+- `toggle-tenant-owners-tmp.mjs --off` eseguito post-smoke (3 legacy TENANT_OWNERS riattivati e ri-disattivati).
+- Sessione complessiva ~6h reali. Apprendimenti chiave salient in DECISIONS-LOG L85.
