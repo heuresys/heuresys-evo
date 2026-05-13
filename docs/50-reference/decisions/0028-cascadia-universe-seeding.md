@@ -1,10 +1,12 @@
 # ADR-0028: CASCADIA pipeline — realistic industry-flavored universe seeding
 
-**Status**: Accepted
-**Date**: 2026-05-11
+**Status**: Accepted-Implemented (closure S57 — 2026-05-13)
+**Date**: 2026-05-11 · **Closed**: 2026-05-13
 **Authors**: Enzo Spenuso
-**Commits**: `5343731` (S35.3 M9+M11) · `5f08439` (phase18f ESKAP) · `1500369` (S35 handoff)
-**Lexicon**: CASCADIA + INDOOR + OPOURSKA + GOKMER + TALPIPE + ESKAP
+**Commits S35 baseline**: `5343731` (S35.3 M9+M11) · `5f08439` (phase18f ESKAP) · `1500369` (S35 handoff)
+**Commits S55+→S57 closure**: `946af24` Stage 0 L78 · `f7ed98c` Stage 1a L79 · `2fd6dd1`+`a257ddf`+`96955be` Stage 1b L80 · `70b5f44`+`a8cd470` Stage 2b L81 · `fad4e59`+`a499049`+`30936e9` Stage 2f+3 L82 · `32354e2`+`9ab38e5`+`898d29b` EcoNova templates+verify-area fix L83 · `f893081` Stage 5 dashboard registry sweep L84 · `c49b5e8` handoff S57
+**Closure metrics**: +1141 records + 136 tasks inseriti · verify-area 🟢 24/26 · ~6h effective (vs 58-94h plan iniziale)
+**Lexicon**: CASCADIA + INDOOR + OPOURSKA + GOKMER + TALPIPE + ESKAP + ITLAB + DGOV + EPRA + H2R + SMERTO + PULSAR + SKILGRO
 
 ## Context
 

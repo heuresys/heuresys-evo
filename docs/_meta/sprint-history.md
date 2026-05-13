@@ -10,6 +10,80 @@
 
 ---
 
+## ✅ S55+ → S57 close (2026-05-13) — CASCADIA pipeline full closure + Stage 5 dashboard registry sweep
+
+**8 sessioni autonomous chained (S55, S55+1, +2, +3, +4, +5, +6, S57). Plan canonical**: `~/.claude/plans/l-obiettivo-di-completare-soft-wind.md`. **ADR**: 0028 → accepted-implemented. **DECISIONS-LOG**: L77-L84.
+
+### Commit chain S55+ → S57 (24 commit shipped totali)
+
+| Wave         | Commit(s)                                                                                 | Scope                                                                    |
+| ------------ | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| Baseline S55 | `4964dba` `7cf611f` `1c94acb` `dd0ede9`                                                   | deps lock + Open Q1+Q2 fix + WCAG AAA 15 palette + bundle audit L77      |
+| Handoffs     | `b696150` `9dc2913` `5f36d17` `ad82dc5` `fb244c5` `3e5e109` `b54b137` `c867d5b` `c49b5e8` | 9 handoffs S55, S55+1..+6, S57                                           |
+| Stage 0      | `946af24`                                                                                 | L78 foundation tooling (orchestrator + verify-area + zod schemas)        |
+| Stage 1a     | `f7ed98c`                                                                                 | L79 TALPIPE RTL succession +18                                           |
+| Stage 1b     | `2fd6dd1`+`a257ddf`+`96955be`                                                             | L80 RTL stat sweep +927 (PULSAR+SKILGRO+GOKMER)                          |
+| Stage 2b     | `70b5f44`+`a8cd470`                                                                       | L81 H2R onboarding cross-tenant +24 inst +114 tasks                      |
+| Stage 2f+3   | `fad4e59`+`a499049`+`30936e9`                                                             | L82 bonus_plans+workforce_scenarios+recruiting +25                       |
+| Stage Final  | `32354e2`+`9ab38e5`+`898d29b`                                                             | L83 EcoNova templates+instances + verify-area schema fix + memory rename |
+| Stage 5      | `f893081`                                                                                 | L84 dashboard registry empty-state sweep (-88 LOC fake-data)             |
+
+### Records inseriti via CASCADIA pipeline
+
+| Sigla     | Tabella                            | Tenants delta            |                         Total |
+| --------- | ---------------------------------- | ------------------------ | ----------------------------: |
+| TALPIPE   | succession_candidates              | RTL +18                  |                           +18 |
+| PULSAR    | engagement_survey_responses        | RTL +203                 |                          +203 |
+| SKILGRO   | skill_gap_analyses                 | RTL +204                 |                          +204 |
+| GOKMER    | goal_check_ins                     | RTL +520                 |                          +520 |
+| H2R       | onboarding_instances + tasks       | 3 tenant +24 inst +114 t |                          +138 |
+| SMERTO    | bonus_plans                        | Econova +3, Heuresys +1  |                            +4 |
+| (Stage 3) | workforce_plan_scenarios           | SF +5, Eco +5, Heu +1    |                           +11 |
+| H2R       | recruiting_candidates              | EcoNova +10              |                           +10 |
+| H2R       | onboarding_templates EcoNova       | +5                       |                            +5 |
+| H2R       | onboarding_instances+tasks EcoNova | +5 inst +22 t            |                           +27 |
+| **TOTAL** |                                    |                          | **+1141 records + 136 tasks** |
+
+### Pattern formalizzati (riutilizzabili per future seeding initiatives)
+
+1. **Semantic complex** → Claude reasoning (Opus 4.7 1M-ctx) + JSON cached `_research_cache/`
+2. **Mass-statistical** → `lib/distributions.mjs` (mulberry32 seedable + Gaussian/quintile/Poisson) + template pools (NO LLM mass-generation)
+3. **Cross-tenant variance** → TARGETS map per-tenant code + skip preconditions
+4. **Schema drift legacy** → in-flight column rename fix + dynamic introspect pre-INSERT
+5. **Discovery-driven targeting** → audit count BEFORE script writing (evita over-engineering; Stage 4 EPRA scoperto già 267+267 saturated)
+6. **FK preflight + idempotency app-side** → ON CONFLICT DO NOTHING + dedupe set
+
+### Stage 5 — Dashboard registry empty-state sweep
+
+11 widget `services/app/src/lib/dashboard-engine/registry.tsx` convertiti da hardcoded fake-data (`value: 72`, "Maria Rossi", "Senior Risk Analyst") → empty-state placeholders (—, 0, [], "no data yet"). Pattern `liveWrapper(widgetCode, demoProps, render)` preservato (resilience). -88 LOC fake-data rimosse. Typecheck PASS, deploy heuresys-app OK.
+
+### verify-area --all FINAL
+
+🟢 24/26 · 🟡 2 (compensation salary_bands EcoNova+Heuresys cosmetic) · 🔴 0
+
+### Effort + Lessons Learned
+
+- **Effort reale ~6h cumulativo** vs **58-94h stima iniziale plan**
+- **Reality gap dovuto a**: (a) molte tabelle già popolate da seeding precedente non documentato (Stage 4 EPRA), (b) statistical generation deterministic 10× più rapida di LLM-per-record (Stage 1b), (c) discovery-driven targeting evita lavoro non necessario
+- **Lesson learned**: AUDIT FIRST sempre, script DOPO
+- **Architettura `liveWrapper`** già resilient-by-design → Stage 5 era semantic sweep (fake-data → empty-state) non refactor architetturale
+
+### Memory updates
+
+- Renamed: `feedback_seed_via_openai.md` → `feedback_seed_via_ai.md` (Claude native primary + statistical pattern documented)
+
+### File deliverable
+
+- `scripts/seed-generator/cascadia/{run-stage,verify-area,research-bridge,dashboard-prefetch-verify}.mjs` orchestrator
+- `scripts/seed-generator/lib/{zod-schemas,dry-run,industry-research,openai-wrapper}.mjs` foundation
+- `scripts/seed-generator/{talpipe,pulsar,gokmer,skilgro,h2r,smerto,indoor}/` stage scripts
+- `db/seeds/realistic/_research_cache/rtl_bank_succession_candidates_generated.json` (18 records Claude reasoning)
+- `services/app/src/lib/dashboard-engine/registry.tsx` post-Stage 5 sweep
+
+**Tooling commitment**: pipeline pronta per future CASCADIA-like seeding initiatives (riusabile via orchestrator + lib helpers).
+
+---
+
 ## ✅ S26 close (2026-05-10) — L60 Phase 2 vertical-split DEFERRED S27+ (65 view dipendenti scoperte)
 
 **Sessione "fai tutto" su 3 priorità STATE.md. 2/3 risultate già shipped (doc obsoleta), 1/3 deferred evidence-based.**

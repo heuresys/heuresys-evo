@@ -70,24 +70,24 @@ Workflow disciplinato per modifiche a route Next.js in produzione: ogni edit pas
 
 Vocabolario controllato delle catene relazionali dell'universo dati (568 modelli Prisma, 25 aree funzionali). SoT: [`docs/_meta/lexicon.md`](docs/_meta/lexicon.md). Adottato S35.2 (ADR-0029 TBD S35.7).
 
-| Sigla           | Significato                                                               | Stato                 |
-| --------------- | ------------------------------------------------------------------------- | --------------------- |
-| **OPOURSKA** ✅ | Organization-Process-OrgUnit-Role-Skill-KPI-Assessment (7-layer ontology) | base attiva           |
-| **PET** ✅      | Process/Enterprise/Talent (3 access perspectives)                         | base attiva           |
-| **INDOOR** ⭐   | Industry-NACE-Domain-Org-OrgUnit-Roles (industry cascade)                 | pending S35.3         |
-| **TALPIPE** ⭐  | Talent Pipeline (Career/Succession/9Box/TalentPool/Mobility)              | pending S35.3         |
-| **H2R** ✅      | Hire-to-Retire                                                            | pending S35.3         |
-| **SKILGRO** ⭐  | Skill-Learning loop (gap→recommend→cert→reassess)                         | pending S35.3         |
-| **GOKMER** ⭐   | Goal-KPI-Measurement-Evaluation-Review (performance cycle)                | pending S35.3         |
-| **PROGOV** ⭐   | Process Governance (workflow/approval/audit/compliance)                   | pending S35.3         |
-| **ESKAP** ⭐    | ESCO + Knowledge graph Application Projection                             | pending S35.5         |
-| **ITLAB** ⭐    | Italian Labor (CCNL/INPS/sindacati/holidays)                              | **active S35.1**      |
-| **RBP** ✅      | Role-Based Permissions matrix                                             | base attiva           |
-| **DGOV** ⭐     | Data Governance (multi-tenant + RLS + audit + GDPR)                       | base attiva (367 RLS) |
-| **SMERTO** ⭐   | Salary-Merit-Equity-Reward-Total (compensation cycle)                     | pending S35.3         |
-| **PULSAR** ⭐   | Pulse-LinkedScore-Action-Retention (engagement loop)                      | pending S35.3         |
-| **EPRA** ⭐     | Embedding-Prediction-Recommendation-Action (AI stack)                     | pending S35.3         |
-| **CASCADIA** ⭐ | Catena seeding realistic end-to-end (pipeline self-ref)                   | pending S35.2-7       |
+| Sigla           | Significato                                                               | Stato                      |
+| --------------- | ------------------------------------------------------------------------- | -------------------------- |
+| **OPOURSKA** ✅ | Organization-Process-OrgUnit-Role-Skill-KPI-Assessment (7-layer ontology) | base attiva                |
+| **PET** ✅      | Process/Enterprise/Talent (3 access perspectives)                         | base attiva                |
+| **INDOOR** ✅   | Industry-NACE-Domain-Org-OrgUnit-Roles (industry cascade)                 | shipped S35.3 (4 profili)  |
+| **TALPIPE** ✅  | Talent Pipeline (Career/Succession/9Box/TalentPool/Mobility)              | shipped S55+ L79+L82       |
+| **H2R** ✅      | Hire-to-Retire (recruiting + onboarding)                                  | shipped S55+ L81+L82+L83   |
+| **SKILGRO** ✅  | Skill-Learning loop (gap→recommend→cert→reassess)                         | shipped S55+ L80           |
+| **GOKMER** ✅   | Goal-KPI-Measurement-Evaluation-Review (performance cycle)                | shipped S55+ L80           |
+| **PROGOV** ⏳   | Process Governance (workflow/approval/audit/compliance)                   | deferred S58+ (secondary)  |
+| **ESKAP** ✅    | ESCO + Knowledge graph Application Projection                             | shipped S35 phase18f       |
+| **ITLAB** ✅    | Italian Labor (CCNL/INPS/sindacati/holidays)                              | shipped S35.1 phase18d     |
+| **RBP** ✅      | Role-Based Permissions matrix                                             | base attiva                |
+| **DGOV** ✅     | Data Governance (multi-tenant + RLS + audit + GDPR)                       | base attiva (367 RLS)      |
+| **SMERTO** ✅   | Salary-Merit-Equity-Reward-Total (compensation cycle)                     | shipped S55+ L82           |
+| **PULSAR** ✅   | Pulse-LinkedScore-Action-Retention (engagement loop)                      | shipped S55+ L80           |
+| **EPRA** ✅     | Embedding-Prediction-Recommendation-Action (AI stack)                     | shipped pre-S55+ (267+267) |
+| **CASCADIA** ✅ | Catena seeding realistic end-to-end (pipeline self-ref)                   | **CLOSURE S57 L78-L84**    |
 
 Naming convention:
 
@@ -96,7 +96,24 @@ Naming convention:
 - ADR title: `ADR-NNNN: <SIGLA>[+<SIGLA>] <topic>`
 - Audit cell criteria: "OPOURSKA coverage", "INDOOR coherence", "ESKAP completeness", ecc.
 
-**CASCADIA pipeline (Realistic Industry-Flavored Seeding)**: trasforma il DBMS scheletrico (25 aree, molte vuote) in case-study coerente per i 4 tenant (RTL Bank banking · SmartFood food · EcoNova green-tech · Heuresys SaaS). Plan: `~/.claude/plans/in-questa-fase-io-spicy-galaxy.md` · Effort: ~58-94 FTE-h multi-sessione. Stage: S35.0 forensic precondition · S35.1 ITLAB · S35.2 infrastructure · S35.3 pilot RTL · S35.4 extension · S35.5 ESKAP · S35.6 dashboard binding · S35.7 verification. Scripts: `scripts/seed-generator/README.md`.
+**CASCADIA pipeline (Realistic Industry-Flavored Seeding) — ✅ CLOSED S57 (2026-05-13)**: piattaforma scheletrica 25 aree → case-study coerente per 4 tenant (RTL Bank banking K.64.19 · SmartFood food C.10 · EcoNova green-tech D.35 · Heuresys SaaS J.62). Shipped attraverso S35.0-S35.7 (baseline) + S55+1→S57 (final closure autonomous mode).
+
+**Effort reale**: ~6h cumulativo (vs 58-94h stima iniziale plan). **Records inseriti**: +1141 + 136 tasks via pipeline. **Coverage verify-area**: 🟢 24/26 · 🟡 2 (cosmetic) · 🔴 0.
+
+**Plan canonical**: `~/.claude/plans/l-obiettivo-di-completare-soft-wind.md` (S57) + `~/.claude/plans/in-questa-fase-io-spicy-galaxy.md` (S35 baseline). **DECISIONS-LOG**: L78-L84. **ADR**: 0028 (accepted-implemented) + 0030 lexicon canonical.
+
+**Research engine**: Claude native (WebFetch+WebSearch+reasoning Opus 4.7) PRIMARY · OpenAI gpt-4o-mini FALLBACK · `lib/distributions.mjs` statistical deterministic per mass-data. Vincolo memory `feedback_seed_via_ai.md` cross-session.
+
+**Pattern formalizzati riutilizzabili**:
+
+1. Semantic complex → Claude reasoning + JSON cached `_research_cache/`
+2. Mass-statistical → `lib/distributions.mjs` + template pools (RNG seedable)
+3. Cross-tenant variance → TARGETS map per-tenant + skip preconditions
+4. Schema drift → in-flight column rename fix + dynamic introspect pre-INSERT
+5. Discovery-driven targeting (audit BEFORE script writing)
+6. FK preflight + idempotency app-side (`ON CONFLICT DO NOTHING`)
+
+**Stages reali**: S35.0 forensic ✅ · S35.1 ITLAB ✅ · S35.2 Foundation tooling ✅ · S35.3 RTL pilot ✅ (1a+1b) · S35.4 cross-tenant sweep ✅ (2b+2f+3) · S35.5 ESKAP ✅ · S35.6 dashboard binding sweep ✅ (Stage 5 L84) · S35.7 verification ✅. Scripts: `scripts/seed-generator/{cascadia,talpipe,pulsar,gokmer,skilgro,h2r,smerto,dgov,indoor}/`.
 
 ## Mission
 
