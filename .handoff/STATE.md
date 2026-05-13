@@ -1,39 +1,40 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-12T19:45Z · S53 closed · P4 AA + P5 partial signed-off · HEAD `678c1a7`
+> Updated: 2026-05-13T00:15Z · S54 closed · P6 audit 100% + 6 CF shipped · HEAD `f8e8304`
 
 ## Last session brief
 
-S53 ha chiuso 2 priorità Top S51+: **P4 WCAG 2.2 AA sign-off** (L66, commit `6675f90`) e **P5 Lighthouse partial sign-off** (L67, commit `6a30deb`). P4: 4 real violations fixate (sidebar `<h4><button>` + `main tabIndex={-1}` + `.pill-info`/`.filter-pill.active` contrast var(--ink)+bold). 4 surface ✅ AA PASS. P5: `/login` Lighthouse 3/4 categories ≥ 90 (a11y/BP/SEO 100). Perf 58 (LCP 12.5s, 8.3s unused JS) carry-forward. Auth-protected surfaces backup ref S48 G6 P95 705ms. **6/7 priorità S51+ chiuse**. VM HEAD `6675f90` (rebuilt + restart con WCAG fixes).
+S54 ha chiuso **6/7 priorità S54+** (P6 W#1→W#7 + 6 carry-forward). 16 commit shipped: pgBouncer compliance (L68 `a5a07ad`), WCAG AAA palette legacy 22→0 (L69 `ceea454`+`d8ab1eb`), P6 audit completo step-by-step manuale (L70-L74 W#1 header mockup-as-SoT + W#2 KPI cards SQL aggregator runtime + W#3+W#4 body panels prod-as-shipped + #88 succession spotlight live + W#5 sidebar + W#6 user card full name + level + W#7 footer brand metrics live), CF batch (L75 phase18w cleanup 86 orphan + footer metric live + /analytics/workforce scaffold + AAA palette alpha + bundle-analyzer wired), L75-bis AAA strict fix (`--accent-aaa #d8b4fe` + `.btn-primary #5e2898` + `footerMetrics` prop wire). VM HEAD sync `f8e8304`.
 
-## Top priorities (S54+)
+## Top priorities (S55+)
 
-1. **P6 Dashboard widget visual audit** (~2-3h) — `/brand:audit` cycle su `/dashboard` HR_DIRECTOR vs mockup canonical hr-director-overview.html side-by-side. Visual dependent.
-2. **WCAG 2.2 AAA enhanced contrast** (~2-3h) — 4 nodi residui (`.t-avatar` text + sidebar h4 span). Palette token rebalance (es. accent variant più light su dark surfaces o ribilanciare accent-soft).
-3. **Bundle perf optimization** (~12-20h) — `@next/bundle-analyzer` audit, identify top contributors `_app.js`+`framework.js`, dynamic imports su `/login` (palette/theme switcher pre-auth?), tree-shaking review, verify Lighthouse perf ≥ 90 post-fix.
-4. **/analytics/workforce page** (~1h) — route linkato in sidebar ma 404 (no page.tsx).
-5. **Visual smoke 8 ruoli × 9 viste** (~2-3h) — 72 screenshot acceptance criteria final v1.0.
+1. **Bundle perf optimization full** (~12-20h, multi-sessione) — `@next/bundle-analyzer` già wired in `next.config.ts` ma `ANALYZE=true npm run build` non emette `.next/analyze/` (debug ESM import). Identificare top contributors `_app.js`+`framework.js`, dynamic imports su `/login` (palette/theme switcher pre-auth), tree-shaking review, target Lighthouse Perf ≥ 90 (current 58, LCP 12.5s).
+2. **WCAG AAA su altre 14 palette** (~1-2h × 14 = 14-28h) — paradigma `--*-aaa` shipped per `legacy` (L69) + `alpha` (L75 CF#6). Estendere a 14 palette restanti in `palette-framework.css` (mu-architect-synthesis, beta, mu-synthesis-light, terracotta, blueprint, ecc.). Pattern proven, ratios calibrati (`#d8b4fe` per accent, `#60a5fa` per primary, `#b0b5c0` per ink-muted, `#4ade80` per success).
+3. **Visual smoke 8 ruoli × 9 viste full** (~2-3h) — sample 4 surface HR_DIRECTOR shipped (L75 CF#3). Acceptance criteria final v1.0 = 72 screenshot login → 8 canonical RTL Bank users × 9 surface (login + dashboard + me + admin/audit + employees + reviews + onboarding + showcase + brand-studio).
 
 ## Open questions
 
-- pgBouncer transaction mode vs Prisma `$transaction` complesse → eventuale `pool_mode=session` su connection-string dedicata.
+- `/analytics/workforce` scaffold mostra 0 in tutti 4 KPI per RTL Bank tenant. SQL aggregator gira ma DB ha 0 workforce_planning_scenarios + employees senza department_id non-NULL. Carry-forward S55: data binding refinement o seed enrichment.
+- CF#1 bundle-analyzer wiring: `@next/bundle-analyzer` ESM default import potrebbe non triggerare correctly su build standalone Next.js 16. Debug minor.
 
-## Stack snapshot (post-S53)
+## Stack snapshot (post-S54)
 
-- 17 commit S50→S53 shipped, HEAD `678c1a7`
-- WCAG 2.2 AA: ✅ signed off (`6675f90` BrandShell + dashboard-brand.css)
-- Lighthouse `/login`: A11y/BP/SEO 100, Perf 58 (LCP 12.5s — bundle optimization needed)
-- DECISIONS-LOG L1→L67, 0 orphans
-- `.husky/pre-push` DDL→L\<N\> gate attivo
-- Project default palette `legacy` canonical (`#3b82f6` primary + `#a855f7` accent)
-- Phase 2 employees vertical-split LIVE (employees=VIEW, employees_core=TABLE, 209 FK, 3 INSTEAD OF triggers)
+- 16 commit S54 shipped (L68 `a5a07ad` → L75-bis `f8e8304`)
+- WCAG 2.2 AAA: ✅ palette legacy + alpha (0 violations) · paradigm shipped per altre 14 palette
+- Lighthouse `/login`: invariato S53 baseline (Perf 58 — bundle perf carry-forward)
+- DECISIONS-LOG L1→L75 (+ L75-bis), 0 orphans
+- DDL pre-push hook attivo (richiede DECISIONS-LOG L<N> pairing per ogni `db/seeds/phase*.sql`)
+- Nuovi files: `phase18u_hr_director_kpi_aggregators.sql` + `phase18v_hr_director_succession_spotlight.sql` + `phase18w_cleanup_succession_candidates_orphans.sql` + `services/app/src/app/(app)/analytics/workforce/page.tsx`
+- BrandShellProps esteso: `roleLevel?: number | null` + `footerMetrics?: { cycle: string; reviewsPct: number | null }`
+- DB cleanup: 86 succession_candidates orphan critical_role_id → NULL + FK `ON DELETE SET NULL` aggiunto
 
 ## Verification
 
 ```bash
 LOCAL=$(git rev-parse HEAD); VM=$(ssh oracle-vm-default "cd /home/ubuntu/heuresys-evo && git rev-parse HEAD")
-# WCAG verify (browser): /dashboard with palette legacy → 0 real violations
-# Lighthouse re-run: npx lighthouse https://evo.heuresys.com/login --quiet
+# Visual: /dashboard HR_DIRECTOR → KPI live (156/38%/552/18) + RBAC matrix + Activity feed + Valentina Conti user-card + footer CYCLE Q2 2026 + REVIEWS 38%
+# axe: 0 AAA + 0 AA su /dashboard, /me, /admin/audit, /analytics/workforce (palette legacy/dark)
+# DB orphan check: SELECT COUNT(*) FROM succession_candidates sc WHERE sc.critical_role_id IS NOT NULL AND NOT EXISTS (SELECT 1 FROM succession_plans WHERE id = sc.critical_role_id) → 0
 ```
 
-Riferimenti: `.ux-design/DECISIONS-LOG.md` L66 (P4 WCAG AA) · L67 (P5 Lighthouse) · `scripts/perf/results/lh-login-S53.md` (bench report).
+Riferimenti: `.ux-design/DECISIONS-LOG.md` L68→L75-bis · `db/seeds/phase18{u,v,w}*.sql` · `services/app/src/app/(app)/{layout.tsx,_components/BrandShell.tsx,analytics/workforce/page.tsx}`.
