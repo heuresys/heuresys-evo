@@ -43,7 +43,7 @@ const AREAS = {
   recruiting: { tables: ['recruiting_candidates'], threshold: 5 },
   onboarding: { tables: ['onboarding_instances'], threshold: 1 },
   italian_labor: {
-    tables: ['ccnl_contracts', 'sindacati', 'holiday_calendars_it'],
+    tables: ['ccnl_contracts', 'sindacati', 'holidays'],
     threshold: 1,
     global: true,
   },
@@ -52,7 +52,8 @@ const AREAS = {
     threshold: 1,
     global: true,
   },
-  dashboard_config: { tables: ['dashboard_elements', 'dashboard_presets'], threshold: 5 },
+  dashboard_config: { tables: ['dashboard_elements'], threshold: 5 },
+  dashboard_presets_global: { tables: ['dashboard_presets'], threshold: 10, global: true },
   competency: { tables: ['competencies'], threshold: 1 },
   notifications: { tables: ['notifications'], threshold: 1 },
   compensation_planning: { tables: ['salary_band_assignments'], threshold: 1 },
