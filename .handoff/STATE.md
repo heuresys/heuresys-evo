@@ -1,40 +1,55 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-13T00:15Z · S54 closed · P6 audit 100% + 6 CF shipped · HEAD `f8e8304`
+> Updated: 2026-05-13T00:55Z · S55 closed · Open Q1+Q2 fixed · Priority #2 shipped (15 palette AAA) · Priority #1 audit baseline · Priority #3 partial · HEAD `dd0ede9`
 
 ## Last session brief
 
-S54 ha chiuso **6/7 priorità S54+** (P6 W#1→W#7 + 6 carry-forward). 16 commit shipped: pgBouncer compliance (L68 `a5a07ad`), WCAG AAA palette legacy 22→0 (L69 `ceea454`+`d8ab1eb`), P6 audit completo step-by-step manuale (L70-L74 W#1 header mockup-as-SoT + W#2 KPI cards SQL aggregator runtime + W#3+W#4 body panels prod-as-shipped + #88 succession spotlight live + W#5 sidebar + W#6 user card full name + level + W#7 footer brand metrics live), CF batch (L75 phase18w cleanup 86 orphan + footer metric live + /analytics/workforce scaffold + AAA palette alpha + bundle-analyzer wired), L75-bis AAA strict fix (`--accent-aaa #d8b4fe` + `.btn-primary #5e2898` + `footerMetrics` prop wire). VM HEAD sync `f8e8304`.
+S55 ha chiuso **2 Open Questions + Priority #2 full + Priority #1 baseline audit + Priority #3 partial (HR_DIRECTOR 9/9)**. 4 commit shipped:
 
-## Top priorities (S55+)
+- `4964dba` deps lock canonical (`@next/bundle-analyzer` aggiunto a `services/app/devDep`)
+- `7cf611f` Open Q1+Q2 fix (workforce SQL `org_unit_id` + `workforce_plan_scenarios` correzione tabella · Turbopack-native `next experimental-analyze -o` script + heap 4GB)
+- `1c94acb` L76 WCAG AAA 15-palette batch sweep (beta, gamma, delta, epsilon, zeta, eta, theta, iota, kappa, lambda, mu-architect, mu-art-director, mu-pragmatic, mu-synthesis, mu-data-dense)
+- `dd0ede9` L77 bundle perf audit doc + recommendations (`docs/_audit/2026-05-13-bundle-perf-audit-s55.md`)
 
-1. **Bundle perf optimization full** (~12-20h, multi-sessione) — `@next/bundle-analyzer` già wired in `next.config.ts` ma `ANALYZE=true npm run build` non emette `.next/analyze/` (debug ESM import). Identificare top contributors `_app.js`+`framework.js`, dynamic imports su `/login` (palette/theme switcher pre-auth), tree-shaking review, target Lighthouse Perf ≥ 90 (current 58, LCP 12.5s).
-2. **WCAG AAA su altre 14 palette** (~1-2h × 14 = 14-28h) — paradigma `--*-aaa` shipped per `legacy` (L69) + `alpha` (L75 CF#6). Estendere a 14 palette restanti in `palette-framework.css` (mu-architect-synthesis, beta, mu-synthesis-light, terracotta, blueprint, ecc.). Pattern proven, ratios calibrati (`#d8b4fe` per accent, `#60a5fa` per primary, `#b0b5c0` per ink-muted, `#4ade80` per success).
-3. **Visual smoke 8 ruoli × 9 viste full** (~2-3h) — sample 4 surface HR_DIRECTOR shipped (L75 CF#3). Acceptance criteria final v1.0 = 72 screenshot login → 8 canonical RTL Bank users × 9 surface (login + dashboard + me + admin/audit + employees + reviews + onboarding + showcase + brand-studio).
+**Workforce KPI live**: HEADCOUNT 156 · DEPARTMENTS 22 · PLANNING 9 · NEW HIRES 2 (RTL Bank, browser-verified valentina.conti).
+**AAA palette**: 17/17 dark-base palette ora hanno tokens `--*-aaa` resolved (DOM verified 100%).
+**Bundle baseline**: 6.82 MB shared first-load JS identificato come root cause Lighthouse Perf 58 / LCP 12.5s.
+
+## Top priorities (S56+)
+
+1. **Bundle perf implementation** (~12-20h, multi-sessione) — applicare audit recommendations: BrandShell dynamic import + palette-framework.css lazy load (pre-auth) + Prisma externals verify + brand-dashboard.css lazy. Target shared bundle <3 MB (-55%), Lighthouse Perf ≥ 90, LCP < 4s. Tool `npm run analyze` Turbopack-native già funziona end-to-end.
+2. **Visual smoke matrix completion** (~2-3h) — estendere `tests/e2e/dashboard-rbp-matrix.spec.ts` per coprire le 9 navigation SURFACE (non solo i 9 dashboard codes già passing 100/100). 7 ruoli mancanti × 9 surface = 63 cases.
+3. **Workforce seed enrichment AI-driven** (~3-5h) — popolare `workforce_plan_scenarios` per EcoNova (0) + SmartFood (0) + Heuresys (0). Vincolo permanente: seed via OpenAI con full DBMS context (vedi memoria `feedback_seed_via_openai.md`).
+4. **AAA light-theme variants** (~2-3h) — 15 palette shippate solo dark-base. Light theme `--*-aaa` con valori dark-text-on-light (es. `#7e3fc8`, `#2452c8`, `#6a6a78`, `#16a34a`).
 
 ## Open questions
 
-- `/analytics/workforce` scaffold mostra 0 in tutti 4 KPI per RTL Bank tenant. SQL aggregator gira ma DB ha 0 workforce_planning_scenarios + employees senza department_id non-NULL. Carry-forward S55: data binding refinement o seed enrichment.
-- CF#1 bundle-analyzer wiring: `@next/bundle-analyzer` ESM default import potrebbe non triggerare correctly su build standalone Next.js 16. Debug minor.
+- CF#1 chunk duplicate-size 4 MB × 2: confermare hypothesis RSC+browser dup via interactive Turbopack analyzer (no `-o`, UI esplorativa).
+- AAA palette light variants: paradigma esistente legacy + alpha non ha light AAA. Decision: estendere o solo dark?
 
-## Stack snapshot (post-S54)
+## Stack snapshot (post-S55)
 
-- 16 commit S54 shipped (L68 `a5a07ad` → L75-bis `f8e8304`)
-- WCAG 2.2 AAA: ✅ palette legacy + alpha (0 violations) · paradigm shipped per altre 14 palette
-- Lighthouse `/login`: invariato S53 baseline (Perf 58 — bundle perf carry-forward)
-- DECISIONS-LOG L1→L75 (+ L75-bis), 0 orphans
-- DDL pre-push hook attivo (richiede DECISIONS-LOG L<N> pairing per ogni `db/seeds/phase*.sql`)
-- Nuovi files: `phase18u_hr_director_kpi_aggregators.sql` + `phase18v_hr_director_succession_spotlight.sql` + `phase18w_cleanup_succession_candidates_orphans.sql` + `services/app/src/app/(app)/analytics/workforce/page.tsx`
-- BrandShellProps esteso: `roleLevel?: number | null` + `footerMetrics?: { cycle: string; reviewsPct: number | null }`
-- DB cleanup: 86 succession_candidates orphan critical_role_id → NULL + FK `ON DELETE SET NULL` aggiunto
+- 4 commit S55 shipped (`4964dba` → `dd0ede9`)
+- WCAG 2.2 AAA: ✅ 17/17 palette dark-base con `--*-aaa` tokens
+- Lighthouse `/login`: invariato S53 baseline (Perf 58, LCP 12.5s — bundle perf carry-forward S56+)
+- Bundle baseline misurato: 6.82 MB first-load shared chunk + 2× 4 MB duplicate-size vendor chunks
+- DECISIONS-LOG L1→L77, 0 orphans
+- Nuovi files: `docs/_audit/2026-05-13-bundle-perf-audit-s55.md`
+- `services/app/next.config.ts` ripulito (no withBundleAnalyzer wrap, Turbopack-native)
+- `services/app/package.json` `analyze` script + NODE_OPTIONS heap 4GB su build
+- Visual smoke HR_DIRECTOR 9/9 verified · altri 7 ruoli carry-forward (Playwright extension)
+
+## Memory updates
+
+- `feedback_seed_via_openai.md` (nuova): vincolo permanente seed enrichment AI-driven con DBMS context. Cross-link CASCADIA pipeline S35.2-7.
 
 ## Verification
 
 ```bash
 LOCAL=$(git rev-parse HEAD); VM=$(ssh oracle-vm-default "cd /home/ubuntu/heuresys-evo && git rev-parse HEAD")
-# Visual: /dashboard HR_DIRECTOR → KPI live (156/38%/552/18) + RBAC matrix + Activity feed + Valentina Conti user-card + footer CYCLE Q2 2026 + REVIEWS 38%
-# axe: 0 AAA + 0 AA su /dashboard, /me, /admin/audit, /analytics/workforce (palette legacy/dark)
-# DB orphan check: SELECT COUNT(*) FROM succession_candidates sc WHERE sc.critical_role_id IS NOT NULL AND NOT EXISTS (SELECT 1 FROM succession_plans WHERE id = sc.critical_role_id) → 0
+# Workforce: HEADCOUNT 156 · DEPARTMENTS 22 · PLANNING 9 · NEW HIRES 2 (HR_DIRECTOR valentina.conti)
+# AAA: getComputedStyle html con data-palette=mu-architect → --accent-aaa #d8b4fe
+# Bundle: cd services/app && npm run analyze → cat .next/diagnostics/route-bundle-stats.json
 ```
 
-Riferimenti: `.ux-design/DECISIONS-LOG.md` L68→L75-bis · `db/seeds/phase18{u,v,w}*.sql` · `services/app/src/app/(app)/{layout.tsx,_components/BrandShell.tsx,analytics/workforce/page.tsx}`.
+Riferimenti: `.ux-design/DECISIONS-LOG.md` L76+L77 · `docs/_audit/2026-05-13-bundle-perf-audit-s55.md` · `services/app/{next.config.ts, package.json}` · `services/app/src/styles/theme-framework/palette-framework.css` · `services/app/src/app/(app)/analytics/workforce/page.tsx`.

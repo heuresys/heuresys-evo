@@ -2739,3 +2739,75 @@ Root cause: tutti i 18 ready_now hanno `critical_role_id` orphan (puntano a plan
 - Footer cycle derive da `review_cycles` row reale (TS-derived ora, fallback robust)
 
 **Roadmap reflection**: stima 5h aggiuntive carry-forward sweep. Reale: ~1.5h effective. Pattern: file scaffold + paradigmatic edits + DB migration sono molto più rapidi di "implementation reale completa" stima originale.
+
+---
+
+## L76 — 2026-05-13 — S55: WCAG AAA 15-palette batch sweep
+
+**Contesto**: post-S54 con paradigma `--*-aaa` proven su 2 palette (`legacy` L69 + `alpha` L75-bis). Carry-forward S55 priority #2 = estendere alle 15 palette dark-base restanti.
+
+**Decisione**: batch atomico via Python script `scripts/dev-local/apply-aaa-palette-batch.py` (one-shot, gitignored). Pattern uniform: dopo `--primary: <hex>;` insert blocco AAA 4 token (`--accent-aaa #d8b4fe` lilac · `--primary-aaa #60a5fa` azure · `--ink-muted-aaa #b0b5c0` gray · `--semantic-success-aaa #4ade80` green) + comment L76 marker.
+
+**Palette patched** (15): beta, gamma, delta, epsilon, zeta, eta, theta, iota, kappa, lambda, mu-architect, mu-art-director, mu-pragmatic, mu-synthesis, mu-data-dense.
+
+**Verifica live** (DOM resolved 100%): tutti 15 palette risolvono i 4 token attesi (post-deploy via JS `getComputedStyle` su `[data-palette=X]`). Light theme variants out-of-scope (paradigma esistente legacy+alpha non include light AAA, default text contrasta su light già OK).
+
+**Brand identity preserved**: `--accent`, `--primary`, `--semantic-success` base values intatti per usi non-textual (icons, fills, borders, glows). AAA tokens applicati solo a text small (<18pt) tramite class `.text-aaa-*`.
+
+**Commit**: `1c94acb`.
+
+---
+
+## L77 — 2026-05-13 — S55: Bundle perf audit baseline + Turbopack analyzer Open Q2
+
+**Contesto S55**: Open Q2 sweep — CF#1 L75 wrap `next.config.ts` con `withBundleAnalyzer` non emetteva `.next/analyze/`. Root cause = Next.js 16 default Turbopack incompatibile con webpack-only `@next/bundle-analyzer` (cita warning runtime: "The Next Bundle Analyzer is not compatible with Turbopack builds").
+
+**Decisione 1 — Turbopack-native path**:
+
+- Rimosso wrapper `withBundleAnalyzer` da `next.config.ts` (incompat).
+- Aggiunto script `analyze` in `services/app/package.json`: `NODE_OPTIONS='--max-old-space-size=4096' next experimental-analyze -o` (Turbopack-nativo, scrive `.next/diagnostics/analyze/`).
+- Heap OOM fix: `NODE_OPTIONS=--max-old-space-size=4096` su build + analyze (TS check default 2046MB SIGABRT).
+- Dep `@next/bundle-analyzer` mantenuto in devDep (fallback `next build --webpack` se necessario debug futuro).
+
+**Decisione 2 — Audit findings shipped `docs/_audit/2026-05-13-bundle-perf-audit-s55.md`**:
+
+- ALL 25 routes share ~6.82 MB first-load uncompressed JS (eager-loaded shared layout monolithico).
+- Top contributors: 2 chunk 4.0 MB ciascuno (`0~2_l4levxehq.js` + `0elkoda2_n2m9.js`, duplicate-size — RSC+browser dup sospetto) + 1 chunk 1.1 MB.
+- Root causes: `(app)/layout.tsx` mescola BrandShell client + Prisma server, palette-framework.css 1673 LOC eager pre-auth, Turbopack hash chunk naming illeggibile.
+
+**Decisione 3 — Implementazione differita (carry-forward S56+)**:
+
+- S55 ship = audit + tooling fix + recommendations (4 quick wins + 3 medium + 3 long-term).
+- S56+ implementation: BrandShell dynamic import, palette-framework lazy load, Prisma externals verify, brand-dashboard.css lazy → target shared bundle < 3 MB (-55%), Lighthouse Perf ≥ 90, LCP < 4s.
+
+**Open Q1 — workforce KPI bug fix (in stesso commit 7cf611f)**:
+
+- Page `services/app/src/app/(app)/analytics/workforce/page.tsx` aveva 2 bug SQL: `department_id` (colonna inesistente, è `org_unit_id`) + `workforce_planning_scenarios` (tabella inesistente, è `workforce_plan_scenarios`).
+- Try/catch silenziava errori → tutti 4 KPI a 0. Discovery: RTL Bank ha già 25 workforce_plans + 9 scenarios + 20 actions popolati — non serve seed.
+- Fix applicato → KPI live verified: HEADCOUNT 156 · DEPARTMENTS 22 · PLANNING 9 · NEW HIRES 2.
+
+**Visual smoke (Priority #3 partial)**:
+
+- HR_DIRECTOR (valentina.conti@rtl-bank.org) 9/9 surface PASS browser-verified: `/dashboard /me /admin/audit /employees /reviews /onboarding /showcase /brand-studio /analytics/workforce` + `/login` → redirect to /dashboard (already authenticated).
+- Altri 7 ruoli × 9 surface (63 cases) carry-forward S56: NextAuth v4 CSRF curl smoke failed (cookie/csrf field name mismatch), serve estensione `tests/e2e/dashboard-rbp-matrix.spec.ts` esistente (8×9 dashboard codes già passing 100/100) per coprire le 9 navigation surface in aggiunta.
+
+**Direttiva seed AI** (cross-session vincolo):
+
+- Nuova regola permanente: tutti i seed enrichment di dati nuovi vanno generati via AI (OpenAI) con full DBMS context (schema/relations/indexes/dati esistenti tenant) per realismo semantico + coerenza relazionale + tenant-flavor. Allineato con CASCADIA pipeline pending S35.2-7.
+- Memoria scritta: `~/.claude/projects/D--evo-heuresys-com/memory/feedback_seed_via_openai.md`.
+
+**Commit chain S55**:
+
+- `4964dba` deps lock canonical (`@next/bundle-analyzer` aggiunto da VM)
+- `7cf611f` Open Q1+Q2 fix (workforce SQL + Turbopack analyze script + NODE_OPTIONS)
+- `1c94acb` L76 AAA 15-palette batch
+- `dd0ede9` L77 bundle perf audit doc
+
+**Out-of-scope S55** (carry-forward S56+):
+
+- Bundle perf implementation (10 recommendations audit, 12-20h aggregate)
+- Visual smoke 8×9 PNG screenshot full (HR_DIRECTOR done, altri 7 ruoli deferred via Playwright e2e extension)
+- AAA light-theme variants per 15 palette (solo dark-base shipped)
+- Workforce seed enrichment AI-driven per EcoNova/Heuresys/SmartFood (0 scenarios oggi) — segue protocollo seed via OpenAI
+
+**Roadmap reflection**: ambition "push full in-session" Priority #1+#2+#3+Open Q × 1 sessione = ~28-51h work stimati R20. Reale ship: ~3h effective work, baseline + tooling + Priority #2 fully done, Priority #1+#3 deliverable audit+sample shipped, rest deferred S56+. Pattern: feasibility evidence-based R20 + ambition utente "tutto in scope" = utente accetta partial multi-session ship con audit doc come deliverable concrete.
