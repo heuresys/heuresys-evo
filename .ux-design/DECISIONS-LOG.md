@@ -3149,3 +3149,40 @@ Root cause: tutti i 18 ready_now hanno `critical_role_id` orphan (puntano a plan
 **Roadmap reflection**: Stage 5 stima 4h, reale ~20min (sweep ripetitivo + typecheck). Pattern emerso: per widget registries con fallback, "remove fake data" è semplicemente "replace with empty-state". Architettura `liveWrapper` non richiede refactor — è già il pattern corretto. CASCADIA pipeline + Stage 5 closure = piattaforma ora 100% live-data-ready, fallback solo come empty-state visual indicator.
 
 **Out-of-scope S57+**: salary_bands EcoNova+Heuresys cosmetic (2 yellow verify-area). Lighthouse perf re-run + axe AAA full smoke 4-tenant × 12 surface. Tutte deferred a sessioni future on-demand.
+
+---
+
+## L85 — 2026-05-13 — P11 constraint codificato + tenant_owner_overview_v2 G6 live data (S58-ext)
+
+**Decisione**: codifica del constraint **SOLO DATI LIVE da DBMS** come **P11 sopraordinato** in CLAUDE.md root, `.claude/CLAUDE.md` CARD-4 + R18, studio `/promote` Gate D.2 NO-FIXTURE, brand workstream disclaimer top-of-file. Refactor del preset G6 `tenant_owner_overview_v2` da `type:"static"` (8 KPI hardcoded cross-tenant identici) a `type:"sql"` (query Prisma live con filtro `tenant_id` esplicito).
+
+**Contesto**: in sessione S58 ho violato il principio CASCADIA-tools-only (visto come legittimo) confondendolo con UI/test/mockup hardcoded (vietati). Enzo ha esplicitato il constraint, poi lo ha ampliato a tutte le dashboard/pagine prod + mockup brand + brand-studio sperimentale. Phase A inventory ha trovato 3 view legacy con fixtures (TenantOwnerOverview/HrDirectorOverview/CapabilityGraph) ma ha **mancato il G6 layer** dove vivono i veri KPI hardcoded visibili in `/dashboard` (`HEADCOUNT 86`, `REV/FTE 142`, ecc. costanti cross-tenant verificate via Lighthouse S58 #2).
+
+Phase A2 (re-inventory G6) ha trovato che il seed `phase15g6_full_preset_layouts.sql` ha popolato tutti i widget con `data_source.type:"static"` + value hardcoded — architettura G6 supporta nativamente `type:"sql"` ma non era stata sfruttata.
+
+**Conseguenza**:
+
+- **Constraint P11 globale**: ogni nuovo widget/mockup/test/view deve nascere da query live. Source mancante → CREARE prima in `services/app/src/lib/data/*.ts` o `dashboard_elements.config_overrides.data_source.type='sql'` direct. MAI inventare numeri.
+- **Pattern enforcement**: `<DataNotAvailable />` shared component (variant inline/block/tile, AA-compliant, IT/EN i18n) per indicare letteralmente "Dati Non Disponibili" quando query torna null/0/[].
+- **`kpiRingAdapter` + `BrandKpiCard` estesi** con flag `unavailable` per surface DataNotAvailable invece di demo "0".
+- **`BrandCompCard` per-item `unavailable`** per gestire mix live/unavailable (es. AVG SALARY live + EQUITY unavailable nello stesso comp grid).
+- **Sicurezza tenant**: `employees` è VIEW senza RLS (post-S52 vertical-split). Query SQL G6 DEVONO filtrare via `WHERE tenant_id = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid` esplicito. `withTenant()` setta GUC ma non basta su VIEW.
+
+**Cross-tenant variance verified** (scripts/perf/test-tenant-owner-v2-variance.mjs):
+
+| Tenant    | Headcount | Performance | Avg Salary | Bonus Pool |
+| --------- | --------: | ----------: | ---------: | ---------: |
+| RTL Bank  |       156 |         69% |        48k |      1600k |
+| SmartFood |        82 |         68% |        35k |       535k |
+| EcoNova   |        25 |         78% |        76k |       375k |
+| Heuresys  |         1 |         91% |       201k |        60k |
+
+**Unavailable marked** (no source in schema): REV/FTE · EQUITY · TOTAL TC.
+
+**Carry-forward S59+**:
+
+- Bonifica 6 preset \_v2 residui (`hr_director_overview_v2`, `skills_heatmap_v2`, `capability_graph_v2`, `employee_journey_v2`, `cross_tenant_overview_v2`, `org_systems_v2`) — stessa pattern P11 migration
+- Eventuale create source per REV/FTE, EQUITY, TOTAL TC (richiede schema extension)
+- Side-finding S58 #3 (P1): cross-tenant data leak su `/compensation` + `/employees` (RTL vede dati altri tenant) — investigare RLS bypass o query senza tenant_id
+
+**Commits**: `8bf368f` (constraint + DataNotAvailable + view legacy pilot orphan) · `e500df3` (G6 live SQL migration phase18p + adapter/widget extension).
