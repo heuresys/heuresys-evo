@@ -17,11 +17,13 @@ A fine sessione, `/handoff` aggiorna `.handoff/STATE.md` + commit + push direct 
 
 **Policy audit/handoff (S61 reform, vedi `docs/_meta/operating-baseline.md` § CARD-5)**: audit doc chiude su findings effettivi; raccomandazioni adiacenti ("next steps", "quick wins", "recommendations") vivono SOLO in `.handoff/BACKLOG.md`, mai dentro audit/STATE. Distinzione semantica Debt vs Raccomandazioni è obbligatoria.
 
-## Brand workstream (active)
+## Brand workstream (cycle 2 — post-S62 reset 2026-05-13)
 
-Workstream parallelo per costruzione brand identity completa di Heuresys, segregato in [`.ux-design/`](.ux-design/) (escluso da build pipeline, niente import in production code).
+> **Cycle 2 protocol** — ADR-0032 charter. Cycle 1 (S22→S61, 10 giorni, 87 decisioni) archiviato in [`.ux-design-archive-2026-05-13/`](.ux-design-archive-2026-05-13/) come reference immutabile.
 
-**Trigger di attivazione**: se Enzo dice "lavoriamo sul brand", "ux-design", "logo", "palette", "tipografia", "dashboard design", "riprendiamo il design" — segui il protocollo in [`.ux-design/SESSION-RESUME.md`](.ux-design/SESSION-RESUME.md) prima di rispondere.
+Workstream parallelo per ridefinizione brand identity Heuresys, segregato in [`.ux-design/`](.ux-design/) (escluso da build pipeline, niente import in production code).
+
+**Trigger di attivazione**: se Enzo dice "lavoriamo sul brand", "ux-design", "logo", "palette", "tipografia", "dashboard design", "riprendiamo il design", "definiamo l'identity" — segui il protocollo cycle 2 in [`.claude/skills/brand-resume/SKILL.md`](.claude/skills/brand-resume/SKILL.md) prima di rispondere.
 
 **Attivazione esplicita** (3 modi ridondanti):
 
@@ -29,14 +31,17 @@ Workstream parallelo per costruzione brand identity completa di Heuresys, segreg
 - Skill `brand-resume` (vedi [`.claude/skills/brand-resume/SKILL.md`](.claude/skills/brand-resume/SKILL.md))
 - Trigger keyword detection via auto-memory `~/.claude/projects/D--evo-heuresys-com/memory/feedback_brand_workstream.md`
 
-| File                                                           | Scopo                                                                                                   |
-| -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| [`.ux-design/SESSION-RESUME.md`](.ux-design/SESSION-RESUME.md) | Protocollo 8-step per ripresa cross-session (skill + tools + http server + greeting)                    |
-| [`.ux-design/BRAND-STATE.md`](.ux-design/BRAND-STATE.md)       | SoT consolidato: phase corrente, decisioni stabilite, decisioni pending, asset inventory, setup tecnico |
-| [`.ux-design/DECISIONS-LOG.md`](.ux-design/DECISIONS-LOG.md)   | Log cronologico append-only di tutte le decisioni (con superseduture esplicite)                         |
-| [`.ux-design/README.md`](.ux-design/README.md)                 | Policy segregazione + struttura directory                                                               |
+| File                                                               | Scopo                                                                                                                                                                            |
+| ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`.ux-design/README.md`](.ux-design/README.md)                     | Policy segregazione cycle 2 + protocollo migration                                                                                                                               |
+| [`.ux-design/SESSION-RESUME.md`](.ux-design/SESSION-RESUME.md)     | Protocollo 4-step cycle 2 (semplificato vs 8-step cycle 1)                                                                                                                       |
+| [`.ux-design/BRAND-STATE.md`](.ux-design/BRAND-STATE.md)           | SoT consolidato cycle 2: phase corrente, canonical SoT attivi, decisioni pending                                                                                                 |
+| [`.ux-design/DECISIONS-LOG-v2.md`](.ux-design/DECISIONS-LOG-v2.md) | Log append-only cycle 2 (L1-LN). Migration selettiva da cycle 1 documentata in [`04-promotion/decision-migration-audit.md`](.ux-design/04-promotion/decision-migration-audit.md) |
+| [`.ux-design/01-canonical/`](.ux-design/01-canonical/)             | SoT vincolanti cycle 2 (semantically versioned, NON append-only)                                                                                                                 |
 
-**Phase corrente** (verifica sempre in `BRAND-STATE.md` per stato aggiornato): Phase 4 aesthetic direction in re-exploration (8 direzioni esposte α-θ, scelta finale pending).
+**Phase corrente cycle 2**: Phase 1 — assessment iniziale post-reset. Nessuna canonical decision ancora firmata. Archive cycle 1 disponibile come materia prima su richiesta esplicita.
+
+**Reference archive cycle 1**: [`.ux-design-archive-2026-05-13/_ARCHIVED-IMMUTABLE.md`](.ux-design-archive-2026-05-13/_ARCHIVED-IMMUTABLE.md) (read-only, 1027 file, 87 DECISIONS-LOG entry, 32 direzioni Set 1-4 scartate, 5 mockup dashboard canonici, brand book v0, asset DB SQLite 346 entry).
 
 ## Studio workstream (active)
 
@@ -246,7 +251,7 @@ VM: `oracle-vm-default` (IP 80.225.82.207). nginx vhosts in `/etc/nginx/sites-av
 
 **Vincolo "estirpazione clean"**: ogni entry in `Test Stage`/`PreOp Stage` DEVE essere rimovibile dal repo evo SENZA conseguenze su stack/oggetti pre-import. Categorie removability tracciate nel CSV (`no-impact`, `embedded-in-existing-file`, `depends-on-X`, `not-yet-used`, `depends-on-DB-seed`).
 
-## Sistema corrente (snapshot 2026-05-13 · post-S60+L87)
+## Sistema corrente (snapshot 2026-05-13 · post-S62 brand reset)
 
 > Per cronologia sprint shipped (Phase 14 → S60): [`docs/_meta/sprint-history.md`](docs/_meta/sprint-history.md).
 > Per session brief: [`.handoff/STATE.md`](.handoff/STATE.md).
@@ -291,7 +296,8 @@ VM: `oracle-vm-default` (IP 80.225.82.207). nginx vhosts in `/etc/nginx/sites-av
 - packages/ui: ~180 component, Storybook 9 (84 stories), GH Pages
 - npm audit: 0 vulnerabilities · Repo visibility: PUBLIC · Branch protection rimossa · CI minimal
 - Schema docs: Diátaxis numbered + meta (`docs/_meta`, `10-strategy`, `20-architecture`, `30-developer`, `40-operations`, `50-reference`, `70-planning`, `90-archive`)
-- Catalog DB asset showcase: 346 assets · 138 promoted · 81 body distribuiti su 11 dashboardCode `*_v2` (`.ux-design/09-asset-showcase/`, gitignored)
+- Catalog DB asset showcase: archiviato cycle 1 post-S62 reset (1027 file totali in `.ux-design-archive-2026-05-13/`, incluso `09-asset-showcase/` SQLite 346 asset). Cycle 2 in `.ux-design/` (scaffold vuoto, vedi `.ux-design/README.md`)
+- Brand workstream cycle 2 post-S62 (ADR-0032): production CSS consolidato — `services/app/src/styles/tokens-foundation.css` (foundation tokens palette-agnostic) + `theme-framework/palette-core.css` (root fallback) + `palette-variants.css` (17 palette runtime switchable, lazy-loaded da `(app)/`) + `active-theme.css` stub (brand-studio write target) + `dashboard-brand.css` + `motion.css`. Runtime palette switching feature attiva preservata (DashboardPaletteApplier + PaletteSwitcher + brand-studio). Skill `/studio2:*` (4 sub-comandi, 3-gate) sostituisce `/studio:*` (DEPRECATED)
 
 ## Roadmap successiva
 
@@ -301,7 +307,8 @@ VM: `oracle-vm-default` (IP 80.225.82.207). nginx vhosts in `/etc/nginx/sites-av
 4. ~~**WCAG 2.2 AAA full audit**~~ ✅ **AA SHIPPED S53** (L66) · 4 real violations chiuse via `6675f90` (sidebar button semantic + main tabIndex + pill contrast). AAA enhanced contrast 4 nodi residui carry-forward S54+ (palette token rebalance).
 5. ~~**Production build perf bench**~~ ✅ **PARTIAL S53** (L67) · Lighthouse `/login` 3/4 categories ≥ 90 (a11y/bp/seo 100). Perf 58 (LCP 12.5s, 8.3s unused JS) carry-forward S54+ (~12-20h bundle analyzer + code splitting). Backend ref: S48 G6 P95 705ms < 1000ms.
 6. ~~**API gateway cross-service JWT fix**~~ — ✅ già shipped commit `9f7a283` (decode v4 cookies via jose+HKDF, bifurcation in `middleware/auth.ts`, 11/11 test green). Lo "pending" pre-S25 era documentazione obsoleta
-7. **Brand v1.0 promotion** (~16-25h, 2-3 sessioni) — pre-flight checks per 8 categorie asset · ref: `.ux-design/08-promotion/v1.0-checklist.md`
+7. ~~**Brand v1.0 promotion**~~ ✅ **CHIUSA cycle 1** (14/14 ✅ in `.ux-design-archive-2026-05-13/08-promotion/v1.0-checklist.md`) · workstream archiviato post-S62 reset 2026-05-13 (ADR-0032). Cycle 2 in `.ux-design/` (bootstrap fresh).
+8. **Cycle 2 brand identity definition** (S63+, durata indefinita) — assessment iniziale post-reset, ricostruzione canonical decision in `.ux-design/01-canonical/`, firma L-NN cycle 2 in `.ux-design/DECISIONS-LOG-v2.md` quando l'utente lo richiede. Vedi `.ux-design/BRAND-STATE.md` per phase corrente cycle 2.
 
 Backup track parallel: cron daily/weekly/monthly · off-site Oracle bucket · restore drill mensile · `docs/40-operations/dbms-backup-restore.md` (scaffolded).
 

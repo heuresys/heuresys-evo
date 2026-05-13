@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>μ-architect — Data-Dense Temperata · Systems POV · LEGACY PALETTE — heuresys</title>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  /*
+    μ-architect variant — Systems Architect POV
+    "Tokens, scale, governance, propagation. Hates one-off components."
+    Differentiators:
+    - Token visualizer surfaces (every surface labelled with its token name)
+    - Governance schema panel (RBAC + scope rules)
+    - Spacing scale visualizer (4px grid revealed)
+    - Mono dominant for ALL data, including labels
+    - Accent: Linear "brand-secure" pure #5e69d1 (locked, single, semantic)
+  */
+
+  /* DARK (default) */
+  :root {
+    --bg: #0a0a10;
+    --surface-1: #131320;
+    --surface-2: #1a1a2a;
+    --surface-3: #22223a;
+    --ink: #f5f6fa;
+    --ink-soft: #c8ccd6;
+    --ink-muted: #8a8e9b;
+    --ink-tertiary: #5e616c;
+    --rule: #25262d;
+    --rule-strong: #383944;
+    --accent: #5e69d1;
+    --accent-hover: #7280e0;
+    --accent-soft: #1e1f3a;
+    --token-label: #a4ffba;
+    --semantic-success: #5fb87a;
+    --semantic-warning: #d4a017;
+  }
+  /* LIGHT */
+  [data-theme="light"] {
+    --bg: #f7f8fb;
+    --surface-1: #ffffff;
+    --surface-2: #f0f1f6;
+    --surface-3: #e6e8f0;
+    --ink: #0a0a10;
+    --ink-soft: #2a2c34;
+    --ink-muted: #6a6c75;
+    --ink-tertiary: #9ea0a8;
+    --rule: #d8dae0;
+    --rule-strong: #b6b9c2;
+    --accent: #4954c4;
+    --accent-hover: #3d47b0;
+    --accent-soft: #e8eaf8;
+    --token-label: #1a8e3e;
+    --semantic-success: #2da147;
+    --semantic-warning: #b8860b;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
+    transition: background 0.15s linear, color 0.15s linear;
+    font-feature-settings: 'tnum' 1;
+  }
+
+  .nav-bar {
+    background: var(--surface-1);
+    border-bottom: 1px solid var(--rule);
+    padding: 12px 24px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .header-back { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink); text-decoration: none; }
+  .label { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink); font-weight: 600; }
+  .label-pov { background: var(--accent); color: #ffffff; padding: 2px 8px; border-radius: 2px; }
+  .theme-toggle {
+    background: transparent; border: 1px solid var(--ink); color: var(--ink);
+    padding: 6px 12px; font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    cursor: pointer; text-transform: uppercase; letter-spacing: 1px; border-radius: 4px;
+  }
+  .theme-toggle:hover { background: var(--ink); color: var(--bg); }
+
+  /* Wordmark canonical L16 */
+  .wordmark {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    letter-spacing: -0.6px;
+    color: var(--ink);
+  }
+  .wordmark .y { color: var(--accent); font-weight: 500; /* L18: no italic per sans-serif */ }
+
+  /* App shell */
+  .app { display: grid; grid-template-columns: 220px 1fr; min-height: calc(100vh - 49px); }
+
+  .sidebar { background: var(--surface-1); border-right: 1px solid var(--rule); padding: 16px; }
+  .sidebar-section { margin-bottom: 24px; }
+  .sidebar-section h4 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--ink-tertiary);
+    padding: 8px 12px;
+    margin-bottom: 4px;
+  }
+  .sidebar-link {
+    display: flex; align-items: center; gap: 10px;
+    padding: 6px 12px;
+    font-size: 13px;
+    color: var(--ink-soft);
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .sidebar-link:hover { background: var(--surface-2); color: var(--ink); }
+  .sidebar-link.active { background: var(--surface-3); color: var(--ink); }
+  .sidebar-link .num { margin-left: auto; color: var(--ink-muted); font-size: 10px; }
+
+  /* Token tag — Architect signature */
+  .token-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--token-label);
+    background: var(--accent-soft);
+    padding: 1px 5px;
+    border-radius: 2px;
+    letter-spacing: 0.5px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+
+  .workspace { padding: 32px; }
+  .ws-header {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding-bottom: 16px; border-bottom: 1px solid var(--rule);
+    margin-bottom: 32px;
+  }
+  .ws-header h1 {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 24px;
+    letter-spacing: -0.6px;
+    line-height: 1;
+    color: var(--ink);
+  }
+  .ws-header .breadcrumb { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 6px; }
+
+  /* Grid lines visualizer (4px reveal) */
+  .grid-reveal {
+    background: var(--surface-1);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 24px;
+    margin-bottom: 24px;
+    background-image:
+      linear-gradient(to right, var(--rule) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--rule) 1px, transparent 1px);
+    background-size: 4px 4px;
+  }
+  .grid-reveal h2 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 12px;
+  }
+  .grid-reveal p {
+    font-size: 14px; color: var(--ink); max-width: 560px;
+    background: var(--surface-1); display: inline-block; padding: 4px 8px;
+  }
+  .grid-reveal p strong { color: var(--accent); font-weight: 600; }
+
+  /* Token surfaces visualizer */
+  .token-surfaces {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 0;
+    border: 1px solid var(--rule); border-radius: 6px;
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .surface-cell {
+    padding: 24px;
+    border-right: 1px solid var(--rule);
+    position: relative;
+  }
+  .surface-cell:last-child { border-right: 0; }
+  .surface-cell.s1 { background: var(--surface-1); }
+  .surface-cell.s2 { background: var(--surface-2); }
+  .surface-cell.s3 { background: var(--surface-3); }
+  .surface-cell .tok-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--token-label);
+    margin-bottom: 8px;
+  }
+  .surface-cell .tok-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+  .surface-cell .tok-desc { font-size: 11px; color: var(--ink-muted); }
+
+  /* Token table — accent derivation */
+  .accent-table {
+    background: var(--surface-1);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .at-head {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--rule);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .at-head h3 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .at-head .badge { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--token-label); }
+  table.token-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+  }
+  table.token-table th {
+    text-align: left;
+    padding: 8px 16px;
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    font-weight: 600;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--rule);
+  }
+  table.token-table td {
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--rule);
+    color: var(--ink);
+  }
+  table.token-table td .swatch { display: inline-block; width: 20px; height: 14px; vertical-align: middle; margin-right: 8px; border-radius: 2px; border: 1px solid var(--rule); }
+  table.token-table td .role { color: var(--token-label); }
+  table.token-table tr:last-child td { border-bottom: 0; }
+
+  /* RBAC governance schema */
+  .rbac-schema {
+    background: var(--surface-1);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  .rbac-schema h3 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--ink-soft); margin-bottom: 16px;
+    border-bottom: 1px solid var(--rule); padding-bottom: 10px;
+  }
+  .rbac-row {
+    display: grid; grid-template-columns: 180px 1fr 80px;
+    gap: 16px; padding: 8px 0;
+    border-bottom: 1px solid var(--rule);
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    align-items: center;
+  }
+  .rbac-row:last-child { border-bottom: 0; }
+  .rbac-row .role { color: var(--accent); }
+  .rbac-row .scope { color: var(--ink); }
+  .rbac-row .level { color: var(--token-label); text-align: right; }
+
+  /* Footer */
+  .footer {
+    margin-top: 32px;
+    padding: 24px 32px;
+    border-top: 1px solid var(--rule);
+    background: var(--surface-1);
+    grid-column: 1 / -1;
+    display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 24px;
+  }
+  .footer .col strong { display: block; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; color: var(--ink-muted); }
+  .footer .col p { font-size: 13px; line-height: 1.5; color: var(--ink-soft); }
+  .footer-meta {
+    grid-column: 1 / -1; padding-top: 16px;
+    border-top: 1px solid var(--rule);
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    color: var(--ink-muted); text-transform: uppercase; letter-spacing: 1.5px;
+    display: flex; justify-content: space-between;
+  }
+</style>
+<link rel="stylesheet" href="legacy-palette.css" />
+</head>
+<body>
+
+<nav class="nav-bar">
+  <a href="index.html" class="header-back">← 16 Direzioni</a>
+  <span class="label">μ-architect · <span class="label-pov">Systems POV — tokens, scale, governance</span></span>
+  <button class="theme-toggle" onclick="toggleTheme()">◐ Light/Dark</button>
+</nav>
+
+<div class="app">
+  <aside class="sidebar">
+    <div style="padding: 8px 12px 16px;">
+      <div class="wordmark">heures<span class="y">y</span>s</div>
+    </div>
+
+    <div class="sidebar-section">
+      <h4>Token explorer</h4>
+      <div class="sidebar-link active">surface tokens<span class="num">12</span></div>
+      <div class="sidebar-link">color tokens<span class="num">24</span></div>
+      <div class="sidebar-link">spacing scale<span class="num">8</span></div>
+      <div class="sidebar-link">type scale<span class="num">7</span></div>
+      <div class="sidebar-link">radii<span class="num">4</span></div>
+    </div>
+
+    <div class="sidebar-section">
+      <h4>Governance</h4>
+      <div class="sidebar-link">RBAC roles<span class="num">8</span></div>
+      <div class="sidebar-link">Functional areas<span class="num">33</span></div>
+      <div class="sidebar-link">RLS policies<span class="num">605</span></div>
+      <div class="sidebar-link">Audit log<span class="num">live</span></div>
+    </div>
+
+    <div class="sidebar-section">
+      <h4>System</h4>
+      <div class="sidebar-link">Schema (566)<span class="num">prod</span></div>
+      <div class="sidebar-link">Tenants<span class="num">4</span></div>
+      <div class="sidebar-link">Migrations<span class="num">42</span></div>
+    </div>
+  </aside>
+
+  <main class="workspace">
+    <div class="ws-header">
+      <div>
+        <div class="breadcrumb">μ-architect · Systems POV · Token surfaces</div>
+        <h1>Design token explorer</h1>
+      </div>
+      <div style="text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-muted); letter-spacing: 1.5px;">
+        ENVIRONMENT · <span style="color: var(--accent);">PRODUCTION</span><br />
+        SCOPE · TENANT-AGNOSTIC
+      </div>
+    </div>
+
+    <!-- Spacing grid reveal -->
+    <div class="grid-reveal">
+      <h2>Spacing scale · 4px base</h2>
+      <p><strong>Architect view</strong>: la grid 4px è la verità del design system. Ogni surface, gap, padding e radius DEVE essere multiplo di 4. Se non lo è, è un one-off da estirpare.</p>
+    </div>
+
+    <!-- Surface tokens visualizer -->
+    <div class="token-surfaces">
+      <div class="surface-cell s1">
+        <div class="tok-name">--surface-1</div>
+        <div class="tok-val">light: #ffffff<br />dark: #131320</div>
+        <div class="tok-desc">Card, panel, primary container. Default content surface.</div>
+      </div>
+      <div class="surface-cell s2">
+        <div class="tok-name">--surface-2</div>
+        <div class="tok-val">light: #f0f1f6<br />dark: #1a1a2a</div>
+        <div class="tok-desc">Hover state, inactive table header, subtle elevation.</div>
+      </div>
+      <div class="surface-cell s3">
+        <div class="tok-name">--surface-3</div>
+        <div class="tok-val">light: #e6e8f0<br />dark: #22223a</div>
+        <div class="tok-desc">Selected state, active filter, input focus background.</div>
+      </div>
+    </div>
+
+    <!-- Accent derivation table -->
+    <div class="accent-table">
+      <div class="at-head">
+        <h3>Accent token derivation chain</h3>
+        <span class="badge">L16 logo standard compliant</span>
+      </div>
+      <table class="token-table">
+        <thead>
+          <tr><th>Token</th><th>Light value</th><th>Dark value</th><th>Role</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><span class="swatch" style="background: var(--accent);"></span>--accent</td><td>#4954c4</td><td>#5e69d1</td><td><span class="role">primary action color</span></td></tr>
+          <tr><td><span class="swatch" style="background: var(--accent-hover);"></span>--accent-hover</td><td>#3d47b0</td><td>#7280e0</td><td><span class="role">hover state derived</span></td></tr>
+          <tr><td><span class="swatch" style="background: var(--accent-soft);"></span>--accent-soft</td><td>#e8eaf8</td><td>#1e1f3a</td><td><span class="role">badge bg, focus ring</span></td></tr>
+          <tr><td><span class="swatch" style="background: var(--semantic-success);"></span>--semantic-success</td><td>#2da147</td><td>#5fb87a</td><td><span class="role">positive delta only</span></td></tr>
+          <tr><td><span class="swatch" style="background: var(--semantic-warning);"></span>--semantic-warning</td><td>#b8860b</td><td>#d4a017</td><td><span class="role">caution, decline</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- RBAC schema -->
+    <div class="rbac-schema">
+      <h3>RBAC governance · functional areas matrix</h3>
+      <div class="rbac-row"><span class="role">SUPERUSER (-1)</span><span class="scope">all 33 functional areas · all tenants · all CRUD</span><span class="level">grant: 100%</span></div>
+      <div class="rbac-row"><span class="role">TENANT_OWNER (0)</span><span class="scope">all 33 areas · own tenant · all CRUD</span><span class="level">grant: 95%</span></div>
+      <div class="rbac-row"><span class="role">IT_ADMIN (1)</span><span class="scope">system + auth + integrations · own tenant</span><span class="level">grant: 60%</span></div>
+      <div class="rbac-row"><span class="role">HR_DIRECTOR (2)</span><span class="scope">talent + capability + review + comp</span><span class="level">grant: 80%</span></div>
+      <div class="rbac-row"><span class="role">HR_MANAGER (3)</span><span class="scope">talent + review (own dept)</span><span class="level">grant: 40%</span></div>
+      <div class="rbac-row"><span class="role">DEPT_HEAD (4)</span><span class="scope">team capability · view ESCO</span><span class="level">grant: 25%</span></div>
+      <div class="rbac-row"><span class="role">LINE_MANAGER (5)</span><span class="scope">team review (own reports)</span><span class="level">grant: 15%</span></div>
+      <div class="rbac-row"><span class="role">EMPLOYEE (6)</span><span class="scope">own profile · own ESCO mapping</span><span class="level">grant: 5%</span></div>
+    </div>
+  </main>
+
+  <div class="footer">
+    <div class="col">
+      <div class="wordmark" style="font-size: 28px;">heures<span class="y">y</span>s</div>
+      <p style="margin-top: 12px;"><strong style="color: var(--ink); font-family: 'JetBrains Mono', monospace; font-size: 12px;">μ-architect</strong> · Systems POV. Tokens visible. Governance auditable. Scope enforced. Every surface labelled with its token name.</p>
+    </div>
+    <div class="col"><strong>Architect believes</strong><p>Tokens, scale, governance. Speaks in trade-offs. Hates one-off components.</p></div>
+    <div class="col"><strong>Reference</strong><p>Stripe design system<br />Shopify Polaris<br />Atlassian DSP</p></div>
+    <div class="col"><strong>Critique source</strong><p><a href="mu-data-dense-temperata.critique.md" style="color: var(--ink); text-decoration: underline;">mu critique.md</a></p></div>
+    <div class="footer-meta">
+      <span>© 2026 HEURESYS · μ-ARCHITECT VARIANT · DATA-DENSE TEMPERATA · SYSTEMS POV</span>
+      <span>L16 LOGO STANDARD · ANTI-SLOP COMPLIANT · TOKEN-LABELED</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  const t = localStorage.getItem('heuresys-theme');
+  if (t) document.documentElement.setAttribute('data-theme', t);
+  function toggleTheme() {
+    const cur = document.documentElement.getAttribute('data-theme') || 'dark';
+    const next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('heuresys-theme', next);
+  }
+</script>
+
+</body>
+</html>

@@ -1,7 +1,0 @@
-# Studio staging — workspace iterativo
-
-Cartella popolata da `/studio:clone <route>` con copie di route Next.js per manipolazione safe (NO impatto produzione).
-
-Struttura: `<route>/<YYYY-MM-DD-HHMM>/` con `page.tsx` + `_components/` + `README.md` + `.source-hashes.json` + `.external-deps.txt`.
-
-Vedi `.claude/skills/studio/SKILL.md` per workflow completo clone↔manipola↔promote.

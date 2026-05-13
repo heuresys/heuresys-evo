@@ -28,8 +28,9 @@
 
 ## Brand
 
-- **Brand v1.0 promotion** (~16-25h, 2-3 sessioni) — pre-flight checks per 8 categorie asset. Ref `.ux-design/08-promotion/v1.0-checklist.md`.
 - **WCAG AAA enhanced contrast** carry S54+ (4 nodi residui) — palette token rebalance, non-blocking, già AA shipped.
+- **Brand-studio v2 refactor** (cycle 2) — `services/app/src/app/brand-studio/actions.ts` scrive ancora `active-theme.css` (stub post-S62). Refactor target a `tokens-foundation.css` + audit token system gestiti dal wizard. Dipende da decisioni canonical L-NN cycle 2 ancora da firmare.
+- **Brand v1.0 cycle 1 promotion checklist** — archived in `.ux-design-archive-2026-05-13/08-promotion/v1.0-checklist.md`. NON è cycle 2 work item, è reference storico (rimosso da BACKLOG attivo).
 
 ## Tooling
 

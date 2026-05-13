@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>κ — Quantitative FT Tempered · LEGACY PALETTE — heuresys</title>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  /* LIGHT — FT salmon TEMPERED (less urgency, more enterprise tooling) */
+  :root {
+    --bg: #fbf7f2;            /* warm cream, lighter than FT salmon */
+    --surface: #ffffff;
+    --surface-2: #f5efe8;
+    --ink: #0a1628;            /* deep navy primary */
+    --ink-soft: #364457;
+    --ink-muted: #6e7986;
+    --rule: #d8d0c4;
+    --rule-strong: #0a1628;
+    --accent: #b8395a;         /* muted rose, NOT salmon urgency */
+    --accent-soft: #f0d8e0;
+    --accent-deep: #8c2540;
+  }
+  /* DARK — PostHog enterprise tooling mood */
+  [data-theme="dark"] {
+    --bg: #0d1018;
+    --surface: #161a26;
+    --surface-2: #1f2433;
+    --ink: #e8eaf0;
+    --ink-soft: #b8bdc9;
+    --ink-muted: #7a8190;
+    --rule: #2c3243;
+    --rule-strong: #5a6478;
+    --accent: #d8627e;
+    --accent-soft: #3a1a25;
+    --accent-deep: #f48fa6;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.6;
+    transition: background 0.15s linear, color 0.15s linear;
+    font-feature-settings: 'tnum' 1;
+  }
+
+  .nav-bar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--rule-strong);
+    padding: 14px 32px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .header-back { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink); text-decoration: none; }
+  .label { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink); font-weight: 600; }
+  .label-rose { background: var(--accent); color: #ffffff; padding: 2px 8px; }
+  .theme-toggle {
+    background: transparent; border: 1px solid var(--ink);
+    color: var(--ink); padding: 6px 12px;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; cursor: pointer;
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+  .theme-toggle:hover { background: var(--ink); color: var(--bg); }
+
+  .page { max-width: 1280px; margin: 0 auto; padding: 64px 48px 96px; }
+
+  /* Masthead — FT-grade newspaper */
+  .masthead {
+    border-top: 4px solid var(--rule-strong);
+    border-bottom: 1px solid var(--rule);
+    padding: 24px 0 16px;
+    margin-bottom: 48px;
+    display: flex; justify-content: space-between; align-items: baseline;
+  }
+  .masthead-title {
+    font-family: 'Source Serif 4', serif;
+    font-weight: 700;
+    font-size: 36px;
+    letter-spacing: -1px;
+    line-height: 1;
+  }
+  .masthead-title .em { color: var(--accent); font-style: italic; font-weight: 400; }
+  .masthead-meta { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-muted); }
+
+  /* Hero — editorial column */
+  .hero { display: grid; grid-template-columns: 5fr 4fr; gap: 64px; align-items: start; padding: 32px 0; border-bottom: 1px solid var(--rule); }
+  .hero-text h1 {
+    font-family: 'Source Serif 4', serif;
+    font-weight: 600;
+    font-size: 56px;
+    line-height: 1.1;
+    letter-spacing: -1.5px;
+    margin-bottom: 24px;
+    color: var(--ink);
+  }
+  .hero-text h1 .em { color: var(--accent-deep); font-style: italic; font-weight: 400; }
+  [data-theme="dark"] .hero-text h1 .em { color: var(--accent-deep); }
+  .hero-text .deck {
+    font-family: 'Source Serif 4', serif;
+    font-size: 21px;
+    line-height: 1.5;
+    color: var(--ink-soft);
+    margin-bottom: 24px;
+    font-style: italic;
+    font-weight: 400;
+  }
+  .hero-text .body {
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--ink);
+    column-count: 1;
+    column-gap: 32px;
+  }
+  .hero-text .body strong { color: var(--ink); font-weight: 600; }
+  .hero-text .byline {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--ink-muted);
+    border-top: 1px solid var(--rule);
+    padding-top: 12px; margin-top: 24px;
+  }
+
+  /* Hero data sidebar */
+  .hero-data { background: var(--surface); border: 1px solid var(--rule-strong); padding: 24px; }
+  .hero-data h3 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--ink);
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 8px;
+    margin-bottom: 16px;
+  }
+  .data-row {
+    display: grid; grid-template-columns: 1fr auto;
+    padding: 10px 0; border-bottom: 1px solid var(--rule);
+    align-items: baseline;
+  }
+  .data-row:last-child { border-bottom: 0; }
+  .data-row .lab { font-size: 13px; color: var(--ink-soft); }
+  .data-row .val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px; font-weight: 600;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .data-row .val.up { color: var(--accent-deep); }
+  [data-theme="dark"] .data-row .val.up { color: var(--accent-deep); }
+
+  /* Palette + Typography sections */
+  .section { margin-top: 48px; padding: 32px; background: var(--surface); border: 1px solid var(--rule-strong); }
+  .section h2 {
+    font-family: 'Source Serif 4', serif;
+    font-weight: 600;
+    font-size: 28px;
+    letter-spacing: -0.5px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 12px;
+  }
+  .section h2 .em { color: var(--accent); font-style: italic; font-weight: 400; }
+
+  .palette-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; }
+  .palette-cell { border: 1px solid var(--rule); padding: 12px; font-family: 'JetBrains Mono', monospace; font-size: 10px; }
+  .palette-cell .swatch { width: 100%; height: 64px; margin-bottom: 8px; border: 1px solid var(--rule); }
+  .palette-cell .name { color: var(--ink); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+  .palette-cell .hex { color: var(--ink-muted); font-size: 11px; margin-top: 2px; }
+
+  .typo-row { display: grid; grid-template-columns: 100px 1fr; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--rule); align-items: baseline; }
+  .typo-row:last-child { border-bottom: 0; }
+  .typo-row .meta { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 1.5px; }
+  .typo-h-xl { font-family: 'Source Serif 4', serif; font-size: 56px; font-weight: 700; letter-spacing: -1.5px; line-height: 1; }
+  .typo-h-l { font-family: 'Source Serif 4', serif; font-size: 36px; font-weight: 600; letter-spacing: -1px; }
+  .typo-deck { font-family: 'Source Serif 4', serif; font-size: 21px; font-weight: 400; font-style: italic; }
+  .typo-body { font-size: 16px; line-height: 1.7; }
+  .typo-mono { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  /* Mini dashboard */
+  .dashboard-section { margin-top: 32px; background: var(--surface); border: 1px solid var(--rule-strong); }
+  .dashboard-section .dash-head {
+    padding: 16px 24px; border-bottom: 1px solid var(--rule);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .dashboard-section .dash-head h2 { font-family: 'Source Serif 4', serif; font-weight: 600; font-size: 24px; letter-spacing: -0.5px; }
+  .dashboard-section .dash-head .badge { background: var(--accent-soft); color: var(--accent-deep); padding: 4px 10px; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; }
+  .dashboard-grid { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--rule); }
+  .kpi-cell { padding: 24px; border-right: 1px solid var(--rule); }
+  .kpi-cell:last-child { border-right: 0; }
+  .kpi-cell .kpi-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 1.5px; }
+  .kpi-cell .kpi-num { font-family: 'Source Serif 4', serif; font-weight: 700; font-size: 36px; letter-spacing: -1px; line-height: 1; margin: 8px 0 4px; font-variant-numeric: tabular-nums; }
+  .kpi-cell .kpi-num .delta { color: var(--accent-deep); font-size: 14px; font-weight: 400; font-style: italic; margin-left: 8px; }
+  .kpi-cell .kpi-sub { font-size: 12px; color: var(--ink-muted); }
+
+  /* Footer */
+  .footer { margin-top: 64px; padding: 24px 0; border-top: 4px solid var(--rule-strong); display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 24px; }
+  .footer .col strong { display: block; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 8px; color: var(--ink-muted); }
+  .footer .col p { font-size: 13px; color: var(--ink); }
+  .footer-meta { grid-column: 1 / -1; padding-top: 16px; border-top: 1px solid var(--rule); font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 1.5px; display: flex; justify-content: space-between; }
+</style>
+<link rel="stylesheet" href="legacy-palette.css" />
+</head>
+<body data-theme="light">
+
+<nav class="nav-bar">
+  <a href="index.html" class="header-back">← 12 Direzioni</a>
+  <span class="label">κ · <span class="label-rose">Quantitative FT Tempered</span></span>
+  <button class="theme-toggle" onclick="toggleTheme()">◐ Light/Dark</button>
+</nav>
+
+<div class="page">
+
+  <div class="masthead">
+    <div>
+      <div class="masthead-title">heures<span class="em">y</span>s</div>
+      <div class="masthead-meta">CAPABILITY OPERATING SYSTEM · ESTABLISHED 2026</div>
+    </div>
+    <div class="masthead-meta" style="text-align: right;">
+      VOL. I · ISSUE 01<br />
+      MILANO · TUESDAY 5 MAY 2026
+    </div>
+  </div>
+
+  <div class="hero">
+    <div class="hero-text">
+      <h1>SAP manages how the company runs.<br /><span class="em">heuresys</span> manages the company's <span class="em">ability</span> to run.</h1>
+      <p class="deck">Capability come costrutto governato. Cinque dimensioni in un grafo semantico ESCO bilingue. Decisioni diverse, non report più belli.</p>
+      <div class="body">
+        <p>Il software ERP traccia <strong>cosa</strong> accade. Il software HR traccia <strong>chi</strong>. Il software BI traccia <strong>quanti</strong>. heuresys traccia la <strong>capability</strong> — la capacità misurabile dell'organizzazione di fare ciò che dichiara di voler fare.</p>
+      </div>
+      <div class="byline">DIRECTION κ · QUANTITATIVE FT TEMPERED · FAMILY DATA-DENSE PRO · BALANCE 65T / 35C</div>
+    </div>
+    <aside class="hero-data">
+      <h3>Sistema · in cifre</h3>
+      <div class="data-row"><span class="lab">Database tables</span><span class="val">531+</span></div>
+      <div class="data-row"><span class="lab">KG entities</span><span class="val">17.024</span></div>
+      <div class="data-row"><span class="lab">Skills bilingue</span><span class="val">14.011</span></div>
+      <div class="data-row"><span class="lab">NACE/ATECO</span><span class="val">3.276</span></div>
+      <div class="data-row"><span class="lab">Crosswalk relations</span><span class="val up">126.348 ↑</span></div>
+      <div class="data-row"><span class="lab">RLS policies</span><span class="val">605</span></div>
+    </aside>
+  </div>
+
+  <!-- Palette -->
+  <div class="section">
+    <h2>Palette · cream + navy + <span class="em">muted rose</span></h2>
+    <div class="palette-grid">
+      <div class="palette-cell"><div class="swatch" style="background: var(--bg);"></div><div class="name">bg</div><div class="hex">light: #fbf7f2 / dark: #0d1018</div></div>
+      <div class="palette-cell"><div class="swatch" style="background: var(--surface);"></div><div class="name">surface</div><div class="hex">light: #ffffff / dark: #161a26</div></div>
+      <div class="palette-cell"><div class="swatch" style="background: var(--surface-2);"></div><div class="name">surface-2</div><div class="hex">light: #f5efe8 / dark: #1f2433</div></div>
+      <div class="palette-cell"><div class="swatch" style="background: var(--ink);"></div><div class="name">ink</div><div class="hex">light: #0a1628 / dark: #e8eaf0</div></div>
+      <div class="palette-cell"><div class="swatch" style="background: var(--accent);"></div><div class="name">accent</div><div class="hex">light: #b8395a / dark: #d8627e</div></div>
+      <div class="palette-cell"><div class="swatch" style="background: var(--rule-strong);"></div><div class="name">rule-strong</div><div class="hex">light: #0a1628 / dark: #5a6478</div></div>
+    </div>
+  </div>
+
+  <!-- Typography -->
+  <div class="section">
+    <h2>Typography · <span class="em">Source Serif 4</span> + Inter + JetBrains Mono</h2>
+    <div class="typo-row"><span class="meta">H1 — 56/700</span><span class="typo-h-xl">heuresys</span></div>
+    <div class="typo-row"><span class="meta">H2 — 36/600</span><span class="typo-h-l">Capability operating system</span></div>
+    <div class="typo-row"><span class="meta">Deck — 21/400 it</span><span class="typo-deck">Layer ontologico tra ERP, HR, BI.</span></div>
+    <div class="typo-row"><span class="meta">Body — 16/400</span><span class="typo-body">Editorial rhythm, generous leading. Source Serif anchors the brand voice as serious-enterprise + literary, distinguendolo da generic SaaS sans-only.</span></div>
+    <div class="typo-row"><span class="meta">Mono num</span><span class="typo-mono">14.011 · 17.024 · 126.348 · 3.276 · D-001..D-005</span></div>
+  </div>
+
+  <!-- Mini dashboard -->
+  <div class="dashboard-section">
+    <div class="dash-head">
+      <h2>Capability Dashboard · KPI ring</h2>
+      <span class="badge">data-dense pro · ft tempered</span>
+    </div>
+    <div class="dashboard-grid">
+      <div class="kpi-cell">
+        <div class="kpi-label">D-001 · TABLES</div>
+        <div class="kpi-num">531<span class="delta">+12</span></div>
+        <div class="kpi-sub">schema corrente</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="kpi-label">D-002 · ENTITIES</div>
+        <div class="kpi-num">17.024<span class="delta">+1.2%</span></div>
+        <div class="kpi-sub">Knowledge Graph</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="kpi-label">D-003 · SKILLS</div>
+        <div class="kpi-num">14.011<span class="delta">stable</span></div>
+        <div class="kpi-sub">bilingue IT/EN</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="kpi-label">D-005 · LINKS</div>
+        <div class="kpi-num">126.348<span class="delta">+0.4%</span></div>
+        <div class="kpi-sub">crosswalk semantico</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="col">
+      <div class="masthead-title" style="font-size: 24px;">heures<span class="em">y</span>s</div>
+      <p style="margin-top: 8px;">FT-grade editorial restraint. Source Serif voice. Single muted-rose accent. No salmon urgency.</p>
+    </div>
+    <div class="col"><strong>Family</strong><p>Data-Dense Pro<br />FT tempered</p></div>
+    <div class="col"><strong>Reference</strong><p>PostHog · Financial Times<br />enterprise tooling</p></div>
+    <div class="col"><strong>Critique</strong><p><a href="kappa-quantitative-ft-tempered.critique.md" style="color: var(--ink); text-decoration: underline;">3-designer-debate.md</a></p></div>
+    <div class="footer-meta">
+      <span>© 2026 HEURESYS · κ DIRECTION · QUANTITATIVE FT TEMPERED</span>
+      <span>VOL. I · ISSUE 01 · 65T / 35C · SOURCE SERIF + INTER + JETBRAINS MONO</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const t = localStorage.getItem('heuresys-theme');
+  if (t) document.body.setAttribute('data-theme', t);
+  function toggleTheme() {
+    const cur = document.body.getAttribute('data-theme') || 'light';
+    const next = cur === 'light' ? 'dark' : 'light';
+    document.body.setAttribute('data-theme', next);
+    localStorage.setItem('heuresys-theme', next);
+  }
+</script>
+
+</body>
+</html>

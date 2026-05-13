@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Accedi — heuresys (Aurora)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  /* Heuresys Login — Aurora variant
+     Mood: glassmorphism futuristico · animated mesh gradient · floating dots
+  */
+  :root {
+    --bg: #06091a;
+    --paper: #14182a;
+    --ink: #f4f5f7;
+    --ink-soft: #c8cad2;
+    --ink-muted: #8b8e99;
+    --ink-tertiary: #5e6168;
+    --rule: rgba(255, 255, 255, 0.08);
+    --rule-strong: rgba(255, 255, 255, 0.16);
+    --primary: #3b82f6;
+    --primary-deep: #2452c8;
+    --accent: #a855f7;
+    --accent-deep: #7e3fc8;
+    --gradient: linear-gradient(135deg, #3b82f6 0%, #a855f7 100%);
+    --glass-bg: rgba(20, 24, 42, 0.58);
+    --glass-border: rgba(255, 255, 255, 0.10);
+  }
+  [data-theme="light"] {
+    --bg: #eef0f7;
+    --paper: #ffffff;
+    --ink: #0a0d18;
+    --ink-soft: #2a2d38;
+    --ink-muted: #6a6d75;
+    --ink-tertiary: #9ea0a8;
+    --rule: rgba(10, 13, 24, 0.08);
+    --rule-strong: rgba(10, 13, 24, 0.16);
+    --primary: #2452c8;
+    --primary-deep: #1e3fa0;
+    --accent: #7e3fc8;
+    --accent-deep: #5e2898;
+    --gradient: linear-gradient(135deg, #2452c8 0%, #7e3fc8 100%);
+    --glass-bg: rgba(255, 255, 255, 0.55);
+    --glass-border: rgba(10, 13, 24, 0.08);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; overflow-x: hidden; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
+    transition: background 0.3s linear, color 0.15s linear;
+    font-feature-settings: 'tnum' 1, 'cv11' 1;
+    display: flex; flex-direction: column; min-height: 100vh;
+    position: relative;
+  }
+
+  /* Animated mesh aurora background */
+  .aurora {
+    position: fixed; inset: 0;
+    z-index: 0; pointer-events: none; overflow: hidden;
+  }
+  .aurora::before, .aurora::after {
+    content: ''; position: absolute;
+    width: 70vmax; height: 70vmax;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.55;
+    animation: drift 22s ease-in-out infinite;
+  }
+  .aurora::before {
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.55) 0%, transparent 65%);
+    top: -25%; left: -15%;
+  }
+  .aurora::after {
+    background: radial-gradient(circle, rgba(168, 85, 247, 0.55) 0%, transparent 65%);
+    bottom: -25%; right: -15%;
+    animation-delay: -11s;
+  }
+  [data-theme="light"] .aurora::before, [data-theme="light"] .aurora::after { opacity: 0.32; }
+  @keyframes drift {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33%      { transform: translate(8vw, 6vh) scale(1.08); }
+    66%      { transform: translate(-6vw, 4vh) scale(0.92); }
+  }
+  /* Floating dots layer */
+  .dots { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+  .dots span {
+    position: absolute; width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--accent);
+    opacity: 0.35;
+    animation: float 14s ease-in-out infinite;
+  }
+  .dots span:nth-child(1) { top: 18%; left: 12%; animation-delay: -2s; background: var(--primary); }
+  .dots span:nth-child(2) { top: 72%; left: 22%; animation-delay: -7s; }
+  .dots span:nth-child(3) { top: 30%; left: 78%; animation-delay: -4s; }
+  .dots span:nth-child(4) { top: 55%; left: 88%; animation-delay: -10s; background: var(--primary); }
+  .dots span:nth-child(5) { top: 88%; left: 60%; animation-delay: -1s; }
+  .dots span:nth-child(6) { top: 8%; left: 50%; animation-delay: -6s; background: var(--primary); }
+  @keyframes float {
+    0%, 100% { transform: translateY(0) scale(1); opacity: 0.35; }
+    50%      { transform: translateY(-18px) scale(1.4); opacity: 0.7; }
+  }
+
+  /* Top bar */
+  .top-bar {
+    position: relative; z-index: 2;
+    padding: 16px 24px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .top-back {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: var(--ink-muted); text-decoration: none;
+  }
+  .top-back:hover { color: var(--ink); }
+
+  /* L25 + L27 wordmark inline utility (two-color legacy) */
+  .wm-inline {
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 700;
+    letter-spacing: normal;
+    text-transform: lowercase;
+    color: var(--primary);
+  }
+  .wm-inline .y { color: var(--accent); }
+  .theme-toggle {
+    background: var(--glass-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border); color: var(--ink);
+    padding: 6px 12px; font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    cursor: pointer; text-transform: uppercase; letter-spacing: 1px; border-radius: 999px;
+    transition: background 0.2s, border-color 0.2s, transform 0.2s;
+  }
+  .theme-toggle:hover { background: var(--accent); color: #fff; border-color: var(--accent); transform: translateY(-1px); }
+
+  /* Main */
+  .auth-main {
+    flex: 1;
+    display: flex; align-items: center; justify-content: center;
+    padding: 32px 24px;
+    position: relative; z-index: 1;
+  }
+
+  /* Card glass */
+  .auth-card {
+    width: 100%; max-width: 460px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(24px) saturate(140%);
+    -webkit-backdrop-filter: blur(24px) saturate(140%);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 44px 40px 36px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    position: relative;
+  }
+  [data-theme="light"] .auth-card {
+    box-shadow: 0 20px 60px rgba(10, 13, 24, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  }
+  .auth-card::before {
+    content: ''; position: absolute; inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.45), rgba(168, 85, 247, 0.45) 50%, transparent 70%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  /* Wordmark hero — L25 + L27 (two-color legacy pattern) */
+  .wordmark-hero {
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 700; font-size: 60px;
+    letter-spacing: -2.5px; line-height: 1;
+    text-align: center; margin-bottom: 12px;
+    color: var(--primary);
+  }
+  .wordmark-hero .y { color: var(--accent); }
+  .auth-tagline { font-size: 14px; color: var(--ink-muted); text-align: center; margin-bottom: 28px; }
+
+  /* Tenant context */
+  .tenant-context {
+    display: flex; align-items: center; gap: 10px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px; padding: 12px 14px; margin-bottom: 24px;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  [data-theme="light"] .tenant-context { background: rgba(10, 13, 24, 0.03); }
+  .tenant-context:hover { border-color: var(--accent); }
+  .tenant-avatar {
+    width: 32px; height: 32px; flex-shrink: 0; border-radius: 8px;
+    border: 2px solid var(--primary);
+    background: var(--bg); color: var(--accent);
+    font-family: 'Inter'; font-weight: 700; font-size: 11px;
+    display: flex; align-items: center; justify-content: center;
+    letter-spacing: 0.5px;
+  }
+  .tenant-info { flex: 1; min-width: 0; }
+  .tenant-name { font-weight: 600; font-size: 13px; color: var(--ink); line-height: 1.2; }
+  .tenant-meta {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    color: var(--ink-muted); letter-spacing: 0.5px; margin-top: 2px;
+  }
+  .tenant-switch {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    color: var(--primary); text-decoration: none;
+    text-transform: uppercase; letter-spacing: 1px;
+    background: transparent; border: none; cursor: pointer; padding: 4px 6px;
+    transition: color 0.15s;
+  }
+  .tenant-switch:hover { color: var(--accent); }
+
+  /* Form */
+  .auth-form { display: flex; flex-direction: column; gap: 14px; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--ink-muted); font-weight: 600;
+  }
+  .field-input {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px; padding: 13px 14px;
+    font-family: 'Inter'; font-size: 14px; color: var(--ink);
+    outline: none; transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  }
+  [data-theme="light"] .field-input { background: rgba(10, 13, 24, 0.03); }
+  .field-input::placeholder { color: var(--ink-tertiary); }
+  .field-input:focus {
+    border-color: var(--accent); background: transparent;
+    box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.18), 0 0 24px rgba(168, 85, 247, 0.20);
+  }
+
+  .field-row {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 2px; font-size: 12px;
+  }
+  .checkbox-label {
+    display: flex; align-items: center; gap: 8px;
+    color: var(--ink-soft); cursor: pointer;
+  }
+  .checkbox-label input { accent-color: var(--accent); cursor: pointer; }
+  .forgot-link {
+    color: var(--primary); text-decoration: none; font-weight: 500;
+    transition: color 0.15s;
+  }
+  .forgot-link:hover { color: var(--accent); }
+
+  /* Buttons */
+  .btn {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 13px 16px; border-radius: 10px;
+    font-family: 'Inter'; font-size: 14px; font-weight: 600;
+    cursor: pointer; border: 1px solid transparent; text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.25s, background 0.2s, border-color 0.2s;
+  }
+  .btn-primary {
+    background: var(--accent); color: #ffffff;
+    margin-top: 8px;
+    box-shadow: 0 4px 16px rgba(168, 85, 247, 0.40);
+  }
+  .btn-primary:hover {
+    background: var(--accent-deep); transform: translateY(-1px);
+    box-shadow: 0 8px 28px rgba(168, 85, 247, 0.55);
+  }
+  .btn-secondary {
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    color: var(--ink); border-color: var(--glass-border);
+  }
+  [data-theme="light"] .btn-secondary { background: rgba(10, 13, 24, 0.03); }
+  .btn-secondary:hover {
+    border-color: var(--accent); transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(168, 85, 247, 0.20);
+  }
+  .btn-icon { width: 16px; height: 16px; flex-shrink: 0; }
+
+  /* Divider */
+  .divider {
+    display: flex; align-items: center; gap: 12px;
+    margin: 22px 0 16px;
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--ink-muted);
+  }
+  .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--glass-border); }
+
+  .sso-group { display: flex; flex-direction: column; gap: 10px; }
+
+  /* Footnote */
+  .auth-footnote {
+    font-size: 12px; color: var(--ink-muted); text-align: center;
+    margin-top: 24px; padding-top: 20px;
+    border-top: 1px solid var(--glass-border);
+  }
+  .auth-footnote a { color: var(--primary); text-decoration: none; transition: color 0.15s; }
+  .auth-footnote a:hover { color: var(--accent); }
+
+  /* Footer */
+  .auth-footer {
+    padding: 20px 24px 24px; text-align: center;
+    font-size: 11px; color: var(--ink-tertiary);
+    position: relative; z-index: 1;
+  }
+  .auth-footer .copy { font-family: 'JetBrains Mono', monospace; letter-spacing: 0.5px; }
+  .auth-footer .wordmark-foot { font-family: 'Exo 2', sans-serif; font-weight: 700; }
+  .auth-footer .wordmark-foot .y { color: var(--accent); }
+  .auth-footer .links {
+    margin-top: 8px; display: flex; justify-content: center; gap: 16px;
+  }
+  .auth-footer .links a {
+    color: var(--ink-muted); text-decoration: none;
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    text-transform: uppercase; letter-spacing: 1px;
+    transition: color 0.15s;
+  }
+  .auth-footer .links a:hover { color: var(--accent); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .aurora::before, .aurora::after, .dots span {
+      animation: none !important;
+    }
+    body, .field-input, .btn, .top-back, .forgot-link, .auth-footer .links a, .tenant-switch, .theme-toggle, .tenant-context {
+      transition: none !important;
+    }
+  }
+  @media (max-width: 480px) {
+    .auth-card { padding: 36px 26px 28px; }
+    .wordmark-hero { font-size: 48px; letter-spacing: -2px; }
+  }
+</style>
+</head>
+<body data-theme="dark">
+
+<div class="aurora" aria-hidden="true"></div>
+<div class="dots" aria-hidden="true">
+  <span></span><span></span><span></span><span></span><span></span><span></span>
+</div>
+
+<header class="top-bar">
+  <a href="#" class="top-back">← heuresys.com</a>
+  <button class="theme-toggle" id="themeToggle" type="button">DARK</button>
+</header>
+
+<main class="auth-main">
+  <section class="auth-card" aria-labelledby="auth-heading">
+    <h1 id="auth-heading" class="wordmark-hero">heures<span class="y">y</span>s</h1>
+    <p class="auth-tagline">Accedi al tuo workspace</p>
+
+    <div class="tenant-context" aria-label="Tenant corrente">
+      <div class="tenant-avatar" aria-hidden="true">RB</div>
+      <div class="tenant-info">
+        <div class="tenant-name">RTL Bank</div>
+        <div class="tenant-meta">rtl-bank.heuresys.com · Banking · Production</div>
+      </div>
+      <button type="button" class="tenant-switch" aria-label="Cambia tenant">CAMBIA</button>
+    </div>
+
+    <form class="auth-form" novalidate onsubmit="event.preventDefault();">
+      <div class="field">
+        <label class="field-label" for="email">Email aziendale</label>
+        <input class="field-input" type="email" id="email" name="email" placeholder="maria.chro@rtl-bank.org" autocomplete="username" required />
+      </div>
+      <div class="field">
+        <label class="field-label" for="password">Password</label>
+        <input class="field-input" type="password" id="password" name="password" placeholder="••••••••••" autocomplete="current-password" required />
+      </div>
+      <div class="field-row">
+        <label class="checkbox-label">
+          <input type="checkbox" name="remember" />
+          <span>Ricordami su questo dispositivo</span>
+        </label>
+        <a href="#" class="forgot-link">Password dimenticata?</a>
+      </div>
+      <button type="submit" class="btn btn-primary">Accedi</button>
+    </form>
+
+    <div class="divider"><span>oppure</span></div>
+
+    <div class="sso-group">
+      <button type="button" class="btn btn-secondary">
+        <svg class="btn-icon" viewBox="0 0 23 23" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect x="1" y="1" width="10" height="10" fill="#f25022"/>
+          <rect x="12" y="1" width="10" height="10" fill="#7fba00"/>
+          <rect x="1" y="12" width="10" height="10" fill="#00a4ef"/>
+          <rect x="12" y="12" width="10" height="10" fill="#ffb900"/>
+        </svg>
+        Continua con Microsoft 365
+      </button>
+      <button type="button" class="btn btn-secondary">
+        <svg class="btn-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A10.99 10.99 0 0 0 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18A10.99 10.99 0 0 0 1 12c0 1.77.42 3.45 1.18 4.93l3.66-2.84z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1A10.99 10.99 0 0 0 2.18 7.07l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/>
+        </svg>
+        Continua con Google Workspace
+      </button>
+    </div>
+
+    <div class="auth-footnote">
+      Non hai un account? <a href="#">Contatta il tuo IT_ADMIN</a><br />
+      oppure <a href="#">richiedi una demo</a>
+    </div>
+  </section>
+</main>
+
+<footer class="auth-footer">
+  <div class="copy">© 2026 heuresys.com — Organizational Intelligence platform</div>
+  <div class="links">
+    <a href="#">Privacy</a><a href="#">Terms</a><a href="#">Security</a><a href="#">Status</a>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    const KEY = 'heuresys-theme';
+    const body = document.body;
+    const btn = document.getElementById('themeToggle');
+    const stored = localStorage.getItem(KEY);
+    if (stored === 'light' || stored === 'dark') body.setAttribute('data-theme', stored);
+    function apply() { btn.textContent = (body.getAttribute('data-theme') || 'dark').toUpperCase(); }
+    apply();
+    btn.addEventListener('click', function () {
+      const next = (body.getAttribute('data-theme') || 'dark') === 'dark' ? 'light' : 'dark';
+      body.setAttribute('data-theme', next);
+      localStorage.setItem(KEY, next);
+      apply();
+    });
+  })();
+</script>
+
+</body>
+</html>

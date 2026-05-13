@@ -1,0 +1,127 @@
+// Heuresys Asset Showcase — local catalog management DB.
+// SQLite file `../data.db` (gitignored). Schema versioned alongside server.js.
+//
+// 5 tabelle:
+//   asset           — atomo catalogo (token/css/react/widget)
+//   variant         — variante di un asset (modifier CSS o stato React)
+//   tag             — etichetta libera (M:N con asset via asset_tag)
+//   asset_tag       — pivot M:N
+//   promotion_log   — audit trail append-only (promote/unpromote/edit/create/delete)
+
+generator client {
+  provider      = "prisma-client-js"
+  output        = "./generated/client"
+  binaryTargets = ["native"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:../data.db"
+}
+
+model Asset {
+  id          Int     @id @default(autoincrement())
+  name        String  @unique
+  kind        String // 'token' | 'css' | 'react' | 'widget'
+  category    String?
+  subcategory String?
+  sourcePath  String? @map("source_path")
+  sourceLine  Int?    @map("source_line")
+  description String?
+  /// Per token: il valore CSS literal (es. "#aab5f7"). Per altri: meta extra.
+  value       String?
+  /// Stringified import path (es. "@heuresys/ui/Button").
+  importPath  String? @map("import_path")
+  /// Default preview HTML rendered nel canvas Preview tab. Per CSS classes
+  /// derivato da templates.mjs; per token swatch generato dal frontend; per
+  /// React/widget link a Storybook (vuoto).
+  previewHtml String? @map("preview_html")
+  /// Boolean: true se l'asset compare nel SoT brand-dashboard-catalog.md
+  promoted    Boolean @default(false)
+  /// Boolean: deprecato post-L41/L42 ecc.
+  deprecated  Boolean @default(false)
+  /// Boolean: true se asset è universal chrome standardizzato cross-role
+  /// (header/footer/sidebar). Diventa lo shell di TUTTE le dashboard di ruolo.
+  chromeStandard  Boolean @default(false) @map("chrome_standard")
+  /// Per body asset: dashboard code di provenienza (es. "org_systems_v2").
+  /// Null per chrome universale o per asset non legati a una dashboard specifica.
+  dashboardCode   String? @map("dashboard_code")
+  /// Path al mockup di origine (audit trail provenienza dell'import). Append-only.
+  mockupSource    String? @map("mockup_source")
+  /// JSON: { hover?, active?, animations?, transitions?, focus? } — descrive behavior grafico.
+  behaviorsJson   String? @map("behaviors_json")
+  /// JSON: array di token CSS variables usati (es. ["--accent","--surface-1"]).
+  colorTokensJson String? @map("color_tokens_json")
+  /// JSON: array di sub-element class names che vivono nested dentro questo wrapper.
+  subElementsJson String? @map("sub_elements_json")
+  notes       String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  variants      Variant[]
+  tags          AssetTag[]
+  promotionLogs PromotionLog[]
+
+  @@index([kind])
+  @@index([promoted])
+  @@index([deprecated])
+  @@index([category])
+  @@index([chromeStandard])
+  @@index([dashboardCode])
+  @@map("asset")
+}
+
+model Variant {
+  id          Int      @id @default(autoincrement())
+  assetId     Int      @map("asset_id")
+  name        String
+  /// CSS modifier (es. ".pill-warn") oppure variant key React (es. "primary").
+  modifier    String?
+  /// JSON stringified props (per React) o data sample (per CSS).
+  propsJson   String?  @map("props_json")
+  /// HTML inline da renderizzare nel preview pane.
+  previewHtml String?  @map("preview_html")
+  notes       String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  asset Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  @@index([assetId])
+  @@map("variant")
+}
+
+model Tag {
+  id     Int        @id @default(autoincrement())
+  name   String     @unique
+  /// Hex color or semantic key for badge rendering.
+  color  String?
+  assets AssetTag[]
+
+  @@map("tag")
+}
+
+model AssetTag {
+  assetId Int   @map("asset_id")
+  tagId   Int   @map("tag_id")
+  asset   Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  tag     Tag   @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([assetId, tagId])
+  @@map("asset_tag")
+}
+
+model PromotionLog {
+  id        Int      @id @default(autoincrement())
+  assetId   Int      @map("asset_id")
+  /// 'promote' | 'unpromote' | 'edit' | 'create' | 'delete' | 'tag-add' | 'tag-remove'
+  action    String
+  /// Optional details (e.g. previous/new state, reason).
+  notes     String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  asset Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  @@index([assetId])
+  @@index([action])
+  @@map("promotion_log")
+}

@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>heuresys — Typography Pairing Explorations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&family=Inter+Tight:wght@500;600;700;800&family=Geist:wght@300;400;500;600;700;800&family=Geist+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+  rel="stylesheet"
+/>
+<style>
+  :root {
+    --bg: #0a0a14;
+    --surface: #14141f;
+    --surface-2: #1c1c2a;
+    --border: #2a2a3a;
+    --text: #f5f5f7;
+    --text-muted: #9ca3af;
+    --primary: #3b82f6;
+    --accent: #a855f7;
+    --gradient: linear-gradient(135deg, #3b82f6 0%, #a855f7 100%);
+    --glow-purple: 0 0 60px rgba(168, 85, 247, 0.3);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  .page {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 40px 32px 80px;
+  }
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 32px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 40px;
+  }
+  .header h1 {
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 700;
+    font-size: 24px;
+    letter-spacing: -0.5px;
+  }
+  .header h1 .y { color: var(--accent); }
+  .header h1 .blue { color: var(--primary); }
+  .header .meta {
+    color: var(--text-muted);
+    font-size: 13px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 24px;
+  }
+  .pairing {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .pairing-label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .pairing-label .tag {
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .pairing-label .name {
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--text);
+  }
+  .pairing-label .stack {
+    color: var(--text-muted);
+    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Hero block */
+  .hero { display: flex; flex-direction: column; gap: 12px; }
+  .hero .wordmark {
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 700;
+    font-size: 64px;
+    letter-spacing: -2.8px;
+    line-height: 1;
+    filter: drop-shadow(var(--glow-purple));
+  }
+  .hero .wordmark .y { color: var(--accent); }
+  .hero .wordmark .blue { color: var(--primary); }
+  .hero .tagline {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+  .hero .headline {
+    font-weight: 700;
+    font-size: 30px;
+    line-height: 1.15;
+    letter-spacing: -1px;
+    color: var(--text);
+  }
+  .hero .headline .gradient {
+    background: var(--gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .hero .body {
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  /* KPI block */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 4px;
+  }
+  .kpi {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+  }
+  .kpi .num {
+    font-weight: 700;
+    font-size: 32px;
+    line-height: 1;
+    color: var(--text);
+    letter-spacing: -1px;
+  }
+  .kpi .num .plus { color: var(--primary); }
+  .kpi .label {
+    margin-top: 4px;
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  /* Code block */
+  .code-block {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 12px;
+    line-height: 1.6;
+    color: #cbd5e1;
+    overflow-x: auto;
+  }
+  .code-block .kw { color: #c084fc; }
+  .code-block .fn { color: #60a5fa; }
+  .code-block .str { color: #4ade80; }
+  .code-block .num { color: #fbbf24; }
+  .code-block .cmt { color: #6b7280; font-style: italic; }
+
+  /* Caption */
+  .caption {
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 10px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  /* PAIRING-SPECIFIC FONTS */
+  /* A — Exo 2 + Inter */
+  .pa .headline, .pa .hero .body, .pa .kpi .label, .pa .pairing-label .stack { font-family: 'Inter', sans-serif; }
+  .pa .hero .tagline { font-family: 'Inter Tight', sans-serif; }
+  .pa .headline { font-family: 'Inter Tight', sans-serif; }
+  .pa .kpi .num { font-family: 'Inter Tight', sans-serif; font-feature-settings: 'tnum'; }
+  .pa .code-block { font-family: 'JetBrains Mono', monospace; }
+
+  /* B — Exo 2 + Geist */
+  .pb .headline, .pb .hero .body, .pb .kpi .label { font-family: 'Geist', sans-serif; }
+  .pb .hero .tagline { font-family: 'Geist', sans-serif; font-weight: 500; }
+  .pb .headline { font-family: 'Geist', sans-serif; font-weight: 700; }
+  .pb .kpi .num { font-family: 'Geist', sans-serif; font-feature-settings: 'tnum'; }
+  .pb .code-block { font-family: 'Geist Mono', monospace; }
+
+  /* C — Exo 2 + Space Grotesk + Inter */
+  .pc .headline { font-family: 'Space Grotesk', sans-serif; font-weight: 700; }
+  .pc .hero .tagline { font-family: 'Space Grotesk', sans-serif; font-weight: 500; }
+  .pc .hero .body { font-family: 'Inter', sans-serif; }
+  .pc .kpi .label { font-family: 'Inter', sans-serif; }
+  .pc .kpi .num { font-family: 'Space Grotesk', sans-serif; font-feature-settings: 'tnum'; }
+  .pc .code-block { font-family: 'IBM Plex Mono', monospace; }
+
+  /* Section labels */
+  .section-divider {
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--border);
+  }
+  .section-divider:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <h1>
+      <span class="blue">Heures</span><span class="y">y</span><span class="blue">s</span>
+      &nbsp;— Typography Pairing Explorations
+    </h1>
+    <div class="meta">3 pairing · scegli a vista · Phase 6</div>
+  </div>
+
+  <div class="grid">
+
+    <!-- PAIRING A -->
+    <div class="pairing pa">
+      <div class="pairing-label">
+        <div class="tag">Pairing A · Universale</div>
+        <div class="name">Exo 2 + Inter Tight + JetBrains Mono</div>
+        <div class="stack">Display Exo 2 · Heading Inter Tight · Body Inter · Mono JetBrains</div>
+      </div>
+
+      <div class="hero">
+        <div class="wordmark">
+          <span class="blue">Heures</span><span class="y">y</span><span class="blue">s</span>
+        </div>
+        <div class="tagline">Organizational Intelligence &amp; Workforce Orchestration</div>
+        <div class="headline">Il Layer Mancante<br /><span class="gradient">Tra ERP, HR e BI</span></div>
+        <div class="body">heuresys governa la capability organizzativa come costrutto misurabile: cinque dimensioni in un grafo semantico. Decisioni diverse, non report più belli.</div>
+      </div>
+
+      <div class="section-divider">
+        <div class="kpi-row">
+          <div class="kpi"><div class="num">531<span class="plus">+</span></div><div class="label">Tabelle Database</div></div>
+          <div class="kpi"><div class="num">17.000<span class="plus">+</span></div><div class="label">Entità Knowledge Graph</div></div>
+        </div>
+      </div>
+
+      <div class="section-divider">
+        <div class="caption">Mono · code sample</div>
+        <pre class="code-block"><span class="cmt">// Capability score query</span>
+<span class="kw">SELECT</span> capability_id, dimension, score
+<span class="kw">FROM</span> capability_scores
+<span class="kw">WHERE</span> tenant_id = $<span class="num">1</span>
+  <span class="kw">AND</span> level &gt;= <span class="str">'L3'</span>
+<span class="kw">ORDER BY</span> score <span class="kw">DESC</span>;</pre>
+      </div>
+    </div>
+
+    <!-- PAIRING B -->
+    <div class="pairing pb">
+      <div class="pairing-label">
+        <div class="tag">Pairing B · Modern Tech</div>
+        <div class="name">Exo 2 + Geist + Geist Mono</div>
+        <div class="stack">Display Exo 2 · Heading + Body Geist · Mono Geist Mono</div>
+      </div>
+
+      <div class="hero">
+        <div class="wordmark">
+          <span class="blue">Heures</span><span class="y">y</span><span class="blue">s</span>
+        </div>
+        <div class="tagline">Organizational Intelligence &amp; Workforce Orchestration</div>
+        <div class="headline">Il Layer Mancante<br /><span class="gradient">Tra ERP, HR e BI</span></div>
+        <div class="body">heuresys governa la capability organizzativa come costrutto misurabile: cinque dimensioni in un grafo semantico. Decisioni diverse, non report più belli.</div>
+      </div>
+
+      <div class="section-divider">
+        <div class="kpi-row">
+          <div class="kpi"><div class="num">531<span class="plus">+</span></div><div class="label">Tabelle Database</div></div>
+          <div class="kpi"><div class="num">17.000<span class="plus">+</span></div><div class="label">Entità Knowledge Graph</div></div>
+        </div>
+      </div>
+
+      <div class="section-divider">
+        <div class="caption">Mono · code sample</div>
+        <pre class="code-block"><span class="cmt">// Capability score query</span>
+<span class="kw">SELECT</span> capability_id, dimension, score
+<span class="kw">FROM</span> capability_scores
+<span class="kw">WHERE</span> tenant_id = $<span class="num">1</span>
+  <span class="kw">AND</span> level &gt;= <span class="str">'L3'</span>
+<span class="kw">ORDER BY</span> score <span class="kw">DESC</span>;</pre>
+      </div>
+    </div>
+
+    <!-- PAIRING C -->
+    <div class="pairing pc">
+      <div class="pairing-label">
+        <div class="tag">Pairing C · Editorial Distinct</div>
+        <div class="name">Exo 2 + Space Grotesk + Inter + IBM Plex Mono</div>
+        <div class="stack">Display Exo 2 · Heading Space Grotesk · Body Inter · Mono IBM Plex</div>
+      </div>
+
+      <div class="hero">
+        <div class="wordmark">
+          <span class="blue">Heures</span><span class="y">y</span><span class="blue">s</span>
+        </div>
+        <div class="tagline">Organizational Intelligence &amp; Workforce Orchestration</div>
+        <div class="headline">Il Layer Mancante<br /><span class="gradient">Tra ERP, HR e BI</span></div>
+        <div class="body">heuresys governa la capability organizzativa come costrutto misurabile: cinque dimensioni in un grafo semantico. Decisioni diverse, non report più belli.</div>
+      </div>
+
+      <div class="section-divider">
+        <div class="kpi-row">
+          <div class="kpi"><div class="num">531<span class="plus">+</span></div><div class="label">Tabelle Database</div></div>
+          <div class="kpi"><div class="num">17.000<span class="plus">+</span></div><div class="label">Entità Knowledge Graph</div></div>
+        </div>
+      </div>
+
+      <div class="section-divider">
+        <div class="caption">Mono · code sample</div>
+        <pre class="code-block"><span class="cmt">// Capability score query</span>
+<span class="kw">SELECT</span> capability_id, dimension, score
+<span class="kw">FROM</span> capability_scores
+<span class="kw">WHERE</span> tenant_id = $<span class="num">1</span>
+  <span class="kw">AND</span> level &gt;= <span class="str">'L3'</span>
+<span class="kw">ORDER BY</span> score <span class="kw">DESC</span>;</pre>
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

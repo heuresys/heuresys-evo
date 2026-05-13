@@ -1,0 +1,395 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "$description": "Heuresys design tokens — DARK theme (default). W3C Design Tokens Community Group format. SoT: services/app/src/styles/active-theme.css + .ux-design/03-visual-identity/color/palette-final.md + typography-final.md.",
+  "$metadata": {
+    "version": "1.0.0",
+    "phase": "11",
+    "direction": "mu-architect-legacy",
+    "lastUpdate": "2026-05-07",
+    "decisions": ["L21", "L22", "L25", "L27", "L28", "L34"]
+  },
+
+  "color": {
+    "brand": {
+      "blue": {
+        "$type": "color",
+        "$value": "#3b82f6",
+        "$description": "Logo wordmark body color (L27 two-color rule). Primary brand blue."
+      },
+      "blueDeep": {
+        "$type": "color",
+        "$value": "#2452c8",
+        "$description": "Wordmark deep variant for dense surfaces."
+      },
+      "purple": {
+        "$type": "color",
+        "$value": "#a855f7",
+        "$description": "Logo wordmark 'y' accent (L25 lowercase rule, L27 fixed color)."
+      },
+      "purpleDeep": {
+        "$type": "color",
+        "$value": "#7e3fc8",
+        "$description": "Purple deep variant."
+      }
+    },
+    "accent": {
+      "default": {
+        "$type": "color",
+        "$value": "#5e69d1",
+        "$description": "Mu-architect Linear 'brand-secure' UI accent. Primary CTA, focus ring."
+      },
+      "hover": {
+        "$type": "color",
+        "$value": "#7280e0",
+        "$description": "Accent hover state."
+      },
+      "soft": {
+        "$type": "color",
+        "$value": "#1e1f3a",
+        "$description": "Accent low-emphasis surface (badges, callouts)."
+      },
+      "deep": {
+        "$type": "color",
+        "$value": "#4954c4",
+        "$description": "Accent pressed/active state."
+      }
+    },
+    "surface": {
+      "bg": {
+        "$type": "color",
+        "$value": "#0a0a10",
+        "$description": "Primary background — near-black navy."
+      },
+      "1": {
+        "$type": "color",
+        "$value": "#131320",
+        "$description": "Card / panel base."
+      },
+      "2": {
+        "$type": "color",
+        "$value": "#1a1a2a",
+        "$description": "Card elevated / hover."
+      },
+      "3": {
+        "$type": "color",
+        "$value": "#22223a",
+        "$description": "Modal / popover overlay."
+      }
+    },
+    "ink": {
+      "default": {
+        "$type": "color",
+        "$value": "#f5f6fa",
+        "$description": "Primary foreground text."
+      },
+      "soft": {
+        "$type": "color",
+        "$value": "#c8ccd6",
+        "$description": "Secondary text."
+      },
+      "muted": {
+        "$type": "color",
+        "$value": "#8a8e9b",
+        "$description": "Tertiary text, labels."
+      },
+      "tertiary": {
+        "$type": "color",
+        "$value": "#5e616c",
+        "$description": "Quaternary text, very subtle."
+      }
+    },
+    "rule": {
+      "default": {
+        "$type": "color",
+        "$value": "#25262d",
+        "$description": "Subtle divider."
+      },
+      "strong": {
+        "$type": "color",
+        "$value": "#383944",
+        "$description": "Emphasis divider."
+      }
+    },
+    "logo": {
+      "body": {
+        "$type": "color",
+        "$value": "{color.ink.default}",
+        "$description": "Wordmark relative body color (L28). Inherits theme ink. For static logo use color.brand.blue (L27)."
+      },
+      "tokenLabel": {
+        "$type": "color",
+        "$value": "#a4ffba",
+        "$description": "Token label highlight (μ-architect mono label color)."
+      }
+    },
+    "semantic": {
+      "success": {
+        "$type": "color",
+        "$value": "#5fb87a",
+        "$description": "Positive state, healthy status."
+      },
+      "warning": {
+        "$type": "color",
+        "$value": "#d4a017",
+        "$description": "Attention required, sync lag."
+      },
+      "danger": {
+        "$type": "color",
+        "$value": "#ef4444",
+        "$description": "Error, destructive action, critical."
+      },
+      "info": {
+        "$type": "color",
+        "$value": "#3b82f6",
+        "$description": "Informational, neutral notice."
+      }
+    },
+    "capability": {
+      "process": {
+        "$type": "color",
+        "$value": "#3b82f6",
+        "$description": "KG dimension Process (= brand blue)."
+      },
+      "structure": {
+        "$type": "color",
+        "$value": "oklch(0.70 0.18 220)",
+        "$description": "KG dimension Structure (cyan info)."
+      },
+      "role": {
+        "$type": "color",
+        "$value": "#a855f7",
+        "$description": "KG dimension Role (= brand purple)."
+      },
+      "competence": {
+        "$type": "color",
+        "$value": "#5fb87a",
+        "$description": "KG dimension Competence (success green)."
+      },
+      "performance": {
+        "$type": "color",
+        "$value": "#d4a017",
+        "$description": "KG dimension Performance (warning amber)."
+      }
+    }
+  },
+
+  "gradient": {
+    "aurora": {
+      "$type": "gradient",
+      "$value": "linear-gradient(135deg, #3b82f6 0%, #a855f7 100%)",
+      "$description": "Aurora auth + CTA primary brand gradient blue→purple. Use sparingly (CTA + text-accent only)."
+    }
+  },
+
+  "glass": {
+    "bg": {
+      "$type": "color",
+      "$value": "rgba(20, 24, 42, 0.58)",
+      "$description": "Glass surface background (auth, modals)."
+    },
+    "border": {
+      "$type": "color",
+      "$value": "rgba(255, 255, 255, 0.10)",
+      "$description": "Glass border."
+    },
+    "blur": {
+      "$type": "dimension",
+      "$value": "24px",
+      "$description": "Glass backdrop-filter blur radius."
+    }
+  },
+
+  "shadow": {
+    "card": {
+      "$type": "shadow",
+      "$value": {
+        "color": "rgba(0, 0, 0, 0.30)",
+        "offsetX": "0px",
+        "offsetY": "1px",
+        "blur": "2px",
+        "spread": "0px"
+      },
+      "$description": "Default card resting elevation."
+    },
+    "elevated": {
+      "$type": "shadow",
+      "$value": {
+        "color": "rgba(0, 0, 0, 0.40)",
+        "offsetX": "0px",
+        "offsetY": "8px",
+        "blur": "24px",
+        "spread": "0px"
+      },
+      "$description": "Hover/active elevation."
+    },
+    "overlay": {
+      "$type": "shadow",
+      "$value": {
+        "color": "rgba(0, 0, 0, 0.50)",
+        "offsetX": "0px",
+        "offsetY": "24px",
+        "blur": "48px",
+        "spread": "0px"
+      },
+      "$description": "Modal / popover deep elevation."
+    },
+    "brandGlow": {
+      "$type": "shadow",
+      "$value": {
+        "color": "rgba(168, 85, 247, 0.30)",
+        "offsetX": "0px",
+        "offsetY": "0px",
+        "blur": "60px",
+        "spread": "8px"
+      },
+      "$description": "Hero wordmark glow signature element. Soft purple aura."
+    }
+  },
+
+  "spacing": {
+    "1": {
+      "$type": "dimension",
+      "$value": "4px",
+      "$description": "Hairline gap."
+    },
+    "2": {
+      "$type": "dimension",
+      "$value": "8px",
+      "$description": "Tight gap."
+    },
+    "3": {
+      "$type": "dimension",
+      "$value": "12px",
+      "$description": "Compact gap."
+    },
+    "4": {
+      "$type": "dimension",
+      "$value": "16px",
+      "$description": "Default gap."
+    },
+    "5": {
+      "$type": "dimension",
+      "$value": "24px",
+      "$description": "Section gap."
+    },
+    "6": {
+      "$type": "dimension",
+      "$value": "32px",
+      "$description": "Large section."
+    },
+    "7": {
+      "$type": "dimension",
+      "$value": "48px",
+      "$description": "Hero spacing."
+    },
+    "8": {
+      "$type": "dimension",
+      "$value": "64px",
+      "$description": "Hero margin."
+    }
+  },
+
+  "radius": {
+    "1": {
+      "$type": "dimension",
+      "$value": "2px",
+      "$description": "Hairline radius (badges, mono tags)."
+    },
+    "2": {
+      "$type": "dimension",
+      "$value": "4px",
+      "$description": "Sharp radius (buttons, inputs)."
+    },
+    "3": {
+      "$type": "dimension",
+      "$value": "6px",
+      "$description": "Soft radius (small cards, pills)."
+    },
+    "4": {
+      "$type": "dimension",
+      "$value": "10px",
+      "$description": "Default card radius."
+    },
+    "5": {
+      "$type": "dimension",
+      "$value": "16px",
+      "$description": "Large surface radius (panels, modals)."
+    },
+    "pill": {
+      "$type": "dimension",
+      "$value": "999px",
+      "$description": "Full pill radius (chips, status badges)."
+    }
+  },
+
+  "typography": {
+    "fontFamily": {
+      "display": {
+        "$type": "fontFamily",
+        "$value": ["Exo 2", "Inter", "ui-sans-serif", "sans-serif"],
+        "$description": "Wordmark font (Exo 2). ONLY for logo wordmark, never headings."
+      },
+      "sans": {
+        "$type": "fontFamily",
+        "$value": ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+        "$description": "Body, headings, UI labels."
+      },
+      "mono": {
+        "$type": "fontFamily",
+        "$value": ["JetBrains Mono", "ui-monospace", "Menlo", "monospace"],
+        "$description": "Tabular numbers, code, IDs, mono labels."
+      }
+    },
+    "fontWeight": {
+      "regular": { "$type": "fontWeight", "$value": 400 },
+      "medium": { "$type": "fontWeight", "$value": 500 },
+      "semibold": { "$type": "fontWeight", "$value": 600 },
+      "bold": { "$type": "fontWeight", "$value": 700 },
+      "heavy": { "$type": "fontWeight", "$value": 800 },
+      "wordmarkBody": {
+        "$type": "fontWeight",
+        "$value": 700,
+        "$description": "Wordmark body letters (L25 — all letters identical)."
+      },
+      "wordmarkY": {
+        "$type": "fontWeight",
+        "$value": 500,
+        "$description": "Wordmark 'y' accent gap (L16). Never < 500 (anti-pattern)."
+      }
+    },
+    "fontSize": {
+      "2xs": { "$type": "dimension", "$value": "9px" },
+      "xs": { "$type": "dimension", "$value": "11px" },
+      "sm": { "$type": "dimension", "$value": "13px" },
+      "base": { "$type": "dimension", "$value": "14px" },
+      "md": { "$type": "dimension", "$value": "16px" },
+      "lg": { "$type": "dimension", "$value": "18px" },
+      "xl": { "$type": "dimension", "$value": "22px" },
+      "2xl": { "$type": "dimension", "$value": "28px" },
+      "3xl": { "$type": "dimension", "$value": "36px" },
+      "4xl": { "$type": "dimension", "$value": "48px" },
+      "5xl": { "$type": "dimension", "$value": "64px" },
+      "hero": { "$type": "dimension", "$value": "88px" }
+    },
+    "letterSpacing": {
+      "wide": { "$type": "dimension", "$value": "1.5px" },
+      "normal": { "$type": "dimension", "$value": "0" },
+      "tight": { "$type": "dimension", "$value": "-0.5px" },
+      "tighter": { "$type": "dimension", "$value": "-1.5px" },
+      "tightest": { "$type": "dimension", "$value": "-3px" }
+    },
+    "lineHeight": {
+      "tight": { "$type": "number", "$value": 1.0 },
+      "snug": { "$type": "number", "$value": 1.2 },
+      "normal": { "$type": "number", "$value": 1.4 },
+      "relaxed": { "$type": "number", "$value": 1.5 }
+    },
+    "fontFeatureSettings": {
+      "default": {
+        "$type": "string",
+        "$value": "'tnum' 1, 'cv11' 1, 'ss01' 1",
+        "$description": "Tabular nums + Inter single-storey 'a' + stylistic set 01."
+      }
+    }
+  }
+}

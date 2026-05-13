@@ -1,134 +1,96 @@
 ---
 name: brand-resume
-description: Use when user says "lavoriamo sul brand", "riprendiamo il design", "continuiamo con la ux", "aggiungiamo una direzione", references files in .ux-design/, or otherwise indicates intent to resume the brand identity workstream. This skill loads the cross-session continuity protocol from .ux-design/SESSION-RESUME.md, BRAND-STATE.md, DECISIONS-LOG.md, sets up the local HTTP server for mockups, loads relevant skills (brainstorming, frontend-design), and greets the user with current phase + established decisions + pending decisions.
+description: Use when user says "lavoriamo sul brand", "riprendiamo il design", "continuiamo con la ux", references files in .ux-design/, or otherwise indicates intent to resume the brand identity workstream. Cycle 2 protocol post-S62 reset (2026-05-13). Reads `.ux-design/BRAND-STATE.md` + `.ux-design/DECISIONS-LOG-v2.md` (cycle 2, not cycle 1 archive), verifies canonical SoT, greets with current cycle 2 phase.
 ---
 
-# brand-resume — Cross-session resume per workstream brand identity Heuresys
+# brand-resume — Cycle 2 brand identity resume protocol
 
-Questo skill istituisce il protocollo di ripresa del workstream brand identity quando l'utente apre una sessione fresca e accenna al brand.
+> **Cycle 2 protocol post-S62 reset 2026-05-13** — ADR-0032 charter.
+> Cycle 1 archived in `.ux-design-archive-2026-05-13/` (immutable). Lettura solo per audit storico / materia prima.
 
 ## Quando attivarlo
 
-Trigger esplicito: l'utente dice una di queste frasi (o equivalenti):
+Trigger esplicito (italiano o inglese):
 
 - "lavoriamo sul brand"
 - "riprendiamo il design"
 - "continuiamo con la ux"
 - "aggiungiamo una direzione"
-- "fammi vedere ζ" (o qualsiasi direzione α-θ)
-- "mostrami i mockup"
+- "definiamo il brand"
+- "ricominciamo l'identity"
 
 Trigger implicito:
 
-- L'utente apre/edita un file dentro `.ux-design/`
+- L'utente apre/edita un file dentro `.ux-design/` (cycle 2)
 - L'utente fa riferimento a "logo", "palette", "tipografia", "dashboard design", "motion language"
-- Esiste un riferimento al workstream in `.handoff/STATE.md` § Active workstream
+- Esiste un riferimento al workstream in `.handoff/STATE.md` § Debt attivo
 
-## Cosa fa il skill
+## Cosa fa il skill (4-step protocol cycle 2)
 
-Esegue il protocollo 8-step documentato in [`.ux-design/SESSION-RESUME.md`](../../../.ux-design/SESSION-RESUME.md):
-
-### Step 1 — Lettura obbligatoria dei 3 SoT
+### Step 1 — Lettura SoT cycle 2 (in ordine)
 
 ```
-Read D:\evo.heuresys.com\.ux-design\SESSION-RESUME.md
 Read D:\evo.heuresys.com\.ux-design\BRAND-STATE.md
-Read D:\evo.heuresys.com\.ux-design\DECISIONS-LOG.md
+Read D:\evo.heuresys.com\.ux-design\DECISIONS-LOG-v2.md   (ultime 5 entry sono sufficienti)
+Read D:\evo.heuresys.com\.ux-design\README.md             (policy segregazione cycle 2)
 ```
 
-Questi 3 file contengono:
-
-- **SESSION-RESUME.md**: il protocollo procedurale completo (questo file lo richiama)
-- **BRAND-STATE.md**: stato corrente consolidato (phase, decisioni stabilite/pending, asset inventory, setup tecnico, URL chiave per Chrome companion, next actions proposte)
-- **DECISIONS-LOG.md**: cronologia append-only L1-L13+ delle decisioni con superseduture esplicite e decisioni scartate (NON riproporre)
-
-### Step 2 — Verifica asset
+### Step 2 — Verifica `01-canonical/` SoT
 
 ```
-Glob: .ux-design/**/*.{md,html,svg,json,css}
+Glob: .ux-design/01-canonical/**/*
 ```
 
-Confronta con `BRAND-STATE.md` § Asset inventory. Discrepanze → update `BRAND-STATE.md`.
+Se vuoto → cycle 2 in Phase 1 (assessment iniziale, nessuna decisione canonical ancora).
+Se contiene file → leggi i SoT vincolanti dichiarati.
 
-### Step 3 — HTTP server (se servirà mockup live)
+### Step 3 — Saluta con stato chiaro
 
-```bash
-cd .ux-design && python -m http.server 8765 --bind 127.0.0.1
-```
-
-Esegui in background. Verifica HTTP 200 su `http://127.0.0.1:8765/02-aesthetic/direction-explorations/index.html`.
-
-### Step 4 — Invoca skill rilevanti
+Format messaggio (max 5 righe):
 
 ```
-Skill superpowers:brainstorming
-Skill frontend-design:frontend-design
-```
+Workstream brand identity (cycle 2) ripreso.
 
-### Step 5 — Loada tools deferred via ToolSearch alla bisogna
-
-Per task tracking:
-
-```
-ToolSearch select:TaskCreate,TaskUpdate,TaskList
-```
-
-Per scelte visuali:
-
-```
-ToolSearch select:AskUserQuestion
-```
-
-Per Chrome companion:
-
-```
-ToolSearch select:mcp__claude-in-chrome__tabs_context_mcp,tabs_create_mcp,navigate,computer,browser_batch,read_page,get_page_text
-```
-
-Per ricerca web:
-
-```
-ToolSearch select:WebSearch,WebFetch
-```
-
-### Step 6 — Saluta con stato chiaro
-
-Format messaggio max 5 righe + tabella decisioni:
-
-```
-Workstream brand identity ripreso.
-
-Phase corrente: <da BRAND-STATE.md § Current phase>
-Decisioni stabilite: <max 3 chiave>
-Decisioni pending: <max 3 blocking>
+Phase corrente: <da BRAND-STATE.md>
+Canonical SoT attivi: <count file in 01-canonical/>
+Decisioni cycle 2: <count L-NN in DECISIONS-LOG-v2.md>
 
 Da dove riprendiamo?
 ```
 
-### Step 7 — Aspetta direzione esplicita
+### Step 4 — Aspetta direzione esplicita
 
 Eccezione: istruzione self-contained → procedi direttamente.
 
 ## Cosa NON fare
 
-| ❌ NON fare                                                                                                                                   | ✅ Fare invece                                                             |
-| --------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
-| Riproporre direzioni già scartate (Pairing A, C, B2 Manrope, B3 DM Sans, "Editorial Cinematic Ontologico" sciolto, logo "definitivo" sciolto) | Consultare `DECISIONS-LOG.md` § Decisioni scartate                         |
-| Ricostruire il piano da zero                                                                                                                  | Riferirsi a `~/.claude/plans/usa-superpowers-e-tutti-delegated-orbit.md`   |
-| Duplicare mockup esistenti                                                                                                                    | Consultare `BRAND-STATE.md` § Asset inventory                              |
-| Chiedere "che brand identity vuoi?"                                                                                                           | Phase 1-3 già stabilite (mission, voice, personas, dashboard architecture) |
-| Over-engineer                                                                                                                                 | Se "stai over-engineering" → stop, semplificare                            |
+| ❌ NON fare                                                          | ✅ Fare invece                                                                                                                                         |
+| -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Leggere automaticamente `.ux-design-archive-2026-05-13/`             | Archive è materia prima per consultazione manuale (solo su richiesta esplicita Enzo)                                                                   |
+| Riproporre direzioni cycle 1 (α-θ, μ-\*, ecc.) come decisioni attive | Cycle 2 reinizia da zero. Per migration di una decisione cycle 1 → controllare `.ux-design/04-promotion/decision-migration-audit.md` outcome `MIGRATE` |
+| Avviare http server local automaticamente                            | Cycle 2 protocollo è light, no server local default. Avvialo solo se l'utente chiede mockup live                                                       |
+| Caricare skill brainstorming/frontend-design automaticamente         | Caricale alla bisogna quando l'utente richiede creative work                                                                                           |
+| Chiedere "che brand identity vuoi?" da zero ignorando archive        | Archive è ground truth storica: se utente vuole partire da una direzione cycle 1 → consultare archive su richiesta                                     |
+
+## Cosa è cambiato vs cycle 1 (S62 reset)
+
+- **8-step protocol → 4-step** (semplificato)
+- **HTTP server background → removed default** (opt-in solo)
+- **Skill autoload (brainstorming + frontend-design) → removed default** (opt-in solo)
+- **Tools deferred via ToolSearch → removed default** (carica solo quando servono)
+- **Path SoT**: `DECISIONS-LOG.md` → `DECISIONS-LOG-v2.md` (vuoto al reset, popolato selettivamente)
+- **Asset showcase webapp** (`09-asset-showcase/`) → archiviata, consultazione manuale via SQLite browser
+- **Mockup HTML canonici** cycle 1 → archiviati, ri-promozione richiede ri-affermazione decisione cycle 2
 
 ## Comando complementare
 
-L'utente può anche digitare `/brand` per attivare lo stesso protocollo via slash command. Vedi `.claude/commands/brand.md`.
+`/brand` slash command attiva stesso protocollo. Vedi `.claude/commands/brand.md`.
 
 ## Riferimenti
 
-- Protocollo procedurale completo: `.ux-design/SESSION-RESUME.md`
-- Stato consolidato: `.ux-design/BRAND-STATE.md`
-- Cronologia decisioni: `.ux-design/DECISIONS-LOG.md`
-- Slash command: `.claude/commands/brand.md`
+- SoT cycle 2: `.ux-design/BRAND-STATE.md` · `.ux-design/DECISIONS-LOG-v2.md` · `.ux-design/01-canonical/` · `.ux-design/README.md`
+- Archive immutabile cycle 1: `.ux-design-archive-2026-05-13/_ARCHIVED-IMMUTABLE.md`
+- Decision migration audit: `.ux-design/04-promotion/decision-migration-audit.md`
+- ADR-0032 reset charter: `docs/50-reference/decisions/ADR-0032-brand-design-reset-cycle-2.md`
 - Project CLAUDE.md: `CLAUDE.md` § Brand workstream
-- Handoff state: `.handoff/STATE.md` § Active workstream
-- Auto-memory: `~/.claude/projects/D--evo-heuresys-com/memory/feedback_brand_workstream.md`
+- Handoff state: `.handoff/STATE.md`

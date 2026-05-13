@@ -1,0 +1,7 @@
+# Studio backups — append-only immutable
+
+Cartella popolata da `/studio:promote` con backup restorable della produzione PRIMA della sostituzione.
+
+Struttura: `<route>/<YYYY-MM-DD-HHMM>-pre-promote/` con `MANIFEST.json` + file copiati.
+
+Convenzione: append-only, mai cancellare backup. Vedi `.claude/skills/studio/SKILL.md` § Cosa NON fare.

@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ι — Industrial Blueprint Tempered — heuresys</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  /* LIGHT (default) */
+  :root {
+    --bg: #fafbfc;
+    --surface: #ffffff;
+    --surface-2: #f4f5f7;
+    --ink: #0d1a2e;
+    --ink-soft: #2c3e57;
+    --ink-muted: #6b7a8f;
+    --rule: #d8dde3;
+    --rule-strong: #1a2332;
+    --accent: #d4a017;       /* tempered amber, NOT engineering yellow */
+    --accent-soft: #f4e4b8;
+    --accent-deep: #8a6a0e;
+    --grid-line: #e8ebef;
+  }
+  /* DARK — ClickHouse-ispirata ma RESTRAINED (no magenta secondary) */
+  [data-theme="dark"] {
+    --bg: #0e1116;
+    --surface: #161a21;
+    --surface-2: #1d222b;
+    --ink: #e8ebef;
+    --ink-soft: #b8c0cc;
+    --ink-muted: #7a8597;
+    --rule: #2a323e;
+    --rule-strong: #485568;
+    --accent: #e8b832;       /* warmer yellow on dark, single accent */
+    --accent-soft: #3d3220;
+    --accent-deep: #c89b1e;
+    --grid-line: #1a1f27;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.55;
+    background-image:
+      linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+    background-size: 24px 24px;
+    transition: background 0.15s linear, color 0.15s linear;
+    font-feature-settings: 'tnum' 1, 'cv11' 1;
+  }
+
+  .nav-bar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--rule-strong);
+    padding: 14px 32px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .header-back { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink); text-decoration: none; }
+  .label { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink); font-weight: 600; }
+  .label-tempered { background: var(--accent); color: #0d1a2e; padding: 2px 8px; }
+  .theme-toggle {
+    background: transparent; border: 1px solid var(--ink);
+    color: var(--ink); padding: 6px 12px;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; cursor: pointer;
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+  .theme-toggle:hover { background: var(--ink); color: var(--bg); }
+
+  .page { max-width: 1280px; margin: 0 auto; padding: 64px 48px 96px; }
+
+  /* Plate header — tempered (less ornate) */
+  .plate {
+    background: var(--surface);
+    border: 1px solid var(--rule-strong);
+    padding: 32px;
+  }
+  .plate-meta {
+    display: flex; justify-content: space-between;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 12px;
+    margin-bottom: 32px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--ink-muted);
+  }
+  .plate-meta strong { color: var(--ink); font-weight: 600; }
+  .plate-meta .col { display: flex; gap: 8px; }
+
+  /* HERO grid */
+  .hero { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
+
+  .hero h1 {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 64px;
+    line-height: 1.05;
+    letter-spacing: -2.5px;
+    margin: 28px 0 20px;
+  }
+  .hero h1 .accent { color: var(--accent-deep); border-bottom: 3px solid var(--accent); padding-bottom: 2px; }
+  [data-theme="dark"] .hero h1 .accent { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .hero .lead { font-size: 16px; color: var(--ink-soft); max-width: 480px; margin-bottom: 24px; }
+
+  .spec-list { border-top: 1px solid var(--rule-strong); padding-top: 16px; margin-top: 24px; }
+  .spec-row {
+    display: grid; grid-template-columns: 100px 1fr;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--rule);
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+  }
+  .spec-row .key { color: var(--ink-muted); text-transform: uppercase; letter-spacing: 1px; font-size: 10px; }
+  .spec-row .val { color: var(--ink); }
+
+  /* Dashboard widget canvas — TEMPERED (no neon, no magenta) */
+  .dash-canvas {
+    background: var(--surface-2);
+    border: 1px solid var(--rule-strong);
+    padding: 28px;
+    aspect-ratio: 1;
+    display: flex; flex-direction: column;
+  }
+  .dash-canvas .dash-meta {
+    display: flex; justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    color: var(--ink-muted); letter-spacing: 1.5px;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 8px; margin-bottom: 24px;
+  }
+  .dash-canvas svg { flex: 1; width: 100%; }
+
+  /* Palette display */
+  .palette-section { margin-top: 64px; padding: 32px; background: var(--surface); border: 1px solid var(--rule-strong); }
+  .palette-section h2 {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+    letter-spacing: -0.5px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 12px;
+  }
+  .palette-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; }
+  .palette-cell {
+    border: 1px solid var(--rule);
+    padding: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+  }
+  .palette-cell .swatch { width: 100%; height: 64px; margin-bottom: 8px; border: 1px solid var(--rule); }
+  .palette-cell .name { color: var(--ink); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+  .palette-cell .hex { color: var(--ink-muted); font-size: 11px; margin-top: 2px; }
+
+  /* Typography display */
+  .typo-section { margin-top: 32px; padding: 32px; background: var(--surface); border: 1px solid var(--rule-strong); }
+  .typo-section h2 {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+    letter-spacing: -0.5px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 12px;
+  }
+  .typo-row { display: grid; grid-template-columns: 100px 1fr; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--rule); align-items: baseline; }
+  .typo-row:last-child { border-bottom: 0; }
+  .typo-row .meta { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 1.5px; }
+  .typo-row .sample { color: var(--ink); }
+  .typo-h-xl { font-size: 56px; font-weight: 700; letter-spacing: -2px; line-height: 1; }
+  .typo-h-l { font-size: 36px; font-weight: 600; letter-spacing: -1px; }
+  .typo-h-m { font-size: 24px; font-weight: 600; letter-spacing: -0.5px; }
+  .typo-body { font-size: 16px; }
+  .typo-mono { font-family: 'JetBrains Mono', monospace; font-size: 14px; }
+
+  /* Mini dashboard mockup */
+  .dashboard-section { margin-top: 32px; background: var(--surface); border: 1px solid var(--rule-strong); }
+  .dashboard-section .dash-head {
+    padding: 16px 24px; border-bottom: 1px solid var(--rule);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .dashboard-section .dash-head h2 { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 22px; letter-spacing: -0.5px; }
+  .dashboard-section .dash-head .badge { background: var(--accent-soft); color: var(--accent-deep); padding: 4px 10px; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; }
+  [data-theme="dark"] .dashboard-section .dash-head .badge { background: var(--accent-soft); color: var(--accent); }
+
+  .dashboard-grid { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--rule); }
+  .kpi-cell { padding: 24px; border-right: 1px solid var(--rule); }
+  .kpi-cell:last-child { border-right: 0; }
+  .kpi-cell .kpi-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 1.5px; }
+  .kpi-cell .kpi-num { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 32px; letter-spacing: -1px; line-height: 1; margin: 8px 0 4px; font-variant-numeric: tabular-nums; }
+  .kpi-cell .kpi-num .delta { color: var(--accent-deep); font-size: 14px; font-weight: 500; margin-left: 8px; }
+  [data-theme="dark"] .kpi-cell .kpi-num .delta { color: var(--accent); }
+  .kpi-cell .kpi-sub { font-size: 12px; color: var(--ink-muted); }
+
+  /* Footer */
+  .footer { margin-top: 64px; padding: 24px 0; border-top: 1px solid var(--rule-strong); display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 24px; }
+  .footer .col strong { display: block; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 8px; color: var(--ink-muted); }
+  .footer .col p { font-size: 13px; color: var(--ink); }
+  .footer-meta { grid-column: 1 / -1; padding-top: 16px; border-top: 1px solid var(--rule); font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 1.5px; display: flex; justify-content: space-between; }
+</style>
+</head>
+<body data-theme="light">
+
+<nav class="nav-bar">
+  <a href="index.html" class="header-back">← 12 Direzioni</a>
+  <span class="label">ι · <span class="label-tempered">Industrial Blueprint Tempered</span></span>
+  <button class="theme-toggle" onclick="toggleTheme()">◐ Light/Dark</button>
+</nav>
+
+<div class="page">
+
+  <div class="plate">
+    <div class="plate-meta">
+      <div class="col"><span>SHEET</span><strong>01 / 04</strong></div>
+      <div class="col"><span>PROJECT</span><strong>HEURESYS · v.0</strong></div>
+      <div class="col"><span>FAMILY</span><strong>DATA-DENSE PRO</strong></div>
+      <div class="col"><span>BALANCE</span><strong>55T / 45C</strong></div>
+      <div class="col"><span>REF</span><strong>CLICKHOUSE × LINEAR</strong></div>
+    </div>
+
+    <div class="hero">
+      <div>
+        <!-- Logo monogram tempered: 5 pillar architectural, single accent -->
+        <svg width="220" height="64" viewBox="0 0 280 80" xmlns="http://www.w3.org/2000/svg">
+          <rect x="8" y="10" width="60" height="60" stroke="currentColor" stroke-width="1.5" fill="none" />
+          <line x1="14" y1="20" x2="14" y2="60" stroke="currentColor" stroke-width="1.5" />
+          <line x1="24" y1="20" x2="24" y2="60" stroke="currentColor" stroke-width="1.5" />
+          <line x1="38" y1="20" x2="38" y2="60" stroke="var(--accent)" stroke-width="3" />
+          <line x1="52" y1="20" x2="52" y2="60" stroke="currentColor" stroke-width="1.5" />
+          <line x1="62" y1="20" x2="62" y2="60" stroke="currentColor" stroke-width="1.5" />
+          <line x1="8" y1="40" x2="68" y2="40" stroke="currentColor" stroke-width="1.5" />
+          <text x="84" y="46" font-family="Inter" font-weight="700" font-size="32" letter-spacing="-1" fill="currentColor">heures<tspan style="fill: var(--accent); font-weight: 500">y</tspan>s</text>
+        </svg>
+
+        <h1>Il layer <span class="accent">ontologico</span><br />tra ERP, HR e BI.</h1>
+
+        <p class="lead">heuresys governa la <strong>capability</strong> organizzativa come costrutto misurabile. Cinque dimensioni in un grafo semantico ESCO bilingue. Decisioni diverse, non report più belli.</p>
+
+        <div class="spec-list">
+          <div class="spec-row"><div class="key">Type</div><div class="val">Organizational Intelligence Platform</div></div>
+          <div class="spec-row"><div class="key">Family</div><div class="val">Data-Dense Pro · tempered</div></div>
+          <div class="spec-row"><div class="key">Reference</div><div class="val">ClickHouse mood × Linear restraint</div></div>
+          <div class="spec-row"><div class="key">Accent</div><div class="val">Single — amber tempered (no magenta secondary)</div></div>
+        </div>
+      </div>
+
+      <div class="dash-canvas">
+        <div class="dash-meta">
+          <span>FIG. 01 · KG topology</span>
+          <span>5-DIM ONTOLOGY</span>
+        </div>
+        <svg viewBox="0 0 320 280">
+          <defs>
+            <style>
+              .ki-line { stroke: var(--ink-muted); stroke-width: 0.8; fill: none; opacity: 0.5; }
+              .ki-line-strong { stroke: var(--accent); stroke-width: 1.5; fill: none; }
+              .ki-node { fill: var(--surface); stroke: var(--ink); stroke-width: 1.5; }
+              .ki-node-strong { fill: var(--accent); stroke: var(--ink); stroke-width: 1.5; }
+              .ki-text { font-family: 'JetBrains Mono', monospace; font-size: 9px; fill: var(--ink); letter-spacing: 1px; }
+              .ki-text-strong { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; fill: #0d1a2e; }
+            </style>
+          </defs>
+          <line x1="160" y1="60" x2="60" y2="160" class="ki-line" />
+          <line x1="160" y1="60" x2="260" y2="160" class="ki-line" />
+          <line x1="60" y1="160" x2="260" y2="160" class="ki-line" />
+          <line x1="60" y1="160" x2="160" y2="240" class="ki-line" />
+          <line x1="260" y1="160" x2="160" y2="240" class="ki-line" />
+          <line x1="160" y1="60" x2="160" y2="140" class="ki-line-strong" />
+          <line x1="160" y1="140" x2="60" y2="160" class="ki-line" />
+          <line x1="160" y1="140" x2="260" y2="160" class="ki-line" />
+          <line x1="160" y1="140" x2="160" y2="240" class="ki-line" />
+          <circle cx="160" cy="60" r="20" class="ki-node" />
+          <text x="160" y="64" class="ki-text" text-anchor="middle">PROCESS</text>
+          <circle cx="60" cy="160" r="18" class="ki-node" />
+          <text x="60" y="164" class="ki-text" text-anchor="middle">STRUCT</text>
+          <circle cx="260" cy="160" r="18" class="ki-node" />
+          <text x="260" y="164" class="ki-text" text-anchor="middle">ROLE</text>
+          <circle cx="160" cy="240" r="18" class="ki-node" />
+          <text x="160" y="244" class="ki-text" text-anchor="middle">COMP</text>
+          <circle cx="160" cy="140" r="22" class="ki-node-strong" />
+          <text x="160" y="144" class="ki-text-strong" text-anchor="middle">PERF</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Palette display -->
+  <div class="palette-section">
+    <h2>Palette · single accent · no magenta secondary</h2>
+    <div class="palette-grid">
+      <div class="palette-cell"><div class="swatch" style="background: var(--bg);"></div><div class="name">bg</div><div class="hex">light: #fafbfc / dark: #0e1116</div></div>
+      <div class="palette-cell"><div class="swatch" style="background: var(--surface);"></div><div class="name">surface</div><div class="hex">light: #ffffff / dark: #161a21</div></div>
+      <div class="palette-cell"><div class="swatch" style="background: var(--surface-2);"></div><div class="name">surface-2</div><div class="hex">light: #f4f5f7 / dark: #1d222b</div></div>
+      <div class="palette-cell"><div class="swatch" style="background: var(--ink);"></div><div class="name">ink</div><div class="hex">light: #0d1a2e / dark: #e8ebef</div></div>
+      <div class="palette-cell"><div class="swatch" style="background: var(--accent);"></div><div class="name">accent</div><div class="hex">light: #d4a017 / dark: #e8b832</div></div>
+      <div class="palette-cell"><div class="swatch" style="background: var(--rule-strong);"></div><div class="name">rule-strong</div><div class="hex">light: #1a2332 / dark: #485568</div></div>
+    </div>
+  </div>
+
+  <!-- Typography -->
+  <div class="typo-section">
+    <h2>Typography · Inter + JetBrains Mono only</h2>
+    <div class="typo-row"><span class="meta">H1 — 56/700</span><span class="sample typo-h-xl">heuresys</span></div>
+    <div class="typo-row"><span class="meta">H2 — 36/600</span><span class="sample typo-h-l">Capability operating system</span></div>
+    <div class="typo-row"><span class="meta">H3 — 24/600</span><span class="sample typo-h-m">Knowledge Graph ESCO bilingue</span></div>
+    <div class="typo-row"><span class="meta">Body — 16/400</span><span class="sample typo-body">Dense by default. Information per pixel is the goal. Tabular numerals always-on.</span></div>
+    <div class="typo-row"><span class="meta">Mono — 14/500</span><span class="sample typo-mono">14,011 skills · 17K entities · 126K relations · D-001..D-005</span></div>
+    <div class="typo-row"><span class="meta">Mono num</span><span class="sample typo-mono" style="font-size: 24px; font-weight: 700;">531+ · 17.000 · 14.011 · 3.276 · 126.000+</span></div>
+  </div>
+
+  <!-- Mini dashboard -->
+  <div class="dashboard-section">
+    <div class="dash-head">
+      <h2>Capability Dashboard · KPI ring</h2>
+      <span class="badge">data-dense pro</span>
+    </div>
+    <div class="dashboard-grid">
+      <div class="kpi-cell">
+        <div class="kpi-label">D-001 · TABLES</div>
+        <div class="kpi-num">531<span class="delta">+12</span></div>
+        <div class="kpi-sub">schema corrente</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="kpi-label">D-002 · ENTITIES</div>
+        <div class="kpi-num">17.024<span class="delta">+1.2%</span></div>
+        <div class="kpi-sub">Knowledge Graph ESCO</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="kpi-label">D-003 · SKILLS</div>
+        <div class="kpi-num">14.011<span class="delta">stable</span></div>
+        <div class="kpi-sub">bilingue IT/EN</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="kpi-label">D-005 · CROSSWALK</div>
+        <div class="kpi-num">126.348<span class="delta">+0.4%</span></div>
+        <div class="kpi-sub">relazioni semantiche</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="col">
+      <svg width="120" height="32" viewBox="0 0 280 80">
+        <rect x="8" y="10" width="60" height="60" stroke="currentColor" stroke-width="1.5" fill="none" />
+        <line x1="14" y1="20" x2="14" y2="60" stroke="currentColor" stroke-width="1.5" />
+        <line x1="24" y1="20" x2="24" y2="60" stroke="currentColor" stroke-width="1.5" />
+        <line x1="38" y1="20" x2="38" y2="60" stroke="var(--accent)" stroke-width="3" />
+        <line x1="52" y1="20" x2="52" y2="60" stroke="currentColor" stroke-width="1.5" />
+        <line x1="62" y1="20" x2="62" y2="60" stroke="currentColor" stroke-width="1.5" />
+        <line x1="8" y1="40" x2="68" y2="40" stroke="currentColor" stroke-width="1.5" />
+        <text x="84" y="46" font-family="Inter" font-weight="700" font-size="32" fill="currentColor">heures<tspan style="fill: var(--accent); font-weight: 500">y</tspan>s</text>
+      </svg>
+    </div>
+    <div class="col"><strong>Family</strong><p>Data-Dense Pro<br />tempered (no magenta)</p></div>
+    <div class="col"><strong>Reference</strong><p>ClickHouse · Linear<br />tabular numerals</p></div>
+    <div class="col"><strong>Critique</strong><p><a href="iota-industrial-blueprint-tempered.critique.md" style="color: var(--ink); text-decoration: underline;">3-designer-debate.md</a></p></div>
+    <div class="footer-meta">
+      <span>© 2026 HEURESYS · ι DIRECTION · INDUSTRIAL BLUEPRINT TEMPERED</span>
+      <span>SHEET 01 / 04 · 55T / 45C · INTER + JETBRAINS MONO</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const t = localStorage.getItem('heuresys-theme');
+  if (t) document.body.setAttribute('data-theme', t);
+  function toggleTheme() {
+    const cur = document.body.getAttribute('data-theme') || 'light';
+    const next = cur === 'light' ? 'dark' : 'light';
+    document.body.setAttribute('data-theme', next);
+    localStorage.setItem('heuresys-theme', next);
+  }
+</script>
+
+</body>
+</html>

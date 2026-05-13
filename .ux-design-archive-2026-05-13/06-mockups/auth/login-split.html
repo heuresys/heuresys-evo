@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Accedi — heuresys (Split Cinematic)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  /* Heuresys Login — Split Cinematic variant
+     Mood: editorial brand showcase 50/50 · KG topology animata · cinematic
+  */
+  :root {
+    --bg: #0a0d18;
+    --paper: #14182a;
+    --surface-1: #14182a;
+    --surface-2: #1c2138;
+    --ink: #f4f5f7;
+    --ink-soft: #c8cad2;
+    --ink-muted: #8b8e99;
+    --ink-tertiary: #5e6168;
+    --rule: #232838;
+    --rule-strong: #3a4055;
+    --primary: #3b82f6;
+    --primary-deep: #2452c8;
+    --accent: #a855f7;
+    --accent-deep: #7e3fc8;
+    --gradient: linear-gradient(135deg, #3b82f6 0%, #a855f7 100%);
+    --glow-strong: 0 0 60px rgba(168, 85, 247, 0.40);
+  }
+  [data-theme="light"] {
+    --bg: #ffffff;
+    --paper: #f4f5f7;
+    --surface-1: #f4f5f7;
+    --surface-2: #ebecf0;
+    --ink: #0a0d18;
+    --ink-soft: #2a2d38;
+    --ink-muted: #6a6d75;
+    --ink-tertiary: #9ea0a8;
+    --rule: #d8dae0;
+    --rule-strong: #b6b9c2;
+    --primary: #2452c8;
+    --primary-deep: #1e3fa0;
+    --accent: #7e3fc8;
+    --accent-deep: #5e2898;
+    --gradient: linear-gradient(135deg, #2452c8 0%, #7e3fc8 100%);
+    --glow-strong: 0 0 40px rgba(126, 63, 200, 0.25);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased; line-height: 1.5;
+    transition: background 0.15s linear, color 0.15s linear;
+    font-feature-settings: 'tnum' 1, 'cv11' 1;
+    overflow-x: hidden;
+  }
+  .app-grid {
+    min-height: 100vh;
+    display: grid; grid-template-columns: 1.05fr 1fr;
+  }
+
+  /* Left panel — brand showcase */
+  .brand-side {
+    background: linear-gradient(180deg, #060818 0%, #0a0d18 60%, #14182a 100%);
+    color: #f4f5f7;
+    padding: 56px 64px 48px;
+    display: flex; flex-direction: column; justify-content: space-between;
+    position: relative; overflow: hidden;
+  }
+  [data-theme="light"] .brand-side {
+    background: linear-gradient(180deg, #0a0d18 0%, #1a2040 100%);
+    color: #f4f5f7;
+  }
+  /* Soft purple radial behind */
+  .brand-side::before {
+    content: ''; position: absolute;
+    width: 120%; height: 120%;
+    top: -10%; left: -10%;
+    background: radial-gradient(circle at 30% 40%, rgba(168, 85, 247, 0.18) 0%, transparent 55%);
+    pointer-events: none;
+  }
+  /* Conic accent ring decorative */
+  .brand-side::after {
+    content: ''; position: absolute;
+    width: 600px; height: 600px;
+    top: 25%; left: -20%;
+    background: conic-gradient(from 0deg, transparent 0%, rgba(59, 130, 246, 0.10) 25%, rgba(168, 85, 247, 0.20) 50%, transparent 75%);
+    border-radius: 50%;
+    pointer-events: none; filter: blur(20px);
+    animation: rotate 40s linear infinite;
+  }
+  @keyframes rotate { to { transform: rotate(360deg); } }
+
+  .brand-side-top { position: relative; z-index: 2; }
+  .label {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.55); font-weight: 600;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .label::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent); box-shadow: 0 0 12px var(--accent);
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  /* Wordmark mega — L25 + L27 (two-color legacy pattern) */
+  .wordmark-mega {
+    font-family: 'Exo 2', sans-serif; font-weight: 700;
+    font-size: 92px; letter-spacing: -3.5px; line-height: 1;
+    color: var(--primary); margin-top: 24px; margin-bottom: 28px;
+    filter: drop-shadow(var(--glow-strong));
+  }
+  .wordmark-mega .y { color: var(--accent); }
+  .manifesto {
+    font-family: 'Inter', sans-serif; font-weight: 400;
+    font-size: 22px; line-height: 1.5;
+    color: rgba(255, 255, 255, 0.86);
+    max-width: 460px;
+  }
+  .manifesto strong {
+    font-weight: 600;
+    background: linear-gradient(135deg, #3b82f6, #a855f7);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+  }
+
+  /* KG topology center */
+  .kg-stage {
+    position: relative; z-index: 2;
+    margin: 36px 0;
+    flex: 1;
+    display: flex; align-items: center; justify-content: center;
+    min-height: 240px;
+  }
+  .kg-svg { width: 100%; max-width: 480px; height: auto; }
+  .kg-edge { stroke: rgba(168, 85, 247, 0.35); stroke-width: 1; fill: none; stroke-dasharray: 4 4; animation: dash 8s linear infinite; }
+  @keyframes dash { to { stroke-dashoffset: -100; } }
+  .kg-node-core { fill: url(#g-grad); }
+  .kg-node-leaf { fill: var(--bg); stroke: var(--primary); stroke-width: 1.5; }
+  .kg-node-accent { fill: var(--accent); }
+  .kg-pulse { animation: nodePulse 3.2s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
+  @keyframes nodePulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.18); } }
+
+  /* Trust bar bottom */
+  .brand-side-bottom { position: relative; z-index: 2; }
+  .trust-bar {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    margin-top: 24px;
+  }
+  .trust-pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
+    padding: 6px 12px; border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    color: rgba(255, 255, 255, 0.78);
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .trust-pill .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
+  .trust-pill .dot.b { background: var(--primary); }
+  .trust-pill .dot.g { background: #5fb87a; }
+
+  /* Right panel — form aerea */
+  .form-side {
+    background: var(--bg);
+    padding: 56px 56px 32px;
+    display: flex; flex-direction: column;
+  }
+  .form-side-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 48px;
+  }
+  .top-back {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: var(--ink-muted); text-decoration: none;
+  }
+  .top-back:hover { color: var(--ink); }
+
+  /* L25 + L27 wordmark inline utility (two-color legacy) */
+  .wm-inline {
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 700;
+    letter-spacing: normal;
+    text-transform: lowercase;
+    color: var(--primary);
+  }
+  .wm-inline .y { color: var(--accent); }
+  .theme-toggle {
+    background: transparent; border: 1px solid var(--rule-strong); color: var(--ink);
+    padding: 6px 12px; font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    cursor: pointer; text-transform: uppercase; letter-spacing: 1px; border-radius: 4px;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+  }
+  .theme-toggle:hover { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+  .form-wrap {
+    flex: 1; display: flex; flex-direction: column; justify-content: center;
+    max-width: 380px; width: 100%; margin: 0 auto;
+  }
+
+  .form-eyebrow {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    text-transform: uppercase; letter-spacing: 2px;
+    color: var(--accent); font-weight: 600;
+    margin-bottom: 14px;
+  }
+  .form-h1 {
+    font-family: 'Inter', sans-serif; font-weight: 700;
+    font-size: 36px; line-height: 1.1; letter-spacing: -1px;
+    color: var(--ink); margin-bottom: 8px;
+  }
+  .form-h1 em {
+    font-style: normal;
+    background: linear-gradient(135deg, #3b82f6, #a855f7);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+  }
+  .form-sub {
+    color: var(--ink-muted); font-size: 14px;
+    margin-bottom: 32px;
+  }
+
+  /* Tenant context */
+  .tenant-context {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--surface-1);
+    border: 1px solid var(--rule);
+    border-radius: 8px; padding: 12px 14px; margin-bottom: 24px;
+  }
+  .tenant-avatar {
+    width: 32px; height: 32px; flex-shrink: 0; border-radius: 6px;
+    border: 2px solid var(--primary);
+    background: var(--bg); color: var(--accent);
+    font-family: 'Inter'; font-weight: 700; font-size: 11px;
+    display: flex; align-items: center; justify-content: center;
+    letter-spacing: 0.5px;
+  }
+  .tenant-info { flex: 1; min-width: 0; }
+  .tenant-name { font-weight: 600; font-size: 13px; color: var(--ink); line-height: 1.2; }
+  .tenant-meta {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    color: var(--ink-muted); letter-spacing: 0.5px; margin-top: 2px;
+  }
+  .tenant-switch {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    color: var(--primary); text-decoration: none;
+    text-transform: uppercase; letter-spacing: 1px;
+    background: transparent; border: none; cursor: pointer; padding: 4px 6px;
+  }
+  .tenant-switch:hover { color: var(--accent); }
+
+  /* Form */
+  .auth-form { display: flex; flex-direction: column; gap: 14px; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--ink-muted); font-weight: 600;
+  }
+  .field-input {
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid var(--rule);
+    border-radius: 0;
+    padding: 10px 0;
+    font-family: 'Inter'; font-size: 16px; color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .field-input::placeholder { color: var(--ink-tertiary); }
+  .field-input:focus { border-color: var(--accent); }
+
+  .field-row {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 4px; font-size: 12px;
+  }
+  .checkbox-label { display: flex; align-items: center; gap: 8px; color: var(--ink-soft); cursor: pointer; }
+  .checkbox-label input { accent-color: var(--accent); cursor: pointer; }
+  .forgot-link { color: var(--primary); text-decoration: none; font-weight: 500; }
+  .forgot-link:hover { color: var(--accent); }
+
+  /* Buttons */
+  .btn {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 14px 16px; border-radius: 8px;
+    font-family: 'Inter'; font-size: 14px; font-weight: 600;
+    cursor: pointer; border: 1px solid transparent; text-decoration: none;
+    transition: background 0.15s, border-color 0.15s, transform 0.15s;
+  }
+  .btn-primary {
+    background: var(--accent); color: #ffffff; margin-top: 14px;
+  }
+  .btn-primary:hover { background: var(--accent-deep); transform: translateY(-1px); }
+  .btn-secondary {
+    background: transparent; color: var(--ink); border-color: var(--rule-strong);
+  }
+  .btn-secondary:hover { border-color: var(--ink); background: var(--surface-1); }
+  .btn-icon { width: 16px; height: 16px; flex-shrink: 0; }
+
+  .divider {
+    display: flex; align-items: center; gap: 12px;
+    margin: 22px 0 16px;
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    text-transform: uppercase; letter-spacing: 1.5px; color: var(--ink-muted);
+  }
+  .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--rule); }
+  .sso-group { display: flex; flex-direction: column; gap: 10px; }
+
+  .auth-footnote {
+    font-size: 12px; color: var(--ink-muted); text-align: center;
+    margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--rule);
+  }
+  .auth-footnote a { color: var(--primary); text-decoration: none; }
+  .auth-footnote a:hover { color: var(--accent); }
+
+  .form-side-footer {
+    margin-top: 32px; text-align: center;
+    font-size: 11px; color: var(--ink-tertiary);
+  }
+  .form-side-footer .copy { font-family: 'JetBrains Mono', monospace; letter-spacing: 0.5px; }
+  .form-side-footer .wordmark-foot { font-family: 'Exo 2', sans-serif; font-weight: 700; }
+  .form-side-footer .wordmark-foot .y { color: var(--accent); }
+  .form-side-footer .links { margin-top: 8px; display: flex; justify-content: center; gap: 16px; }
+  .form-side-footer .links a {
+    color: var(--ink-muted); text-decoration: none;
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+  .form-side-footer .links a:hover { color: var(--accent); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .brand-side::after, .label::before, .kg-edge, .kg-pulse {
+      animation: none !important;
+    }
+  }
+  @media (max-width: 880px) {
+    .app-grid { grid-template-columns: 1fr; }
+    .brand-side { padding: 40px 32px; min-height: 50vh; }
+    .form-side { padding: 32px 24px; }
+    .wordmark-mega { font-size: 64px; letter-spacing: -2.5px; }
+    .manifesto { font-size: 18px; }
+  }
+</style>
+</head>
+<body data-theme="dark">
+
+<div class="app-grid">
+
+  <!-- LEFT: brand showcase -->
+  <aside class="brand-side">
+    <div class="brand-side-top">
+      <span class="label"><span class="wm-inline">heures<span class="y">y</span>s</span> · Organizational Intelligence</span>
+      <h2 class="wordmark-mega">heures<span class="y">y</span>s</h2>
+      <p class="manifesto">
+        Il <strong>layer ontologico</strong> tra ERP, HR e BI. Knowledge graph ESCO bilingue,
+        14.011 capability mappate, 326 RBAC join enterprise-grade.
+      </p>
+    </div>
+
+    <div class="kg-stage">
+      <svg class="kg-svg" viewBox="0 0 480 280" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <linearGradient id="g-grad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#3b82f6"/>
+            <stop offset="100%" stop-color="#a855f7"/>
+          </linearGradient>
+        </defs>
+        <!-- Edges -->
+        <line class="kg-edge" x1="240" y1="140" x2="120" y2="60"/>
+        <line class="kg-edge" x1="240" y1="140" x2="360" y2="60"/>
+        <line class="kg-edge" x1="240" y1="140" x2="120" y2="220"/>
+        <line class="kg-edge" x1="240" y1="140" x2="360" y2="220"/>
+        <line class="kg-edge" x1="240" y1="140" x2="60" y2="140"/>
+        <line class="kg-edge" x1="240" y1="140" x2="420" y2="140"/>
+        <line class="kg-edge" x1="120" y1="60" x2="60" y2="140"/>
+        <line class="kg-edge" x1="360" y1="60" x2="420" y2="140"/>
+        <line class="kg-edge" x1="120" y1="220" x2="60" y2="140"/>
+        <line class="kg-edge" x1="360" y1="220" x2="420" y2="140"/>
+        <!-- Leaf nodes -->
+        <circle class="kg-node-leaf" cx="120" cy="60" r="10"/>
+        <circle class="kg-node-leaf" cx="360" cy="60" r="10"/>
+        <circle class="kg-node-leaf" cx="120" cy="220" r="10"/>
+        <circle class="kg-node-leaf" cx="360" cy="220" r="10"/>
+        <circle class="kg-node-leaf" cx="60"  cy="140" r="10"/>
+        <circle class="kg-node-leaf" cx="420" cy="140" r="10"/>
+        <!-- Accent leaf -->
+        <circle class="kg-node-accent kg-pulse" cx="360" cy="60" r="8"/>
+        <!-- Core node -->
+        <circle class="kg-node-core kg-pulse" cx="240" cy="140" r="22"/>
+      </svg>
+    </div>
+
+    <div class="brand-side-bottom">
+      <div class="trust-bar">
+        <span class="trust-pill"><span class="dot b"></span>Multi-tenant ready</span>
+        <span class="trust-pill"><span class="dot"></span>ESCO certified</span>
+        <span class="trust-pill"><span class="dot g"></span>EU multi-region</span>
+        <span class="trust-pill"><span class="dot b"></span>SOC 2 type II</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- RIGHT: form aerea -->
+  <main class="form-side">
+    <div class="form-side-header">
+      <a href="#" class="top-back">← heuresys.com</a>
+      <button class="theme-toggle" id="themeToggle" type="button">DARK</button>
+    </div>
+
+    <div class="form-wrap">
+      <div class="form-eyebrow">Sign in</div>
+      <h1 class="form-h1">Accedi al <em>tuo</em> workspace</h1>
+      <p class="form-sub">Continua con la tua identità aziendale per accedere a <span class="wm-inline">heures<span class="y">y</span>s</span>.</p>
+
+      <div class="tenant-context" aria-label="Tenant corrente">
+        <div class="tenant-avatar" aria-hidden="true">RB</div>
+        <div class="tenant-info">
+          <div class="tenant-name">RTL Bank</div>
+          <div class="tenant-meta">rtl-bank.heuresys.com · Banking · Production</div>
+        </div>
+        <button type="button" class="tenant-switch" aria-label="Cambia tenant">CAMBIA</button>
+      </div>
+
+      <form class="auth-form" novalidate onsubmit="event.preventDefault();">
+        <div class="field">
+          <label class="field-label" for="email">Email aziendale</label>
+          <input class="field-input" type="email" id="email" name="email" placeholder="maria.chro@rtl-bank.org" autocomplete="username" required />
+        </div>
+        <div class="field">
+          <label class="field-label" for="password">Password</label>
+          <input class="field-input" type="password" id="password" name="password" placeholder="••••••••••" autocomplete="current-password" required />
+        </div>
+        <div class="field-row">
+          <label class="checkbox-label">
+            <input type="checkbox" name="remember" />
+            <span>Ricordami su questo dispositivo</span>
+          </label>
+          <a href="#" class="forgot-link">Password dimenticata?</a>
+        </div>
+        <button type="submit" class="btn btn-primary">Accedi</button>
+      </form>
+
+      <div class="divider"><span>oppure</span></div>
+
+      <div class="sso-group">
+        <button type="button" class="btn btn-secondary">
+          <svg class="btn-icon" viewBox="0 0 23 23" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect x="1" y="1" width="10" height="10" fill="#f25022"/>
+            <rect x="12" y="1" width="10" height="10" fill="#7fba00"/>
+            <rect x="1" y="12" width="10" height="10" fill="#00a4ef"/>
+            <rect x="12" y="12" width="10" height="10" fill="#ffb900"/>
+          </svg>
+          Continua con Microsoft 365
+        </button>
+        <button type="button" class="btn btn-secondary">
+          <svg class="btn-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A10.99 10.99 0 0 0 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18A10.99 10.99 0 0 0 1 12c0 1.77.42 3.45 1.18 4.93l3.66-2.84z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1A10.99 10.99 0 0 0 2.18 7.07l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/>
+          </svg>
+          Continua con Google Workspace
+        </button>
+      </div>
+
+      <div class="auth-footnote">
+        Non hai un account? <a href="#">Contatta il tuo IT_ADMIN</a><br />
+        oppure <a href="#">richiedi una demo</a>
+      </div>
+    </div>
+
+    <div class="form-side-footer">
+      <div class="copy">© 2026 heuresys.com — Organizational Intelligence platform</div>
+      <div class="links">
+        <a href="#">Privacy</a><a href="#">Terms</a><a href="#">Security</a><a href="#">Status</a>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  (function () {
+    const KEY = 'heuresys-theme';
+    const body = document.body;
+    const btn = document.getElementById('themeToggle');
+    const stored = localStorage.getItem(KEY);
+    if (stored === 'light' || stored === 'dark') body.setAttribute('data-theme', stored);
+    function apply() { btn.textContent = (body.getAttribute('data-theme') || 'dark').toUpperCase(); }
+    apply();
+    btn.addEventListener('click', function () {
+      const next = (body.getAttribute('data-theme') || 'dark') === 'dark' ? 'light' : 'dark';
+      body.setAttribute('data-theme', next);
+      localStorage.setItem(KEY, next);
+      apply();
+    });
+  })();
+</script>
+
+</body>
+</html>

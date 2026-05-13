@@ -1,10 +1,26 @@
 ---
 name: studio
-version: 1.1.0
-description: Use when user wants to clone a Next.js production page into the brand identity sandbox, manipulate it safely, or promote a manipulated staging back to production with restorable backup. Triggers on phrases like "iteriamo sulla dashboard", "clona la pagina /<route>", "lavoriamo sulla pagina di login", "promote staging", "rollback design", "studio aperto su /<route>", or any request to modify a production route via the .ux-design/ workstream. NOT for token CSS changes (use /brand-studio URL page) or for asset brand changes (logo/palette/font — use /brand:* commands).
+version: 1.1.0-deprecated
+deprecated: true
+description: DEPRECATED post-S62 reset (2026-05-13) — sostituita da `/studio2:*` per cycle 2. Vedi ADR-0032. Skill cycle 1 frozen, mantenuta per emergency hotfix di route legacy. NON usare per nuove modifiche. Path target cycle 1 `.ux-design/10-staging/` ora in archive `.ux-design-archive-2026-05-13/10-staging/` (vuoto). Vecchia descrizione cycle 1 preservata sotto per audit storico.
 ---
 
-# studio — Workflow clone↔promote↔backup di route Next.js attraverso il dominio brand identity
+> **⚠️ DEPRECATED — FROZEN post-S62 reset 2026-05-13**
+>
+> Questa skill (`/studio:*` cycle 1) è frozen e NON deve ricevere nuove invocazioni. È stata sostituita da `/studio2:*` cycle 2 (`.claude/skills/studio2/SKILL.md`).
+>
+> **Motivazione**: ADR-0032 `brand-design-reset-cycle-2.md` (in `docs/50-reference/decisions/`).
+> **Razionale freeze**: 9 sub-comandi + 6-gate flow accumulati cycle 1 con Gate A "motivazione" e Gate C "anti-slop" criteri vaghi. Cycle 2 `/studio2:*` semplifica a 4 sub-comandi + 3-gate flow (canonical derivation + live data + user confirm).
+>
+> **Path target cycle 1** (`.ux-design/10-staging/`) ora archiviato in `.ux-design-archive-2026-05-13/10-staging/` (era vuoto al reset). Non scrivere qui.
+>
+> **Per nuove modifiche route**: usa `/studio2:propose <route>` → `/studio2:promote <route> <staging-id>` → opzionalmente `/studio2:rollback <route>`.
+>
+> Il contenuto sotto è preservato come reference storica del workflow cycle 1.
+
+---
+
+# studio — Workflow clone↔promote↔backup di route Next.js attraverso il dominio brand identity (cycle 1, frozen)
 
 Questa skill garantisce che ogni modifica a una pagina di produzione (`services/app/src/app/<route>/`) passi attraverso il dominio brand identity (`.ux-design/10-staging/`), con backup restorable obbligatorio prima di ogni promozione.
 

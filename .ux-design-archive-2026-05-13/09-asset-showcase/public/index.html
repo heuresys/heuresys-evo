@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="it" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Heuresys — Asset Showcase</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/theme.css" />
+    <link rel="stylesheet" href="/css/brand.css" />
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="wordmark-sm">heuresys</span>
+        <span class="label-pill">SHOWCASE</span>
+        <span id="stats-summary" class="stats-summary"></span>
+      </div>
+      <div class="topbar-center">
+        <input id="search" class="search" type="search" placeholder="Cerca asset (nome · path · descrizione)" />
+        <div class="filter-pills">
+          <button class="filter-pill active" data-filter="all">All</button>
+          <button class="filter-pill" data-filter="promoted">Promoted ✅</button>
+          <button class="filter-pill" data-filter="available">Available 🆕</button>
+          <button class="filter-pill" data-filter="chrome">🛡 Chrome</button>
+          <button class="filter-pill" data-filter="org_systems_v2">📐 IT_ADMIN body</button>
+        </div>
+        <select id="kind-filter" class="kind-select">
+          <option value="">Tutti i tipi</option>
+          <option value="token">Tokens</option>
+          <option value="css">CSS classes</option>
+          <option value="react">React (UI)</option>
+          <option value="widget">Widget (App)</option>
+        </select>
+      </div>
+      <div class="topbar-right">
+        <button id="btn-new" class="btn btn-primary" title="Aggiungi asset manuale">+ New</button>
+        <button id="btn-bootstrap" class="btn btn-ghost" title="Re-import da sorgenti">⟳ Re-import</button>
+        <button id="btn-theme" class="theme-toggle-btn" title="Toggle theme">◐</button>
+      </div>
+    </header>
+
+    <div class="layout">
+      <aside id="sidebar" class="sidebar-pane" aria-label="Asset tree"></aside>
+      <main id="canvas" class="canvas-pane">
+        <div class="canvas-empty">
+          <div class="empty-icon">⬡</div>
+          <h2>Seleziona un asset dalla sidebar</h2>
+          <p>O usa la barra di ricerca per filtrare il catalogo.</p>
+          <p class="hint">340+ asset · 4 categorie · catalogo SoT promoted distinto da disponibili</p>
+        </div>
+      </main>
+    </div>
+
+    <!-- New asset modal -->
+    <dialog id="new-modal" class="modal">
+      <form id="new-form">
+        <h2>Nuovo asset</h2>
+        <label>Nome <input name="name" required placeholder=".my-class oppure MyComponent" /></label>
+        <label>Tipo
+          <select name="kind" required>
+            <option value="css">CSS class</option>
+            <option value="token">Design token</option>
+            <option value="react">React (UI lib)</option>
+            <option value="widget">Widget (App)</option>
+          </select>
+        </label>
+        <label>Category <input name="category" placeholder="es. Cards · Pills · Layout" /></label>
+        <label>Subcategory <input name="subcategory" placeholder="opzionale" /></label>
+        <label>Source path <input name="sourcePath" placeholder="es. services/app/src/components/Foo.tsx" /></label>
+        <label>Import path <input name="importPath" placeholder="opzionale" /></label>
+        <label>Description <textarea name="description" rows="3"></textarea></label>
+        <label>Value (per tokens) <input name="value" placeholder="opzionale, es. #aab5f7" /></label>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" id="new-cancel">Annulla</button>
+          <button type="submit" class="btn btn-primary">Crea</button>
+        </div>
+      </form>
+    </dialog>
+
+    <!-- Variant modal -->
+    <dialog id="variant-modal" class="modal">
+      <form id="variant-form">
+        <h2>Nuova variante</h2>
+        <input type="hidden" name="assetId" />
+        <label>Nome <input name="name" required placeholder="es. primary · pill-warn · default" /></label>
+        <label>Modifier <input name="modifier" placeholder="es. .pill-warn" /></label>
+        <label>Preview HTML
+          <textarea name="previewHtml" rows="5" placeholder="<span class='pill pill-warn'>WARN</span>"></textarea>
+        </label>
+        <label>Notes <input name="notes" /></label>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" id="variant-cancel">Annulla</button>
+          <button type="submit" class="btn btn-primary">Crea variante</button>
+        </div>
+      </form>
+    </dialog>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>
