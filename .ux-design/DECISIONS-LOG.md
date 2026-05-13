@@ -3256,3 +3256,5 @@ Cross-tenant variance verificata:
 - Defense-in-depth in tutti i page.tsx auditati
 
 **Zero carry-forward residui.**
+
+**Hotfix S60 — phase18v (commit d7d8d2f)**: post-NOBYPASSRLS deploy, NextAuth Credentials login fail (CredentialsSignin) per federica.marchetti@rtl-bank.org. Root cause: `users` table ha RLS + policy `user_tenant_access` che richiede `current_tenant_id()` GUC settato; ma auth flow fa SELECT users WHERE username=X PRIMA del tenant context (chicken-egg). Fix: policy permissiva `user_auth_lookup_when_no_context` con `USING (current_tenant_id() IS NULL)` analoga a `tenant_lookup_when_no_context`. Verified live cross-tenant: tutti 8 KPI live + SuccessionCard + ActivityFeed RTL Bank.
