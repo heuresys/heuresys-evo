@@ -54,4 +54,27 @@
 
 ---
 
-<!-- Entry successive L6-LN: append qui. Decisioni MIGRATE da cycle 1 archive devono citare predecessore archive L-XX in body. -->
+## L6 (2026-05-14) — Mock UX personas cycle 1 purged (DDL/seed cleanup)
+
+**Decisione**: completata pulizia mock UX persona labels da cycle 1 (`Maria CHRO`, `Maria Bianchi`, `Davide IT`, `Andrea EMP`, `Stefania LM`, `Marco Rossi`) da 5 file LIVE + 13 file archive + 7 row dashboard*presets DBMS legacy. Allineamento al pattern canonical `Audience: <ROLE>` già applicato in `phase18g` per i preset `_v2` e `process*\*`.
+
+**Commit DDL**: `24bb5c4`.
+
+**Migration files touched** (header comment / seed string only, no schema change):
+
+- `db/migrations/phase18g_audience_persona_label.sql` — header comment storico riformulato (rimossi nomi mock dall'esempio storico)
+- `db/seeds/phase13_dashboard_presets.sql` — 5 `persona_label` literal sostituiti con `Audience: <ROLE>` pattern
+
+**DBMS UPDATE applicato direttamente** (no formal migration file): idempotent UPDATE su 7 row `dashboard_presets` legacy non-`_v2` (cross_tenant_overview · tenant_owner_overview · employee_journey · hr_director_overview · capability_graph · skills_heatmap · org_systems). Re-seed via `phase13` sopravvive perché `ON CONFLICT (code) DO UPDATE` aggiorna `persona_label` con nuovo valore canonical.
+
+**Verification**: 0 mock residue cross-filesystem + cross-DBMS (dashboard_presets · dashboard_elements · audit_logs · recruiting_candidates).
+
+**Cross-check coerenza DBMS**: users (265) ↔ employees (264) ↔ tenants (4) ↔ rbp_roles (8) 100% coerente. Username pattern `<first>.<last>@<tenant.domain>` (post L50 archive strip-space-apostrophe lowercase): 100% match per 264 employee-linked users + 1 SUPERUSER `sysadmin` platform.
+
+**Memoria globale**: nuovo file `~/.claude/projects/D--evo-heuresys-com/memory/feedback_canonical_user_format.md` codifica regola format username + password unica (`Heuresys2026!`) come SoT `tests/.test-env`. Bias da disinnescare: MAI inventare format `<role>.<tenant>@` o password alternative.
+
+**Trigger**: utente Enzo ha richiesto purga totale "Maria CHRO definitivamente dal progetto, dalla memoria, da qualunque oggetto" + check correttezza users/employees/altri riferimenti attivi.
+
+---
+
+<!-- Entry successive L7-LN: append qui. Decisioni MIGRATE da cycle 1 archive devono citare predecessore archive L-XX in body. -->
