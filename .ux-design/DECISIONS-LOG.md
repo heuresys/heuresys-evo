@@ -3065,3 +3065,51 @@ Root cause: tutti i 18 ready_now hanno `critical_role_id` orphan (puntano a plan
 - EcoNova onboarding_templates seeding (small gap, ~30min standalone)
 
 **Roadmap reflection**: Stage 2f+3 stima ~5h aggregate, reale ~45min effective (audit query 10min + 3 script writing 20min + 2 enum constraint fix 5min + execute 10min). Pattern stabilizzato: discovery-driven stage targeting (count BEFORE script, evita over-engineering). 5 sessioni totali (S55+1 → S55+5) hanno chiuso 4 stage di 7 e 80%+ del DBMS coverage gap. Stage 4-5-6 residue ~10h work in 2-3 sessioni.
+
+---
+
+## L83 — 2026-05-13 — CASCADIA closure S55+6: EcoNova templates + Stage 4 EPRA discovery + verify-area fix + memory rename
+
+**Contesto**: post-S55+5. Discovery audit Stage 4-6:
+
+- **Stage 4 EPRA**: `turnover_risk_scores` 267 + `performance_predictions` 267 records (RTL 156 + SF 82 + Eco 26 + Heu 3) — **già completamente saturati cross-tenant**. NO work needed.
+- **EcoNova onboarding_templates**: 0 (vero gap residuale per closure 2b)
+- **verify-area script bugs**: `holiday_calendars_it` (table name drift → `holidays`), `business_processes` + `dashboard_elements` not tenant-scoped (global lookup) → wrong column 42703 errors
+- **salary_bands EcoNova+Heuresys**: 0 records (cosmetic gap, low priority)
+
+**Decisione — Final closure batch**:
+
+1. EcoNova templates seeding via `h2r/44_onboarding_templates_econova.mjs` — 5 templates renewable-energy (Engineer/Technician/Sustainability Analyst/Commercial Green Bond/Senior Leadership). Sblocca Stage 2b execution per EcoNova → 5 instances + 22 tasks.
+2. verify-area schema fixes: rename `holiday_calendars_it` → `holidays`, mark `business_processes` + `dashboard_elements` come `global: true`, separare `dashboard_presets` come area dedicata.
+3. Memory rename: `feedback_seed_via_openai.md` → `feedback_seed_via_ai.md` con content aggiornato post-CASCADIA shipped (Claude native primary + statistical deterministic pattern formalizzato).
+4. ADR-0028 status: già Accepted post-S35 — no update necessario.
+
+**Stage 4 EPRA discovery**:
+
+- Plan prevedeva turnover_risk_scores + performance_predictions cross-tenant via Claude-driven deterministic
+- Reality: già 267+267 records popolati pre-S55+ (S35.3 RTL + S35.4 enrichment)
+- Stage 4 marked completed by discovery
+
+**Acceptance criteria FINAL**:
+
+- EcoNova onboarding_templates: 0 → 5
+- EcoNova onboarding_instances: 0 → 5 (+ 22 tasks)
+- verify-area --all: 🟢 24/26 · 🟡 2/26 · 🔴 0/26
+- Memory file rename committed
+
+**Commits**: `32354e2` (EcoNova templates + verify-area fix) · `9ab38e5` (h2r/45 TARGETS) · `898d29b` (verify-area global flags) · `b54b137` (handoff S55+6)
+
+**Cumulative CASCADIA totals FINAL** (S55+1 → S55+6): **+1141 records + 136 tasks** across 7 stage shipped + 4 stage discovered-saturated.
+
+**Pattern formalizzati riutilizzabili**:
+
+1. Semantic complex → Claude reasoning + JSON cached
+2. Mass-statistical → distributions.mjs deterministic + template pools
+3. Cross-tenant variance → TARGETS map per-tenant + skip preconditions
+4. Schema drift → in-flight column rename + dynamic introspect
+5. Discovery-driven targeting (audit BEFORE script)
+6. FK preflight + idempotency app-side
+
+**Roadmap reflection**: CASCADIA closure full effective ~5h reali in 6 sessioni (vs 28-35h stima plan iniziale). Reality gap dovuto a: (a) molte tabelle già popolate da seeding precedente non documentato (Stage 4 EPRA), (b) statistical generation 10x più rapido di LLM-per-record, (c) discovery-driven targeting evita lavoro non necessario. Lesson learned: AUDIT FIRST sempre, script DOPO.
+
+**Stage 5 residue (S57+ opzionale)**: dashboard binding sweep registry.tsx — UX-impactful ma non-blocking, DB ora popolato.
