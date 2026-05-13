@@ -73,11 +73,12 @@ const KpiRingWidget: WidgetComponent = lazyWidget(() =>
     default: liveWrapper(
       'KpiRing',
       {
-        value: 72,
-        label: 'CAPABILITY',
-        sublabel: 'company-wide · Q4',
-        unit: '%',
-        trend: 4.2,
+        // Empty-state placeholder — actual data via useWidgetData
+        value: 0,
+        label: 'KPI',
+        sublabel: 'no data yet',
+        unit: '',
+        trend: 0,
       },
       (props) => <m.BrandKpiCard {...props} />
     ),
@@ -118,14 +119,9 @@ const CareerArcWidget: WidgetComponent = lazyWidget(() =>
     default: liveWrapper(
       'CareerArc',
       {
-        currentIndex: 2,
-        stages: [
-          { id: '1', label: 'Junior', year: '2018' },
-          { id: '2', label: 'Analyst', year: '2020' },
-          { id: '3', label: 'Senior', year: '2023' },
-          { id: '4', label: 'Lead', year: '2026 →' },
-          { id: '5', label: 'Head', year: '2029+' },
-        ],
+        // Empty-state placeholder — actual data via useWidgetData from career_paths
+        currentIndex: 0,
+        stages: [{ id: '0', label: '—', year: '—' }],
       },
       (props) => <m.BrandCareerArc {...props} />
     ),
@@ -137,22 +133,10 @@ const KgMiniGraphWidget: WidgetComponent = lazyWidget(() =>
     default: liveWrapper(
       'KgMiniGraph',
       {
-        nodes: [
-          { id: 'finance', label: 'Finance', group: 'domain' },
-          { id: 'risk', label: 'Risk', group: 'domain' },
-          { id: 'sql', label: 'SQL', group: 'tech' },
-          { id: 'leadership', label: 'Leadership', group: 'soft' },
-        ],
-        edges: [
-          { id: 'e1', source: 'finance', target: 'risk' },
-          { id: 'e2', source: 'risk', target: 'sql' },
-          { id: 'e3', source: 'finance', target: 'leadership' },
-        ],
-        legend: [
-          { group: 'domain', label: 'Domain', color: '#3b82f6' },
-          { group: 'tech', label: 'Tech', color: '#a855f7' },
-          { group: 'soft', label: 'Soft', color: '#5fb87a' },
-        ],
+        // Empty-state placeholder — actual data via useWidgetData from kg_nodes/kg_edges
+        nodes: [],
+        edges: [],
+        legend: [],
       },
       (props) => <m.BrandKgGraph {...props} />
     ),
@@ -160,53 +144,22 @@ const KgMiniGraphWidget: WidgetComponent = lazyWidget(() =>
 );
 
 const SkillHeatmapWidget: WidgetComponent = lazyWidget(() =>
-  import('@/components/widgets/brand').then((m: any) => {
-    const rows = [
-      { id: 'fin', label: 'Finance' },
-      { id: 'risk', label: 'Risk' },
-      { id: 'eng', label: 'Engineering' },
-      { id: 'hr', label: 'HR' },
-    ];
-    const cols = [
-      { id: 'sql', label: 'SQL' },
-      { id: 'py', label: 'Python' },
-      { id: 'lead', label: 'Lead' },
-      { id: 'comm', label: 'Comms' },
-    ];
-    const cells = rows.flatMap((r, ri) =>
-      cols.map((c, ci) => ({
-        rowId: r.id,
-        colId: c.id,
-        value: Math.floor(((Math.sin(ri * 13 + ci * 7) + 1) / 2) * 100),
-      }))
-    );
-    return {
-      default: liveWrapper(
-        'SkillHeatmap',
-        { rows, cols, cells, caption: 'Skill coverage' },
-        (props) => <m.BrandSkillHeatmap {...props} />
-      ),
-    };
-  })
+  import('@/components/widgets/brand').then((m: any) => ({
+    default: liveWrapper(
+      'SkillHeatmap',
+      // Empty-state placeholder — actual data via useWidgetData from employee_skill_assessments
+      { rows: [], cols: [], cells: [], caption: 'no data yet' },
+      (props) => <m.BrandSkillHeatmap {...props} />
+    ),
+  }))
 );
 
 const CapabilityRadarWidget: WidgetComponent = lazyWidget(() =>
   import('@/components/widgets/brand').then((m: any) => ({
     default: liveWrapper(
       'CapabilityRadar',
-      {
-        axes: [
-          { id: 'tech', label: 'Tech' },
-          { id: 'fin', label: 'Finance' },
-          { id: 'lead', label: 'Lead' },
-          { id: 'comm', label: 'Comms' },
-          { id: 'risk', label: 'Risk' },
-        ],
-        series: [
-          { id: 'cur', label: 'Current', values: [82, 70, 35, 60, 75] },
-          { id: 'tgt', label: 'Target', values: [75, 80, 70, 80, 85] },
-        ],
-      },
+      // Empty-state placeholder — actual data via useWidgetData from skill_gap_analyses
+      { axes: [], series: [] },
       (props) => <m.BrandCapabilityRadar {...props} />
     ),
   }))
@@ -253,15 +206,10 @@ const ActivityFeedWidget: WidgetComponent = lazyWidget(() =>
     default: liveWrapper(
       'ActivityFeed',
       {
-        // Generic placeholder — actual data via useWidgetData from audit_logs
+        // Empty-state placeholder — actual data via useWidgetData from audit_logs
         title: 'Activity feed',
-        live: true,
-        items: [
-          { id: '1', when: '2 min ago', what: 'New review cycle started', who: 'HR Director' },
-          { id: '2', when: '12 min ago', what: 'Skill assessment imported', who: 'system' },
-          { id: '3', when: '34 min ago', what: 'Goal cascade published', who: 'Manager' },
-          { id: '4', when: '1 h ago', what: 'Onboarding kickoff', who: 'HR Operations' },
-        ],
+        live: false,
+        items: [],
       },
       (props) => <m.BrandActivityFeed {...props} />
     ),
@@ -272,7 +220,8 @@ const GaugeCardWidget: WidgetComponent = lazyWidget(() =>
   import('@/components/widgets/brand').then((m: any) => ({
     default: liveWrapper(
       'GaugeCard',
-      { label: 'CAPABILITY', value: 73, unit: '%', tone: 'accent' as const },
+      // Empty-state placeholder — actual data via useWidgetData
+      { label: 'METRIC', value: 0, unit: '', tone: 'neutral' as const },
       (props) => <m.BrandGaugeCard {...props} />
     ),
   }))
@@ -282,14 +231,8 @@ const HistogramWidget: WidgetComponent = lazyWidget(() =>
   import('@/components/widgets/brand').then((m: any) => ({
     default: liveWrapper(
       'Histogram',
-      {
-        items: [
-          { id: '1', label: '90-100', value: 18, tone: 'ok' as const },
-          { id: '2', label: '70-89', value: 42, tone: 'info' as const },
-          { id: '3', label: '50-69', value: 31, tone: 'warn' as const },
-          { id: '4', label: '0-49', value: 9, tone: 'critical' as const },
-        ],
-      },
+      // Empty-state placeholder — actual data via useWidgetData from performance_reviews/assessments
+      { items: [] },
       (props) => <m.BrandHistogram {...props} />
     ),
   }))
@@ -300,11 +243,11 @@ const CompCardWidget: WidgetComponent = lazyWidget(() =>
     default: liveWrapper(
       'CompCard',
       {
+        // Empty-state placeholder — actual data via useWidgetData from salary_history/bonus_plans
         items: [
-          { id: 'salary', label: 'BASE SALARY', value: 86, unit: 'k €' },
-          { id: 'bonus', label: 'BONUS Q4', value: 12, unit: 'k €' },
-          { id: 'equity', label: 'EQUITY', value: 24, unit: 'k €' },
-          { id: 'total', label: 'TOTAL TC', value: 122, unit: 'k €' },
+          { id: 'salary', label: 'BASE SALARY', value: 0, unit: '€' },
+          { id: 'bonus', label: 'BONUS', value: 0, unit: '€' },
+          { id: 'total', label: 'TOTAL TC', value: 0, unit: '€' },
         ],
       },
       (props) => <m.BrandCompCard {...props} />
@@ -316,31 +259,8 @@ const BridgeCardWidget: WidgetComponent = lazyWidget(() =>
   import('@/components/widgets/brand').then((m: any) => ({
     default: liveWrapper(
       'BridgeCard',
-      {
-        items: [
-          {
-            id: '1',
-            role: 'Senior Risk Analyst',
-            readinessLabel: 'Readiness',
-            readinessValue: 72,
-            gaps: ['Python · advanced', 'Stakeholder mgmt'],
-          },
-          {
-            id: '2',
-            role: 'Lead Risk',
-            readinessLabel: 'Readiness',
-            readinessValue: 48,
-            gaps: ['SQL · expert', 'Leadership coaching', 'P&L ownership'],
-          },
-          {
-            id: '3',
-            role: 'Director Risk & Analytics',
-            readinessLabel: 'Readiness',
-            readinessValue: 22,
-            gaps: ['Board comms', 'Strategy framing', 'Cross-domain'],
-          },
-        ],
-      },
+      // Empty-state placeholder — actual data via useWidgetData from succession_candidates+plans
+      { items: [] },
       (props) => <m.BrandBridgeCard {...props} />
     ),
   }))
@@ -395,12 +315,8 @@ const MetricCardWidget: WidgetComponent = lazyWidget(() =>
   import('@/components/widgets/brand').then((m: any) => ({
     default: liveWrapper(
       'MetricCard',
-      {
-        label: 'DB SIZE',
-        value: 24.6,
-        unit: 'GB',
-        sparkline: [38, 42, 45, 49, 52, 56, 58, 60, 63, 64],
-      },
+      // Empty-state placeholder — actual data via useWidgetData
+      { label: 'METRIC', value: 0, unit: '', sparkline: [] },
       (props) => <m.BrandMetricCard {...props} />
     ),
   }))
@@ -408,9 +324,12 @@ const MetricCardWidget: WidgetComponent = lazyWidget(() =>
 
 const SectionHeadWidget: WidgetComponent = lazyWidget(() =>
   import('@/components/widgets/brand').then((m: any) => ({
-    default: liveWrapper('SectionHead', { title: 'Section header', meta: 'LIVE' }, (props) => (
-      <m.BrandSectionHead {...props} />
-    )),
+    default: liveWrapper(
+      'SectionHead',
+      // Empty-state placeholder — actual data via useWidgetData
+      { title: '—', meta: '' },
+      (props) => <m.BrandSectionHead {...props} />
+    ),
   }))
 );
 
@@ -418,12 +337,8 @@ const IntRowWidget: WidgetComponent = lazyWidget(() =>
   import('@/components/widgets/brand').then((m: any) => ({
     default: liveWrapper(
       'IntRow',
-      {
-        name: 'SAP HCM',
-        meta: 'last sync · 2 min ago',
-        tone: 'ok' as const,
-        status: 'OK',
-      },
+      // Empty-state placeholder — actual data via useWidgetData from integrations table
+      { name: '—', meta: 'no data yet', tone: 'neutral' as const, status: '—' },
       (props) => <m.BrandIntRow {...props} />
     ),
   }))
@@ -433,11 +348,8 @@ const AuditRowWidget: WidgetComponent = lazyWidget(() =>
   import('@/components/widgets/brand').then((m: any) => ({
     default: liveWrapper(
       'AuditRow',
-      {
-        ts: '14:32:08',
-        what: 'Role assignment updated',
-        actor: 'sysadmin',
-      },
+      // Empty-state placeholder — actual data via useWidgetData from audit_logs
+      { ts: '—', what: '—', actor: '—' },
       (props) => <m.BrandAuditRow {...props} />
     ),
   }))
