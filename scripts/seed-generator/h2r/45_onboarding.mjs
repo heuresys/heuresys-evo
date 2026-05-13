@@ -25,7 +25,7 @@ import { dryRunBatchInsert } from '../lib/dry-run.mjs';
 const TARGETS = {
   'rtl-bank': 15,
   smartfood: 12,
-  econova: 0, // no templates
+  econova: 5, // templates seeded via 44_onboarding_templates_econova
   heuresys: 3,
 };
 
