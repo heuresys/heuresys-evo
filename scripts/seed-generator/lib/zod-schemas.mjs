@@ -140,17 +140,20 @@ export const IndustryProfileSchema = z
 
 // ---------- Record schemas (AI-augmented INSERT payload) ----------
 
+// Schema allineato con tabella succession_candidates reale
+// Cols: id, critical_role_id (FK succession_plans), candidate_employee_id, readiness_level,
+//       strengths, development_needs, development_plan, rank_order, tenant_id.
 export const SuccessionCandidateSchema = z
   .object({
-    employee_id: z.string().uuid(),
-    target_role_id: z.string().uuid().nullable().optional(),
-    target_occupation_isco: z.string().min(1).optional(),
-    target_position_label: z.string().min(1),
-    readiness_label: z.enum(['ready_now', '6_12_months', '12_24_months', 'long_term']),
-    skill_coverage_pct: z.number().min(0).max(100),
-    risk_level: z.enum(['low', 'medium', 'high']).default('medium'),
-    rationale: z.string().min(20).max(500),
-    review_score_quintile: z.number().int().min(1).max(5).optional(),
+    critical_role_id: z.string().uuid(),
+    candidate_employee_id: z.string().uuid(),
+    readiness_level: z
+      .enum(['ready_now', 'ready_1_year', 'ready_2_years', 'ready_3_5_years'])
+      .default('ready_2_years'),
+    strengths: z.string().min(20).max(2000),
+    development_needs: z.string().min(20).max(2000),
+    development_plan: z.string().min(20).max(2000),
+    rank_order: z.number().int().min(1).max(20).default(1),
   })
   .strict();
 
