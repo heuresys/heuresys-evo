@@ -1,6 +1,6 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-13T22:30Z · S62 brand & design system reset closed · HEAD `<TBD post-commit>`
+> Updated: 2026-05-13T22:40Z · S62 brand & design system reset closed · HEAD `17ffc5e`
 
 ## Debt attivo
 
