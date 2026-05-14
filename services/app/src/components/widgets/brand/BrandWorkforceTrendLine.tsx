@@ -10,6 +10,8 @@
  */
 import * as React from 'react';
 import { DataNotAvailable } from '@/components/data/DataNotAvailable';
+import { useLocale } from '@/lib/i18n';
+import { pickWidgetString } from '@/lib/i18n/widget-strings';
 
 export interface WorkforceTrendPoint {
   month: string;
@@ -38,15 +40,14 @@ function buildPath(points: number[], width: number, height: number, padding: num
     .join(' ');
 }
 
-export function BrandWorkforceTrendLine({
-  points,
-  title = 'Headcount trend',
-}: BrandWorkforceTrendLineProps) {
+export function BrandWorkforceTrendLine({ points, title }: BrandWorkforceTrendLineProps) {
+  const { locale } = useLocale();
+  const resolvedTitle = title ?? pickWidgetString(locale, 'title_headcount_trend');
   if (points === null) {
     return (
       <div className="wf-trend">
         <div className="widget-head">
-          <h3>{title}</h3>
+          <h3>{resolvedTitle}</h3>
         </div>
         <DataNotAvailable variant="block" />
       </div>
@@ -57,9 +58,9 @@ export function BrandWorkforceTrendLine({
     return (
       <div className="wf-trend">
         <div className="widget-head">
-          <h3>{title}</h3>
+          <h3>{resolvedTitle}</h3>
         </div>
-        <p className="wf-empty">Nessun dato trend disponibile.</p>
+        <p className="wf-empty">{pickWidgetString(locale, 'no_trend_data')}</p>
       </div>
     );
   }
@@ -83,21 +84,22 @@ export function BrandWorkforceTrendLine({
   return (
     <div className="wf-trend">
       <div className="widget-head">
-        <h3>{title}</h3>
+        <h3>{resolvedTitle}</h3>
         <div className="wf-trend-stats">
           <span className="wf-stat">
-            Headcount <strong>{lastPoint.headcount}</strong>
+            {pickWidgetString(locale, 'headcount_label')} <strong>{lastPoint.headcount}</strong>
           </span>
           <span className={`wf-stat ${net >= 0 ? 'wf-positive' : 'wf-negative'}`}>
-            Net {net >= 0 ? '+' : ''}
+            {pickWidgetString(locale, 'net_label')} {net >= 0 ? '+' : ''}
             {net}
           </span>
           <span className="wf-stat">
-            Hires <strong>{totalHires}</strong> · Leavers <strong>{totalLeavers}</strong>
+            {pickWidgetString(locale, 'hires_label')} <strong>{totalHires}</strong> ·{' '}
+            {pickWidgetString(locale, 'leavers_label')} <strong>{totalLeavers}</strong>
           </span>
         </div>
       </div>
-      <svg className="wf-chart" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={title}>
+      <svg className="wf-chart" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={resolvedTitle}>
         <path className="wf-line wf-line-headcount" d={headcountPath} fill="none" />
         {points.map((p, i) => {
           const x = PAD + i * ((W - 2 * PAD) / Math.max(points.length - 1, 1));

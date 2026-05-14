@@ -8,6 +8,8 @@
  */
 import * as React from 'react';
 import { DataNotAvailable } from '@/components/data/DataNotAvailable';
+import { useLocale } from '@/lib/i18n';
+import { pickWidgetString } from '@/lib/i18n/widget-strings';
 
 export interface BonusPlanRow {
   id: string;
@@ -25,9 +27,9 @@ export interface BrandBonusPlanCardProps {
   currency?: string;
 }
 
-function fmtCurrency(value: number | null, currency: string): string {
+function fmtCurrency(value: number | null, currency: string, locale: string): string {
   if (value === null) return '—';
-  return new Intl.NumberFormat('it-IT', {
+  return new Intl.NumberFormat(locale === 'it' ? 'it-IT' : 'en-US', {
     style: 'currency',
     currency,
     maximumFractionDigits: 0,
@@ -42,16 +44,14 @@ const TYPE_LABEL: Record<string, string> = {
   signing: 'Signing',
 };
 
-export function BrandBonusPlanCard({
-  plans,
-  title = 'Bonus plans',
-  currency = 'EUR',
-}: BrandBonusPlanCardProps) {
+export function BrandBonusPlanCard({ plans, title, currency = 'EUR' }: BrandBonusPlanCardProps) {
+  const { locale } = useLocale();
+  const resolvedTitle = title ?? pickWidgetString(locale, 'title_bonus_plans');
   if (plans === null) {
     return (
       <div className="bonus-plans">
         <div className="widget-head">
-          <h3>{title}</h3>
+          <h3>{resolvedTitle}</h3>
         </div>
         <DataNotAvailable variant="block" />
       </div>
@@ -62,9 +62,9 @@ export function BrandBonusPlanCard({
     return (
       <div className="bonus-plans">
         <div className="widget-head">
-          <h3>{title}</h3>
+          <h3>{resolvedTitle}</h3>
         </div>
-        <p className="bonus-empty">Nessun bonus plan attivo.</p>
+        <p className="bonus-empty">{pickWidgetString(locale, 'no_active_bonus_plans')}</p>
       </div>
     );
   }
@@ -74,10 +74,14 @@ export function BrandBonusPlanCard({
   return (
     <div className="bonus-plans">
       <div className="widget-head">
-        <h3>{title}</h3>
+        <h3>{resolvedTitle}</h3>
         <div className="bonus-summary">
-          <span className="bonus-total">Total budget {fmtCurrency(totalBudget, currency)}</span>
-          <span className="count-chip">{plans.length} plans</span>
+          <span className="bonus-total">
+            {pickWidgetString(locale, 'total_budget')} {fmtCurrency(totalBudget, currency, locale)}
+          </span>
+          <span className="count-chip">
+            {plans.length} {pickWidgetString(locale, 'count_plans')}
+          </span>
         </div>
       </div>
       <ul className="bonus-list">
@@ -92,9 +96,13 @@ export function BrandBonusPlanCard({
               ) : null}
             </div>
             <div className="bonus-meta">
-              <span className="bonus-budget">{fmtCurrency(plan.totalBudget, currency)}</span>
+              <span className="bonus-budget">
+                {fmtCurrency(plan.totalBudget, currency, locale)}
+              </span>
               {typeof plan.coverageEmployees === 'number' ? (
-                <span className="bonus-coverage">{plan.coverageEmployees} employees</span>
+                <span className="bonus-coverage">
+                  {plan.coverageEmployees} {pickWidgetString(locale, 'count_employees')}
+                </span>
               ) : null}
               {plan.status ? <span className="bonus-status">{plan.status}</span> : null}
             </div>

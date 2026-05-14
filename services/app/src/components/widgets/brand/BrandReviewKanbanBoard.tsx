@@ -9,6 +9,8 @@
  */
 import * as React from 'react';
 import { DataNotAvailable } from '@/components/data/DataNotAvailable';
+import { useLocale } from '@/lib/i18n';
+import { pickWidgetString } from '@/lib/i18n/widget-strings';
 
 export type ReviewStatus = 'pending' | 'in_progress' | 'submitted' | 'approved';
 
@@ -27,11 +29,15 @@ export interface BrandReviewKanbanBoardProps {
   title?: string;
 }
 
-const COLUMNS: Array<{ key: ReviewStatus; label: string; tone: string }> = [
-  { key: 'pending', label: 'Pending', tone: 'kbn-col-muted' },
-  { key: 'in_progress', label: 'In progress', tone: 'kbn-col-info' },
-  { key: 'submitted', label: 'Submitted', tone: 'kbn-col-warn' },
-  { key: 'approved', label: 'Approved', tone: 'kbn-col-ok' },
+const COLUMN_KEYS: Array<{
+  key: ReviewStatus;
+  labelKey: 'kanban_pending' | 'kanban_in_progress' | 'kanban_submitted' | 'kanban_approved';
+  tone: string;
+}> = [
+  { key: 'pending', labelKey: 'kanban_pending', tone: 'kbn-col-muted' },
+  { key: 'in_progress', labelKey: 'kanban_in_progress', tone: 'kbn-col-info' },
+  { key: 'submitted', labelKey: 'kanban_submitted', tone: 'kbn-col-warn' },
+  { key: 'approved', labelKey: 'kanban_approved', tone: 'kbn-col-ok' },
 ];
 
 function formatDue(d: Date | null | undefined): string {
@@ -39,15 +45,14 @@ function formatDue(d: Date | null | undefined): string {
   return d.toLocaleDateString(undefined, { month: 'short', day: '2-digit' });
 }
 
-export function BrandReviewKanbanBoard({
-  items,
-  title = 'Review cycle status',
-}: BrandReviewKanbanBoardProps) {
+export function BrandReviewKanbanBoard({ items, title }: BrandReviewKanbanBoardProps) {
+  const { locale } = useLocale();
+  const resolvedTitle = title ?? pickWidgetString(locale, 'title_review_cycle');
   if (items === null) {
     return (
       <div className="kbn-board">
         <div className="widget-head">
-          <h3>{title}</h3>
+          <h3>{resolvedTitle}</h3>
         </div>
         <DataNotAvailable variant="block" />
       </div>
@@ -69,14 +74,16 @@ export function BrandReviewKanbanBoard({
   return (
     <div className="kbn-board">
       <div className="widget-head">
-        <h3>{title}</h3>
-        <span className="count-chip">{items.length} reviews</span>
+        <h3>{resolvedTitle}</h3>
+        <span className="count-chip">
+          {items.length} {pickWidgetString(locale, 'count_reviews')}
+        </span>
       </div>
       <div className="kbn-columns">
-        {COLUMNS.map((col) => (
+        {COLUMN_KEYS.map((col) => (
           <div key={col.key} className={`kbn-col ${col.tone}`}>
             <header className="kbn-col-head">
-              <h4>{col.label}</h4>
+              <h4>{pickWidgetString(locale, col.labelKey)}</h4>
               <span className="kbn-count">{grouped[col.key].length}</span>
             </header>
             <ul className="kbn-cards">
@@ -94,7 +101,9 @@ export function BrandReviewKanbanBoard({
                   </div>
                 </li>
               ))}
-              {grouped[col.key].length === 0 ? <li className="kbn-empty">Nessuna review</li> : null}
+              {grouped[col.key].length === 0 ? (
+                <li className="kbn-empty">{pickWidgetString(locale, 'no_reviews_in_column')}</li>
+              ) : null}
             </ul>
           </div>
         ))}

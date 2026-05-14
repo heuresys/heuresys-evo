@@ -9,6 +9,8 @@
  */
 import * as React from 'react';
 import { DataNotAvailable } from '@/components/data/DataNotAvailable';
+import { useLocale } from '@/lib/i18n';
+import { pickWidgetString } from '@/lib/i18n/widget-strings';
 
 export interface OkrCascadeNode {
   id: string;
@@ -35,6 +37,7 @@ const STATUS_TONE: Record<OkrCascadeNode['status'], string> = {
 function CascadeNode({ node, depth }: { node: OkrCascadeNode; depth: number }) {
   const [open, setOpen] = React.useState(depth < 2);
   const hasChildren = Boolean(node.children && node.children.length > 0);
+  const { locale } = useLocale();
 
   return (
     <li className="okr-node" data-depth={depth}>
@@ -45,7 +48,9 @@ function CascadeNode({ node, depth }: { node: OkrCascadeNode; depth: number }) {
             className="okr-toggle"
             onClick={() => setOpen((v) => !v)}
             aria-expanded={open}
-            aria-label={open ? 'Collapse' : 'Expand'}
+            aria-label={
+              open ? pickWidgetString(locale, 'collapse') : pickWidgetString(locale, 'expand')
+            }
           >
             <span aria-hidden="true">{open ? '▼' : '▶'}</span>
           </button>
@@ -55,7 +60,10 @@ function CascadeNode({ node, depth }: { node: OkrCascadeNode; depth: number }) {
         <span className="okr-title">{node.title}</span>
         <span className={`okr-status ${STATUS_TONE[node.status]}`}>{node.status}</span>
         {typeof node.progressPercent === 'number' ? (
-          <span className="okr-progress" aria-label={`Progress ${node.progressPercent}%`}>
+          <span
+            className="okr-progress"
+            aria-label={`${pickWidgetString(locale, 'progress')} ${node.progressPercent}%`}
+          >
             <span
               className="okr-progress-bar"
               style={{ width: `${Math.max(0, Math.min(100, node.progressPercent))}%` }}
@@ -76,12 +84,14 @@ function CascadeNode({ node, depth }: { node: OkrCascadeNode; depth: number }) {
   );
 }
 
-export function BrandOkrCascadeTree({ roots, title = 'OKR cascade' }: BrandOkrCascadeTreeProps) {
+export function BrandOkrCascadeTree({ roots, title }: BrandOkrCascadeTreeProps) {
+  const { locale } = useLocale();
+  const resolvedTitle = title ?? pickWidgetString(locale, 'title_okr_cascade');
   if (roots === null) {
     return (
       <div className="okr-cascade">
         <div className="widget-head">
-          <h3>{title}</h3>
+          <h3>{resolvedTitle}</h3>
         </div>
         <DataNotAvailable variant="block" />
       </div>
@@ -91,11 +101,13 @@ export function BrandOkrCascadeTree({ roots, title = 'OKR cascade' }: BrandOkrCa
   return (
     <div className="okr-cascade">
       <div className="widget-head">
-        <h3>{title}</h3>
-        <span className="count-chip">{roots.length} root goals</span>
+        <h3>{resolvedTitle}</h3>
+        <span className="count-chip">
+          {roots.length} {pickWidgetString(locale, 'count_root_goals')}
+        </span>
       </div>
       {roots.length === 0 ? (
-        <p className="okr-empty">Nessun obiettivo cascade definito.</p>
+        <p className="okr-empty">{pickWidgetString(locale, 'no_cascade_goals')}</p>
       ) : (
         <ul className="okr-tree" role="tree">
           {roots.map((r) => (

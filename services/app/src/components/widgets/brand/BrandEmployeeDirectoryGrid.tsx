@@ -9,6 +9,8 @@
  */
 import * as React from 'react';
 import { DataNotAvailable } from '@/components/data/DataNotAvailable';
+import { useLocale } from '@/lib/i18n';
+import { pickWidgetString } from '@/lib/i18n/widget-strings';
 
 export interface EmployeeDirectoryItem {
   id: string;
@@ -35,14 +37,17 @@ function initials(first: string, last: string): string {
 
 export function BrandEmployeeDirectoryGrid({
   items,
-  title = 'Employees',
-  emptyMessage = 'Nessun dipendente nello scope.',
+  title,
+  emptyMessage,
 }: BrandEmployeeDirectoryGridProps) {
+  const { locale } = useLocale();
+  const resolvedTitle = title ?? pickWidgetString(locale, 'title_employees');
+  const resolvedEmpty = emptyMessage ?? pickWidgetString(locale, 'no_employees_in_scope');
   if (items === null) {
     return (
       <div className="emp-directory">
         <div className="widget-head">
-          <h3>{title}</h3>
+          <h3>{resolvedTitle}</h3>
         </div>
         <DataNotAvailable variant="block" />
       </div>
@@ -53,9 +58,9 @@ export function BrandEmployeeDirectoryGrid({
     return (
       <div className="emp-directory">
         <div className="widget-head">
-          <h3>{title}</h3>
+          <h3>{resolvedTitle}</h3>
         </div>
-        <p className="emp-empty">{emptyMessage}</p>
+        <p className="emp-empty">{resolvedEmpty}</p>
       </div>
     );
   }
@@ -63,8 +68,10 @@ export function BrandEmployeeDirectoryGrid({
   return (
     <div className="emp-directory">
       <div className="widget-head">
-        <h3>{title}</h3>
-        <span className="count-chip">{items.length} records</span>
+        <h3>{resolvedTitle}</h3>
+        <span className="count-chip">
+          {items.length} {pickWidgetString(locale, 'count_records')}
+        </span>
       </div>
       <div className="emp-grid">
         {items.map((emp) => (
@@ -87,7 +94,7 @@ export function BrandEmployeeDirectoryGrid({
               ) : null}
               {emp.flightRisk ? (
                 <span className={`emp-risk emp-risk-${emp.flightRisk}`}>
-                  Flight risk: {emp.flightRisk}
+                  {pickWidgetString(locale, 'flight_risk_label')}: {emp.flightRisk}
                 </span>
               ) : null}
             </div>

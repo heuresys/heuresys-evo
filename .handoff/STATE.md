@@ -1,15 +1,15 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-14T02:15Z · S63 autonomous run · investor-ready rebuild Phases 0-4 shipped · HEAD `3707997`
+> Updated: 2026-05-14T13:35Z · S63 autonomous run · investor-ready rebuild Phases 0-4 + 5-6 partial shipped · HEAD post-`ff6872b`
 
 ## Debt attivo
 
-Nessuno bloccante. Sistema fermo dopo S63 autonomous run.
+Nessuno bloccante. Sistema fermo dopo S63 autonomous run extended (Phases 0-4 full + 5-6 partial).
 
 **Follow-up tracciabili (non bloccanti, opzionali):**
 
-1. **Phase 5 sidebar redirect** — Convertire route legacy `/employees`, `/reviews`, `/goals`, `/learning`, `/compensation`, `/analytics/workforce` a server-side redirect verso `/dashboard/<preset_v2>`. Plan S63 §Phase 5, deferred token-aware in S63 closure. Eseguibile in ~6-10h sessione dedicata.
-2. **Phase 6 i18n sweep** — Grep hardcoded IT/EN nei nuovi 6 widget brand + consolidare in `lib/i18n/constants.ts`. ~4-6h.
+1. **Phase 5 sidebar refactor opzione A** — Promote sidebar PrimaryNav link a `/dashboard/<preset_v2>` (cockpit-first navigation). Plan decision in `.ux-design/04-promotion/phase5-route-migration-decision.md`: Opzione C (status quo) shipped; Opzione A è futuro upgrade. ~4-6h.
+2. **Phase 6.2 i18n sweep widget legacy** — Refactor i 21 widget brand pre-S63 (BrandKpiCard, BrandSuccessionCard, ecc.) per usare `pickWidgetString` o constants invece di hardcoded IT/EN. ~3-5h.
 3. **Phase 7 investor demo** — Chrome MCP loop 4 ruoli × 14 voci sidebar = ~56 screenshot in `.handoff/investor-demo/`. Lighthouse audit 5 preset principali. brand:audit cross-route final score. ~6-10h.
 4. **Storybook stories per 6 widget brand nuovi** — `BrandEmployeeDirectoryGrid` · `BrandOkrCascadeTree` · `BrandReviewKanbanBoard` · `BrandWorkforceTrendLine` · `BrandCalibrationCard` · `BrandBonusPlanCard`. TDD-first per audit pre-promotion. ~4-6h.
 5. **Phase 3.2 widget brand expansion residui** — `LearningProgress` widget + `CertificationBadgeGrid` (mappati a coverage da widget esistenti ma scaffold dedicato può alzare audit score). ~3-5h.

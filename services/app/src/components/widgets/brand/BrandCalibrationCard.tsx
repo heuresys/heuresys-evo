@@ -8,6 +8,8 @@
  */
 import * as React from 'react';
 import { DataNotAvailable } from '@/components/data/DataNotAvailable';
+import { useLocale } from '@/lib/i18n';
+import { pickWidgetString } from '@/lib/i18n/widget-strings';
 
 export interface CalibrationRow {
   managerId: string;
@@ -35,14 +37,16 @@ function tone(variance: number | null, threshold: number): string {
 
 export function BrandCalibrationCard({
   rows,
-  title = 'Calibration board',
+  title,
   varianceWarnThreshold = 0.5,
 }: BrandCalibrationCardProps) {
+  const { locale } = useLocale();
+  const resolvedTitle = title ?? pickWidgetString(locale, 'title_calibration_board');
   if (rows === null) {
     return (
       <div className="cal-card">
         <div className="widget-head">
-          <h3>{title}</h3>
+          <h3>{resolvedTitle}</h3>
         </div>
         <DataNotAvailable variant="block" />
       </div>
@@ -53,9 +57,9 @@ export function BrandCalibrationCard({
     return (
       <div className="cal-card">
         <div className="widget-head">
-          <h3>{title}</h3>
+          <h3>{resolvedTitle}</h3>
         </div>
-        <p className="cal-empty">Nessun manager con review da calibrare.</p>
+        <p className="cal-empty">{pickWidgetString(locale, 'no_managers_to_calibrate')}</p>
       </div>
     );
   }
@@ -63,18 +67,20 @@ export function BrandCalibrationCard({
   return (
     <div className="cal-card">
       <div className="widget-head">
-        <h3>{title}</h3>
-        <span className="count-chip">{rows.length} managers</span>
+        <h3>{resolvedTitle}</h3>
+        <span className="count-chip">
+          {rows.length} {pickWidgetString(locale, 'count_managers')}
+        </span>
       </div>
       <table className="cal-table">
         <thead>
           <tr>
-            <th scope="col">Manager</th>
-            <th scope="col">Dept</th>
-            <th scope="col">Reviews</th>
-            <th scope="col">Avg</th>
-            <th scope="col">Variance</th>
-            <th scope="col">Outliers</th>
+            <th scope="col">{pickWidgetString(locale, 'manager_label')}</th>
+            <th scope="col">{pickWidgetString(locale, 'dept_label')}</th>
+            <th scope="col">{pickWidgetString(locale, 'count_reviews')}</th>
+            <th scope="col">{pickWidgetString(locale, 'avg_label')}</th>
+            <th scope="col">{pickWidgetString(locale, 'variance_label')}</th>
+            <th scope="col">{pickWidgetString(locale, 'outliers_label')}</th>
           </tr>
         </thead>
         <tbody>

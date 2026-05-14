@@ -418,4 +418,57 @@ process_recruiting_funnel_v2 | Recruiting||funnel | 11 elements
 
 ---
 
-<!-- Entry successive L14-LN: append qui. Decisioni MIGRATE da cycle 1 archive devono citare predecessore archive L-XX in body. -->
+## L14 (2026-05-14) — Phase 5 + Phase 6 cycle 2 — route migration decision + i18n widget refactor
+
+**Decisione**: chiuse Phase 5 + Phase 6 del plan canonical S63+ con scope mirato (token-aware, decisione autonoma plan §6).
+
+### Phase 5 (route migration) — decisione: status quo
+
+**NON convertite le route legacy `/employees`, `/reviews`, `/goals`, `/learning`, `/compensation`, `/analytics/workforce`, `/admin/*` a server-side redirect verso preset \_v2.**
+
+Decision record completo: `.ux-design/04-promotion/phase5-route-migration-decision.md` (Opzione C — status quo, regression risk alto su conversione esplicita data feature parity non garantita tra route SH-2 shipped e preset \_v2 cycle 2).
+
+Architettura post-S63: due livelli parallel:
+
+- **Cockpit overview** (cycle 2): `/dashboard/<preset_v2>` 4-ring + aggregate + activity feed
+- **Operational deep-dive** (legacy SH-2): `/employees`, `/reviews`, etc. con filter + bulk action + policy P3 dedicate
+
+Follow-up opzionale futuro: sidebar PrimaryNav link → cockpit-first (Opzione A).
+
+### Phase 6 (i18n widget refactor) — shipped
+
+**Creato `services/app/src/lib/i18n/widget-strings.ts`** con dictionary IT/EN per i 6 widget brand nuovi cycle 2 Phase 3:
+
+- 31 keys cross-widget: empty/unavailable messages · labels · titles · trend stats · kanban columns · count chips
+- Helper `pickWidgetString(locale, key)` server+client safe
+
+**Refactor 6 widget Phase 3** per consumare strings localized:
+
+- `BrandEmployeeDirectoryGrid` · `BrandOkrCascadeTree` · `BrandReviewKanbanBoard` · `BrandWorkforceTrendLine` · `BrandCalibrationCard` · `BrandBonusPlanCard`
+- Pattern: `const { locale } = useLocale(); const resolvedTitle = title ?? pickWidgetString(locale, 'title_X');`
+- `BrandBonusPlanCard.fmtCurrency()` ora locale-aware (`it-IT` / `en-US` formatting)
+- Default title prop ora optional (caller può passare override; default da i18n constants)
+
+**Anti-pattern eliminati**:
+
+- 6 stringhe italiane hardcoded ("Nessun dipendente…", "Nessun obiettivo…", etc.) → constants
+- 4 stringhe inglesi hardcoded ("Headcount", "Net", "Hires", "Leavers") → constants
+- Hardcoded `Intl.NumberFormat('it-IT', …)` → derived da locale
+
+**Anti-pattern residui non bloccanti** (deferred):
+
+- 21 widget brand pre-S63 (BrandKpiCard, BrandSuccessionCard, ecc.) hanno strings hardcoded — refactor i18n di quelli è Phase 6.2 separata (audit cycle 1 → cycle 2 dei widget esistenti)
+
+### Verifications
+
+- `npx tsc --noEmit` services/app exit 0 (PASS post-fix `const { locale } = useLocale()` destructure)
+- VM prod `https://evo.heuresys.com/login` HTTP 200 (smoke pre + post commit)
+- Working tree clean post-commit
+
+### Acceptance finale
+
+5 Phase shipped piene (0-4) + 2 Phase parziali shipped (5 decision-record, 6 widget Phase 3 only). Phase 7 verification + investor demo handoff resta follow-up.
+
+---
+
+<!-- Entry successive L15-LN: append qui. Decisioni MIGRATE da cycle 1 archive devono citare predecessore archive L-XX in body. -->
