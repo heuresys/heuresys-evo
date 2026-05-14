@@ -635,4 +635,74 @@ Follow-up opzionale futuro: sidebar PrimaryNav link → cockpit-first (Opzione A
 
 ---
 
-<!-- Entry successive L18-LN: append qui. Decisioni MIGRATE da cycle 1 archive devono citare predecessore archive L-XX in body. -->
+## L18 (2026-05-14) — Apply research artifact pattern hover state alle 5 card widget HR_DIRECTOR
+
+**Decisione**: applicato l'unico elemento concreto trasversale del pattern de reference L17 alle 12 interfacce HR*DIRECTOR cycle 2 (4 process*\*\_v2 Phase 1 + 8 nuovi preset Phase 4). Modifica CSS micro-invasiva (~10 LOC) in `services/app/src/styles/dashboard-brand.css` che aggiunge `transition: border-color 0.15s` + hover state `border-color: var(--accent)` a 5 classi container widget.
+
+**Razionale**: l'utente ha chiesto se è possibile applicare il pattern alle dashboard HR_DIRECTOR appena create+testate "senza rompere niente". Esplorazione codebase (Explore agent in plan mode) ha rivelato che le dashboard sono **già conformi al pattern al >95%** (tokens palette/typography/spacing/radius identici 1:1). Drift residuo solo su 1 elemento: hover transition border-color assente sulle 5 classi card widget. Tutto il resto del pattern (`.compare` table · `.reco` panel · `.lib-card` grid) è anti-trigger esplicito per operational dashboard.
+
+**Modifica esatta** in `services/app/src/styles/dashboard-brand.css` append L3179+ (post `.data-not-available--tile`):
+
+```css
+.kpi-card,
+.matrix-wrap,
+.skill-gap,
+.activity,
+.succession-card {
+  transition: border-color 0.15s;
+}
+.kpi-card:hover,
+.matrix-wrap:hover,
+.skill-gap:hover,
+.activity:hover,
+.succession-card:hover {
+  border-color: var(--accent);
+}
+```
+
+Scoping deliberato:
+
+- **Container widget level** (5 classi): NON `.activity-item` child, NON `.successor-card .row`, NON `.kpi-card.compact` perché compact è sub-state che eredita
+- **Solo `border-color`**: NO `box-shadow`/`transform`/`background` (F8 motion misurato del pattern stesso)
+- **0.15s timing**: allineato pattern + `motion.css --dur-fast` (120ms) → coerente con motion tokens cycle 2
+
+**Browser verification** (HR_DIRECTOR `valentina.conti@rtl-bank.org`, dev locale):
+
+- `/dashboard` → hover su `.kpi-card` HEADCOUNT 156 → border accent purple visibile vs altri 3 KpiRing grey ✓
+- `/dashboard/process_recruiting_funnel_v2` → rendering ok ✓
+- `/dashboard/admin_audit_v2` → ActivityFeed `.activity` panel visibile ✓
+- 0 console errors cross-page
+- 12 preset \_v2 ora **100% pattern-fedeli** (vs 95% pre-modifica)
+
+**Anti-patterns esplicitamente NON applicati** (rispetto delle regole pattern §Quando usarlo):
+
+- ❌ NO `.compare` comparison table (semantic mismatch: dashboard ≠ comparative research)
+- ❌ NO `.reco` recommendation panel (dashboard espone dati live, non shortlist decisioni)
+- ❌ NO `.lib-card` 6-icon preview grid (zero senso su KPI/RBAC operativi)
+- ❌ NO modifica H2 16px → 20px (drift intenzionale per dashboard density)
+- ❌ NO hover state ad `.activity-item` (eviterebbe noise visivo su feed live)
+
+**Severity / impact**:
+
+- File modificati: 1 (`dashboard-brand.css`, +18 LOC inclusi commenti)
+- Production CSS canonical (`tokens.css`) **invariato**
+- Widget brand TSX **invariati**
+- Tutti i widget container (`KpiRing`/`Histogram`/`ActivityFeed`/`SkillHeatmap`/`SuccessionCard`/`RbacMatrix`/`CapabilityRadar`) **invariati strutturalmente**
+
+**Reference**:
+
+- Pattern source: `.ux-design/01-canonical/research-artifact-pattern.md` §Motion + §6.4 Library card
+- Benchmark vivente: `.ux-design-archive-2026-05-13/02-aesthetic/icon-libraries-showcase.html` L80 (`.lib-card { transition: border-color 0.15s }`)
+- Plan: `~/.claude/plans/io-non-so-come-deep-sketch.md`
+- Predecessore: L17 (promotion canonical pattern)
+
+**Lessons learned applicate da L16**:
+
+- Plan mode + Explore agent prima di toccare codice (no implementation senza understanding)
+- Browser verification mandatory post-modifica (vs solo typecheck PASS — R5 lesson learned)
+- Scope ristretto a single delta concreto (no scope creep "applichiamo tutto il pattern")
+- Anti-trigger esplicitamente rispettati (semantic mismatch documented)
+
+---
+
+<!-- Entry successive L19-LN: append qui. Decisioni MIGRATE da cycle 1 archive devono citare predecessore archive L-XX in body. -->

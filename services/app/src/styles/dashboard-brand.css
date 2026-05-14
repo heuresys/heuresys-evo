@@ -3175,3 +3175,26 @@ table.dept .bar-cell {
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
+
+/* =====================================================================
+   Cycle 2 L18 — card hover border accent (research artifact pattern §Motion).
+   Allinea le 5 classi container widget al pattern canonical L17 senza
+   modificare struttura/spacing/tokens. F8 motion misurato: solo border-color
+   transition 0.15s, no scale/translate/box-shadow.
+   Reference: .ux-design/01-canonical/research-artifact-pattern.md
+   ===================================================================== */
+.kpi-card,
+.matrix-wrap,
+.skill-gap,
+.activity,
+.succession-card {
+  transition: border-color 0.15s;
+}
+
+.kpi-card:hover,
+.matrix-wrap:hover,
+.skill-gap:hover,
+.activity:hover,
+.succession-card:hover {
+  border-color: var(--accent);
+}
