@@ -77,4 +77,36 @@
 
 ---
 
-<!-- Entry successive L7-LN: append qui. Decisioni MIGRATE da cycle 1 archive devono citare predecessore archive L-XX in body. -->
+## L7 (2026-05-14) — phase18u RLS null-safe rewrite (315 policies hotfix)
+
+**Decisione**: applicata migration `phase18u_rls_null_safe_policies` che riscrive **289 policies RLS** da cast unsafe `(current_setting('app.current_tenant_id'::text[, true]))::uuid` a function call `current_tenant_id()` null-safe.
+
+**Causa del bug** (latente da S60 commit `0985a1a` 2026-05-13):
+
+- S60 hardening rese `heuresys` Postgres role `NOBYPASSRLS` (revocando BYPASSRLS).
+- Prima di S60, le 291 policies RLS unsafe NON venivano valutate (BYPASSRLS).
+- Dopo S60, ogni query Prisma le valuta. Il pattern unsafe fa cast diretto `::uuid` su `current_setting(name, true)`:
+  - GUC mai toccata in session → ritorna NULL → cast NULL::uuid → NULL → policy FALSE silently (no error, ma 0 rows)
+  - GUC toccata poi RESET, o residuo connection pool empty → ritorna `""` → cast `''::uuid` → **ERROR 22P02 "invalid input syntax for type uuid"**
+
+**Trigger riproduzione**: HR_DIRECTOR (Valentina Conti, RTL Bank) navigando `/dashboard` in dev locale Windows post-S62. Il dev Next.js dev pool ricicla connection con GUC residua dopo precedenti query SUPERUSER. Prima volta osservata 2026-05-14 01:55 GMT+2 nella sessione S62 di pulizia mock UX personas. In prod l'errore era latente: nessuno aveva navigato come HR_DIRECTOR end-to-end con un fresh connection pool entry.
+
+**Migration applicata**:
+
+- Backup pre-migration: `/var/backups/heuresys-evo/heuresys_platform-pre-phase18u-20260514T001959Z.dump` (409 MB)
+- File: `db/migrations/phase18u_rls_null_safe_policies.sql`
+- Risultato: 289 policies riscritte · 0 residue unsafe (verification post-migration PASS)
+- Pattern preservato per policies con NULLIF wrapping (già null-safe, ~26 policies in `enrichment_*`, ecc.)
+
+**Verifica end-to-end post-fix**: `/dashboard` HR_DIRECTOR carica regolarmente (Talent & capability view, 4 KPI ring, RBAC matrix, succession spotlight). Codice `services/app/src/app/(app)/dashboard/page.tsx` invariato (zero patch app-side richiesto). Fix è puramente DBMS-side dove appartiene.
+
+**Reference**:
+
+- DDL commit: `<TBD post-commit>`
+- Backup chain: `/var/backups/heuresys-evo/heuresys_platform-pre-phase18u-20260514T001959Z.dump`
+- S60 hardening reference: archive `DECISIONS-LOG.md` L87 + commit `0985a1a`
+- `current_tenant_id()` function definition: `db/migrations/*` (pre-S35, stable null-safe via `NULLIF(...) ::UUID + EXCEPTION WHEN OTHERS → NULL`)
+
+---
+
+<!-- Entry successive L8-LN: append qui. Decisioni MIGRATE da cycle 1 archive devono citare predecessore archive L-XX in body. -->
