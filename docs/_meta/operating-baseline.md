@@ -71,6 +71,16 @@ Due tier esclusivi semanticamente, **uniti fisicamente in STATE.md**:
 4. Flussi suggeriti se applicabile (max 2 cited)
 5. Open questions se rilevanti
 
+**Trigger "continuazione" (L20 reform 2026-05-14)** — se utente risponde al saluto con "proseguiamo" / "continuiamo" / "andiamo avanti" / "riprendiamo" / "da dove eravamo rimasti" / "cosa facciamo" / "next" / "ok" / equivalenti semantici, Claude NON aspetta task esplicito ma:
+
+1. Apre l'ultimo piano referenziato in STATE.md § Sessione corrente
+2. Compila lista ordinata cross-list: Debt H > Debt M > Debt L > Follow-up H > Flussi suggeriti > Follow-up M > Follow-up L
+3. Presenta menu numerato con `[Tier · ~effort] <titolo> — <1-frase>`
+4. Chiede selezione (numero / "tutti" / "altro")
+5. Esegue solo dopo decisione esplicita
+
+Vedi `CLAUDE.md` root § Session start protocol per format completo.
+
 **Bias da disinnescare entrambi**:
 
 - **Pre-training spinge a enumerare** → disinnescato dalla regola "il futuro NON sostituisce il presente, lo accompagna"

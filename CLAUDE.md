@@ -16,7 +16,45 @@
    - Open questions se rilevanti (omettere sezione se vuota)
 4. Aspetta direzione esplicita prima di toccare codice.
 
-Eccezione: skip se utente apre con comando diretto self-contained.
+### Trigger "continuazione" (L20 reform 2026-05-14)
+
+Se l'utente apre la sessione (o risponde al saluto) con frase semantica di continuazione — **"proseguiamo"**, **"continuiamo"**, **"andiamo avanti"**, **"riprendiamo"**, **"da dove eravamo rimasti"**, **"cosa facciamo"**, **"next"**, **"vai avanti"**, **"ok"** in risposta diretta al saluto, o equivalenti — NON aspettare direzione esplicita su singolo task. Invece:
+
+1. Apri l'ultimo piano referenziato in STATE.md § Sessione corrente (es. `~/.claude/plans/<latest>.md`)
+2. Compila una **lista ordinata** che combina:
+   - **Debt attivo** (priorità massima, anche se vuoto va dichiarato)
+   - **Follow-up tracciabili** ordinati per priority field (H > M > L)
+   - **Flussi di attività suggeriti** (multi-step, citati per nome ciascuno)
+   - **Carry-forward dal piano canonico** (se applicabile, dalle sezioni "Phase successive" / "Roadmap")
+3. Presenta la lista come **menu di selezione numerato** (1-N) con: titolo · effort · 1-frase descrizione · dipendenze se esistenti
+4. Chiedi all'utente quale procedere (singolo numero, oppure "tutti", oppure "altro" se vuole proporne uno fuori lista)
+5. Aspetta decisione esplicita prima di iniziare l'esecuzione
+
+**Ordinamento canonico** (cross-list):
+
+1. Debt H (bloccanti) — sempre primo se presenti
+2. Debt M — secondo
+3. Debt L — terzo
+4. Follow-up H — quarto
+5. Flussi suggeriti (multi-step) — quinto-sesto
+6. Follow-up M — settimo+
+7. Follow-up L — ultimo
+
+**Format menu suggerito**:
+
+```
+Proseguiamo da dove eravamo. Lista ordinata per priorità:
+
+1. [Debt H · ~Xh] <titolo> — <1-frase descrizione>
+2. [Follow-up H · ~Xh] <titolo> — <descrizione>
+3. [Flusso · ~Xh] <nome flusso> — <descrizione multi-step>
+4. [Follow-up M · ~Xh] ...
+...
+
+Quale procediamo? (numero · "tutti" · "altro")
+```
+
+Eccezione: skip se utente apre con comando diretto self-contained (es. "fix bug X", "applica Y") che NON è continuazione semantica.
 
 A fine sessione, `/handoff` aggiorna `.handoff/STATE.md` (aggiorna "Sessione corrente" + accoda eventuali nuovi follow-up/flussi) + commit + push direct main.
 
