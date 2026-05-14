@@ -1,12 +1,12 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-14T17:45Z · S63 sessione lunga · HEAD `baaa12d` · 12 commits cycle 2 shipped · `origin/main` in sync
+> Updated: 2026-05-14T18:10Z · **S63 CLOSED** · HEAD `33d7e6c` · 16 commits cycle 2 shipped · `origin/main` in sync · **VM deployed** · prod smoke 200
 >
 > Struttura post-L19 reform (operating-baseline.md § CARD-5): Sessione corrente + Debt + Follow-up + Flussi. Single SoT.
 
-## Sessione corrente (S63 — 2026-05-14)
+## Sessione corrente (S63 — 2026-05-14 · CLOSED 18:14Z · deployed prod)
 
-Sessione lunga autonomous run + extension manuale che ha eseguito il plan canonical `~/.claude/plans/c-stata-una-continua-indexed-cocke.md` "Investor-Ready UI Rebuild" Phases 0-7 + 2 reform brand cycle 2 + 1 hotfix S61 (questa). 12 commits su `origin/main` in catena.
+Sessione lunga autonomous run + extension manuale che ha eseguito il plan canonical `~/.claude/plans/c-stata-una-continua-indexed-cocke.md` "Investor-Ready UI Rebuild" Phases 0-7 + 3 reform brand cycle 2 (L17/L18/L19/L20) + hotfix S61. **16 commits** su `origin/main` in catena. **VM deployata** (HEAD `33d7e6c`) + 3 systemd services restarted active + prod smoke `/login` HTTP 200 + `/api/health` HTTP 200.
 
 **Output principale**:
 - 5/8 Phase rebuild shipped (0-4 full · 5-6 partial · 7 minimal) — 21 file canonical/spec/code/migration + 84 dashboard_elements seeded
@@ -18,6 +18,18 @@ Sessione lunga autonomous run + extension manuale che ha eseguito il plan canoni
 - L19 reform parziale CARD-5: ripristinato session start protocol "ampio" con sessione corrente + follow-up + flussi (revert parziale S61 over-correction)
 
 **Lezione cardinale registrata** (R5 + CARD-2): typecheck PASS + smoke HTTP 200 + lint exit 0 NON dimostrano feature correctness. Per UI changes serve **browser test obbligatorio via claude-in-chrome MCP**. Aggiunta CARD-2 ("UI changes → testare in browser prima di claim done") già in baseline; rinforzata da L16 fail.
+
+## Deploy S63 — oracle-vm-default (chiusura sessione)
+
+```
+2026-05-14T18:10Z — git pull origin main (ff989d9 → 33d7e6c, 16 commits delta)
+2026-05-14T18:10Z — npm run build services/app (BUILD_ID 16:10, 149MB standalone, Compiled successfully in 64s + TypeScript 40s + 38/38 static pages)
+2026-05-14T18:11Z — sudo systemctl restart heuresys-app heuresys-api-gateway heuresys-enrichment
+2026-05-14T18:13Z — heuresys-app startup complete (3.9GB memory peak, normale Next.js)
+2026-05-14T18:14Z — Smoke prod: /login HTTP 200 · /api/health HTTP 200 · 3 services active
+```
+
+DB già allineato (phase19a/b/c/d/e/f/g applicate via psql direct durante sessione). No Prisma migration step necessario.
 
 ## Stato sistema (smoke)
 
