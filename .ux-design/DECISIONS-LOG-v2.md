@@ -705,4 +705,47 @@ Scoping deliberato:
 
 ---
 
-<!-- Entry successive L19-LN: append qui. Decisioni MIGRATE da cycle 1 archive devono citare predecessore archive L-XX in body. -->
+## L19 (2026-05-14) — Reform parziale CARD-5 (revert S61 over-correction) + STATE.md ampliato
+
+**Decisione**: revert parziale della reform S61 (commit `3a2e7a3` 2026-05-13) sul session start protocol. La regola "Sistema fermo. Non eredita pendenze. BACKLOG.md mai aprirlo automaticamente" era over-corretta: generava sessions amnestiche dove si perdeva la continuità con i lavori in canna.
+
+**Razionale**: l'utente ha esplicitamente segnalato il pentimento sulla restrizione: _"prima della modifica era meglio"_. Il bias del pre-training di Claude (enumerare next-steps come segnale di completezza) era stato disinnescato correttamente da S61, ma l'over-correction ha generato il problema opposto — session start protocol troppo asciutto, "Sistema fermo dimmi cosa facciamo" senza recap né flussi suggeriti. Tra le due alternative, l'utente preferisce il rischio di "enumerazione gratuita" piuttosto che l'amnesia di sessione.
+
+**Modifiche concrete**:
+
+1. **`docs/_meta/operating-baseline.md` § CARD-5** — riformata:
+   - Distinzione semantica DEBT vs Raccomandazioni **preservata** (era valore aggiunto S61)
+   - Container fisico **unificato in STATE.md** (era separato in BACKLOG.md)
+   - `BACKLOG.md` declassato da "menu separato mai aprire" a "archive overflow per items voluminosi"
+   - Tier expansi: Debt · Follow-up · Flussi suggeriti (3 tier semantici nella stessa STATE.md)
+   - Regola "Nessuno. Sistema fermo." sostituita con "Debt attivo: Nessuno" + sezione Follow-up sempre presente se ci sono items reali
+
+2. **`CLAUDE.md` root § Session start protocol** — riformato:
+   - Step 1: leggi STATE.md **completo** (non solo § Debt)
+   - Step 3 saluto: 1-line recap sessione precedente + Debt + top 3 follow-up + top 2 flussi + open questions (vs prima: solo recap + Debt + open questions)
+   - "Sistema fermo, dimmi cosa facciamo" rimosso come fallback default
+
+3. **`.handoff/STATE.md`** — riscritta con struttura nuova:
+   - § Sessione corrente (S63 — 2026-05-14)
+   - § Stato sistema (smoke commands)
+   - § Debt attivo (vuoto sotto)
+   - § Follow-up tracciabili (10 items con effort/priority H/M/L)
+   - § Flussi di attività suggeriti (5 multi-step direzioni: A drilldown slide-over, B AI insight card, C sparkline, D research artifact #2, E cross-tenant SUPERUSER polish)
+   - § Open questions (vuoto)
+   - § References (canonical / code / migrations / DECISIONS-LOG / memoria operativa)
+
+**Bias da disinnescare entrambi** (nuova doppia regola):
+
+- Pre-training spinge a enumerare → ora disinnescato da: "il futuro NON sostituisce il presente, lo accompagna"
+- S61 over-correction generava session amnestiche → disinnescato da: "handoff non è tabula rasa, è continuità"
+
+**Origine cronologia documentata in CARD-5**:
+
+- S61 (2026-05-13) prima reform stretta — `~/.claude/plans/francamente-una-situazione-noble-journal.md`
+- L19 (2026-05-14) revert parziale — questa entry
+
+**Impact**: zero rottura runtime (solo policy doc + STATE struttura). Future sessioni partiranno con context ampio, includendo follow-up e flussi suggeriti, preservando continuità.
+
+---
+
+<!-- Entry successive L20-LN: append qui. Decisioni MIGRATE da cycle 1 archive devono citare predecessore archive L-XX in body. -->

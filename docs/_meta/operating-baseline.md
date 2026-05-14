@@ -34,35 +34,52 @@ I tre comandamenti che attraversano tutte le regole. Quando in dubbio, applicare
 - PR-driven solo se richiesta esplicita o cambio strutturale critico
 - Pattern ripetuto >2 volte → segnalo per automazione, NON implemento in autonomia
 
-### CARD-5: DEBT vs RACCOMANDAZIONI — distinzione semantica obbligatoria
+### CARD-5: DEBT vs RACCOMANDAZIONI — distinzione semantica preservata, ma stato è unico (S63 L19 reform)
 
-> **Principio**: un sistema può essere fermo senza essere "vuoto di possibilità". Le possibilità (raccomandazioni opzionali) non sono debiti. Mescolarle nello stesso documento genera l'illusione di pendenze infinite.
+> **Principio aggiornato (L19, 2026-05-14)**: un sistema può essere fermo senza essere "vuoto di possibilità", MA il bilanciamento opposto è equivalente: un sistema fermo senza follow-up tracciati produce smarrimento ("dove eravamo? cosa avevamo in canna?"). La distinzione semantica DEBT vs Raccomandazioni resta utile, ma vivono **entrambe** in `STATE.md` (single SoT). `BACKLOG.md` è overflow archive solo per items voluminosi che inquinerebbero STATE.md.
 
-Due tier esclusivi, mai mescolati:
+**Reform L19 (revert parziale S61)**: l'utente Enzo ha esplicitamente chiesto di tornare al comportamento pre-S61 (status sessione "ampio" con flussi suggeriti / carry-forward / pending) perché la regola S61 ha generato session start protocol troppo asciutti dove si perdeva la continuità tra sessioni. Quindi:
 
-| Tier                | Definizione                                                                                                     | SLA       | Visibilità in STATE.md       |
-| ------------------- | --------------------------------------------------------------------------------------------------------------- | --------- | ---------------------------- |
-| **DEBT / PENDING**  | Obbligo: ha owner (Enzo), acceptance criteria, deadline implicita ("prima della prossima feature"). Va chiuso.  | Tracciato | TOP-LEVEL § "Debt attivo"    |
-| **RACCOMANDAZIONI** | Miglioramenti adiacenti: nessun obbligo, nessuna deadline, possono marcire/essere cancellate senza conseguenze. | NESSUNO   | Link separato a `BACKLOG.md` |
+Due tier esclusivi semanticamente, **uniti fisicamente in STATE.md**:
+
+| Tier                 | Definizione                                                                                                        | SLA       | Visibilità in STATE.md                    |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------ | --------- | ----------------------------------------- |
+| **DEBT / PENDING**   | Obbligo: ha owner (Enzo), acceptance criteria, deadline implicita ("prima della prossima feature"). Va chiuso.     | Tracciato | TOP-LEVEL § "Debt attivo"                 |
+| **FOLLOW-UP**        | Miglioramenti adiacenti / next-up multi-step / carry-forward / flussi suggeriti. Nessun obbligo, nessuna deadline. | NESSUNO   | Sezione "Follow-up tracciabili" dopo Debt |
+| **FLUSSI SUGGERITI** | Direzioni di lavoro multi-step plausibili (>3 task), proposte per next session. Selezione human-curated, max 5.    | NESSUNO   | Sezione "Flussi di attività suggeriti"    |
 
 **Quando scrivo un audit / handoff / report**:
 
 - "Findings", "Bug", "Violazioni", "Migration richieste" → vanno in **Debt** (STATE.md top-level)
-- "Quick wins", "Recommendations", "Next steps", "Adjacent improvements" → vanno in **Raccomandazioni** in `.handoff/BACKLOG.md`
-- **Mai mescolare i due nello stesso documento**
-- Audit doc chiude senza "Next steps" se non ci sono findings open. Il documento risponde alla domanda che gli è stata posta, non enumera il futuro.
+- "Quick wins", "Recommendations", "Adjacent improvements" → vanno in **Follow-up tracciabili** (sezione dedicata STATE.md)
+- "Possibili direzioni multi-step" → vanno in **Flussi di attività suggeriti** (sezione dedicata STATE.md)
+- **Mai mescolare DEBT con FOLLOW-UP/FLUSSI nella stessa sezione** (il bias da disinnescare resta: not "enumera futuro al posto di rispondere", but "enumera futuro IN aggiunta a riportare stato")
+- Audit doc autonomo (es. `docs/_audit/...`) chiude su findings effettivi senza next-steps. Solo STATE.md riporta follow-up/flussi.
 
 **Quando aggiorno `STATE.md`** (anche via `/handoff`):
 
-- Se nessun item Debt → scrivere letteralmente "**Nessuno. Sistema fermo.**" Non sostituire con "Top priorities" / "Possibili direzioni" / "Next directions" / equivalenti.
-- Raccomandazioni opzionali → mai dentro STATE.md. Sempre delegate a `BACKLOG.md`.
-- Open questions → solo se bloccano lavoro futuro. Se vuoto, omettere la sezione.
+- Se nessun item Debt → scrivere "**Debt attivo: Nessuno**" (compatto, non più "Sistema fermo")
+- Follow-up sempre presenti se ci sono items reali (anche minori) — non è "scope creep" registrarli
+- Flussi suggeriti: max 5 entries, ciascuna ≤1 frase + effort approssimativo. Selezione operata a fine sessione, non auto-generata
+- Sessione corrente: sezione "Sessione corrente (Snnn — YYYY-MM-DD)" con 3-5 righe recap dell'attività più recente
 
-**Quando l'utente apre una sessione**: legge `STATE.md` § Debt. Se "Nessuno. Sistema fermo." → la sessione è OPEN, non eredita pendenze. `BACKLOG.md` è MENU OPTIONAL, mai aprirlo automaticamente.
+**Quando l'utente apre una sessione**: legge `STATE.md` completo (non solo § Debt). Greeting Claude include:
 
-**Bias di Claude da disinnescare**: pre-training spinge a enumerare "next steps" come segnale di completezza. Con questa regola, completezza = "ho risposto alla domanda", non "ho enumerato il futuro".
+1. 1-line recap sessione precedente (dalla sezione "Sessione corrente")
+2. Debt attivo (status: vuoto / N items)
+3. Follow-up più rilevanti (max 3 cited, con link alla sezione per details)
+4. Flussi suggeriti se applicabile (max 2 cited)
+5. Open questions se rilevanti
 
-Origine S61 (2026-05-13) post-CW-LCP1: il bias generativo produceva carry-forward auto-prodotto a ogni audit, mascherando il fatto che il sistema fosse effettivamente fermo. Vedi `~/.claude/plans/francamente-una-situazione-noble-journal.md`.
+**Bias da disinnescare entrambi**:
+
+- **Pre-training spinge a enumerare** → disinnescato dalla regola "il futuro NON sostituisce il presente, lo accompagna"
+- **S61 over-correction generava sessions amnestiche** → disinnescato da L19 reform: handoff non è "tabula rasa", è continuità
+
+Origine cronologia:
+
+- S61 (2026-05-13) post-CW-LCP1: prima reform stretta "Sistema fermo" per fermare carry-forward auto-prodotto generativo. Vedi `~/.claude/plans/francamente-una-situazione-noble-journal.md`.
+- L19 (2026-05-14) S63 close: revert parziale, mantenuta distinzione semantica ma rilassato session start protocol.
 
 ### CARD-4: PROPOSE, DON'T DECIDE — feasibility evidence-based
 

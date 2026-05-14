@@ -6,16 +6,25 @@
 
 ## Session start protocol
 
-1. Leggi `.handoff/STATE.md` § "Debt attivo". Se "**Nessuno. Sistema fermo.**" → la sessione è OPEN, non eredita pendenze. `.handoff/BACKLOG.md` è menu opzionale, **mai aprirlo automaticamente**.
+1. Leggi `.handoff/STATE.md` **completo** (sezione "Sessione corrente" + "Debt attivo" + "Follow-up tracciabili" + "Flussi di attività suggeriti"). Vedi `docs/_meta/operating-baseline.md` § CARD-5 (reform L19 2026-05-14).
 2. `git status -sb` (clean? in sync con `origin/main`?)
-3. Saluta: 1-line recap + stato Debt (vuoto vs items) + open questions se rilevanti. Se Debt vuoto → "Sistema fermo, dimmi cosa facciamo." Niente enumerazione di "possibili direzioni".
+3. Saluta:
+   - 1-line recap **sessione precedente** (dalla sezione "Sessione corrente" di STATE.md)
+   - Stato Debt (vuoto vs N items, con titolo dei più rilevanti)
+   - Top 3 **follow-up tracciabili** (cited in 1 riga ciascuno, con effort se disponibile)
+   - Top 2 **flussi suggeriti** (se applicable)
+   - Open questions se rilevanti (omettere sezione se vuota)
 4. Aspetta direzione esplicita prima di toccare codice.
 
 Eccezione: skip se utente apre con comando diretto self-contained.
 
-A fine sessione, `/handoff` aggiorna `.handoff/STATE.md` + commit + push direct main.
+A fine sessione, `/handoff` aggiorna `.handoff/STATE.md` (aggiorna "Sessione corrente" + accoda eventuali nuovi follow-up/flussi) + commit + push direct main.
 
-**Policy audit/handoff (S61 reform, vedi `docs/_meta/operating-baseline.md` § CARD-5)**: audit doc chiude su findings effettivi; raccomandazioni adiacenti ("next steps", "quick wins", "recommendations") vivono SOLO in `.handoff/BACKLOG.md`, mai dentro audit/STATE. Distinzione semantica Debt vs Raccomandazioni è obbligatoria.
+**Policy audit/handoff (S61 reform + L19 revert parziale, vedi `docs/_meta/operating-baseline.md` § CARD-5)**:
+
+- Audit doc autonomi chiudono su findings effettivi senza next-steps inline
+- STATE.md è single SoT che ospita Sessione corrente + Debt + Follow-up + Flussi (sezioni separate, semanticamente distinte ma fisicamente colocate)
+- `BACKLOG.md` rimane come archive overflow per items voluminosi che inquinerebbero STATE.md (es. legacy import registry 100+ entries). NON è più "menu separato mai aprire" — è "container archive consultabile su richiesta"
 
 ## Brand workstream (cycle 2 — post-S62 reset 2026-05-13)
 

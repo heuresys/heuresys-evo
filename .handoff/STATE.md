@@ -1,64 +1,140 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-14T13:45Z · S63 autonomous run closure totale · Phases 0-6 shipped + Phase 7 minimal · HEAD post-Phase7-commit
+> Updated: 2026-05-14T17:45Z · S63 sessione lunga · HEAD `baaa12d` · 12 commits cycle 2 shipped · `origin/main` in sync
+>
+> Struttura post-L19 reform (operating-baseline.md § CARD-5): Sessione corrente + Debt + Follow-up + Flussi. Single SoT.
 
-## Debt attivo
+## Sessione corrente (S63 — 2026-05-14)
 
-Nessuno bloccante. Sistema fermo dopo S63 autonomous run extended (Phases 0-4 full + 5-6 partial).
+Sessione lunga autonomous run + extension manuale che ha eseguito il plan canonical `~/.claude/plans/c-stata-una-continua-indexed-cocke.md` "Investor-Ready UI Rebuild" Phases 0-7 + 2 reform brand cycle 2 + 1 hotfix S61 (questa). 12 commits su `origin/main` in catena.
 
-**Follow-up tracciabili (non bloccanti, opzionali):**
+**Output principale**:
+- 5/8 Phase rebuild shipped (0-4 full · 5-6 partial · 7 minimal) — 21 file canonical/spec/code/migration + 84 dashboard_elements seeded
+- 12 preset `_v2` HR_DIRECTOR browser-verificati live come `valentina.conti@rtl-bank.org` (4 process_*_v2 Phase 1 + 8 nuovi Phase 4)
+- Resolver hierarchy fix (`resolveElements` deduplica by `(parent_element_id, position)` tuple, era solo `position` → collassava children)
+- 7 hotfix runtime SQL/schema/adapter shape post browser verification (L16): json_agg wrap Histogram/ActivityFeed, hire_date vs hired_at, user_email vs actor_email, rbp_role_permissions vs rbp_role_area_permissions, UUID leak pill `0c54b8`
+- L17 pattern de reference research artifact promosso a canonical cycle 2 (`icon-libraries-showcase.html` benchmark vivente)
+- L18 hover transition pattern applicato alle 5 classi card widget HR_DIRECTOR (operational dashboard ora 100% pattern-fedele vs 95% pre-modifica)
+- L19 reform parziale CARD-5: ripristinato session start protocol "ampio" con sessione corrente + follow-up + flussi (revert parziale S61 over-correction)
 
-1. **Phase 5 sidebar refactor opzione A** — Promote sidebar PrimaryNav link a `/dashboard/<preset_v2>` (cockpit-first navigation). Plan decision in `.ux-design/04-promotion/phase5-route-migration-decision.md`: Opzione C (status quo) shipped; Opzione A è futuro upgrade. ~4-6h.
-2. **Phase 6.2 i18n sweep widget legacy** — Refactor i 21 widget brand pre-S63 (BrandKpiCard, BrandSuccessionCard, ecc.) per usare `pickWidgetString` o constants invece di hardcoded IT/EN. ~3-5h.
-3. **Phase 7 investor demo** — Chrome MCP loop 4 ruoli × 14 voci sidebar = ~56 screenshot in `.handoff/investor-demo/`. Lighthouse audit 5 preset principali. brand:audit cross-route final score. ~6-10h.
-4. **Storybook stories per 6 widget brand nuovi** — `BrandEmployeeDirectoryGrid` · `BrandOkrCascadeTree` · `BrandReviewKanbanBoard` · `BrandWorkforceTrendLine` · `BrandCalibrationCard` · `BrandBonusPlanCard`. TDD-first per audit pre-promotion. ~4-6h.
-5. **Phase 3.2 widget brand expansion residui** — `LearningProgress` widget + `CertificationBadgeGrid` (mappati a coverage da widget esistenti ma scaffold dedicato può alzare audit score). ~3-5h.
-6. **role_default_dashboards mapping** — Aggiungere row per gli 8 nuovi preset `_v2` se servono come dashboard default per ruoli specifici (es. /dashboard HR_DIRECTOR → tenant_owner_overview_v2 ancora; lasciato invariato). Opzionale ~1-2h.
+**Lezione cardinale registrata** (R5 + CARD-2): typecheck PASS + smoke HTTP 200 + lint exit 0 NON dimostrano feature correctness. Per UI changes serve **browser test obbligatorio via claude-in-chrome MCP**. Aggiunta CARD-2 ("UI changes → testare in browser prima di claim done") già in baseline; rinforzata da L16 fail.
 
-## S63 autonomous run delta (Phases 0-4 shipped)
-
-| Phase | Commit | Output |
-|---|---|---|
-| 0 | `0ebf49e` | 9 canonical .md in `.ux-design/01-canonical/` (trend-research · inspirations · moodboard · layout-pattern · role-data-matrix · widget-vocabulary · i18n-policy · header-footer-anatomy · anti-patterns) + role-shaper 42 unit test PASS + base-adapter framework + H1 parser fix `[code]/page.tsx` + debug leak removal BrandShell+ws-footer gated dietro `NEXT_PUBLIC_SHOW_DEV_FOOTER` |
-| 1 | `114d228` | phase19a_four_process_v2_reseed.sql: re-seed 4 process_*_v2 sparse (3→11 elements ciascuno, 44 total). Scope ridotto autonomous: hr_director_overview_v2 + capability_graph_v2 NOT re-seeded (già full + zero regression risk). 6 spec atomic in `.ux-design/04-promotion/specs/` |
-| 2 | `1d323db` | 8 query modules role-aware in `services/app/src/lib/data/`: employees · reviews · goals · learning · compensation · workforce-analytics · audit · rbac. Pattern uniforme: ScopeContext → resolveScope → withTenant → $queryRaw → null o EMPTY sentinel → `<DataNotAvailable />` (P11) |
-| 3 | `440769f` | 6 widget brand nuovi in `services/app/src/components/widgets/brand/`: BrandEmployeeDirectoryGrid · BrandOkrCascadeTree · BrandReviewKanbanBoard · BrandWorkforceTrendLine · BrandCalibrationCard · BrandBonusPlanCard. Index re-export typed. Scope ridotto vs plan 12 widget: 6 nuovi + 6 coperti da brand widget esistenti (BrandProfileHero · BrandHistogram · BrandActivityFeed+AuditRow · BrandSkillHeatmap · GaugeCard) |
-| 4 | `3707997` | phase19b_eight_new_presets_seed.sql: 8 nuovi dashboard_presets _v2 (employees_directory · reviews_cycle · goals_cascade · learning_paths_overview · compensation_overview · workforce_analytics · admin_audit · admin_rbac) + 40 dashboard_elements. is_published=true tutti. SQL data_source live current_tenant_id() null-safe |
-
-## Verification
+## Stato sistema (smoke)
 
 ```bash
-# Working tree clean post-commit
-git status -sb
+# Working tree
+git status -sb              # ## main...origin/main · clean (1 PNG untracked S62)
 
-# Stack commits S63 cycle 2 investor-ready rebuild
+# HEAD chain S63 (12 commits)
 git log --oneline 0ebf49e^..HEAD
+# baaa12d L18 hover transition pattern applied
+# 08b2eff L17 research artifact pattern promosso canonical
+# d322ed3 7 hotfix browser-verified per 12 preset _v2
+# b4d94d0 Phase 7 closure minimal
+# babd922 Phase 5+6 i18n widget + route decision
+# ff6872b S63 closure v1 (STATE + L13)
+# 3707997 Phase 4 — 8 nuovi preset _v2 + 40 elements
+# 440769f Phase 3 — 6 widget brand nuovi
+# 1d323db Phase 2 — 8 query modules role-aware
+# 114d228 Phase 1 — 4 process_*_v2 reseed
+# 0ebf49e Phase 0 foundations + canonical
 
-# Smoke prod
-curl -sI https://evo.heuresys.com/login | head -1   # expect HTTP/1.1 200 OK
-
-# Smoke dev locale
-curl -sI http://localhost:3200/login | head -1   # expect HTTP/1.1 200 OK
+# Smoke prod + dev
+curl -sI https://evo.heuresys.com/login | head -1   # HTTP/1.1 200 OK
+curl -sI http://localhost:3200/login | head -1      # HTTP/1.1 200 OK
 
 # Count preset _v2 published
 ssh oracle-vm-default "sudo -u postgres psql heuresys_platform -c \"SELECT COUNT(*) FROM dashboard_presets WHERE code LIKE '%_v2' AND is_published = true;\""
-# expect 19 (11 esistenti pre-S63 + 8 nuovi Phase 4)
+# expect 19 (11 pre-S63 + 8 nuovi Phase 4)
 
-# Typecheck PASS
+# Typecheck
 cd services/app && npx tsc --noEmit && echo OK
 
-# 42/42 role-shaper unit tests PASS
-cd services/app && npx vitest run src/lib/data/__tests__/_role-shaper.test.ts
+# Role-shaper unit tests
+cd services/app && npx vitest run src/lib/data/__tests__/_role-shaper.test.ts   # 42/42 PASS
+
+# Tenant-id lint
+npm run lint:tenant-id      # exit 0
 ```
+
+## Debt attivo
+
+**Nessuno**. Sistema funzionante end-to-end. Tutti i preset _v2 browser-verificati, console errors 0 cross-route, P11 compliance rispettata, brand identity allineata al pattern canonical L17.
+
+## Follow-up tracciabili
+
+Non bloccanti, opzionali. Pronto a essere ripreso quando l'utente lo richiede.
+
+| # | Item | Effort | Priority | Note |
+|---|---|---:|:-:|---|
+| 1 | **Cycle 2 directory `05-research/`** | ~30min | M | Creare folder per ospitare nuovi artefatti research cycle 2. Oggi `01-canonical/`, `02-tokens/`, `03-mockups/`, `04-promotion/` sono le 4 sub-dirs esistenti. Categoria mancante per artefatti research-pattern (L17). |
+| 2 | **Skill `/research-artifact-new <topic>`** | ~2-3h | M | Scaffold automatizzato che crea nuovo HTML cycle 2 dal pattern + apre placeholder content. Riduce drift da manual copy-paste. Reference: `.ux-design/01-canonical/research-artifact-pattern.md`. |
+| 3 | **Phase 5 sidebar refactor opzione A** | ~4-6h | L | Promote sidebar PrimaryNav link a `/dashboard/<preset_v2>` (cockpit-first navigation). Plan decision: `.ux-design/04-promotion/phase5-route-migration-decision.md` Opzione C status quo shipped; Opzione A è futuro upgrade. |
+| 4 | **Phase 6.2 i18n sweep widget legacy** | ~3-5h | L | Refactor 21 widget brand pre-S63 (BrandKpiCard, BrandSuccessionCard, ecc.) per usare `pickWidgetString` o constants invece di hardcoded IT/EN. |
+| 5 | **Phase 7 investor demo Chrome MCP** | ~6-10h | M | Chrome MCP loop 4 ruoli × 14 voci sidebar = ~56 screenshot in `.handoff/investor-demo/`. Lighthouse audit 5 preset principali. brand:audit cross-route final score (target avg ≥ 8). |
+| 6 | **Storybook stories 6 widget brand nuovi** | ~4-6h | M | BrandEmployeeDirectoryGrid · BrandOkrCascadeTree · BrandReviewKanbanBoard · BrandWorkforceTrendLine · BrandCalibrationCard · BrandBonusPlanCard. TDD-first per audit pre-promotion. |
+| 7 | **Phase 3.2 widget brand residui** | ~3-5h | L | `LearningProgress` widget + `CertificationBadgeGrid` (mappati a coverage da widget esistenti ma scaffold dedicato può alzare audit score). |
+| 8 | **`role_default_dashboards` mapping** | ~1-2h | L | Aggiungere row per gli 8 nuovi preset `_v2` se servono come dashboard default per ruoli specifici. Oggi `/dashboard` HR_DIRECTOR → `tenant_owner_overview_v2` ancora; lasciato invariato. |
+| 9 | **Promozione altri esempi vincenti** | ~1-2h | L | Audit dell'archive `.ux-design-archive-2026-05-13/02-aesthetic/*.html` per identificare altri mockup di qualità analoga a icon-libraries-showcase, candidati a benchmark vivente. |
+| 10 | **Catalog DB `09-asset-showcase/` reactivation** | ~3-5h | L | SQLite tool localhost catalogazione asset brand identity. Archiviato cycle 1 post-S62 reset. Reattivazione su richiesta esplicita se serve workflow promotion asset. |
+
+## Flussi di attività suggeriti
+
+Direzioni multi-step plausibili per next session. Selezione human-curated, ciascuna richiede ≥3 task atomici.
+
+| # | Flusso | Effort | Dipendenze | Outcome atteso |
+|---|---|---:|---|---|
+| **A** | **Drilldown slide-over pattern su preset cycle 2** | ~6-10h | nessuna | Implementare slide-over panel destra per drill: KPI click → trend → record list → record detail (Linear-style). Pattern previsto in `moodboard.md`. Da introdurre come Brand* widget nuovo + integrare nei 12 preset _v2. |
+| **B** | **AI insight card su `/dashboard` HR_DIRECTOR** | ~4-6h | OpenAI env var attivo | Card narrative AI-generated che traduce KPI in 1 frase decisionale italiana sotto hero strip. Pattern moodboard cycle 2. P11: insight basata SOLO su dati live DB. |
+| **C** | **Sparkline accanto a KpiRing** | ~3-5h | data-fetcher trend support | KpiRing widget esteso con mini-sparkline 12pt (trend 12-week). Pattern moodboard "Calm Cockpit". Richiede SQL trend query (es. headcount per settimana). |
+| **D** | **Comparative research artifact #2 cycle 2** | ~4-6h | follow-up #1+#2 | Primo artefatto research cycle 2 che applica L17 pattern: `typography-stacks-showcase.html` o `color-palette-options.html`. Dogfooding pratico del pattern de reference. |
+| **E** | **Cross-tenant SUPERUSER cockpit polish** | ~5-8h | nessuna | Browser-verify `cross_tenant_overview_v2` come `sysadmin` + sweep di drift dal pattern (es. UUID leak, scope-pill, hover transitions). Estende coverage da HR_DIRECTOR a SUPERUSER. |
+
+## Open questions
+
+Nessuna bloccante.
 
 ## References
 
+### Documentazione canonical cycle 2
 - **Plan canonical S63+**: `~/.claude/plans/c-stata-una-continua-indexed-cocke.md`
-- **Canonical cycle 2**: `.ux-design/01-canonical/*.md` (9 file)
-- **Specs atomic Phase 1**: `.ux-design/04-promotion/specs/<preset>.md` (6 file)
-- **Role-shaper**: `services/app/src/lib/data/_role-shaper.ts` + `__tests__/_role-shaper.test.ts`
-- **Query modules Phase 2**: `services/app/src/lib/data/*-queries.ts` (8 nuovi + tenant-owner pre-existing)
+- **Plan S62 reset**: `~/.claude/plans/in-questa-fase-io-spicy-galaxy.md`
+- **Plan L17 promotion**: `~/.claude/plans/io-non-so-come-deep-sketch.md` (questa sessione)
+- **Canonical cycle 2** (10 file): `.ux-design/01-canonical/*.md`
+- **Specs Phase 1**: `.ux-design/04-promotion/specs/*.md` (6 file)
+
+### Code shipped S63
+- **Role-shaper**: `services/app/src/lib/data/_role-shaper.ts` + `__tests__/_role-shaper.test.ts` (42 PASS)
+- **Query modules Phase 2**: `services/app/src/lib/data/*-queries.ts` (8 nuovi)
 - **Brand widget nuovi Phase 3**: `services/app/src/components/widgets/brand/Brand{EmployeeDirectoryGrid,OkrCascadeTree,ReviewKanbanBoard,WorkforceTrendLine,CalibrationCard,BonusPlanCard}.tsx`
-- **Migrations**: `db/seeds/phase19a_four_process_v2_reseed.sql` · `db/seeds/phase19b_eight_new_presets_seed.sql`
-- **DECISIONS-LOG-v2 entries S63**: L8 (Phase 0) · L9 (Phase 1) · L10 (Phase 2) · L11 (Phase 3) · L12 (Phase 4) · L13 (this closure)
-- **Plan execution mode**: autonomous fino @ 80% del context window 1M (~800k token), come da direttiva utente
+- **i18n widget strings**: `services/app/src/lib/i18n/widget-strings.ts`
+- **Base adapter framework**: `services/app/src/lib/dashboard-engine/adapters/_base-adapter.ts`
+- **Resolver hierarchy fix**: `services/app/src/lib/dashboard-engine/resolver.ts` (dedup by `(parent_element_id, position)`)
+- **CSS hover pattern L18**: `services/app/src/styles/dashboard-brand.css` L3179+ (10 LOC append)
+
+### Migrations DB applicate
+- `db/seeds/phase19a_four_process_v2_reseed.sql` (4 process_*_v2 reseed, 44 elements)
+- `db/seeds/phase19b_eight_new_presets_seed.sql` (8 nuovi preset, 40 elements)
+- `db/seeds/phase19c_fix_histogram_activityfeed_shape.sql` (superseded by 19d)
+- `db/seeds/phase19d_fix_adapter_shapes.sql` (17 UPDATE shape json_build_object)
+- `db/seeds/phase19e_fix_hired_at_to_hire_date.sql` (3 UPDATE schema)
+- `db/seeds/phase19f_fix_audit_actor_email.sql` (2 UPDATE schema)
+- `db/seeds/phase19g_fix_rbac_table_name.sql` (2 UPDATE rbp_role_permissions)
+
+### DECISIONS-LOG-v2 cycle 2 entries S63
+- L8 Phase 0 charter + foundations
+- L9 Phase 1 (4 process_*_v2 reseed)
+- L10 Phase 2 (8 query modules)
+- L11 Phase 3 (6 widget brand)
+- L12 Phase 4 (8 nuovi preset)
+- L13 S63 closure v1
+- L14 Phase 5+6 i18n + route decision
+- L15 Phase 7 minimal
+- L16 7 hotfix browser-verified (R5 lesson learned)
+- L17 research artifact pattern promosso a canonical
+- L18 hover transition pattern applied
+- L19 reform parziale CARD-5 (revert S61 over-correction, **THIS**)
+
+### Memoria operativa
+- **Plan execution mode S63**: autonomous fino @ 80% del context window 1M (~800k token), come da direttiva utente per la sessione lunga
+- **Browser MCP**: claude-in-chrome MCP usato live per verification, session persistente HR_DIRECTOR. Lezione registrata in CARD-2 ("UI changes → testare in browser prima di claim done")
