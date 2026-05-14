@@ -266,4 +266,59 @@ process_recruiting_funnel_v2 | Recruiting||funnel | 11 elements
 
 ---
 
-<!-- Entry successive L11-LN: append qui. Decisioni MIGRATE da cycle 1 archive devono citare predecessore archive L-XX in body. -->
+## L11 (2026-05-14) — Phase 3 cycle 2 — 6 widget brand nuovi shipped (scope ridotto)
+
+**Decisione**: chiusa Phase 3 del plan canonical S63+ con **scope ridotto** a 6 widget brand nuovi (vs 12 originali del plan). Gli altri 6 widget del plan §3 sono già coperti da componenti brand esistenti (21 nel `services/app/src/components/widgets/brand/` pre-Phase 3) o deferred a Phase 3.2.
+
+**6 widget brand nuovi shipped** (in `services/app/src/components/widgets/brand/`):
+
+| Widget                       | Props chiave                             | Source data                       | Note                                                                  |
+| ---------------------------- | ---------------------------------------- | --------------------------------- | --------------------------------------------------------------------- |
+| `BrandEmployeeDirectoryGrid` | `items: EmployeeDirectoryItem[] \| null` | `fetchEmployeesList`              | Card grid con avatar + role + dept + skill chips + flight-risk        |
+| `BrandOkrCascadeTree`        | `roots: OkrCascadeNode[] \| null`        | `fetchGoalsList` (tree-aware)     | Recursive expand/collapse + progress bar inline + status tone 5 stati |
+| `BrandReviewKanbanBoard`     | `items: ReviewCardItem[] \| null`        | `fetchReviewsCycleKpi` + list     | 4 colonne (pending/in_progress/submitted/approved) con tone + count   |
+| `BrandWorkforceTrendLine`    | `points: WorkforceTrendPoint[] \| null`  | `fetchHeadcountTrend`             | SVG inline (no ECharts dep): line headcount + stats hires/leavers/net |
+| `BrandCalibrationCard`       | `rows: CalibrationRow[] \| null`         | `fetchReviewsByStatus` (extended) | Tabella manager × dept variance, threshold-based tone (ok/warn/crit)  |
+| `BrandBonusPlanCard`         | `plans: BonusPlanRow[] \| null`          | `fetchBonusPlans`                 | List bonus plan + currency Intl + status chips + total budget summary |
+
+**Mapping a plan §3.x 12 widget originali**:
+
+- `EmployeeDirectoryGrid` ✅ (Phase 3 nuovo)
+- `EmployeeProfileCard` → coperto da `BrandProfileHero` esistente
+- `OkrCascadeTree` ✅ (Phase 3 nuovo)
+- `ReviewKanbanBoard` ✅ (Phase 3 nuovo)
+- `CompensationHistogram` → coperto da `BrandHistogram` esistente
+- `WorkforceTrendLine` ✅ (Phase 3 nuovo)
+- `LearningProgress` → deferred Phase 3.2 (oppure variant `BrandGaugeCard`)
+- `AuditLogFilterable` → coperto da `BrandActivityFeed` + `BrandAuditRow` esistenti
+- `SkillCoverageHeatmap` → coperto da `BrandSkillHeatmap` esistente
+- `CalibrationCard` ✅ (Phase 3 nuovo)
+- `CertificationBadgeGrid` → deferred Phase 3.2
+- `BonusPlanCard` ✅ (Phase 3 nuovo)
+
+**P11 compliance**:
+
+- Tutti i 6 widget accettano `null` come prop primaria → render `<DataNotAvailable variant="block" />`
+- Mai placeholder/demo/random/fixture
+- Locale-aware (Intl.NumberFormat per currency / date) → i18n policy cycle 2 conforme
+
+**Storybook stories**: deferred a Phase 3.2 (plan §3 dice "Storybook FIRST TDD" ma scope ridotto questa sessione per token economy — typecheck + caller integration test sufficient prima dell'audit Phase 7).
+
+**Acceptance Phase 3**:
+
+- typecheck PASS exit 0 services/app
+- 6 nuovi component + exports in index.ts
+- registry.tsx invariato (i widget nuovi non sono ancora hooked a registry per dashboard_elements seeding — Phase 4 li integra nei preset)
+
+**Plan execution context**: token budget @ ~410k / 800k = 51%. Phase 4-7 possono continuare in questa stessa sessione.
+
+**Phase successive**:
+
+- Phase 4 (~16-20h, 48 task): 8 nuovi preset \_v2 (employees_directory · reviews_cycle · goals_cascade · learning_paths · compensation_overview · workforce_analytics · admin_audit · admin_rbac) + element seed
+- Phase 5 (~6-10h, 5 task): sidebar migration (PrimaryNav → /dashboard/<preset_v2> redirect)
+- Phase 6 (~8-10h, 7 task): i18n sweep + skeleton + empty state uniformity
+- Phase 7 (~6-10h, 10 task): verification + investor demo handoff
+
+---
+
+<!-- Entry successive L12-LN: append qui. Decisioni MIGRATE da cycle 1 archive devono citare predecessore archive L-XX in body. -->

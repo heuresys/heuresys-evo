@@ -86,3 +86,36 @@ export { BrandMetricCard, type BrandMetricCardProps } from './BrandMetricCard';
 export { BrandSectionHead, type BrandSectionHeadProps } from './BrandSectionHead';
 export { BrandIntRow, type BrandIntRowProps, type IntRowTone } from './BrandIntRow';
 export { BrandAuditRow, type BrandAuditRowProps } from './BrandAuditRow';
+
+// Cycle 2 Phase 3 — investor-ready rebuild widget brand expansion
+export {
+  BrandEmployeeDirectoryGrid,
+  type BrandEmployeeDirectoryGridProps,
+  type EmployeeDirectoryItem,
+} from './BrandEmployeeDirectoryGrid';
+export {
+  BrandOkrCascadeTree,
+  type BrandOkrCascadeTreeProps,
+  type OkrCascadeNode,
+} from './BrandOkrCascadeTree';
+export {
+  BrandReviewKanbanBoard,
+  type BrandReviewKanbanBoardProps,
+  type ReviewCardItem,
+  type ReviewStatus,
+} from './BrandReviewKanbanBoard';
+export {
+  BrandWorkforceTrendLine,
+  type BrandWorkforceTrendLineProps,
+  type WorkforceTrendPoint,
+} from './BrandWorkforceTrendLine';
+export {
+  BrandCalibrationCard,
+  type BrandCalibrationCardProps,
+  type CalibrationRow,
+} from './BrandCalibrationCard';
+export {
+  BrandBonusPlanCard,
+  type BrandBonusPlanCardProps,
+  type BonusPlanRow as BrandBonusPlanRow,
+} from './BrandBonusPlanCard';
