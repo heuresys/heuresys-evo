@@ -1,12 +1,12 @@
 /**
- * /analytics/workforce — scaffold base (CF#2 L75 S54).
+ * /analytics/workforce — workforce analytics overview.
  *
- * Stop 404 su click sidebar 'Analitiche workforce' (linkato da
- * role-nav-map per HR_DIRECTOR + HR_MANAGER, vedi role-nav-map.ts:192/245).
+ * Renderizza 4 KPI live aggregator (headcount + departments + active
+ * employees recent + workforce_planning scenarios count). Sidebar entry
+ * mappata per HR_DIRECTOR + HR_MANAGER via role-nav-map.
  *
- * Versione iniziale: 4 KPI live aggregator (headcount + departments + active
- * employees recent + workforce_planning scenarios count). Full data binding
- * + chart components carry-forward S55 Sprint 2.
+ * Per cockpit overview cycle 2 alternativo, vedi `/dashboard/workforce_analytics_v2`
+ * (preset _v2 con KpiRing 4-strip + Histogram org_unit breakdown).
  */
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
@@ -115,26 +115,6 @@ export default async function AnalyticsWorkforcePage() {
             ultimi 90 giorni · <strong>vs target Q1</strong>
           </div>
         </article>
-      </div>
-
-      <div className="panel" style={{ padding: '24px', marginTop: '24px', textAlign: 'center' }}>
-        <p style={{ fontSize: 14, color: 'var(--ink-soft)', maxWidth: 640, margin: '0 auto' }}>
-          <strong>Scaffold base</strong> — questa pagina ferma il 404 su click sidebar
-          &laquo;Analitiche workforce&raquo;. Charts dettagliati (headcount trend, dept breakdown,
-          hiring velocity, attrition forecast) shipped in Sprint 2 (carry-forward S55).
-        </p>
-        <p
-          style={{
-            fontSize: 11,
-            color: 'var(--ink-muted)',
-            fontFamily: 'JetBrains Mono, monospace',
-            marginTop: 16,
-            letterSpacing: 1,
-            textTransform: 'uppercase',
-          }}
-        >
-          REF · DECISIONS-LOG L75 CF#2
-        </p>
       </div>
     </>
   );

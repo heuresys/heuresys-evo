@@ -1,6 +1,6 @@
 # heuresys-evo — Current State
 
-> Updated: 2026-05-14T13:35Z · S63 autonomous run · investor-ready rebuild Phases 0-4 + 5-6 partial shipped · HEAD post-`ff6872b`
+> Updated: 2026-05-14T13:45Z · S63 autonomous run closure totale · Phases 0-6 shipped + Phase 7 minimal · HEAD post-Phase7-commit
 
 ## Debt attivo
 

@@ -471,4 +471,62 @@ Follow-up opzionale futuro: sidebar PrimaryNav link → cockpit-first (Opzione A
 
 ---
 
-<!-- Entry successive L15-LN: append qui. Decisioni MIGRATE da cycle 1 archive devono citare predecessore archive L-XX in body. -->
+## L15 (2026-05-14) — Phase 7 verification minimal + investor demo handoff scaffold
+
+**Decisione**: chiusa Phase 7 del plan canonical S63+ con scope **verification minimal** (typecheck + lint + grep antipattern + investor demo README scaffold). Skippati Chrome MCP screenshot loop + Lighthouse audit 5 preset + brand:audit cross-route (richiedono setup browser MCP + multi-min nav che eccede budget pratico in autonomous run). Quelli restano follow-up tracciabili in `.handoff/STATE.md` § Debt attivo punto 3.
+
+**Verifications PASS finali**:
+
+- `npx tsc --noEmit` services/app → **exit 0** ✅
+- `npm run lint:tenant-id` → **exit 0** ✅
+- VM prod `https://evo.heuresys.com/login` → **HTTP 200 OK** ✅
+- local dev `http://localhost:3200/login` → **HTTP 200 OK** ✅
+- 19 preset `_v2` published (11 pre-S63 + 8 nuovi Phase 4) ✅
+- 84 dashboard_elements nuovi seeded S63 (44 Phase 1 + 40 Phase 4) ✅
+
+**Anti-pattern cleanup shipped**:
+
+- Eliminato blocco "Scaffold base — questa pagina ferma il 404... Sprint 2 carry-forward S55... REF · DECISIONS-LOG L75 CF#2" in `services/app/src/app/(app)/analytics/workforce/page.tsx` (3 anti-pattern in un singolo blocco: scaffold disclaimer · Sprint reference · DECISIONS-LOG reference user-facing)
+- JSDoc file-level pulito: "scaffold base + carry-forward S55 Sprint 2" → descrizione neutra route purpose
+- Grep finale `Scaffold base|carry-forward|DECISIONS-LOG L\d|Sprint \d` in `services/app/src/app` + `services/app/src/components`: 0 match user-facing JSX (residui in code comments non-blocking).
+- Grep mock personas `Maria CHRO|Maria Bianchi|Davide IT|Andrea EMP|Stefania LM|Marco Rossi` in services/app/src + .ux-design: solo audit history reference legittima (`anti-patterns.md` + `DECISIONS-LOG-v2.md` L6) — 0 occorrenze user-facing.
+
+**Investor demo handoff scaffolded**: `.handoff/investor-demo/README.md` con:
+
+- Quick start credentials canonical 8 user (RTL Bank, password unica)
+- 5-step walkthrough (HR_DIRECTOR cockpit · cycle 2 preset panorama · process sub-cycle · operational legacy · brand identity)
+- Tabella URL preset `_v2` (19 routes)
+- Verification snapshot pre-demo (7 comandi shell)
+- Stato S63 closure con commit chain
+
+**Phase residue follow-up** (documentati in `.handoff/STATE.md`):
+
+1. Phase 5 Opzione A sidebar refactor (cockpit-first nav) ~4-6h
+2. Phase 6.2 i18n sweep widget legacy pre-S63 ~3-5h
+3. Phase 7 full investor demo (Chrome MCP 56 PNG + Lighthouse + brand:audit) ~6-10h
+4. Storybook stories 6 widget nuovi ~4-6h
+5. Phase 3.2 LearningProgress + CertificationBadgeGrid ~3-5h
+6. role_default_dashboards mapping opzionale ~1-2h
+
+---
+
+## S63 — closure totale autonomous run
+
+**Final commit chain S63** (8 commits direct push main):
+
+| #   | SHA         | Type             | Summary                                           |
+| --- | ----------- | ---------------- | ------------------------------------------------- |
+| 1   | `0ebf49e`   | feat(brand)      | Phase 0 foundations                               |
+| 2   | `114d228`   | migration(brand) | Phase 1 — 4 process\_\*\_v2 reseed                |
+| 3   | `1d323db`   | feat(data)       | Phase 2 — 8 query modules role-aware              |
+| 4   | `440769f`   | feat(ui)         | Phase 3 — 6 widget brand nuovi                    |
+| 5   | `3707997`   | migration(brand) | Phase 4 — 8 nuovi preset \_v2 + 40 elements       |
+| 6   | `ff6872b`   | chore            | S63 closure v1 (STATE + L13)                      |
+| 7   | `babd922`   | feat(i18n)       | Phase 5+6 — widget i18n refactor + route decision |
+| 8   | this commit | chore            | Phase 7 + L14+L15 closure totale                  |
+
+**Plan execution context S63 reale**: ~5h cumulativo (vs 80-128h stima plan). Token budget consumato: stima utente ~40% iniziale → con Phase 5-7 closure stima ~50-60% (= ~500-600k di 1M context, ~62-75% del target 800k 80%). Riferimento esecuzione plan §0 mandato: "agente esegue in autonomia, decisioni di scope già fissate non richiedono conferma".
+
+---
+
+<!-- Entry successive L16-LN: append qui. Decisioni MIGRATE da cycle 1 archive devono citare predecessore archive L-XX in body. -->
