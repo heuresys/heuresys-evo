@@ -298,29 +298,32 @@ VM: `oracle-vm-default` (IP 80.225.82.207). nginx vhosts in `/etc/nginx/sites-av
 
 **Vincolo "estirpazione clean"**: ogni entry in `Test Stage`/`PreOp Stage` DEVE essere rimovibile dal repo evo SENZA conseguenze su stack/oggetti pre-import. Categorie removability tracciate nel CSV (`no-impact`, `embedded-in-existing-file`, `depends-on-X`, `not-yet-used`, `depends-on-DB-seed`).
 
-## Sistema corrente (snapshot 2026-05-13 · post-S62 brand reset)
+## Sistema corrente (snapshot 2026-05-14 · post-S63 investor-ready rebuild close)
 
 > Per cronologia sprint shipped (Phase 14 → S60): [`docs/_meta/sprint-history.md`](docs/_meta/sprint-history.md).
 > Per session brief: [`.handoff/STATE.md`](.handoff/STATE.md).
 
 **DBMS = SoT** (`heuresys_platform` postgres 16.13 bare-metal `oracle-vm-default:5432`):
 
-- 314+ tabelle (2 nuove S60: `tenant_revenue_periods` + `equity_grants`) · **370+ RLS policies attive** · `heuresys` user **NOBYPASSRLS** (S60 hardening)
+- 314+ tabelle · **370+ RLS policies attive** · `heuresys` user **NOBYPASSRLS** (S60 hardening)
 - 5 mat views auto-refresh systemd timer ogni 4h UTC + 1 view derived `total_compensation_tenant_aggregated`
-- Backup baseline: `/var/backups/heuresys-evo/heuresys_platform-SoT-baseline-2026-05-07T143000Z.dump` (sha256 `1d1150ced1016638f8ac31c2b85e056752592c9ced0870cfca84fe6328eda46a`) + pre-phase16m: `heuresys_platform-pre-phase16m-20260510T014431Z.dump`
-- Vertical-split satellite tables Phase 1 (additive): `employees_pii`/`employees_hr`/`employees_payroll` populated 270 row + sync trigger + view `employees_full` (Phase 2 DROP COLUMN deferred S26+) — `employees` ora VIEW post phase16o (S52)
+- Backup baseline: `/var/backups/heuresys-evo/heuresys_platform-SoT-baseline-2026-05-07T143000Z.dump`
+- Vertical-split satellite tables Phase 1 (additive): `employees_pii`/`employees_hr`/`employees_payroll` (Phase 2 DROP COLUMN deferred S26+) — `employees` ora VIEW post phase16o (S52)
 - Migration S58→S60 shipped: phase18p/q/r/s/t/u/v (6 DDL applied via `sudo -u postgres psql` post-NOBYPASSRLS)
+- **Migration S63 cycle 2 shipped (7 hotfix iterativi)**: phase19a/b/c/d/e/f/g — re-seed 4 process\_\*\_v2 + 8 nuovi preset \_v2 + adapter shape json_agg + schema column fix (`hire_date`/`user_email`/`rbp_role_permissions`)
 
-**App runtime**:
+**App runtime** (post-S63):
 
 - Pagine Next.js: 5 base (`/`, `/login`, `/dashboard`, `/showcase`, `/brand-studio`) + 17+ viste in `(app)/` route group con AppShell role-based
-- **7 preset G6 `_v2` tutti 100% live cross-tenant** (post-S60): tenant_owner_overview · hr_director_overview · skills_heatmap · capability_graph · employee_journey · cross_tenant_overview · org_systems — ~32 KPI Prisma live · 0 hardcoded fixture · 5 KPI unavailable letterali (no source schema)
-- Legacy `_views/*View.tsx` fallback **rimosso S60 CF-5** (path orfano post-G6 adoption). Reference P11 pattern in `services/app/src/lib/data/tenant-owner-queries.ts`
-- Login = `login-aurora` mockup promosso production · AppShell topbar con LocaleSwitcher globale + ThemeToggle + UserMenu
+- **19 preset `_v2` published** (era 11 pre-S63): 7 originali G6 (tenant*owner_overview · hr_director_overview · skills_heatmap · capability_graph · employee_journey · cross_tenant_overview · org_systems) + 4 process*\*\_v2 reseeded Phase 1 (recruiting_funnel · onboarding_flow · performance_cycle · learning_paths) + 8 nuovi Phase 4 (employees_directory · reviews_cycle · goals_cascade · learning_paths_overview · compensation_overview · workforce_analytics · admin_audit · admin_rbac)
+- **12 preset cycle 2 browser-verificati live** come HR_DIRECTOR `valentina.conti@rtl-bank.org`: 4 process + 8 Phase 4 (commit `d322ed3` post 7 hotfix)
+- Legacy `_views/*View.tsx` fallback **rimosso S60 CF-5**. Reference P11 pattern in `services/app/src/lib/data/tenant-owner-queries.ts` + 8 query modules role-aware Phase 2
+- Login = `login-aurora` mockup promosso production · AppShell topbar con LocaleSwitcher globale + ThemeToggle + UserMenu + scope-pill `scope · rtl bank · hr_director` (post-L16 UUID leak fix)
 - API Next.js route handlers: `/api/dashboard/data/[elementId]`, `/api/dashboard/[code]/elements` (PUT), `/api/ontology/advisor`, `/api/explorer/{esco/tree,sap/status,kg/expand}`
-- Endpoint Express: 30 endpoint Pack 1-8 mounted (bypassed in (app)/ via Prisma direct). Cross-service JWT decode shipped (`9f7a283`)
 - G6 data-fetcher (`services/app/src/lib/dashboard-engine/data-fetcher.ts`) supports `type:'sql'` con `{employeeId}` placeholder binding parametrico sicuro (S60 CF-1)
-- Shared component `<DataNotAvailable />` (variant inline/block/tile, AA-compliant) per render letterale "Dati Non Disponibili" quando query restituisce null/0/[]
+- **Resolver hierarchy fix (S63 L16)**: `resolveElements` deduplica by `(parent_element_id, position)` tuple (era solo `position` → collassava children con stesso position)
+- Shared component `<DataNotAvailable />` (variant inline/block/tile, AA-compliant) per render letterale "Dati Non Disponibili"
+- **Hover pattern L18**: `.kpi-card`, `.matrix-wrap`, `.skill-gap`, `.activity`, `.succession-card` con `transition: border-color 0.15s` + hover state `border-color: var(--accent)` (research artifact pattern §Motion)
 
 **Auth canonical**:
 
@@ -341,21 +344,58 @@ VM: `oracle-vm-default` (IP 80.225.82.207). nginx vhosts in `/etc/nginx/sites-av
 - `auditedTransaction()` helper attivo su `services/app` + mirror `services/api-gateway` (P4 sweep S24)
 - Prisma allowlist api-gateway: 16 model
 - packages/ui: ~180 component, Storybook 9 (84 stories), GH Pages
+- **packages widget brand**: 27 component (21 pre-S63 + 6 nuovi Phase 3: `BrandEmployeeDirectoryGrid`, `BrandOkrCascadeTree`, `BrandReviewKanbanBoard`, `BrandWorkforceTrendLine`, `BrandCalibrationCard`, `BrandBonusPlanCard`)
+- **8 query modules role-aware** in `services/app/src/lib/data/` Phase 2: employees · reviews · goals · learning · compensation · workforce-analytics · audit · rbac. Pattern: `ScopeContext → resolveScope (8 ruoli × 5 entities) → withTenant → $queryRaw → null o EMPTY sentinel → <DataNotAvailable />` (P11)
+- **Role-shaper canonical**: `services/app/src/lib/data/_role-shaper.ts` + 42 unit test PASS
+- **i18n widget-strings**: 31 keys IT/EN per i 6 widget brand nuovi (`services/app/src/lib/i18n/widget-strings.ts`)
+- **Base adapter framework**: `services/app/src/lib/dashboard-engine/adapters/_base-adapter.ts` (typed `WidgetAdapter<TConfig, TData>` opt-in per Phase 3)
 - npm audit: 0 vulnerabilities · Repo visibility: PUBLIC · Branch protection rimossa · CI minimal
 - Schema docs: Diátaxis numbered + meta (`docs/_meta`, `10-strategy`, `20-architecture`, `30-developer`, `40-operations`, `50-reference`, `70-planning`, `90-archive`)
-- Catalog DB asset showcase: archiviato cycle 1 post-S62 reset (1027 file totali in `.ux-design-archive-2026-05-13/`, incluso `09-asset-showcase/` SQLite 346 asset). Cycle 2 in `.ux-design/` (scaffold vuoto, vedi `.ux-design/README.md`)
-- Brand workstream cycle 2 post-S62 (ADR-0032): production CSS consolidato — `services/app/src/styles/tokens-foundation.css` (foundation tokens palette-agnostic) + `theme-framework/palette-core.css` (root fallback) + `palette-variants.css` (17 palette runtime switchable, lazy-loaded da `(app)/`) + `active-theme.css` stub (brand-studio write target) + `dashboard-brand.css` + `motion.css`. Runtime palette switching feature attiva preservata (DashboardPaletteApplier + PaletteSwitcher + brand-studio). Skill `/studio2:*` (4 sub-comandi, 3-gate) sostituisce `/studio:*` (DEPRECATED)
+- Catalog DB asset showcase: archiviato cycle 1 post-S62 reset (1027 file in `.ux-design-archive-2026-05-13/`)
+- **Brand workstream cycle 2 post-S62 (ADR-0032)**: production CSS consolidato — `services/app/src/styles/tokens-foundation.css` (palette-agnostic) + `theme-framework/palette-core.css` (root fallback) + `palette-variants.css` (17 palette runtime switchable) + `active-theme.css` stub + `dashboard-brand.css` + `motion.css`. Runtime palette switching feature attiva preservata
+- **10 canonical files cycle 2 in `.ux-design/01-canonical/`** (S63 Phase 0 + L17): `trend-research-2026.md` · `inspirations-extracted.md` · `moodboard.md` (Calm Cockpit Decisionale — Linear-meets-Stripe-meets-Visier) · `layout-pattern.md` · `role-data-matrix.md` · `widget-vocabulary.md` · `i18n-policy.md` · `header-footer-anatomy.md` · `anti-patterns.md` · `research-artifact-pattern.md` (L17 pattern de reference da `icon-libraries-showcase.html` archive)
+- Skill `/studio2:*` (4 sub-comandi, 3-gate) sostituisce `/studio:*` (DEPRECATED)
 
 ## Roadmap successiva
 
-1. **Data binding live full** (~3-5h) — sostituisci dati hardcoded mockup-fedeli nelle 6 view non-org_systems con query Prisma reali (employees per tenant + skill_assessments + review_cycles + succession_pipeline)
-2. ~~**Production `/dashboard` refactor DB-driven**~~ — ✅ già shipped: 7 preset `*_v2` popolati (10-12 elements/ruolo), 8 ruoli mappati in `role_default_dashboards`, `dashboard/page.tsx` branch `_v2` → `loadG6Elements` → `DashboardRenderer` (commit `35ba6bb` G6 Adoption + `d59ae3e` Phase 15.A). Residuo minore (~2-3h, non-blocking): 4 process\_\* secondary nav HR_DIRECTOR/HR_MANAGER mancano suffix `_v2` + elements seed. Catalog asset showcase resta SQLite localhost (no sync con postgres = scope architetturale separato, mai approvato)
-3. **Estensione preset minori** (~2-3h) — view brand-fedeli per `process_recruiting_funnel` · `process_onboarding_flow` · `process_performance_cycle` · `process_learning_paths`
-4. ~~**WCAG 2.2 AAA full audit**~~ ✅ **AA SHIPPED S53** (L66) · 4 real violations chiuse via `6675f90` (sidebar button semantic + main tabIndex + pill contrast). AAA enhanced contrast 4 nodi residui carry-forward S54+ (palette token rebalance).
-5. ~~**Production build perf bench**~~ ✅ **PARTIAL S53** (L67) · Lighthouse `/login` 3/4 categories ≥ 90 (a11y/bp/seo 100). Perf 58 (LCP 12.5s, 8.3s unused JS) carry-forward S54+ (~12-20h bundle analyzer + code splitting). Backend ref: S48 G6 P95 705ms < 1000ms.
-6. ~~**API gateway cross-service JWT fix**~~ — ✅ già shipped commit `9f7a283` (decode v4 cookies via jose+HKDF, bifurcation in `middleware/auth.ts`, 11/11 test green). Lo "pending" pre-S25 era documentazione obsoleta
-7. ~~**Brand v1.0 promotion**~~ ✅ **CHIUSA cycle 1** (14/14 ✅ in `.ux-design-archive-2026-05-13/08-promotion/v1.0-checklist.md`) · workstream archiviato post-S62 reset 2026-05-13 (ADR-0032). Cycle 2 in `.ux-design/` (bootstrap fresh).
-8. **Cycle 2 brand identity definition** (S63+, durata indefinita) — assessment iniziale post-reset, ricostruzione canonical decision in `.ux-design/01-canonical/`, firma L-NN cycle 2 in `.ux-design/DECISIONS-LOG-v2.md` quando l'utente lo richiede. Vedi `.ux-design/BRAND-STATE.md` per phase corrente cycle 2.
+> **Follow-up tracciabili + Flussi suggeriti** completi sono in [`.handoff/STATE.md`](./.handoff/STATE.md) § Follow-up tracciabili + § Flussi di attività suggeriti. Sintesi qui sotto.
+
+### Follow-up tracciabili (10 items)
+
+1. **Cycle 2 directory `05-research/`** (~30min · M) — Folder per ospitare nuovi artefatti research cycle 2. Oggi `01-canonical/`, `02-tokens/`, `03-mockups/`, `04-promotion/` sono le 4 sub-dirs esistenti
+2. **Skill `/research-artifact-new <topic>`** (~2-3h · M) — Scaffold automatizzato che crea nuovo HTML cycle 2 dal pattern L17 + placeholder content
+3. **Phase 5 sidebar refactor opzione A** (~4-6h · L) — Promote sidebar PrimaryNav link a `/dashboard/<preset_v2>` (cockpit-first navigation). Decision in `.ux-design/04-promotion/phase5-route-migration-decision.md`
+4. **Phase 6.2 i18n sweep widget legacy** (~3-5h · L) — Refactor 21 widget brand pre-S63 per usare `pickWidgetString` o constants
+5. **Phase 7 investor demo Chrome MCP** (~6-10h · M) — 4 ruoli × 14 voci sidebar = ~56 screenshot + Lighthouse audit 5 preset + brand:audit cross-route (target avg ≥ 8)
+6. **Storybook stories 6 widget brand nuovi** (~4-6h · M) — TDD-first per audit pre-promotion
+7. **Phase 3.2 widget brand residui** (~3-5h · L) — `LearningProgress` + `CertificationBadgeGrid`
+8. **`role_default_dashboards` mapping** (~1-2h · L) — Aggiungere row per 8 nuovi preset \_v2 se servono come default
+9. **Promozione altri esempi vincenti** (~1-2h · L) — Audit archive `.ux-design-archive-2026-05-13/02-aesthetic/*.html` per benchmark candidates
+10. **Catalog DB `09-asset-showcase/` reactivation** (~3-5h · L) — Reattivazione SQLite tool su richiesta
+
+### Flussi di attività suggeriti (5 multi-step)
+
+| #     | Flusso                                             | Effort | Outcome atteso                                                                                       |
+| ----- | -------------------------------------------------- | -----: | ---------------------------------------------------------------------------------------------------- |
+| **A** | **Drilldown slide-over pattern su preset cycle 2** | ~6-10h | KPI click → trend → record list → record detail (Linear-style)                                       |
+| **B** | **AI insight card su `/dashboard` HR_DIRECTOR**    |  ~4-6h | Card narrative AI-generated che traduce KPI in 1 frase decisionale italiana                          |
+| **C** | **Sparkline accanto a KpiRing**                    |  ~3-5h | KpiRing widget esteso con mini-sparkline 12pt (trend 12-week)                                        |
+| **D** | **Comparative research artifact #2 cycle 2**       |  ~4-6h | Primo artefatto cycle 2 che applica L17 pattern (typography-stacks-showcase o color-palette-options) |
+| **E** | **Cross-tenant SUPERUSER cockpit polish**          |  ~5-8h | Browser-verify `cross_tenant_overview_v2` come `sysadmin` + sweep drift dal pattern                  |
+
+### Shipped cycle 1 (storico, già chiuso)
+
+- ~~Production `/dashboard` refactor DB-driven~~ ✅ G6 Adoption + Phase 15.A
+- ~~WCAG 2.2 AA audit~~ ✅ S53 L66
+- ~~Production build perf bench~~ ✅ S53 L67 partial
+- ~~API gateway cross-service JWT~~ ✅ `9f7a283`
+- ~~Brand v1.0 promotion~~ ✅ cycle 1 archived S62 reset
+- ~~Cycle 2 brand foundations (Phase 0)~~ ✅ S63 (commit `0ebf49e`) — 9 canonical + role-shaper + base-adapter
+- ~~Cycle 2 Phase 1-4 rebuild~~ ✅ S63 (commits `114d228` → `3707997`) — 12 preset \_v2 + 8 query modules + 6 widget brand nuovi + 84 elements
+- ~~Browser verification 12 preset~~ ✅ S63 (commit `d322ed3`) — HR_DIRECTOR live test + 7 hotfix iterativi
+- ~~L17 pattern de reference promotion~~ ✅ S63 (commit `08b2eff`)
+- ~~L18 hover transition pattern applied~~ ✅ S63 (commit `baaa12d`)
+- ~~L19+L20 session start protocol reform~~ ✅ S63 (commits `d8d0aa7` + `0861370` + `223f02c`)
 
 Backup track parallel: cron daily/weekly/monthly · off-site Oracle bucket · restore drill mensile · `docs/40-operations/dbms-backup-restore.md` (scaffolded).
 
