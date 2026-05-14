@@ -367,4 +367,55 @@ process_recruiting_funnel_v2 | Recruiting||funnel | 11 elements
 
 ---
 
-<!-- Entry successive L13-LN: append qui. Decisioni MIGRATE da cycle 1 archive devono citare predecessore archive L-XX in body. -->
+## L13 (2026-05-14) — S63 autonomous run closure — Phases 0-4 shipped (Phases 5-7 follow-up)
+
+**Decisione**: chiusa la sessione S63 autonomous run del plan canonical S63+ "Investor-Ready UI Rebuild". Eseguite **5 Phase su 8** (0-4 incluse), **3 Phase residue** (5-7) lasciate come follow-up tracciabili in `.handoff/STATE.md` § Debt attivo (non bloccanti).
+
+**Direttiva esecutiva originale**: l'utente Enzo ha autorizzato esecuzione autonoma `fino a 80% del context window 1M (~800k token)`. Stop naturale raggiunto a ~650k (81% target).
+
+**Phases shipped (decisione autonoma scope plan §6)**:
+
+| #   | Effort plan | Reale  | Output                                                                                                                      | Commit    |
+| --- | ----------- | ------ | --------------------------------------------------------------------------------------------------------------------------- | --------- |
+| 0   | 12-16h      | ~1h    | 9 canonical + role-shaper 42 unit test + base-adapter + 2 code fix                                                          | `0ebf49e` |
+| 1   | 14-18h      | ~30min | 4 process\_\*\_v2 reseed (3→11 elements ciascuno, 44 total). Scope ridotto: hr_director + capability NON re-seeded (già OK) | `114d228` |
+| 2   | 18-24h      | ~25min | 8 query modules role-aware P11                                                                                              | `1d323db` |
+| 3   | 16-20h      | ~25min | 6 widget brand nuovi. Scope ridotto: 6 nuovi + 6 coperti esistenti                                                          | `440769f` |
+| 4   | 16-20h      | ~25min | 8 nuovi preset \_v2 + 40 elements live SQL data_source                                                                      | `3707997` |
+
+**Phases follow-up (deferred token-aware)**:
+
+| #   | Effort | Scope follow-up                                                                                                 |
+| --- | ------ | --------------------------------------------------------------------------------------------------------------- |
+| 5   | 6-10h  | Sidebar redirect legacy routes → /dashboard/<preset_v2> + role_default_dashboards mapping                       |
+| 6   | 8-10h  | i18n full sweep + skeleton uniformity + empty state cross-route audit                                           |
+| 7   | 6-10h  | Chrome MCP 56 screenshot + Lighthouse 5 preset + brand:audit cross-route + final deploy + investor demo handoff |
+| 3.2 | 7-10h  | Storybook stories 6 widget + LearningProgress + CertificationBadgeGrid widget scaffold dedicato                 |
+
+**Razionale autonomy + scope reduction**:
+
+- Plan §6 autorizza scope decisions (layout grid · widget sub-class · test scope · sub-task creation · commit granularity)
+- Token budget aware: con 200k restanti era preferibile **chiudere clean Phases 0-4 con commit + push** che entrare in Phase 5 e lasciare working tree intermediario
+- Risk-aware: ogni Phase chiusa con typecheck PASS + smoke prod 200 OK + working tree clean
+- Phase 5-7 sono polish + verification + demo — fully deferrable a sessione dedicata
+
+**Acceptance finale S63**:
+
+- 5/8 Phase shipped + commit + push direct main (no PR)
+- Typecheck PASS exit 0 services/app post Phase 4
+- 42/42 unit test `_role-shaper.test.ts` PASS
+- VM prod `https://evo.heuresys.com/login` HTTP 200 OK
+- Local dev `http://localhost:3200/login` HTTP 200 OK
+- 19 preset \_v2 published (11 pre-S63 + 8 nuovi Phase 4)
+- 44 + 40 nuovi `dashboard_elements` seeded (84 totale shipped S63)
+- 14 file canonical/spec scritti in `.ux-design/`
+- 14 file TS nuovi (8 query modules + 6 brand widget) + 2 TS modificati
+- 2 migration SQL (phase19a + phase19b) applicate sulla VM in transazione idempotent
+- 0 mock · 0 hardcoded · 0 demo (P11 conforme)
+- 0 regression: i 7 preset `_v2` pre-S63 invariati (hr_director_overview · tenant_owner_overview · skills_heatmap · capability_graph · cross_tenant_overview · employee_journey · org_systems)
+
+**Memoria globale aggiornata**: nessuna (decisioni S63 self-contained in DECISIONS-LOG-v2 cycle 2 + .handoff/STATE.md).
+
+---
+
+<!-- Entry successive L14-LN: append qui. Decisioni MIGRATE da cycle 1 archive devono citare predecessore archive L-XX in body. -->
