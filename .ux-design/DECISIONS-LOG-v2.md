@@ -109,4 +109,62 @@
 
 ---
 
-<!-- Entry successive L8-LN: append qui. Decisioni MIGRATE da cycle 1 archive devono citare predecessore archive L-XX in body. -->
+## L8 (2026-05-14) — Phase 0 cycle 2 — Investor-ready rebuild charter + foundations shipped
+
+**Decisione**: avviata esecuzione del plan canonical S63+ "Investor-Ready UI Rebuild" (`~/.claude/plans/c-stata-una-continua-indexed-cocke.md`) — 261 task atomici in 8 phase, ~96-128h cumulativi, ricostruzione 17 voci sidebar × 8 ruoli come cockpit di volo professionale (non scaffold tecnico, non SQL dump).
+
+**Phase 0 chiusa**: foundations + design contract codificati in `01-canonical/` + 4 fix infrastrutturali base shipped.
+
+**Canonical Phase 0 (9 file `.ux-design/01-canonical/*.md`)**:
+
+- `trend-research-2026.md` — 20 pattern dashboard analytics enterprise B2B SaaS 2025-2026 (via WebSearch + sources)
+- `inspirations-extracted.md` — 7 reference site DESIGN.md (Linear · Vercel · PostHog · Stripe · ClickHouse · Notion · Airtable)
+- `moodboard.md` — direzione canonica **"Calm Cockpit Decisionale"** (Linear-meets-Stripe-meets-Visier)
+- `layout-pattern.md` — 10 leggi cockpit + 5 primitives convergenti + 40-30-20-10 space rule + anatomia preset `_v2`
+- `role-data-matrix.md` — matrice 23 route × 8 ruoli + scope semantics + cellule investor-critical
+- `widget-vocabulary.md` — mapping tipologia → widget (numerico / trend / gerarchia / comparazione / flow / relazioni / distribuzione / lista / drill)
+- `i18n-policy.md` — zero hardcoded mix IT/EN + `pickBilingual` + `UI` constants + cascata fallback
+- `header-footer-anatomy.md` — DOM canonical `ws-header` + `app-footer` + topbar globale + sidebar
+- `anti-patterns.md` — 10 categorie banditi cross-route (debug leak · scaffold · mock personas · layout · P11 · i18n · perf · security · brand identity · accessibility)
+
+**Code fixes Phase 0 shipped**:
+
+- `services/app/src/app/(app)/dashboard/[code]/page.tsx` — H1 multi-word accent `||` parser fix (T0.7, replica logica già presente in `dashboard/page.tsx`) + `ws-footer` SOURCE/TENANT/ROLE debug row gated behind `NEXT_PUBLIC_SHOW_DEV_FOOTER` flag (T0.8)
+- `services/app/src/app/(app)/_components/BrandShell.tsx` — ENV/TENANT/ROLE/BUILD chip nel ft-dynamic footer gated dietro stesso flag. CYCLE + REVIEWS metric preserved sempre visibili (P6 W#7-bis brand metric live intenzionale)
+- `services/app/src/lib/data/_role-shaper.ts` (NEW) — role-aware Prisma `where` clause shaper: 8 ruoli × 5 entity types (employees · reviews · goals · learning · compensation) → ScopeLevel `platform | tenant | team | dept | reports | self` + Prisma `where` fragment. **42 unit tests PASS** (`__tests__/_role-shaper.test.ts`)
+- `services/app/src/lib/dashboard-engine/adapters/_base-adapter.ts` (NEW) — typed `WidgetAdapter<TConfig, TData>` interface con fetch/transform/validate per nuovi widget brand Phase 3. Legacy single-file `adapters.ts` invariato.
+
+**Verifications Phase 0**:
+
+- `npx tsc --noEmit` services/app → exit 0 (PASS)
+- `vitest run _role-shaper.test.ts` → 42/42 PASS (30s)
+- BrandShell + dashboard pages preservano P6 W#1+W#2+W#6+W#7-bis brand metric live (no regression)
+
+**Direzione visuale emergente** (sintesi research):
+"Calm Cockpit Decisionale" = dark mode μ-architect-legacy preserved + sidebar persistent 240-260px + Cmd+K (futuro) + 40-30-20-10 + KPI hero + sparkline + AI insight narrative IT + drilldown via slide-over (no full-page nav) + monospace tabular numerals banking-grade + status pills semantic 6 token + skeleton structure-aware + forecast confidence band. Tone RTL Bank K.64.19 — sobrio, dato-centrico, decisionale.
+
+**Decisioni autonomous prese (plan §6 authority)**:
+
+- T0.8 scope: CYCLE + REVIEWS metric preserved sempre (P6 W#7-bis è feature brand intenzionale, non leak). Solo ENV/TENANT/ROLE/BUILD gated dietro `NEXT_PUBLIC_SHOW_DEV_FOOTER`.
+- T0.9 scope: 5 entity kinds (employees · reviews · goals · learning · compensation), prima passata. Estensione (audit · rbac · workforce-analytics) deferita a Phase 2 query modules.
+- T0.10 scope: directory `adapters/` con `_base-adapter.ts` framework, single-file legacy `adapters.ts` preservato (zero risk regression sui 14 adapter live).
+
+**Reference**:
+
+- Plan canonical: `~/.claude/plans/c-stata-una-continua-indexed-cocke.md`
+- Sub-agent T0.2-T0.3: 30 tool uses, 113k tokens, 7m duration. WebFetch login-gated/marketing-only flagged per Vercel/PostHog/Notion (mitigation: industry knowledge + Mobbin reference).
+- DDL commit: nessuno (Phase 0 = no schema change)
+
+**Phase successive**:
+
+- Phase 1 (~14-18h, 42 task): fix 6 preset `_v2` rotti (`hr_director_overview_v2`, `capability_graph_v2`, 4 process\_\*)
+- Phase 2 (~18-24h, 40 task): data layer 8 query modules role-aware
+- Phase 3 (~16-20h, 96 task): 12 widget brand expansion Storybook TDD-first
+- Phase 4 (~16-20h, 48 task): 8 nuovi preset + element seed
+- Phase 5-7 (~20-30h cumulativi): sidebar migration + i18n polish + verification + investor demo + deploy
+
+**Plan execution mode**: autonomous fino a 80% del context window 1M (~800k token), come da direttiva utente. Stop solo per blocker irrecuperabile o token threshold raggiunto.
+
+---
+
+<!-- Entry successive L9-LN: append qui. Decisioni MIGRATE da cycle 1 archive devono citare predecessore archive L-XX in body. -->

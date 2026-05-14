@@ -75,9 +75,21 @@ export default async function DashboardCodePage({ params, searchParams }: PagePr
   const personaLabel = preset.persona_label ?? null;
   const perspectiveLabel = observer ? observer.toUpperCase() : preset.perspective_code;
 
-  const titleParts = presetName.trim().split(/\s+/);
-  const titleAccent = titleParts.length > 1 ? (titleParts.pop() ?? '') : '';
-  const titlePlain = titleParts.join(' ') || presetName;
+  // Multi-word accent support (cycle 2 Phase 0 T0.7): if presetName contains
+  // `||`, split into [plain, accent] preserving multi-word accent phrases
+  // ("Talent & capability||al colpo d'occhio" → "Talent & capability" / "al colpo d'occhio").
+  // Fallback to legacy split-last-word for presets without delimiter.
+  let titlePlain: string;
+  let titleAccent: string;
+  if (presetName.includes('||')) {
+    const [plain, accent] = presetName.split('||');
+    titlePlain = (plain ?? '').trim();
+    titleAccent = (accent ?? '').trim();
+  } else {
+    const titleParts = presetName.trim().split(/\s+/);
+    titleAccent = titleParts.length > 1 ? (titleParts.pop() ?? '') : '';
+    titlePlain = titleParts.join(' ') || presetName;
+  }
 
   const breadcrumb = personaLabel
     ? `DASHBOARD · ${perspectiveLabel} · ${personaLabel}`
@@ -150,17 +162,21 @@ export default async function DashboardCodePage({ params, searchParams }: PagePr
         )}
       />
 
-      <footer className="ws-footer">
-        <span>
-          SOURCE · {visibleElements.length} widget
-          {visibleElements.length === 1 ? '' : 's'}
-          {tenantId ? ` · tenant ${tenantId.slice(0, 8)}…` : ''}
-        </span>
-        <span>
-          {preset.code}
-          {role ? ` · ${role}` : ''}
-        </span>
-      </footer>
+      {/* Cycle 2 Phase 0 T0.8: ws-footer SOURCE/TENANT/ROLE debug row removed.
+          Gated behind NEXT_PUBLIC_SHOW_DEV_FOOTER flag (default false in prod). */}
+      {process.env.NEXT_PUBLIC_SHOW_DEV_FOOTER === '1' ? (
+        <footer className="ws-footer">
+          <span>
+            SOURCE · {visibleElements.length} widget
+            {visibleElements.length === 1 ? '' : 's'}
+            {tenantId ? ` · tenant ${tenantId.slice(0, 8)}…` : ''}
+          </span>
+          <span>
+            {preset.code}
+            {role ? ` · ${role}` : ''}
+          </span>
+        </footer>
+      ) : null}
     </>
   );
 }

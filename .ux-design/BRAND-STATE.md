@@ -1,16 +1,26 @@
 # BRAND-STATE — Cycle 2
 
-> Updated: 2026-05-13T22:00Z · post-S62 reset · ADR-0032 charter
+> Updated: 2026-05-14T03:45Z · post-S62 reset · ADR-0032 charter · Phase 0 investor-ready rebuild shipped
 
 ## Current phase
 
-**Phase 1 — Assessment iniziale**
+**Phase 0 — Foundations + Design Contract — CLOSED** (S63 = questa sessione autonomous run)
 
-Cycle 2 bootstrap completato in S62. Nessuna canonical decision ancora firmata. Workstream pronto a ricevere direzione esplicita da Enzo.
+Phase 1 next-up (fix 6 preset `_v2` rotti, ~14-18h, 42 task).
 
 ## Canonical SoT attivi
 
-Nessuno. `01-canonical/` vuoto al reset.
+9 file in `01-canonical/` codificano le decisioni cycle 2 vincolanti per l'investor-ready rebuild:
+
+- `trend-research-2026.md` (20 pattern dashboard analytics 2026)
+- `inspirations-extracted.md` (7 reference site DESIGN.md)
+- `moodboard.md` ("Calm Cockpit Decisionale" — Linear-meets-Stripe-meets-Visier)
+- `layout-pattern.md` (10 leggi cockpit + 5 primitives + 40-30-20-10 + DOM anatomy)
+- `role-data-matrix.md` (23 route × 8 ruoli + scope semantics)
+- `widget-vocabulary.md` (mapping tipologia → widget)
+- `i18n-policy.md` (zero hardcoded mix IT/EN)
+- `header-footer-anatomy.md` (DOM canonical)
+- `anti-patterns.md` (10 categorie banditi cross-route)
 
 Le decisioni cycle 1 considerate ancora valide vengono migrate selettivamente in cycle 2 con ri-affermazione esplicita (vedi `04-promotion/decision-migration-audit.md`, popolato Phase 4 di S62).
 

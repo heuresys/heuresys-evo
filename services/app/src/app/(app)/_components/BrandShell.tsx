@@ -277,29 +277,41 @@ export function BrandShell({
           </div>
         </div>
         <div className="ft-dynamic">
-          <span className="ctx-item">
-            <span className="ft-dot ok" aria-hidden />
-            ENV <strong>{envLabel ?? 'DEV'}</strong>
-          </span>
-          {tenant.shortId ? (
-            <span className="ctx-item">
-              <span className="ft-dot info" aria-hidden />
-              TENANT <strong>{tenant.shortId}</strong>
-            </span>
-          ) : (
-            <span className="ctx-item">
-              <span className="ft-dot warn" aria-hidden />
-              PLATFORM
-            </span>
-          )}
-          <span className="ctx-item">
-            <span className="ft-dot info" aria-hidden />
-            ROLE <strong>{user.role}</strong>
-          </span>
-          {/* P6 W#7-bis (L75 CF#5): brand metric live — cycle TS-derived
-              da NOW(), reviewsPct via SQL aggregator review_cycle_participants
-              completion %. Hide entrambi se footerMetrics non passato (es.
-              platform users senza tenantId). */}
+          {/* Cycle 2 Phase 0 T0.8: ENV/TENANT/ROLE/BUILD chip gated behind
+              NEXT_PUBLIC_SHOW_DEV_FOOTER flag (default false in prod).
+              CYCLE + REVIEWS preserved as brand metric live P6 W#7-bis (L75 CF#5):
+              cycle TS-derived da NOW(), reviewsPct via SQL aggregator
+              review_cycle_participants completion %. Hide entrambi se
+              footerMetrics non passato (es. platform users senza tenantId). */}
+          {process.env.NEXT_PUBLIC_SHOW_DEV_FOOTER === '1' ? (
+            <>
+              <span className="ctx-item">
+                <span className="ft-dot ok" aria-hidden />
+                ENV <strong>{envLabel ?? 'DEV'}</strong>
+              </span>
+              {tenant.shortId ? (
+                <span className="ctx-item">
+                  <span className="ft-dot info" aria-hidden />
+                  TENANT <strong>{tenant.shortId}</strong>
+                </span>
+              ) : (
+                <span className="ctx-item">
+                  <span className="ft-dot warn" aria-hidden />
+                  PLATFORM
+                </span>
+              )}
+              <span className="ctx-item">
+                <span className="ft-dot info" aria-hidden />
+                ROLE <strong>{user.role}</strong>
+              </span>
+              {buildHash ? (
+                <span className="ctx-item">
+                  <span className="ft-dot warn" aria-hidden />
+                  BUILD <strong>{buildHash}</strong>
+                </span>
+              ) : null}
+            </>
+          ) : null}
           {footerMetrics ? (
             <>
               <span className="ctx-item">
@@ -313,12 +325,6 @@ export function BrandShell({
                 </span>
               ) : null}
             </>
-          ) : null}
-          {buildHash ? (
-            <span className="ctx-item">
-              <span className="ft-dot warn" aria-hidden />
-              BUILD <strong>{buildHash}</strong>
-            </span>
           ) : null}
         </div>
       </footer>
