@@ -48,15 +48,15 @@ export async function fetchEmployeesCount(ctx: ScopeContext): Promise<EmployeesC
           where: {
             ...scope.where,
             is_active: true,
-            hired_at: { gte: new Date(Date.now() - 90 * 24 * 3600 * 1000) },
+            hire_date: { gte: new Date(Date.now() - 90 * 24 * 3600 * 1000) },
           },
         }),
         tx.$queryRaw<Array<{ avg_months: number | null }>>`
-          SELECT AVG(EXTRACT(EPOCH FROM (NOW() - hired_at)) / (30.44 * 86400))::float AS avg_months
+          SELECT AVG(EXTRACT(EPOCH FROM (NOW() - hire_date)) / (30.44 * 86400))::float AS avg_months
           FROM employees
           WHERE tenant_id = ${ctx.tenantId}::uuid
             AND is_active = true
-            AND hired_at IS NOT NULL
+            AND hire_date IS NOT NULL
         `,
       ]);
 
@@ -94,7 +94,7 @@ export async function fetchEmployeesList(
           job_title: true,
           org_unit_id: true,
           manager_id: true,
-          hired_at: true,
+          hire_date: true,
           is_active: true,
         },
         orderBy: [{ last_name: 'asc' }, { first_name: 'asc' }],
@@ -109,7 +109,7 @@ export async function fetchEmployeesList(
         jobTitle: r.job_title,
         orgUnitId: r.org_unit_id,
         managerId: r.manager_id,
-        hiredAt: r.hired_at,
+        hiredAt: r.hire_date,
         isActive: r.is_active ?? true,
       }));
     });

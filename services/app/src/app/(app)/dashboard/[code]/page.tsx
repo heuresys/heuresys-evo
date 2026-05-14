@@ -1,6 +1,7 @@
 import { notFound, redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { loadDashboardPreset, prefetchElements, resolveElements } from '@/lib/dashboard-engine';
+import { getCachedTenantName } from '@/lib/dashboard-engine/dashboard-meta-cache';
 import { DashboardRenderer, type DashboardRendererSlot } from '@/components/DashboardRenderer';
 import { DEFAULT_LOCALE, isLocale, pickBilingual, type Locale } from '@/lib/i18n';
 
@@ -70,6 +71,9 @@ export default async function DashboardCodePage({ params, searchParams }: PagePr
     role,
   });
 
+  const tenantNameRaw = tenantId ? await getCachedTenantName(tenantId) : null;
+  const tenantName = tenantNameRaw ?? 'Heuresys System';
+
   const presetName = pickBilingual(preset, 'name', locale);
   const presetDescription = pickBilingual(preset, 'description', locale);
   const personaLabel = preset.persona_label ?? null;
@@ -114,11 +118,10 @@ export default async function DashboardCodePage({ params, searchParams }: PagePr
         </div>
         {role ? (
           <div className="actions">
-            <span className="tenant-pill">
+            <span className="scope-pill">
               <span className="dot" />
               <span>
-                {role}
-                {tenantId ? ` · ${tenantId.slice(0, 6)}` : ''}
+                scope · {tenantName.toLowerCase()} · {role.toLowerCase()}
               </span>
             </span>
           </div>

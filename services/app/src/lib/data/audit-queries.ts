@@ -39,13 +39,13 @@ export async function fetchAuditLogs(
               category: string | null;
               resource_type: string | null;
               action: string;
-              actor_email: string | null;
+              user_email: string | null;
               description: string | null;
               ts: Date;
             }>
           >`
             SELECT
-              id::text, category, resource_type, action, actor_email, description,
+              id::text, category, resource_type, action, user_email, description,
               created_at AS ts
             FROM audit_logs
             WHERE tenant_id = ${ctx.tenantId}::uuid
@@ -59,13 +59,13 @@ export async function fetchAuditLogs(
               category: string | null;
               resource_type: string | null;
               action: string;
-              actor_email: string | null;
+              user_email: string | null;
               description: string | null;
               ts: Date;
             }>
           >`
             SELECT
-              id::text, category, resource_type, action, actor_email, description,
+              id::text, category, resource_type, action, user_email, description,
               created_at AS ts
             FROM audit_logs
             WHERE tenant_id = ${ctx.tenantId}::uuid
@@ -77,7 +77,7 @@ export async function fetchAuditLogs(
         category: r.category,
         resourceType: r.resource_type,
         action: r.action,
-        actorEmail: r.actor_email,
+        actorEmail: r.user_email,
         description: r.description,
         timestamp: r.ts,
       }));

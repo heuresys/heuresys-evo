@@ -31,6 +31,9 @@ export async function fetchRbacMatrix(ctx: ScopeContext): Promise<RbacMatrixCell
 
   try {
     return await withTenant(ctx.tenantId, async (tx) => {
+      // Unpivot can_view / can_create / can_edit / can_delete / can_approve / can_export
+      // into a single (action, allowed) tuple per (role × area). Schema reale:
+      // rbp_role_permissions con boolean column per action.
       const rows = await tx.$queryRaw<
         Array<{
           role_code: string;
@@ -46,12 +49,21 @@ export async function fetchRbacMatrix(ctx: ScopeContext): Promise<RbacMatrixCell
           COALESCE(r.name_it, r.name_en, r.code) AS role_name,
           a.code AS area_code,
           COALESCE(a.name_it, a.name_en, a.code) AS area_name,
-          rap.action,
-          rap.allowed
-        FROM rbp_role_area_permissions rap
-        JOIN rbp_roles r ON r.id = rap.role_id
-        JOIN rbp_functional_areas a ON a.id = rap.functional_area_id
-        ORDER BY r.level, a.code, rap.action
+          act.action AS action,
+          act.allowed AS allowed
+        FROM rbp_role_permissions rp
+        JOIN rbp_roles r ON r.id = rp.role_id
+        JOIN rbp_functional_areas a ON a.id = rp.functional_area_id
+        CROSS JOIN LATERAL (
+          VALUES
+            ('VIEW', rp.can_view),
+            ('CREATE', rp.can_create),
+            ('EDIT', rp.can_edit),
+            ('DELETE', rp.can_delete),
+            ('APPROVE', rp.can_approve),
+            ('EXPORT', rp.can_export)
+        ) AS act(action, allowed)
+        ORDER BY r.level, a.code, act.action
       `;
       return rows.map((r) => ({
         roleCode: r.role_code,
@@ -88,10 +100,10 @@ export async function fetchRbacRoleSummary(ctx: ScopeContext): Promise<RbacRoleS
           COALESCE(r.name_it, r.name_en, r.code) AS role_name,
           r.level,
           COUNT(DISTINCT a.id)::int AS total_areas,
-          COUNT(DISTINCT a.id) FILTER (WHERE rap.allowed = true)::int AS allowed_areas
+          COUNT(DISTINCT a.id) FILTER (WHERE rp.can_view = true)::int AS allowed_areas
         FROM rbp_roles r
         CROSS JOIN rbp_functional_areas a
-        LEFT JOIN rbp_role_area_permissions rap ON rap.role_id = r.id AND rap.functional_area_id = a.id
+        LEFT JOIN rbp_role_permissions rp ON rp.role_id = r.id AND rp.functional_area_id = a.id
         GROUP BY r.code, r.name_it, r.name_en, r.level
         ORDER BY r.level
       `;

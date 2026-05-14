@@ -47,6 +47,8 @@ export interface DashboardElementShape {
   visibility_min_role: number;
   config_overrides: unknown;
   tenant_id: string | null;
+  /** G5+ hierarchy support — parent element id for nested layout containers. */
+  parent_element_id?: bigint | number | string | null;
 }
 
 export function userRoleLevel(role: string | null | undefined): number {
@@ -73,21 +75,29 @@ export function resolveElements<T extends DashboardElementShape>(
     return true;
   });
 
-  // Step 2: merge — tenant override (tenant_id != null) shadows platform default at same position
-  const byPosition = new Map<number, T>();
+  // Step 2: merge — tenant override (tenant_id != null) shadows platform default at the same
+  // (parent_element_id, position) tuple. The DB UNIQUE index is
+  // `(dashboard_preset_id, COALESCE(parent_element_id, 0), position)` (see schema), so the
+  // dedup key must mirror that to support hierarchical layouts (G5+). Earlier versions
+  // merged by `position` alone and collapsed every child with position=1 to a single
+  // element, breaking LayoutKpiRing / LayoutMainSplit / LayoutPanel hierarchies.
+  const byKey = new Map<string, T>();
+  const dedupKey = (el: T): string => {
+    const parent = el.parent_element_id == null ? '__root__' : String(el.parent_element_id);
+    return `${parent}::${el.position}`;
+  };
   for (const el of visible) {
-    const existing = byPosition.get(el.position);
+    const key = dedupKey(el);
+    const existing = byKey.get(key);
     if (!existing) {
-      byPosition.set(el.position, el);
+      byKey.set(key, el);
       continue;
     }
-    // Prefer tenant-specific over platform default
+    // Prefer tenant-specific over platform default at the same (parent, position).
     if (existing.tenant_id == null && el.tenant_id != null) {
-      byPosition.set(el.position, el);
+      byKey.set(key, el);
     }
-    // If both are tenant-specific, keep first (UNIQUE index guarantees no dup)
-    // If existing is tenant-specific and new is platform, keep existing
   }
 
-  return Array.from(byPosition.values()).sort((a, b) => a.position - b.position);
+  return Array.from(byKey.values()).sort((a, b) => a.position - b.position);
 }

@@ -529,4 +529,68 @@ Follow-up opzionale futuro: sidebar PrimaryNav link → cockpit-first (Opzione A
 
 ---
 
-<!-- Entry successive L16-LN: append qui. Decisioni MIGRATE da cycle 1 archive devono citare predecessore archive L-XX in body. -->
+## L16 (2026-05-14) — Browser verification + 7 hotfix per i 12 preset \_v2 cycle 2
+
+**Decisione**: post utente segnalando regressione runtime nei preset cycle 2 (dichiarata "verificata" senza test browser in L13-L15 — violazione R5 + CARD-2), eseguito browser test reale via claude-in-chrome MCP per HR_DIRECTOR `valentina.conti@rtl-bank.org` su tutti i 12 preset `_v2` toccati S63 (Phase 1 + Phase 4). 7 bug runtime trovati e fixati, 12/12 ora renderizzano cleanly.
+
+**Bug discovery via browser test**:
+
+1. **Worker Turbopack in bad state**: il dev server era stato corrotto da una serie di cold-recompiles falliti. Risolto via kill PID 5496/9012/11408 + delete `.next/` cache + restart `npm run dev`.
+
+2. **Resolver `resolveElements` rompe hierarchy** (`services/app/src/lib/dashboard-engine/resolver.ts`): la dedup `byPosition.set(el.position, …)` ignorava `parent_element_id`, collassando ogni element con `position=1` (LayoutKpiRing + KpiRing child + LayoutPanel + Histogram + ActivityFeed) a 1 solo sopravvissuto. Fix: dedup by `(parent_element_id, position)` tuple, mirroring DB UNIQUE index. Aggiunto field `parent_element_id?` a `DashboardElementShape`.
+
+3. **Histogram adapter shape** (8 elements): `histogramAdapter` aspetta `{items: HistogramItem[]}` (HistogramItem = `{id, label, value, tone?}`). Mie SQL emettevano array piatto `[{label, value}, ...]` senza `id`. Fix `phase19c` + `phase19d`: wrap con `json_agg(json_build_object('id', ..., 'label', ..., 'value', ...))`.
+
+4. **ActivityFeed adapter shape** (5 elements): `activityFeedAdapter` aspetta `{items: ActivityFeedItem[]}` con `ActivityFeedItem = {id, when, what, who?}`. Mie SQL emettevano `{id, category, title, timestamp}` — field name sbagliati. Fix `phase19d`: rename `title→what`, `timestamp→when (to_char DD Mon HH24:MI)`, optional `who` da actor email.
+
+5. **Schema column `hire_date` vs `hired_at`** (3 KPI elements): `employees` ha `hire_date` non `hired_at`. Fix `phase19e` + TS `employees-queries.ts` + `workforce-analytics-queries.ts`.
+
+6. **Schema column `user_email` vs `actor_email`** (2 ActivityFeed): `audit_logs` ha `user_email` non `actor_email`. Fix `phase19f` + TS `audit-queries.ts`.
+
+7. **Schema table `rbp_role_permissions` vs `rbp_role_area_permissions`** (2 Histogram + RbacMatrix TS): la tabella corretta è `rbp_role_permissions` con boolean columns `can_view`/`can_create`/`can_edit`/`can_delete`/`can_approve`/`can_export` invece di un singolo `(action, allowed)` tuple. Fix `phase19g` + TS `rbac-queries.ts` con CROSS JOIN LATERAL VALUES unpivot.
+
+8. **UUID leak in pill `/dashboard/[code]/page.tsx`** (P11 violation): `tenantId.slice(0, 6)` mostrava `0c54b8` invece del nome tenant. Fix: replicato pattern `/dashboard/page.tsx` con `getCachedTenantName(tenantId)` + render `scope · rtl bank · hr_director`.
+
+**Migration applicate (7 file `db/seeds/phase19c-g`)**:
+
+- `phase19c_fix_histogram_activityfeed_shape.sql` (16 UPDATE — superseded by 19d)
+- `phase19d_fix_adapter_shapes.sql` (17 UPDATE: 11 Histogram con json_build_object + 6 ActivityFeed con when/what/who)
+- `phase19e_fix_hired_at_to_hire_date.sql` (3 UPDATE KPI)
+- `phase19f_fix_audit_actor_email.sql` (2 UPDATE ActivityFeed)
+- `phase19g_fix_rbac_table_name.sql` (2 UPDATE Histogram admin_rbac)
+
+**TS files modificati (4)**:
+
+- `services/app/src/lib/dashboard-engine/resolver.ts` — dedup by (parent_element_id, position)
+- `services/app/src/app/(app)/dashboard/[code]/page.tsx` — tenant name pill + scope-pill class
+- `services/app/src/lib/data/employees-queries.ts` — `hired_at → hire_date`
+- `services/app/src/lib/data/workforce-analytics-queries.ts` — `hired_at → hire_date`
+- `services/app/src/lib/data/audit-queries.ts` — `actor_email → user_email`
+- `services/app/src/lib/data/rbac-queries.ts` — schema reale `rbp_role_permissions` con can\_\* columns
+
+**Browser verification finale (HR_DIRECTOR valentina.conti)**:
+
+| Preset                       | Stato browser | Note                                                                                                                           |
+| ---------------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| process_recruiting_funnel_v2 | ✅ live       | OPEN REQ=10 · CANDIDATES=48 · Histogram 7 stage · ActivityFeed candidate timeline                                              |
+| process_onboarding_flow_v2   | ✅ live       | NEW HIRES=0 · TASKS OPEN=27 · DOCS=33% · COMPLETION=56% · Histogram 3-stage · IntegrationHealthPill OPERATIONAL · ActivityFeed |
+| process_performance_cycle_v2 | ✅ live       | CYCLE 38% · AVG 3 · VARIANCE 1 · CALIBRATION 0% · Histogram 6-stage · ActivityFeed                                             |
+| process_learning_paths_v2    | ✅ live       | ACTIVE PATHS=5 · ENROLLMENTS=132 · COMPLETION=34% · CERTS=28 · Histogram 3-stage · ActivityFeed                                |
+| employees_directory_v2       | ✅ live       | HEADCOUNT=156 · NEW HIRES 90D=0 · AVG TENURE=161mo · ORG UNITS=22 · SkillHeatmap unavailable · ActivityFeed                    |
+| reviews_cycle_v2             | ✅ live       | CYCLE 38% · AVG 3 · CALIBRATION 0% · Histogram 6-stage                                                                         |
+| goals_cascade_v2             | ✅ live       | GOALS=552 · ON-TRACK=24% · AT RISK=18 · Histogram 5-status                                                                     |
+| learning_paths_overview_v2   | ✅ live       | ACTIVE=5 · ENROLLMENTS=132 · COMPLETION=34% · Histogram 3-stage                                                                |
+| compensation_overview_v2     | ✅ live       | AVG SALARY=€48.344 · MEDIAN=€47.148 · TOTAL PAYROLL=€7.541.645 · Histogram 6 salary buckets                                    |
+| workforce_analytics_v2       | ✅ live       | HEADCOUNT=156 · ATTRITION 12M=1% · OPEN REQ=10 · Histogram top 5 org_units                                                     |
+| admin_audit_v2               | ✅ live       | EVENTS 24H=8 · EVENTS 30D=62 · CATEGORIES=2 · ActivityFeed UPDATE user × N                                                     |
+| admin_rbac_v2                | ✅ live       | RbacMatrix demo unavailable · Histogram permissions per role + active areas (SEMANTIC_SEARCH=8...)                             |
+
+**Console errors**: 0 cross-preset (eccetto Chrome extension noise).
+**UUID leak**: 0 cross-preset (pill mostra `scope · rtl bank · hr_director` invece di slice UUID).
+**P11 compliance**: rispettato — widget unavailable rendono `<DataNotAvailable />` esplicito.
+
+**Lezione cardinale (mio fail R5/CARD-2)**: typecheck + smoke HTTP 200 + lint exit 0 NON dimostrano feature correctness. Per UI changes serve browser test obbligatorio. Aggiunta task follow-up al backlog per integrare browser MCP nei flow handoff futuri.
+
+---
+
+<!-- Entry successive L17-LN: append qui. Decisioni MIGRATE da cycle 1 archive devono citare predecessore archive L-XX in body. -->

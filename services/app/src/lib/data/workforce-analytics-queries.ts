@@ -38,7 +38,7 @@ export async function fetchWorkforceKpi(ctx: ScopeContext): Promise<WorkforceKpi
         WITH stats AS (
           SELECT
             COUNT(*) FILTER (WHERE is_active = true)::int AS headcount,
-            COUNT(*) FILTER (WHERE is_active = true AND hired_at > NOW() - INTERVAL '90 days')::int AS new_hires,
+            COUNT(*) FILTER (WHERE is_active = true AND hire_date > NOW() - INTERVAL '90 days')::int AS new_hires,
             COUNT(*) FILTER (WHERE is_active = false AND deleted_at > NOW() - INTERVAL '12 months')::int AS leavers_12m,
             COUNT(*) FILTER (WHERE is_active = true)::float AS hc_active
           FROM employees
@@ -116,11 +116,11 @@ export async function fetchHeadcountTrend(
           to_char(m.m, 'YYYY-MM') AS month,
           (SELECT COUNT(*)::int FROM employees
              WHERE tenant_id = ${ctx.tenantId}::uuid
-               AND hired_at <= m.m + INTERVAL '1 month'
+               AND hire_date <= m.m + INTERVAL '1 month'
                AND (deleted_at IS NULL OR deleted_at > m.m + INTERVAL '1 month')) AS headcount,
           (SELECT COUNT(*)::int FROM employees
              WHERE tenant_id = ${ctx.tenantId}::uuid
-               AND hired_at >= m.m AND hired_at < m.m + INTERVAL '1 month') AS hires,
+               AND hire_date >= m.m AND hire_date < m.m + INTERVAL '1 month') AS hires,
           (SELECT COUNT(*)::int FROM employees
              WHERE tenant_id = ${ctx.tenantId}::uuid
                AND deleted_at >= m.m AND deleted_at < m.m + INTERVAL '1 month') AS leavers
