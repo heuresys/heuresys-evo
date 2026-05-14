@@ -748,4 +748,38 @@ Scoping deliberato:
 
 ---
 
-<!-- Entry successive L20-LN: append qui. Decisioni MIGRATE da cycle 1 archive devono citare predecessore archive L-XX in body. -->
+## L20 (2026-05-14) — Session start protocol — trigger "continuazione" + menu ordinato
+
+**Decisione**: estensione del session start protocol (post-L19 reform) per gestire le aperture sessione semantiche di tipo "proseguiamo" / "continuiamo" / equivalenti. Quando l'utente apre con un trigger di continuazione (vs comando diretto self-contained), Claude compila automaticamente un **menu numerato cross-list** che combina Debt + Follow-up + Flussi + carry-forward dal piano canonico, ordinato per priorità.
+
+**Razionale**: la L19 ha ripristinato il saluto ampio ma il flow successivo era ancora aperto. L'utente vuole un comportamento concreto: quando dice "proseguiamo", non vuole una conversazione esplorativa ma un menu di selezione diretto. Riduce friction tra "sessione aperta" → "esecuzione".
+
+**Trigger semantici**: "proseguiamo", "continuiamo", "andiamo avanti", "riprendiamo", "da dove eravamo rimasti", "cosa facciamo", "next", "vai avanti", "vai", "ok" in risposta diretta al saluto.
+
+**Anti-trigger** (NON attivare menu): comando self-contained diretto come "fix bug X", "applica Y", "scrivi Z".
+
+**Ordinamento canonico**: Debt H → Debt M → Debt L → Follow-up H → Flussi suggeriti multi-step → Follow-up M → Follow-up L.
+
+**Format menu**:
+
+```
+Proseguiamo da dove eravamo. Lista ordinata per priorità:
+1. [Debt H · ~Xh] titolo — descrizione
+2. [Follow-up H · ~Xh] titolo — descrizione
+3. [Flusso · ~Xh] nome flusso — descrizione multi-step
+...
+Quale procediamo? (numero · "tutti" · "altro")
+```
+
+**Modifiche concrete** (commit `0861370`):
+
+- `CLAUDE.md` root § Session start protocol — sub-sezione "Trigger continuazione" dopo step 4
+- `docs/_meta/operating-baseline.md` § CARD-5 — paragrafo L20 reform dopo greeting
+
+**Impact**: zero rottura runtime (policy doc + protocol). Future sessioni con "proseguiamo" partiranno con menu di selezione diretto invece di "Sistema fermo dimmi cosa facciamo" (S61) o "lista ampia recap ma poi aspetto" (L19).
+
+**Sinergia con L19**: L19 ha esteso STATE.md con sezioni multiple (Debt + Follow-up + Flussi). L20 attiva quella struttura via trigger semantico. Il valore di L19 si materializza solo se L20 esiste.
+
+---
+
+<!-- Entry successive L21-LN: append qui. Decisioni MIGRATE da cycle 1 archive devono citare predecessore archive L-XX in body. -->
