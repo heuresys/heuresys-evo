@@ -321,4 +321,50 @@ process_recruiting_funnel_v2 | Recruiting||funnel | 11 elements
 
 ---
 
-<!-- Entry successive L12-LN: append qui. Decisioni MIGRATE da cycle 1 archive devono citare predecessore archive L-XX in body. -->
+## L12 (2026-05-14) — Phase 4 cycle 2 — 8 nuovi preset \_v2 shipped
+
+**Decisione**: chiusa Phase 4 del plan canonical S63+ con 8 nuovi `dashboard_presets` creati e seedati con 40 elements totali. Migration applicata via `phase19b_eight_new_presets_seed.sql` idempotent.
+
+**8 preset shipped**:
+
+| Code                         | Perspective | Audience                                            | Elements                                                              |
+| ---------------------------- | ----------- | --------------------------------------------------- | --------------------------------------------------------------------- |
+| `employees_directory_v2`     | TALENT      | HR_DIRECTOR                                         | 7 (hero 4 KPI + SkillHeatmap + ActivityFeed)                          |
+| `reviews_cycle_v2`           | TALENT      | HR_DIRECTOR + HR_MANAGER                            | 5 (hero 3 KPI + Histogram)                                            |
+| `goals_cascade_v2`           | TALENT      | HR_DIRECTOR + HR_MANAGER + DEPT_HEAD                | 5 (hero 3 KPI + Histogram)                                            |
+| `learning_paths_overview_v2` | PROCESS     | HR_DIRECTOR + HR_MANAGER + DEPT_HEAD + LINE_MANAGER | 5 (hero 3 KPI + Histogram)                                            |
+| `compensation_overview_v2`   | ENTERPRISE  | HR_DIRECTOR + HR_MANAGER (scoped)                   | 5 (hero 3 KPI: avg/median/total + salary bucket histogram)            |
+| `workforce_analytics_v2`     | ENTERPRISE  | HR_DIRECTOR + HR_MANAGER                            | 5 (hero 3 KPI: headcount/attrition/open req + employees per org_unit) |
+| `admin_audit_v2`             | ENTERPRISE  | SUPERUSER + TENANT_OWNER + IT_ADMIN + HR_DIRECTOR   | 5 (hero 3 KPI eventi 24h/30d/categories + ActivityFeed live)          |
+| `admin_rbac_v2`              | ENTERPRISE  | SUPERUSER + TENANT_OWNER + IT_ADMIN + HR_DIRECTOR   | 3 (RbacMatrix + 2 Histogram permissions/areas)                        |
+
+**Rinomina**: `learning_paths_v2` del plan rinominato a `learning_paths_overview_v2` per evitare conflitto naming con `process_learning_paths_v2` (Phase 1, scope "PROCESS sub-cycle").
+
+**Patterns SQL live tutti current_tenant_id() null-safe (post-phase18u)**. P11 compliance:
+
+- `employees_directory_v2` SkillHeatmap → unavailable (richiede Phase 2 integration heatmap pivot)
+- `admin_rbac_v2` RbacMatrix → unavailable (richiede API endpoint wiring)
+- Tutti gli altri = SQL live aggregator parametrico
+
+**Naming **convention multi-word accent `||`** applicata su tutti i name_it/name_en**:
+
+- `Talenti||registry`, `Performance||review`, `OKR||cascade`, `Learning||overview`, `Compensation||overview`, `Workforce||analytics`, `Audit||trail`, `RBAC||matrix`
+
+**Acceptance Phase 4**:
+
+- 8 preset_v2 INSERT idempotent (ON CONFLICT DO UPDATE)
+- 40 dashboard_elements seeded
+- Verification PASS post-apply (notice: "phase19b complete: 8 presets created/updated, 40 dashboard_elements seeded")
+- is_published = true per tutti (visibili in /dashboard/[code] route handler)
+
+**Plan execution context**: token budget @ ~510k / 800k = 64%. Phase 5-7 finali in coda.
+
+**Phase successive**:
+
+- Phase 5 (~6-10h, 5 task): sidebar migration — PrimaryNav link e `role_default_dashboards` mapping
+- Phase 6 (~8-10h, 7 task): i18n + skeleton + empty state uniformity
+- Phase 7 (~6-10h, 10 task): typecheck + Playwright + Lighthouse + handoff investor demo
+
+---
+
+<!-- Entry successive L13-LN: append qui. Decisioni MIGRATE da cycle 1 archive devono citare predecessore archive L-XX in body. -->
