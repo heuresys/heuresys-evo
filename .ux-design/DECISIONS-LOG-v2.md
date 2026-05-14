@@ -227,4 +227,43 @@ process_recruiting_funnel_v2 | Recruiting||funnel | 11 elements
 
 ---
 
-<!-- Entry successive L10-LN: append qui. Decisioni MIGRATE da cycle 1 archive devono citare predecessore archive L-XX in body. -->
+## L10 (2026-05-14) — Phase 2 cycle 2 — 8 query modules role-aware shipped
+
+**Decisione**: chiusa Phase 2 del plan canonical S63+ con tutti gli **8 query modules** in `services/app/src/lib/data/*` role-aware + P11 compliant.
+
+**Moduli shipped**:
+
+- `employees-queries.ts` — count (total + new hires 90d + avg tenure months) + list paginated
+- `reviews-queries.ts` — cycle KPI (participants, completion%, avg rating, stddev, calibration%) + by-status histogram
+- `goals-queries.ts` — KPI (total, active, on-track, at-risk, on-track%) + list paginated
+- `learning-queries.ts` — KPI (active paths, enrollments, completion%) + enrollment list con JOIN learning_paths
+- `compensation-queries.ts` — KPI (avg, median, p90, totalPayroll via PERCENTILE_CONT) + salary histogram + bonus plans
+- `workforce-analytics-queries.ts` — KPI (headcount, new hires 90d, attrition rate 12m, open requisitions) + headcount trend N months
+- `audit-queries.ts` — log fetch filterable category + by-category aggregator (filtered out per self/reports)
+- `rbac-queries.ts` — matrix completa + role summary cross-cutting (rbp_role_area_permissions + rbp_roles + rbp_functional_areas)
+
+**Pattern uniforme**:
+
+- Ogni modulo accetta `ScopeContext` (role + tenantId + employeeId? + orgUnitId?)
+- Invoca `resolveScope(ctx, entity)` da `_role-shaper.ts`
+- Wrap in `withTenant(ctx.tenantId, ...)` per RLS DB-level
+- Catch error → ritorna `null` o `EMPTY_KPI` sentinel → caller renderizza `<DataNotAvailable />` (P11)
+- `$queryRaw` parametrizzato (P6 secret hygiene + SQL injection-safe)
+
+**Acceptance Phase 2**:
+
+- typecheck PASS exit 0 (services/app/)
+- 9 file in `lib/data/` (8 nuovi + tenant-owner-queries.ts preesistente)
+- 0 hardcoded values · 0 mock · 0 demo data → P11 compliant
+- Audit + RBAC + bonus_plans hidden per `self`/`reports` scope (least privilege)
+
+**Plan execution context**: token budget @ ~310k / 800k = 39%. Phase 3 (12 widget brand expansion) può continuare in questa stessa sessione.
+
+**Phase successive**:
+
+- Phase 3 (~16-20h, 96 task): 12 widget brand expansion Storybook TDD-first (EmployeeDirectoryGrid · EmployeeProfileCard · OkrCascadeTree · ReviewKanbanBoard · CompensationHistogram · WorkforceTrendLine · LearningProgress · AuditLogFilterable · SkillCoverageHeatmap · CalibrationCard · CertificationBadgeGrid · BonusPlanCard)
+- Phase 4 (~16-20h, 48 task): 8 nuovi preset \_v2 + element seed
+
+---
+
+<!-- Entry successive L11-LN: append qui. Decisioni MIGRATE da cycle 1 archive devono citare predecessore archive L-XX in body. -->
