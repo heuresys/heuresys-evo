@@ -160,6 +160,22 @@ Eccezione **esplicita**: CASCADIA seeding tools (`scripts/seed-generator/*`) —
 | Skip-to-content link mancante             | add in BrandShell             |
 | Tabindex >0 (custom order)                | use natural order             |
 
+## Positive benchmarks (reference shipped artifacts)
+
+Per ogni categoria di artefatto cycle 2, esiste **almeno un benchmark vivente** che dimostra rispetto pieno degli anti-patterns + 10 leggi cockpit + brand identity. Usare come reference concreta nei brand:audit invece di pattern teorici astratti.
+
+| Tipo artefatto                                                                     | Benchmark vivente                                                                           | Status                         | Doc canonical                  |
+| ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ------------------------------ | ------------------------------ |
+| **Comparative research page** (deep-dive showcase con N opzioni + raccomandazione) | `.ux-design-archive-2026-05-13/02-aesthetic/icon-libraries-showcase.html`                   | adopted L17                    | `research-artifact-pattern.md` |
+| Dashboard cockpit (HR_DIRECTOR overview live)                                      | `services/app/src/app/(app)/dashboard/page.tsx` rendering preset `hr_director_overview_v2`  | adopted G6 + S63 Phase 1       | `layout-pattern.md`            |
+| Dashboard cockpit (process sub-cycle)                                              | preset `process_recruiting_funnel_v2` (4 KpiRing + Histogram + ActivityFeed + SkillHeatmap) | adopted S63 Phase 1 hotfix L16 | `role-data-matrix.md`          |
+| (futuro) Typography stacks comparison                                              | `_pending_`                                                                                 | —                              | research-artifact-pattern      |
+| (futuro) Color palette options                                                     | `_pending_`                                                                                 | —                              | research-artifact-pattern      |
+| (futuro) Competitor benchmark                                                      | `_pending_`                                                                                 | —                              | research-artifact-pattern      |
+| (futuro) Chart library comparison                                                  | `_pending_`                                                                                 | —                              | research-artifact-pattern      |
+
+**Regola**: ogni nuovo artefatto cycle 2 viene **prima confrontato col benchmark applicabile**, poi sottoposto a `brand:audit`. Audit score < 7 + drift dal benchmark → iterare prima del merge.
+
 ## Enforcement
 
 - **Phase 0 T0.13**: brand:audit baseline (pre-rebuild) per quantificare situazione corrente

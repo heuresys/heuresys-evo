@@ -593,4 +593,46 @@ Follow-up opzionale futuro: sidebar PrimaryNav link → cockpit-first (Opzione A
 
 ---
 
-<!-- Entry successive L17-LN: append qui. Decisioni MIGRATE da cycle 1 archive devono citare predecessore archive L-XX in body. -->
+## L17 (2026-05-14) — Research artifact pattern promosso a canonical cycle 2
+
+**Decisione**: il file `icon-libraries-showcase.html` (presente nel cycle 1 archive `.ux-design-archive-2026-05-13/02-aesthetic/`) viene **promosso a pattern de reference canonical cycle 2** per la categoria "comparative research artifact". File originale resta in archive (immutabile post-S62), MA viene **classificato + estratto + raccomandato** come benchmark vivente via nuovo doc `01-canonical/research-artifact-pattern.md`.
+
+**Razionale**: invece di lasciare un pattern teorico astratto in `01-canonical/`, abbiamo un esempio shipped completo che dimostra che la combinazione `Inter + JetBrains Mono + Exo 2 wordmark + μ-architect-legacy palette + 10-laws-cockpit + motion misurato F8` produce davvero artefatti di qualità investor-ready senza ricadere in slop AI o decorazione gratuita. Benchmark vivente > pattern astratto.
+
+**Browser verification (precondizione promozione)**: navigato il file via `python3 -m http.server 8765` + claude-in-chrome MCP come dark mode → light mode → hover card → hover link → scroll bottom. Verificato:
+
+- Brand identity 100% conforme a `moodboard.md` (palette + typography + wordmark embed L2)
+- 10 leggi cockpit `layout-pattern.md` tutte rispettate (mapping concreto in `research-artifact-pattern.md` § Mapping)
+- 0 anti-patterns `anti-patterns.md` rilevati (zero debug leak, zero scaffold disclaimer, zero mock personas, zero decorative animations)
+- DECISION AUTHORITY R20 preservato: card raccomandazione dichiara "Decisione finale: pending Enzo" (no fake decision)
+- Source attribution + reference cycle 1 L22 in footer (auditable)
+
+**Doc canonical scritto** `01-canonical/research-artifact-pattern.md`:
+
+- Tokens CSS extracted 1:1 (palette 15 vars + typography 3 family + spacing + motion timing)
+- Anatomia 6 componenti documentata (topbar · head · comparison table · library card · reco panel · footer-meta)
+- Mapping concreto alle 10 leggi cockpit (F1-F10)
+- Use-case template per futuri artefatti (typography stacks, color palette options, competitor benchmark, ESCO subset, chart libs, ADR visual companion)
+- Use-case anti-trigger (marketing landing, operational dashboard, form wizard, single detail page)
+- Severity adesione: STRONG (default per qualunque comparative research artifact futuro)
+- Override permesso solo via DECISIONS-LOG-v2 entry esplicita
+
+**Aggiornamenti collaterali**:
+
+- `BRAND-STATE.md` § Canonical SoT attivi: aggiunto file in lista canonical (totale 10 vs 9)
+- `anti-patterns.md` § Positive benchmarks: nuova sezione tabella che cita questo + altri benchmark vincenti (preset `_v2` HR_DIRECTOR + `process_recruiting_funnel_v2`) come reference concreta nei brand:audit
+
+**Workflow di adozione futuro**:
+
+1. Nuovo comparative research → developer copia struttura HTML dal benchmark + cambia content
+2. Brand audit (`/brand:audit <path>`) confronta col benchmark applicabile in `anti-patterns.md` § Positive benchmarks
+3. Score < 7 + drift dal benchmark → iterate prima del merge
+4. Adozione recorded via DECISIONS-LOG-v2 entry breve
+
+**Migrata da archive**: L22 cycle 1 (creation del file showcase originale) — promosso da "research artifact one-off" a "canonical pattern reference".
+
+**Severity rispetto a cycle 1 archive**: il file fisico **resta in archive immutabile**. Solo il pattern viene promosso. Future modifications devono creare nuovo file in cycle 2 (es. `.ux-design/05-research/<topic>-showcase.html` se serve nuova categoria), NON modificare il file archive.
+
+---
+
+<!-- Entry successive L18-LN: append qui. Decisioni MIGRATE da cycle 1 archive devono citare predecessore archive L-XX in body. -->

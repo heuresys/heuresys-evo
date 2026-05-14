@@ -10,7 +10,7 @@ Phase 1 next-up (fix 6 preset `_v2` rotti, ~14-18h, 42 task).
 
 ## Canonical SoT attivi
 
-9 file in `01-canonical/` codificano le decisioni cycle 2 vincolanti per l'investor-ready rebuild:
+10 file in `01-canonical/` codificano le decisioni cycle 2 vincolanti per l'investor-ready rebuild:
 
 - `trend-research-2026.md` (20 pattern dashboard analytics 2026)
 - `inspirations-extracted.md` (7 reference site DESIGN.md)
@@ -20,7 +20,8 @@ Phase 1 next-up (fix 6 preset `_v2` rotti, ~14-18h, 42 task).
 - `widget-vocabulary.md` (mapping tipologia → widget)
 - `i18n-policy.md` (zero hardcoded mix IT/EN)
 - `header-footer-anatomy.md` (DOM canonical)
-- `anti-patterns.md` (10 categorie banditi cross-route)
+- `anti-patterns.md` (10 categorie banditi cross-route + positive benchmarks)
+- `research-artifact-pattern.md` **(L17 — pattern de reference da `icon-libraries-showcase.html` archive, benchmark vivente investor-ready)**
 
 Le decisioni cycle 1 considerate ancora valide vengono migrate selettivamente in cycle 2 con ri-affermazione esplicita (vedi `04-promotion/decision-migration-audit.md`, popolato Phase 4 di S62).
 
