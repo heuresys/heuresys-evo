@@ -167,4 +167,64 @@
 
 ---
 
-<!-- Entry successive L9-LN: append qui. Decisioni MIGRATE da cycle 1 archive devono citare predecessore archive L-XX in body. -->
+## L9 (2026-05-14) — Phase 1 cycle 2 — 4 process\_\*\_v2 reseed shipped (scope ridotto)
+
+**Decisione**: chiusa Phase 1 del plan canonical S63+ con **scope ridotto** rispetto al plan originale. Re-seed di **4 process\_\*\_v2** (sparse, 3 elements ciascuno) con 11 elements widget-rich. **NON re-seedati** `hr_director_overview_v2` e `capability_graph_v2`: erano già OK con 11 elements + SQL data_source live cross-tenant (audit pre-flight confermava nessun problema strutturale, solo l'apparente disallineamento hierarchy che era in realtà falsa lettura del JOIN).
+
+**Razionale scope ridotto** (decisione autonoma plan §6):
+
+- Risk-aware: zero regression risk sui 2 preset full che già funzionano in produzione (HR_DIRECTOR + DEPT_HEAD landing dashboard)
+- Effort-aware: 4 preset sparse erano il problema concreto (3 elements vs 11 attesi)
+- Plan §6 autorizza scope decisions
+
+**Spec atomic scritti** (6 file `.ux-design/04-promotion/specs/<code>.md`):
+
+- `hr_director_overview_v2.md` — framework C1-C10 documentato (reference, no re-seed in Phase 1)
+- `capability_graph_v2.md` — framework C1-C10 documentato (reference, no re-seed in Phase 1)
+- `process_recruiting_funnel_v2.md` — spec + SQL queries documented
+- `process_onboarding_flow_v2.md` — spec + SQL queries documented
+- `process_performance_cycle_v2.md` — spec + SQL queries documented
+- `process_learning_paths_v2.md` — spec + SQL queries documented
+
+**Migration applicata**: `db/seeds/phase19a_four_process_v2_reseed.sql` (idempotent transaction). Stage 1 attempt fallito su verification count (44 vs 40 stima errata mia); corretto a 44 e ri-applicato con successo.
+
+**Updates DBMS**:
+
+- `dashboard_presets.name_it`/`name_en` UPDATE × 4: aggiunto `||` separator per multi-word accent (T0.7 P6 W#1 compatibility): "Recruiting||funnel", "Onboarding||flow", "Performance||cycle", "Learning||paths"
+- `dashboard_elements` DELETE 12 vecchi + INSERT 44 nuovi (11 per preset × 4 preset)
+
+**Layout canonical applicato** (per ognuno dei 4):
+
+```
+position=1 LayoutKpiRing (span 12) ─── hero strip
+  ├─ 4 KpiRing children (col 1-3, 4-3, 7-3, 10-3)
+position=2 LayoutMainSplit (span 12) ─ body principal
+  ├─ LayoutPanel (col 1-8) ── Histogram (body topic)
+  └─ LayoutPanel (col 9-4) ── ActivityFeed o IntegrationHealthPill
+position=3 widget secondary (span 12) — SkillHeatmap / ActivityFeed / CapabilityRadar
+```
+
+**SQL data_source queries**: tutte live con `current_tenant_id()` null-safe function (post-phase18u RLS fix L7). Tabelle target verificate pre-stesura: `recruiting_requisitions` · `recruiting_candidates` · `onboarding_tasks` (no tenant_id → JOIN via `onboarding_instances.tenant_id`) · `onboarding_documents` (idem) · `onboarding_instances` (tenant_id ✓) · `review_cycle_participants` · `performance_reviews` (calibrated_at + overall_rating) · `learning_paths` (is_active) · `learning_path_enrollments` · `certifications`.
+
+**P11 compliance**: 3 widget di chiusura usano `{"type":"static","value":{"unavailable":true}}` esplicito quando lo schema non offre il dato (SkillHeatmap recruiting · IntegrationHealthPill onboarding · CapabilityRadar performance · SkillHeatmap learning). Triggera `<DataNotAvailable />` invece di valori fittizi.
+
+**Verification VM live**:
+
+```
+process_learning_paths_v2    | Learning||paths    | 11 elements
+process_onboarding_flow_v2   | Onboarding||flow   | 11 elements
+process_performance_cycle_v2 | Performance||cycle | 11 elements
+process_recruiting_funnel_v2 | Recruiting||funnel | 11 elements
+```
+
+**Plan execution context**: questa sessione autonomous con direttiva "fermati solo @ 80% del context window 1M (800k token)". Token usage @ Phase 1 closure ≈ 220k (22%). Phase 2 + 3 possono partire in questa stessa sessione.
+
+**Phase successive**:
+
+- Phase 2 (~18-24h, 40 task): 8 query modules role-aware in `services/app/src/lib/data/` (employees · reviews · goals · learning · compensation · workforce-analytics · audit · rbac)
+- Phase 3 (~16-20h, 96 task): 12 widget brand expansion Storybook TDD-first
+- Phase 4 (~16-20h, 48 task): 8 nuovi preset \_v2 + element seed
+
+---
+
+<!-- Entry successive L10-LN: append qui. Decisioni MIGRATE da cycle 1 archive devono citare predecessore archive L-XX in body. -->
