@@ -1,0 +1,3792 @@
+[
+  {
+    "schemaname": "public",
+    "tablename": "admin_component_registry",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "((tenant_id IS NULL) OR (tenant_id = current_tenant_id()))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "ai_analytics_daily",
+    "policyname": "tenant_isolation_ai_analytics",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "ai_escalation_queue",
+    "policyname": "tenant_isolation_escalation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "ai_prompt_templates",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "((tenant_id IS NULL) OR (tenant_id = current_tenant_id()))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "ai_query_audit",
+    "policyname": "tenant_isolation_ai_audit",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "ai_tenant_config",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "ai_usage_log",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "analysis_sessions",
+    "policyname": "analysis_sessions_tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "analytics_aggregations",
+    "policyname": "tenant_isolation_aggregations",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "analytics_events",
+    "policyname": "tenant_isolation_analytics_events",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "api_keys",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "applications",
+    "policyname": "tenant_isolation_applications",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "audit_logs",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "benchmark_configs",
+    "policyname": "benchmark_config_tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "((tenant_id IS NULL) OR (tenant_id = current_tenant_id()))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "benchmark_reports",
+    "policyname": "benchmark_report_tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "blueprint_results",
+    "policyname": "blueprint_results_tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(EXISTS ( SELECT 1\n   FROM blueprint_runs br\n  WHERE ((br.id = blueprint_results.run_id) AND (br.tenant_id = current_tenant_id()))))",
+    "with_check": "(EXISTS ( SELECT 1\n   FROM blueprint_runs br\n  WHERE ((br.id = blueprint_results.run_id) AND (br.tenant_id = current_tenant_id()))))"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "blueprint_runs",
+    "policyname": "blueprint_runs_tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "blueprint_templates",
+    "policyname": "blueprint_templates_tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(EXISTS ( SELECT 1\n   FROM tenants\n  WHERE ((tenants.id = current_tenant_id()) AND (tenants.industry_profile_id = blueprint_templates.profile_id))))",
+    "with_check": "(EXISTS ( SELECT 1\n   FROM tenants\n  WHERE ((tenants.id = current_tenant_id()) AND (tenants.industry_profile_id = blueprint_templates.profile_id))))"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "bonus_allocations",
+    "policyname": "tenant_isolation_bonus_allocations",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "bonus_plans",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "burnout_assessments",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "business_processes",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(EXISTS ( SELECT 1\n   FROM tenants\n  WHERE ((tenants.id = current_tenant_id()) AND (tenants.industry_profile_id = business_processes.profile_id))))",
+    "with_check": "(EXISTS ( SELECT 1\n   FROM tenants\n  WHERE ((tenants.id = current_tenant_id()) AND (tenants.industry_profile_id = business_processes.profile_id))))"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "calibration_adjustments",
+    "policyname": "tenant_insert",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "calibration_adjustments",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "calibration_audit_log",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "calibration_discussions",
+    "policyname": "tenant_isolation_calibration_discussions",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "calibration_participants",
+    "policyname": "tenant_insert",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "calibration_participants",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "calibration_results",
+    "policyname": "rls_calibration_results_tenant",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "calibration_sessions",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "candidates",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "career_conversations",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "career_goal_milestones",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "career_goals",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "career_path_level_skills",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "career_path_recommendations",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "career_path_templates",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "career_paths",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "career_profiles",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "career_recommendations",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "career_simulations",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "career_skills",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "certifications",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "check_ins",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "competencies",
+    "policyname": "tenant_insert",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "competencies",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "competency_frameworks",
+    "policyname": "tenant_insert",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "competency_frameworks",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "competency_review_ratings",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "compliance_training_requirements",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "continuous_feedback",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "contract_amendments",
+    "policyname": "tenant_isolation_contract_amendments",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "contracts",
+    "policyname": "tenant_isolation_contracts",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "cost_centers",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "course_enrollments",
+    "policyname": "tenant_insert",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "course_enrollments",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "course_enrollments_semantic",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "course_modules",
+    "policyname": "tenant_isolation_course_modules",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "courses",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "crawl_runs",
+    "policyname": "tenant_insert",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "crawl_runs",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "crawler_configs",
+    "policyname": "tenant_insert",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "crawler_configs",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "critical_roles",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "cross_entity_relations",
+    "policyname": "rls_cross_entity_relations_tenant",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "cross_entity_searches",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "dashboard_elements",
+    "policyname": "dashboard_elements_tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "((tenant_id IS NULL) OR (tenant_id = current_tenant_id()))",
+    "with_check": "((tenant_id IS NULL) OR (tenant_id = current_tenant_id()))"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "dashboard_widgets",
+    "policyname": "tenant_isolation_widgets",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "dashboards",
+    "policyname": "tenant_isolation_dashboards",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "data_subject_requests",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "document_acknowledgments",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "document_requests",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "embedding_queue",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "employee_addresses",
+    "policyname": "rls_employee_addresses_tenant",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "employee_attendance",
+    "policyname": "tenant_isolation_employee_attendance",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "employee_bank_details",
+    "policyname": "rls_employee_bank_details_tenant",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "employee_benefit_enrollments",
+    "policyname": "tenant_isolation_employee_benefit_enrollments",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "employee_benefits",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "employee_career_paths",
+    "policyname": "tenant_isolation_employee_career_paths",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "employee_career_progress",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "employee_certifications",
+    "policyname": "tenant_isolation_employee_certifications",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "employee_clubs",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "employee_contract_amendments",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "((tenant_id IS NULL) OR (tenant_id = current_tenant_id()))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "employee_contracts",
+    "policyname": "rls_employee_contracts_tenant",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "employee_documents",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "employee_emergency_contacts",
+    "policyname": "rls_employee_emergency_contacts_tenant",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "employee_job_assignments",
+    "policyname": "tenant_isolation_employee_job_assignments",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "employee_kpi_targets",
+    "policyname": "tenant_isolation_employee_kpi_targets",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "employee_occupations",
+    "policyname": "tenant_isolation_employee_occupations",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "employee_overtime",
+    "policyname": "tenant_isolation_employee_overtime",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "employee_pay_stubs",
+    "policyname": "tenant_isolation_employee_pay_stubs",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "employee_permission_overrides",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "employee_requests",
+    "policyname": "tenant_isolation_employee_requests",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "employee_skill_assessments",
+    "policyname": "tenant_isolation_employee_skill_assessments",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "employee_skill_history",
+    "policyname": "tenant_isolation_employee_skill_history",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "employee_skill_mappings",
+    "policyname": "tenant_insert",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "employee_skill_mappings",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "employee_skill_profiles",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "employee_skills",
+    "policyname": "employee_skills_tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "employee_time_off_balances",
+    "policyname": "tenant_isolation_time_off_balances",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "employee_time_off_requests",
+    "policyname": "tenant_isolation_time_off_requests",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "employee_timeline",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "((tenant_id IS NULL) OR (tenant_id = current_tenant_id()))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "employee_training_records",
+    "policyname": "rls_employee_training_records_tenant",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "employees_core",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "employees_hr",
+    "policyname": "employees_hr_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = (NULLIF(current_setting('app.current_tenant_id'::text, true), ''::text))::uuid)",
+    "with_check": "(tenant_id = (NULLIF(current_setting('app.current_tenant_id'::text, true), ''::text))::uuid)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "employees_payroll",
+    "policyname": "employees_payroll_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = (NULLIF(current_setting('app.current_tenant_id'::text, true), ''::text))::uuid)",
+    "with_check": "(tenant_id = (NULLIF(current_setting('app.current_tenant_id'::text, true), ''::text))::uuid)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "employees_pii",
+    "policyname": "employees_pii_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = (NULLIF(current_setting('app.current_tenant_id'::text, true), ''::text))::uuid)",
+    "with_check": "(tenant_id = (NULLIF(current_setting('app.current_tenant_id'::text, true), ''::text))::uuid)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "employees_staging",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "engagement_action_plans",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "engagement_feedback",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "engagement_pulse_configs",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "engagement_survey_responses",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "engagement_survey_templates",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "engagement_surveys",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "enrichment_candidates",
+    "policyname": "enrichment_candidates_tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "((tenant_id IS NULL) OR (tenant_id = COALESCE((NULLIF(current_setting('app.current_tenant_id'::text, true), ''::text))::uuid, tenant_id)))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "enrichment_entity_descriptors",
+    "policyname": "enrichment_entity_descriptors_tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "((tenant_id IS NULL) OR (tenant_id = COALESCE((NULLIF(current_setting('app.current_tenant_id'::text, true), ''::text))::uuid, tenant_id)))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "enrichment_extraction_schemas",
+    "policyname": "enrichment_extraction_schemas_tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "((tenant_id IS NULL) OR (tenant_id = COALESCE((NULLIF(current_setting('app.current_tenant_id'::text, true), ''::text))::uuid, tenant_id)))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "enrichment_job_events",
+    "policyname": "enrichment_job_events_tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "((tenant_id IS NULL) OR (tenant_id = COALESCE((NULLIF(current_setting('app.current_tenant_id'::text, true), ''::text))::uuid, tenant_id)))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "enrichment_jobs",
+    "policyname": "enrichment_jobs_tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "((tenant_id IS NULL) OR (tenant_id = COALESCE((NULLIF(current_setting('app.current_tenant_id'::text, true), ''::text))::uuid, tenant_id)))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "enrichment_lineage",
+    "policyname": "enrichment_lineage_tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "((tenant_id IS NULL) OR (tenant_id = COALESCE((NULLIF(current_setting('app.current_tenant_id'::text, true), ''::text))::uuid, tenant_id)))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "enrichment_matches",
+    "policyname": "enrichment_matches_tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "((tenant_id IS NULL) OR (tenant_id = COALESCE((NULLIF(current_setting('app.current_tenant_id'::text, true), ''::text))::uuid, tenant_id)))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "enrichment_merge_policies",
+    "policyname": "enrichment_merge_policies_tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "((tenant_id IS NULL) OR (tenant_id = COALESCE((NULLIF(current_setting('app.current_tenant_id'::text, true), ''::text))::uuid, tenant_id)))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "enrichment_merges",
+    "policyname": "enrichment_merges_tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "((tenant_id IS NULL) OR (tenant_id = COALESCE((NULLIF(current_setting('app.current_tenant_id'::text, true), ''::text))::uuid, tenant_id)))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "enrichment_observations",
+    "policyname": "enrichment_observations_tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "((tenant_id IS NULL) OR (tenant_id = COALESCE((NULLIF(current_setting('app.current_tenant_id'::text, true), ''::text))::uuid, tenant_id)))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "enrichment_source_snapshots",
+    "policyname": "enrichment_source_snapshots_tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "((tenant_id IS NULL) OR (tenant_id = COALESCE((NULLIF(current_setting('app.current_tenant_id'::text, true), ''::text))::uuid, tenant_id)))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "enrichment_sources",
+    "policyname": "enrichment_sources_tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "((tenant_id IS NULL) OR (tenant_id = COALESCE((NULLIF(current_setting('app.current_tenant_id'::text, true), ''::text))::uuid, tenant_id)))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "enrichment_trust_rules",
+    "policyname": "enrichment_trust_rules_tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "((tenant_id IS NULL) OR (tenant_id = COALESCE((NULLIF(current_setting('app.current_tenant_id'::text, true), ''::text))::uuid, tenant_id)))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "enrichment_writes",
+    "policyname": "enrichment_writes_tenant_policy",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "((tenant_id)::text = current_setting('app.current_tenant_id'::text, true))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "equity_grants",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "error_analytics_hourly",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "error_logs",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "export_configurations",
+    "policyname": "tenant_isolation_export_configs",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "export_jobs",
+    "policyname": "tenant_isolation_export_jobs",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "ext_hrp1007",
+    "policyname": "tenant_isolation_ext_hrp1007",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "ext_pa0002",
+    "policyname": "tenant_isolation_ext_pa0002",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "ext_pb0002",
+    "policyname": "tenant_isolation_ext_pb0002",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "extracted_skills",
+    "policyname": "tenant_insert",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "extracted_skills",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "feedback_360",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "feedback_360_peer_suggestions",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "feedback_360_questionnaires",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "feedback_360_questions",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "feedback_categories",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "feedback_requests",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "feedback_responses",
+    "policyname": "tenant_isolation_feedback_responses",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "goal_alignments",
+    "policyname": "tenant_insert",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "goal_alignments",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "goal_check_ins",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "goal_comments",
+    "policyname": "tenant_insert",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "goal_comments",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "goal_milestones",
+    "policyname": "tenant_insert",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "goal_milestones",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "goal_review_ratings",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "goal_templates",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "goal_updates",
+    "policyname": "tenant_insert",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "goal_updates",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "goals",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "holidays",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "import_jobs",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "import_skill_links",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "integration_sync_logs",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "integrations",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "internal_applications",
+    "policyname": "tenant_isolation_internal_applications",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "internal_job_postings",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "internal_mobility_postings",
+    "policyname": "rls_internal_mobility_postings_tenant",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "internal_mobility_requests",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "interview_feedback",
+    "policyname": "tenant_isolation_interview_feedback",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "interviews",
+    "policyname": "tenant_isolation_interviews",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "job_analysis",
+    "policyname": "rls_job_analysis_tenant",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "job_evaluations",
+    "policyname": "rls_job_evaluations_tenant",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "job_families",
+    "policyname": "rls_job_families_tenant",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "job_postings",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "job_postings_raw",
+    "policyname": "tenant_insert",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "job_postings_raw",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "job_template_skills",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "((tenant_id IS NULL) OR (tenant_id = current_tenant_id()))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "job_templates",
+    "policyname": "tenant_isolation_job_templates",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "job_title_courses",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "((tenant_id IS NULL) OR (tenant_id = current_tenant_id()))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "job_title_learning_paths",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "((tenant_id IS NULL) OR (tenant_id = current_tenant_id()))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "key_results",
+    "policyname": "tenant_insert",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "key_results",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "kg_edges",
+    "policyname": "kg_edges_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "((tenant_id IS NULL) OR (tenant_id = (NULLIF(current_setting('app.current_tenant_id'::text, true), ''::text))::uuid))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "kg_nodes",
+    "policyname": "kg_nodes_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "((tenant_id IS NULL) OR (tenant_id = (NULLIF(current_setting('app.current_tenant_id'::text, true), ''::text))::uuid))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "learning_bookmarks",
+    "policyname": "tenant_isolation_learning_bookmarks",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "learning_content_providers",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "learning_path_courses",
+    "policyname": "tenant_isolation_learning_path_courses",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "learning_path_enrollments",
+    "policyname": "tenant_insert",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "learning_path_enrollments",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "learning_paths",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "learning_ratings",
+    "policyname": "tenant_isolation_learning_ratings",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "learning_recommendations",
+    "policyname": "tenant_isolation_learning_recommendations",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "leave_accrual_rules",
+    "policyname": "tenant_isolation_leave_accrual_rules",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "leave_approval_steps",
+    "policyname": "tenant_isolation_leave_approval_steps",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "leave_balance_transactions",
+    "policyname": "tenant_isolation_leave_balance_transactions",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "locations",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "market_benchmarks",
+    "policyname": "tenant_insert",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "market_benchmarks",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "market_salary_data",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "medical_certificates",
+    "policyname": "tenant_isolation_medical_certificates",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "mentor_match_scores",
+    "policyname": "tenant_isolation_mentor_matches",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "mentorship_programs",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "mentorship_sessions",
+    "policyname": "tenant_isolation_mentorship_sessions",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "mentorships",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "merit_cycles",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "merit_recommendations",
+    "policyname": "tenant_isolation_merit_recommendations",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "model_predictions",
+    "policyname": "tenant_isolation_predictions",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "module_completions",
+    "policyname": "tenant_isolation_module_completions",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "news_articles",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "news_bookmarks",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "news_categories",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "news_comments",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "news_reactions",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "news_reads",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "news_tags",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "notifications",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "okr_check_ins",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "okr_checkins",
+    "policyname": "tenant_insert",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "okr_checkins",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "okrs",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "onboarding_instances",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "onboarding_templates",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "ontology_embedding_jobs",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "ontology_feedback",
+    "policyname": "rls_ontology_feedback_tenant",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "ontology_inference_jobs",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "((tenant_id IS NULL) OR (tenant_id = current_tenant_id()))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "ontology_source_mappings",
+    "policyname": "rls_ontology_source_mappings_tenant",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "org_chart_generation_sessions",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "org_chart_snapshots",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "org_scenarios",
+    "policyname": "org_scenarios_tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "org_unit_process_mapping",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(EXISTS ( SELECT 1\n   FROM (business_processes bp\n     JOIN tenants t ON ((t.industry_profile_id = bp.profile_id)))\n  WHERE ((bp.id = org_unit_process_mapping.process_id) AND (t.id = current_tenant_id()))))",
+    "with_check": "(EXISTS ( SELECT 1\n   FROM (business_processes bp\n     JOIN tenants t ON ((t.industry_profile_id = bp.profile_id)))\n  WHERE ((bp.id = org_unit_process_mapping.process_id) AND (t.id = current_tenant_id()))))"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "org_units",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "payroll_anomaly_patterns",
+    "policyname": "tenant_or_system_anomaly_patterns",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "((tenant_id IS NULL) OR (tenant_id = current_tenant_id()))",
+    "with_check": "((tenant_id IS NULL) OR (tenant_id = current_tenant_id()))"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "payroll_export_employees",
+    "policyname": "tenant_isolation_payroll_export_employees",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "payroll_export_files",
+    "policyname": "tenant_isolation_payroll_export_files",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "payroll_export_jobs",
+    "policyname": "tenant_isolation_payroll_export_jobs",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "payroll_field_mappings",
+    "policyname": "tenant_or_system_field_mappings",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "((tenant_id IS NULL) OR (tenant_id = current_tenant_id()))",
+    "with_check": "((tenant_id IS NULL) OR (tenant_id = current_tenant_id()))"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "payroll_integrations",
+    "policyname": "tenant_isolation_payroll_integrations",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "payroll_transmission_log",
+    "policyname": "tenant_isolation_payroll_transmission_log",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "payroll_validation_rules",
+    "policyname": "tenant_or_system_validation_rules",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "((tenant_id IS NULL) OR (tenant_id = current_tenant_id()))",
+    "with_check": "((tenant_id IS NULL) OR (tenant_id = current_tenant_id()))"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "performance_predictions",
+    "policyname": "tenant_isolation_perf_predictions",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "performance_review_templates",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "performance_reviews",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "performance_skill_links",
+    "policyname": "tenant_isolation_skill_links",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "performance_trends",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "permission_overrides",
+    "policyname": "rls_permission_overrides_tenant",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "plugin_api_keys",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "plugin_configurations",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "plugin_hook_executions",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "plugin_installations",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "plugin_reviews",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "plugin_webhooks",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "position_skill_requirements",
+    "policyname": "position_skills_tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "preboarding_sessions",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "preboarding_templates",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "preboarding_welcome_content",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "prediction_actions",
+    "policyname": "tenant_isolation_prediction_actions",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "((tenant_id IS NULL) OR (tenant_id = current_tenant_id()))",
+    "with_check": "((tenant_id IS NULL) OR (tenant_id = current_tenant_id()))"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "prediction_factors",
+    "policyname": "tenant_isolation_prediction_factors",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "((tenant_id IS NULL) OR (tenant_id = current_tenant_id()))",
+    "with_check": "((tenant_id IS NULL) OR (tenant_id = current_tenant_id()))"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "prediction_model_accuracy",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "predictive_models",
+    "policyname": "tenant_isolation_predictive_models",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "process_cost_centers",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(EXISTS ( SELECT 1\n   FROM (business_processes bp\n     JOIN tenants t ON ((t.industry_profile_id = bp.profile_id)))\n  WHERE ((bp.id = process_cost_centers.process_id) AND (t.id = current_tenant_id()))))",
+    "with_check": "(EXISTS ( SELECT 1\n   FROM (business_processes bp\n     JOIN tenants t ON ((t.industry_profile_id = bp.profile_id)))\n  WHERE ((bp.id = process_cost_centers.process_id) AND (t.id = current_tenant_id()))))"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "process_kpis",
+    "policyname": "process_kpis_tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(EXISTS ( SELECT 1\n   FROM (business_processes bp\n     JOIN tenants t ON ((t.industry_profile_id = bp.profile_id)))\n  WHERE ((bp.id = process_kpis.process_id) AND (t.id = current_tenant_id()))))",
+    "with_check": "(EXISTS ( SELECT 1\n   FROM (business_processes bp\n     JOIN tenants t ON ((t.industry_profile_id = bp.profile_id)))\n  WHERE ((bp.id = process_kpis.process_id) AND (t.id = current_tenant_id()))))"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "process_phases",
+    "policyname": "process_phases_tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(EXISTS ( SELECT 1\n   FROM (business_processes bp\n     JOIN tenants t ON ((t.industry_profile_id = bp.profile_id)))\n  WHERE ((bp.id = process_phases.process_id) AND (t.id = current_tenant_id()))))",
+    "with_check": "(EXISTS ( SELECT 1\n   FROM (business_processes bp\n     JOIN tenants t ON ((t.industry_profile_id = bp.profile_id)))\n  WHERE ((bp.id = process_phases.process_id) AND (t.id = current_tenant_id()))))"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "process_roles",
+    "policyname": "process_roles_tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(EXISTS ( SELECT 1\n   FROM (business_processes bp\n     JOIN tenants t ON ((t.industry_profile_id = bp.profile_id)))\n  WHERE ((bp.id = process_roles.process_id) AND (t.id = current_tenant_id()))))",
+    "with_check": "(EXISTS ( SELECT 1\n   FROM (business_processes bp\n     JOIN tenants t ON ((t.industry_profile_id = bp.profile_id)))\n  WHERE ((bp.id = process_roles.process_id) AND (t.id = current_tenant_id()))))"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "process_skill_requirements",
+    "policyname": "process_skill_requirements_tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(EXISTS ( SELECT 1\n   FROM (business_processes bp\n     JOIN tenants t ON ((t.industry_profile_id = bp.profile_id)))\n  WHERE ((bp.id = process_skill_requirements.process_id) AND (t.id = current_tenant_id()))))",
+    "with_check": "(EXISTS ( SELECT 1\n   FROM (business_processes bp\n     JOIN tenants t ON ((t.industry_profile_id = bp.profile_id)))\n  WHERE ((bp.id = process_skill_requirements.process_id) AND (t.id = current_tenant_id()))))"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "pulse_checks",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "rag_document_chunks",
+    "policyname": "tenant_isolation_rag_chunks",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "rag_documents",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "rag_knowledge_bases",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "rag_provider_keys",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "rag_sessions",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "rag_usage_stats",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "rating_scales",
+    "policyname": "tenant_insert",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "rating_scales",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "rbp_field_classifications",
+    "policyname": "rbp_field_classifications_read_policy",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "SELECT",
+    "qual": "((tenant_id IS NULL) OR ((tenant_id)::text = current_setting('app.current_tenant_id'::text, true)))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "rbp_section_translations",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "((tenant_id IS NULL) OR (tenant_id = current_tenant_id()))",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "rbp_sections",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "((tenant_id IS NULL) OR (tenant_id = current_tenant_id()))",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "rbp_team_leaders",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(team_id IN ( SELECT rbp_teams.id\n   FROM rbp_teams\n  WHERE (rbp_teams.tenant_id = current_tenant_id())))",
+    "with_check": "(team_id IN ( SELECT rbp_teams.id\n   FROM rbp_teams\n  WHERE (rbp_teams.tenant_id = current_tenant_id())))"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "rbp_team_members",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(team_id IN ( SELECT rbp_teams.id\n   FROM rbp_teams\n  WHERE (rbp_teams.tenant_id = current_tenant_id())))",
+    "with_check": "(team_id IN ( SELECT rbp_teams.id\n   FROM rbp_teams\n  WHERE (rbp_teams.tenant_id = current_tenant_id())))"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "rbp_teams",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "recognition",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "recruiting_candidates",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "recruiting_interview_templates",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "recruiting_interviewer_availability",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "recruiting_interviews",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "recruiting_offers",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "recruiting_requisitions",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "report_definitions",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "report_delivery_log",
+    "policyname": "tenant_isolation_delivery_log",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "report_executions",
+    "policyname": "tenant_isolation_report_executions",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "((tenant_id IS NULL) OR (tenant_id = current_tenant_id()))",
+    "with_check": "((tenant_id IS NULL) OR (tenant_id = current_tenant_id()))"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "report_schedules",
+    "policyname": "tenant_isolation_report_schedules",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "((tenant_id IS NULL) OR (tenant_id = current_tenant_id()))",
+    "with_check": "((tenant_id IS NULL) OR (tenant_id = current_tenant_id()))"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "report_subscriptions",
+    "policyname": "tenant_isolation_subscriptions",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "requisitions",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "review_cycle_notifications",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "review_cycle_participants",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "review_cycle_phases",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "review_cycles",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "role_default_dashboards",
+    "policyname": "rdd_admin_write",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(current_setting('app.current_role'::text, true) = ANY (ARRAY['SUPERUSER'::text, 'TENANT_OWNER'::text, 'IT_ADMIN'::text]))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "role_default_dashboards",
+    "policyname": "rdd_select",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "SELECT",
+    "qual": "((tenant_id IS NULL) OR ((tenant_id)::text = current_setting('app.current_tenant_id'::text, true)))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "role_permissions",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "((tenant_id IS NULL) OR (tenant_id = current_tenant_id()))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "role_skill_requirements",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "salary_band_assignments",
+    "policyname": "tenant_isolation_salary_band_assignments",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "salary_bands",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "salary_history",
+    "policyname": "rls_salary_history_tenant",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "sap_delta_sync_log",
+    "policyname": "tenant_isolation_sap_delta",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "sap_employee_mapping",
+    "policyname": "tenant_isolation_sap_emp_mapping",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "sap_infotype_mappings",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "sap_migration_jobs",
+    "policyname": "tenant_isolation_sap_jobs",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "sap_migration_rollback_log",
+    "policyname": "tenant_isolation_sap_rollback",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "sap_staged_data",
+    "policyname": "tenant_isolation_sap_staged",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "saved_jobs",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "self_assessment_evidence",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "self_reviews",
+    "policyname": "tenant_insert",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "self_reviews",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "semantic_entity_index",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "semantic_entity_relations",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "semantic_search_log",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "signature_recipients",
+    "policyname": "tenant_isolation_signature_recipients",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "signature_requests",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "sindacato_tenant_links",
+    "policyname": "sindacato_tenant_links_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = (NULLIF(current_setting('app.current_tenant_id'::text, true), ''::text))::uuid)",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "skill_demand_metrics",
+    "policyname": "tenant_insert",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "skill_demand_metrics",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "skill_extraction_jobs",
+    "policyname": "skill_extraction_tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "skill_gap_analyses",
+    "policyname": "skill_gap_tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "skill_gap_snapshots",
+    "policyname": "tenant_insert",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "skill_gap_snapshots",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "skill_matrices",
+    "policyname": "skill_matrix_tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "skill_migration_jobs",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "skill_pair_usage",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "skill_requirements_templates",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "skill_supply_metrics",
+    "policyname": "tenant_insert",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "skill_supply_metrics",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "skill_taxonomy_extensions",
+    "policyname": "rls_skill_taxonomy_extensions_tenant",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "social_posts",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "sso_configurations",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "succession_candidates",
+    "policyname": "tenant_isolation_succession_candidates",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "succession_plans",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "survey_questions",
+    "policyname": "tenant_isolation_survey_questions",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "survey_responses",
+    "policyname": "tenant_isolation_survey_responses",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "survey_templates",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "surveys",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "sync_log",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "sync_queue",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "talent_pool_members",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "talent_pools",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "tenant_ccnl_links",
+    "policyname": "tenant_ccnl_links_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = (NULLIF(current_setting('app.current_tenant_id'::text, true), ''::text))::uuid)",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "tenant_custom_skills",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "tenant_industry_classifications",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "((tenant_id IS NULL) OR (tenant_id = current_tenant_id()))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "tenant_jobs",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "tenant_onboarding_profiles",
+    "policyname": "tenant_isolation_tenant_onboarding_profiles",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "tenant_org_charts",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "tenant_regulatory_compliance",
+    "policyname": "tenant_regulatory_compliance_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = (NULLIF(current_setting('app.current_tenant_id'::text, true), ''::text))::uuid)",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "tenant_retirement_rules",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "((tenant_id IS NULL) OR (tenant_id = current_tenant_id()))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "tenant_revenue_periods",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "tenant_schema_version",
+    "policyname": "tenant_isolation_tenant_schema_version",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "tenants",
+    "policyname": "tenant_lookup_when_no_context",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "SELECT",
+    "qual": "(current_tenant_id() IS NULL)",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "tenants",
+    "policyname": "tenant_self_access",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(id = current_tenant_id())",
+    "with_check": "(id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "tenants_books",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "turnover_risk_scores",
+    "policyname": "tenant_isolation_turnover_risk",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "unknown_skills",
+    "policyname": "tenant_insert",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "unknown_skills",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "user_workspaces",
+    "policyname": "user_workspaces_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = (NULLIF(current_setting('app.current_tenant_id'::text, true), ''::text))::uuid)",
+    "with_check": "(tenant_id = (NULLIF(current_setting('app.current_tenant_id'::text, true), ''::text))::uuid)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "users",
+    "policyname": "user_auth_lookup_when_no_context",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "SELECT",
+    "qual": "(current_tenant_id() IS NULL)",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "users",
+    "policyname": "user_tenant_access",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "((employee_id IS NULL) OR (employee_id IN ( SELECT employees_core.id\n   FROM employees_core\n  WHERE (employees_core.tenant_id = current_tenant_id()))))",
+    "with_check": "((employee_id IS NULL) OR (employee_id IN ( SELECT employees_core.id\n   FROM employees_core\n  WHERE (employees_core.tenant_id = current_tenant_id()))))"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "webhook_deliveries",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "webhooks",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "wellbeing_checkins",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "wellbeing_goals",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "wellbeing_program_enrollments",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "wellbeing_resources",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "whistleblowing_attachments",
+    "policyname": "tenant_isolation_whistleblowing_attachments",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "whistleblowing_audit_log",
+    "policyname": "tenant_isolation_whistleblowing_audit_log",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "whistleblowing_handlers",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "whistleblowing_messages",
+    "policyname": "tenant_isolation_whistleblowing_messages",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "whistleblowing_reports",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "whistleblowing_settings",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "widget_templates",
+    "policyname": "tenant_isolation_widget_templates",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "((tenant_id IS NULL) OR (tenant_id = current_tenant_id()))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "workforce_plan_actions",
+    "policyname": "rls_workforce_plan_actions_tenant",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "workforce_plan_scenarios",
+    "policyname": "rls_workforce_plan_scenarios_tenant",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "workforce_plans",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(tenant_id = current_tenant_id())",
+    "with_check": "(tenant_id = current_tenant_id())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "workspace_templates",
+    "policyname": "tenant_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "((tenant_id IS NULL) OR (tenant_id = current_tenant_id()))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "workspace_widgets",
+    "policyname": "workspace_widgets_isolation",
+    "permissive": "PERMISSIVE",
+    "roles": ["public"],
+    "cmd": "ALL",
+    "qual": "(workspace_id IN ( SELECT user_workspaces.id\n   FROM user_workspaces\n  WHERE (user_workspaces.tenant_id = (NULLIF(current_setting('app.current_tenant_id'::text, true), ''::text))::uuid)))",
+    "with_check": "(workspace_id IN ( SELECT user_workspaces.id\n   FROM user_workspaces\n  WHERE (user_workspaces.tenant_id = (NULLIF(current_setting('app.current_tenant_id'::text, true), ''::text))::uuid)))"
+  }
+]

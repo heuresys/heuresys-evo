@@ -1,0 +1,4076 @@
+[
+  {
+    "table_name": "account",
+    "row_estimate": 0,
+    "comment": "NextAuth/Auth.js linked accounts (OAuth providers + credentials). Cross-tenant.",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "admin_component_registry",
+    "row_estimate": 15,
+    "comment": "Registry of reusable admin UI components. Enforces P11 \"Reuse-First Admin Components\" — skills and agents query this before creating new UI.",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "ai_analytics_daily",
+    "row_estimate": 772,
+    "comment": "Daily aggregated AI usage metrics per tenant",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "ai_escalation_queue",
+    "row_estimate": 0,
+    "comment": "Queue for AI queries requiring human review",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "ai_prompt_templates",
+    "row_estimate": 12,
+    "comment": "Registro prompt parametrici per AI Talent Advisor. Bilingue IT/EN. Consumati da SEE Engine e API /talent/ai/:code/:employee_id.",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "ai_provider_config",
+    "row_estimate": 2,
+    "comment": "Configuration for AI embedding providers",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "ai_provider_metrics",
+    "row_estimate": 1,
+    "comment": "Periodic snapshots of AI provider metrics for monitoring",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "ai_query_audit",
+    "row_estimate": 410,
+    "comment": "Audit log of all AI interactions for analytics",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "ai_tenant_config",
+    "row_estimate": 4,
+    "comment": "Per-tenant AI configuration and thresholds",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "ai_usage_log",
+    "row_estimate": 1,
+    "comment": "Detailed log of all AI API calls for auditing and cost tracking",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "analysis_sessions",
+    "row_estimate": 2,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "analytics_aggregations",
+    "row_estimate": 64,
+    "comment": "Pre-computed analytics aggregations",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "analytics_events",
+    "row_estimate": 5000,
+    "comment": "Real-time analytics events",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "api_keys",
+    "row_estimate": 0,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "applications",
+    "row_estimate": 150,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "audit_logs",
+    "row_estimate": 361,
+    "comment": "Complete audit trail of all system actions for compliance",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "benchmark_configs",
+    "row_estimate": 8,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "benchmark_reports",
+    "row_estimate": 4,
+    "comment": "Market benchmark reports - Story 8.5",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "blueprint_results",
+    "row_estimate": 484,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "blueprint_runs",
+    "row_estimate": 7,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "blueprint_templates",
+    "row_estimate": 3,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "bonus_allocations",
+    "row_estimate": 244,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "bonus_plans",
+    "row_estimate": 10,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "burnout_assessments",
+    "row_estimate": 54,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "business_processes",
+    "row_estimate": 23,
+    "comment": "Standard business processes per industry prototype following Porter's Value Chain",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "calibration_adjustments",
+    "row_estimate": 20,
+    "comment": "Rating adjustments from calibration sessions",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "calibration_audit_log",
+    "row_estimate": 30,
+    "comment": "Immutable audit trail for all calibration actions",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "calibration_discussions",
+    "row_estimate": 60,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "calibration_participants",
+    "row_estimate": 30,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "calibration_results",
+    "row_estimate": 50,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "calibration_sessions",
+    "row_estimate": 86,
+    "comment": "Group sessions for rating calibration and consistency",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "candidates",
+    "row_estimate": 100,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "canonical_demo_users",
+    "row_estimate": -1,
+    "comment": "Registry of stable demo users per RBP role. Populated from .env by scripts/apply-canonical-users.sh. Do not INSERT/UPDATE manually.",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "career_conversations",
+    "row_estimate": 50,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "career_goal_milestones",
+    "row_estimate": 216,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "career_goals",
+    "row_estimate": 60,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "career_path_level_skills",
+    "row_estimate": 100,
+    "comment": "Skill requirements for each career path level with KSABA levels",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "career_path_levels",
+    "row_estimate": 75,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "career_path_recommendations",
+    "row_estimate": 85,
+    "comment": "AI-generated career path recommendations for employees",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "career_path_templates",
+    "row_estimate": 16,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "career_paths",
+    "row_estimate": 32,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "career_profiles",
+    "row_estimate": 158,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "career_recommendations",
+    "row_estimate": 192,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "career_simulations",
+    "row_estimate": 20,
+    "comment": "What-if career simulations with skill analysis",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "career_skills",
+    "row_estimate": 1106,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "ccnl_contracts",
+    "row_estimate": 7,
+    "comment": "Italian CCNL reference data for labor law queries",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "ccnl_executive_bands",
+    "row_estimate": 10,
+    "comment": "Range retributivi per dirigenti fuori tabellare CCNL. Banche piccole/medie. Fonti: We Wealth, FIRSTonline, Michael Page.",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "ccnl_job_title_mapping",
+    "row_estimate": 91,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "ccnl_levels",
+    "row_estimate": 27,
+    "comment": "Livelli retributivi tabellari per CCNL. Fonte: sindacati (UILCA/FISAC/FIRST CISL). Data-driven P9.",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "ccnl_seniority_rules",
+    "row_estimate": 0,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "certification_esco_skills",
+    "row_estimate": 664,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "certifications",
+    "row_estimate": 88,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "check_ins",
+    "row_estimate": 2495,
+    "comment": "1:1 meeting records between managers and employees",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "club_events",
+    "row_estimate": 237,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "club_memberships",
+    "row_estimate": 9,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "company_profiles",
+    "row_estimate": 9,
+    "comment": "Profili aziendali compositi (NACE + dimensione)",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "company_sizes",
+    "row_estimate": 5,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "competencies",
+    "row_estimate": 32,
+    "comment": "Individual competencies within frameworks",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "competency_frameworks",
+    "row_estimate": 4,
+    "comment": "Competency frameworks for employee assessment",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "competency_review_ratings",
+    "row_estimate": 465,
+    "comment": "Competency ratings by KSABA dimension for self and manager assessment",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "compliance_training_requirements",
+    "row_estimate": 20,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "continuous_feedback",
+    "row_estimate": 729,
+    "comment": "Ongoing peer-to-peer and manager feedback",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "contract_amendments",
+    "row_estimate": 360,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "contracts",
+    "row_estimate": 267,
+    "comment": "Employee contracts with Italian labor law support (CCNL)",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "cost_centers",
+    "row_estimate": 30,
+    "comment": "Cost centers for financial allocation and budgeting",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "course_enrollments",
+    "row_estimate": 3052,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "course_enrollments_semantic",
+    "row_estimate": 20,
+    "comment": "Semantic context for course enrollments",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "course_esco_skills",
+    "row_estimate": 717,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "course_modules",
+    "row_estimate": 564,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "courses",
+    "row_estimate": 127,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "crawl_runs",
+    "row_estimate": 1,
+    "comment": "History of crawler executions",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "crawler_configs",
+    "row_estimate": 1,
+    "comment": "Job market crawler configurations per tenant",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "critical_roles",
+    "row_estimate": 16,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "cross_entity_relations",
+    "row_estimate": 85,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "cross_entity_searches",
+    "row_estimate": 0,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "dashboard_elements",
+    "row_estimate": 199,
+    "comment": "Phase 13.B — binding (dashboard_preset × widget × grid position × visibility). tenant_id NULL = platform default; tenant_id <uuid> = tenant override (P10).",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "dashboard_presets",
+    "row_estimate": 22,
+    "comment": "Phase 13.B — registry of mockup-derived dashboard preset templates (Tier 1 9 dashboard preset). Platform-wide; no tenant_id.",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "dashboard_widgets",
+    "row_estimate": 160,
+    "comment": "Individual widgets within dashboards",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "dashboards",
+    "row_estimate": 20,
+    "comment": "User/tenant dashboard configurations",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "data_retention_policies",
+    "row_estimate": 8,
+    "comment": "GDPR data retention policies configuration",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "data_subject_requests",
+    "row_estimate": 20,
+    "comment": "Tracking for GDPR data subject access requests",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "db_table_registry",
+    "row_estimate": 503,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "document_acknowledgments",
+    "row_estimate": 250,
+    "comment": "Employee acknowledgment of policy documents",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "document_comments",
+    "row_estimate": 15,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "document_locks",
+    "row_estimate": 0,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "document_requests",
+    "row_estimate": 15,
+    "comment": "Employee requests for HR-generated documents",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "document_versions",
+    "row_estimate": 24,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "embedding_queue",
+    "row_estimate": 1620,
+    "comment": "Asynchronous queue for embedding generation",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "employee_addresses",
+    "row_estimate": 283,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "employee_attendance",
+    "row_estimate": 5237,
+    "comment": "Daily attendance tracking for payroll",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "employee_bank_details",
+    "row_estimate": 211,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "employee_benefit_enrollments",
+    "row_estimate": 99,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "employee_benefits",
+    "row_estimate": 24,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "employee_career_paths",
+    "row_estimate": 128,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "employee_career_progress",
+    "row_estimate": 40,
+    "comment": "Tracks employee progress through career path levels",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "employee_certifications",
+    "row_estimate": 729,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "employee_clubs",
+    "row_estimate": 39,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "employee_contract_amendments",
+    "row_estimate": 322,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "employee_contracts",
+    "row_estimate": 269,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "employee_documents",
+    "row_estimate": 1089,
+    "comment": "Employee personal documents (contracts, payslips, certificates)",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "employee_emergency_contacts",
+    "row_estimate": 211,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "employee_job_assignments",
+    "row_estimate": 100,
+    "comment": "Links employees to tenant jobs",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "employee_kpi_targets",
+    "row_estimate": 412,
+    "comment": "Individual KPI targets for employees",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "employee_occupations",
+    "row_estimate": 266,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "employee_overtime",
+    "row_estimate": 383,
+    "comment": "Overtime records for payroll",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "employee_pay_stubs",
+    "row_estimate": 66,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "employee_permission_overrides",
+    "row_estimate": 10,
+    "comment": "Custom permission overrides for individual employees",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "employee_requests",
+    "row_estimate": 84,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "employee_skill_assessments",
+    "row_estimate": 3140,
+    "comment": "Skill assessments for employees with gap tracking",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "employee_skill_history",
+    "row_estimate": 312,
+    "comment": "Audit trail of skill profile changes",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "employee_skill_mappings",
+    "row_estimate": 1121,
+    "comment": "Employee skills mapped to ESCO taxonomy",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "employee_skill_profiles",
+    "row_estimate": 312,
+    "comment": "Employee skill profiles with KSABA dimension levels",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "employee_skills",
+    "row_estimate": 1445,
+    "comment": "Employee skills mapped to ESCO - Story 8.1",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "employee_time_off_balances",
+    "row_estimate": 501,
+    "comment": "Employee leave balances by type and year",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "employee_time_off_requests",
+    "row_estimate": 99,
+    "comment": "Leave requests with approval workflow",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "employee_timeline",
+    "row_estimate": 4641,
+    "comment": "Event sourcing per AI Talent Advisor. Ogni evento di carriera/skill/comp viene tracciato con embedding semantico per RAG retrieval.",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "employee_training_records",
+    "row_estimate": 320,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "employees_core",
+    "row_estimate": 270,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "employees_hr",
+    "row_estimate": 270,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "employees_payroll",
+    "row_estimate": 270,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "employees_pii",
+    "row_estimate": 270,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "employees_staging",
+    "row_estimate": 156,
+    "comment": "Working copy of employees for org chart modifications with change tracking",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "engagement_action_plans",
+    "row_estimate": 6,
+    "comment": "Action plans created from engagement insights",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "engagement_feedback",
+    "row_estimate": 685,
+    "comment": "Anonymous employee feedback submissions",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "engagement_pulse_configs",
+    "row_estimate": 3,
+    "comment": "Recurring pulse check configurations",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "engagement_survey_responses",
+    "row_estimate": 1327,
+    "comment": "Individual survey responses from employees",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "engagement_survey_templates",
+    "row_estimate": 20,
+    "comment": "Survey templates for reuse across surveys",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "engagement_surveys",
+    "row_estimate": 18,
+    "comment": "Survey instances distributed to employees",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "enrichment_candidates",
+    "row_estimate": 38,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "enrichment_entity_descriptors",
+    "row_estimate": 3,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "enrichment_extraction_schemas",
+    "row_estimate": 2,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "enrichment_job_events",
+    "row_estimate": 91,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "enrichment_jobs",
+    "row_estimate": 18,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "enrichment_lineage",
+    "row_estimate": 0,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "enrichment_llm_providers",
+    "row_estimate": 3,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "enrichment_matches",
+    "row_estimate": 0,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "enrichment_merge_policies",
+    "row_estimate": 2,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "enrichment_merges",
+    "row_estimate": 0,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "enrichment_observations",
+    "row_estimate": 0,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "enrichment_source_snapshots",
+    "row_estimate": 27,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "enrichment_sources",
+    "row_estimate": 31,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "enrichment_trust_rules",
+    "row_estimate": 10,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "enrichment_writes",
+    "row_estimate": 1,
+    "comment": "SEE Fase 6 — L4 write idempotency ledger. Unique on (tenant,target_table,target_record_id,field_name,fact_hash) so re-applying an identical fact is a no-op. Rollback is modelled via rolled_back_at/by, never DELETE.",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "equity_grants",
+    "row_estimate": -1,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "error_analytics_hourly",
+    "row_estimate": 0,
+    "comment": "Hourly aggregated error metrics for dashboards",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "error_logs",
+    "row_estimate": 0,
+    "comment": "Centralized error logging for all application errors",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "error_patterns",
+    "row_estimate": 0,
+    "comment": "Detected error patterns and anomalies",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "esco_isco_groups",
+    "row_estimate": 14,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "esco_occupation_skills",
+    "row_estimate": 126051,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "esco_occupations",
+    "row_estimate": 3040,
+    "comment": "ESCO taxonomy occupations cache - Story 8.1",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "esco_skill_groups",
+    "row_estimate": 10,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "esco_skill_relations",
+    "row_estimate": 5818,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "esco_skills",
+    "row_estimate": 14011,
+    "comment": "ESCO taxonomy skills cache - Story 8.1",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "export_configurations",
+    "row_estimate": 15,
+    "comment": "Data export configurations",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "export_jobs",
+    "row_estimate": 45,
+    "comment": "Data export job tracking",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "ext_hrp1007",
+    "row_estimate": 0,
+    "comment": "Extension table for HRP1007 - Modern job requisition fields",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "ext_pa0002",
+    "row_estimate": 1064,
+    "comment": "Extension table for PA0002 - Application-specific employee data",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "ext_pa0024",
+    "row_estimate": 18272,
+    "comment": "Extension table for PA0024 - Additional skill attributes",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "ext_pa0025",
+    "row_estimate": 0,
+    "comment": "Extension table for PA0025 - Granular performance ratings",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "ext_pb0002",
+    "row_estimate": 0,
+    "comment": "Extension table for PB0002 - Modern recruiting fields",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "extracted_skills",
+    "row_estimate": 0,
+    "comment": "Skills extracted from job postings",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "feature_categories",
+    "row_estimate": 13,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "feature_modules",
+    "row_estimate": 99,
+    "comment": "Platform feature modules for RBAC permission mapping",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "features",
+    "row_estimate": 104,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "feedback_360",
+    "row_estimate": 714,
+    "comment": "Multi-rater feedback from various sources",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "feedback_360_peer_suggestions",
+    "row_estimate": 20,
+    "comment": "Algorithm-suggested and selected peers for 360 feedback",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "feedback_360_questionnaires",
+    "row_estimate": 4,
+    "comment": "Customizable questionnaire templates for 360 feedback",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "feedback_360_questions",
+    "row_estimate": 28,
+    "comment": "Individual questions within a 360 questionnaire",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "feedback_categories",
+    "row_estimate": 32,
+    "comment": "Configurable categories for continuous feedback",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "feedback_requests",
+    "row_estimate": 246,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "feedback_responses",
+    "row_estimate": 0,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "goal_alignments",
+    "row_estimate": 100,
+    "comment": "Links between goals for strategic alignment tracking",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "goal_check_ins",
+    "row_estimate": 1000,
+    "comment": "Progress check-ins for goals tracking progress over time",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "goal_comments",
+    "row_estimate": 856,
+    "comment": "Discussion threads on goals",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "goal_milestones",
+    "row_estimate": 1000,
+    "comment": "Key checkpoints for goal completion",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "goal_review_ratings",
+    "row_estimate": 155,
+    "comment": "Individual goal ratings during performance review for both self and manager assessment",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "goal_templates",
+    "row_estimate": 40,
+    "comment": "Goal library with reusable goal templates for quick goal creation",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "goal_updates",
+    "row_estimate": 1811,
+    "comment": "History of goal progress and status updates",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "goals",
+    "row_estimate": 1068,
+    "comment": "Employee goals and objectives with hierarchical support",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "heuresys_sap_mapping",
+    "row_estimate": 21,
+    "comment": "Mapping table between Heuresys (source of truth) and SAP (import/export only) fields",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "holidays",
+    "row_estimate": 144,
+    "comment": "Public and company holidays calendar",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "hrp1000",
+    "row_estimate": 320,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "hrp1001",
+    "row_estimate": 164,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "hrp1002",
+    "row_estimate": 15,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "hrp1003",
+    "row_estimate": 0,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "hrp1005",
+    "row_estimate": 34,
+    "comment": "Planned Compensation - SAP Infotype 1005",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "hrp1006",
+    "row_estimate": 0,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "hrp1007",
+    "row_estimate": 0,
+    "comment": "Vacancy Status - SAP Infotype 1007",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "hrp1008",
+    "row_estimate": 0,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "hrp1010",
+    "row_estimate": 0,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "hrp1011",
+    "row_estimate": 0,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "hrp1013",
+    "row_estimate": 0,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "hrp1014",
+    "row_estimate": 0,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "hrp1035",
+    "row_estimate": 400,
+    "comment": "SAP HRP1035: Qualification Profile - position/job skill requirements",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "hrp1036",
+    "row_estimate": 200,
+    "comment": "SAP HRP1036: Qualification Catalog - master skill/competency catalog",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "hrp5001",
+    "row_estimate": 6,
+    "comment": "SAP HRP5001: Appraisal Templates - performance review templates",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "hrp5002",
+    "row_estimate": 0,
+    "comment": "SAP HRP5002: Appraisal Criteria - evaluation criteria",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "hrpdev1",
+    "row_estimate": 200,
+    "comment": "SAP HRPDEV1: Succession Planning - successor candidates",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "import_jobs",
+    "row_estimate": 2,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "import_skill_links",
+    "row_estimate": 0,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "industry_ccnl_mapping",
+    "row_estimate": 14,
+    "comment": "Maps NACE industry classification codes to the primary CCNL that applies to employees of tenants in that sector. Data-driven per P9.",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "industry_classifications",
+    "row_estimate": 3276,
+    "comment": "Tassonomia unificata NACE Rev.2.1 (livelli 1-4) + ATECO 2025 (livelli 5-6). I codici ai livelli 1-4 sono identici tra NACE e ATECO per regolamento UE.",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "industry_occupation_mapping",
+    "row_estimate": 15,
+    "comment": "Maps NACE industries to typical ESCO occupations with workforce distribution data",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "industry_profiles",
+    "row_estimate": 8,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "integration_sync_logs",
+    "row_estimate": 100,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "integrations",
+    "row_estimate": 20,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "internal_applications",
+    "row_estimate": 72,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "internal_job_alerts",
+    "row_estimate": 36,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "internal_job_bookmarks",
+    "row_estimate": 48,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "internal_job_postings",
+    "row_estimate": 10,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "internal_job_views",
+    "row_estimate": 217,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "internal_mobility_postings",
+    "row_estimate": 27,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "internal_mobility_requests",
+    "row_estimate": 15,
+    "comment": "Internal mobility and transfer requests",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "interview_feedback",
+    "row_estimate": 56,
+    "comment": "Interview feedback with semantic search capability",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "interviews",
+    "row_estimate": 120,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "job_analysis",
+    "row_estimate": 15,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "job_evaluations",
+    "row_estimate": 15,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "job_families",
+    "row_estimate": 27,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "job_kpi_distribution",
+    "row_estimate": 30,
+    "comment": "Distribution of org unit KPIs to job roles",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "job_kpis",
+    "row_estimate": 2000,
+    "comment": "Key Performance Indicators for a job template",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "job_market_postings",
+    "row_estimate": 20,
+    "comment": "Crawled job market data - Story 8.2",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "job_market_sources",
+    "row_estimate": 12,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "job_market_statistics",
+    "row_estimate": 192,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "job_postings",
+    "row_estimate": 20,
+    "comment": "Job postings for internal and external recruiting",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "job_postings_raw",
+    "row_estimate": 8,
+    "comment": "Raw job posting data from crawlers",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "job_qualifications",
+    "row_estimate": 1500,
+    "comment": "Required qualifications for a job template",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "job_skills",
+    "row_estimate": 2000,
+    "comment": "Required skills for a job template with ESCO integration",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "job_task_distribution",
+    "row_estimate": 24,
+    "comment": "Distribution of org unit tasks to job roles",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "job_tasks",
+    "row_estimate": 2000,
+    "comment": "Typical tasks/activities for a job template",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "job_template_skills",
+    "row_estimate": 28983,
+    "comment": "Skill richieste per ogni job template. Seed da ESCO occupation_skills + tenant overrides. Usato da AI per match candidate→role e gap analysis.",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "job_templates",
+    "row_estimate": 140,
+    "comment": "Job/position templates linked to org units or profiles",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "job_title_courses",
+    "row_estimate": 207,
+    "comment": "Mapping ruolo → corsi consigliati/obbligatori. Usato per assegnazione automatica enrollments per CCNL 24h formazione annua.",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "job_title_learning_paths",
+    "row_estimate": 0,
+    "comment": "Mapping ruolo → percorso formativo di carriera. Collega job_title a learning_paths per suggerimenti AI.",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "key_results",
+    "row_estimate": 20,
+    "comment": "Measurable outcomes tied to OKR objectives",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "kg_edges",
+    "row_estimate": 139451,
+    "comment": "ESKAP: Knowledge Graph edges (relations skill↔skill, skill↔occupation, employee↔skill, role↔process).",
+    "rls_enabled": true,
+    "rls_forced": false
+  },
+  {
+    "table_name": "kg_nodes",
+    "row_estimate": 17260,
+    "comment": "ESKAP: Knowledge Graph nodes (ESCO catalog NULL tenant + tenant projection per employees/roles/processes/skills).",
+    "rls_enabled": true,
+    "rls_forced": false
+  },
+  {
+    "table_name": "learning_bookmarks",
+    "row_estimate": 43,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "learning_content_providers",
+    "row_estimate": 12,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "learning_path_courses",
+    "row_estimate": 124,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "learning_path_enrollments",
+    "row_estimate": 341,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "learning_paths",
+    "row_estimate": 20,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "learning_ratings",
+    "row_estimate": 396,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "learning_recommendations",
+    "row_estimate": 1045,
+    "comment": "AI-generated learning recommendations for employees",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "leave_accrual_rules",
+    "row_estimate": 20,
+    "comment": "Configurable leave accrual rules per tenant/CCNL",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "leave_approval_steps",
+    "row_estimate": 89,
+    "comment": "Multi-step approval workflow for leave requests",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "leave_balance_transactions",
+    "row_estimate": 27,
+    "comment": "Audit log for all balance changes",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "locations",
+    "row_estimate": 34,
+    "comment": "Physical locations: headquarters, branches, offices, warehouses, factories",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "login_attempts",
+    "row_estimate": 7,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "market_benchmarks",
+    "row_estimate": 32,
+    "comment": "Market benchmark data",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "market_salary_data",
+    "row_estimate": 84,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "medical_certificates",
+    "row_estimate": 44,
+    "comment": "Medical certificates for sick leave validation",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "mentor_match_scores",
+    "row_estimate": 30,
+    "comment": "AI-calculated mentor match scores based on skill gap and strengths",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "mentorship_programs",
+    "row_estimate": 12,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "mentorship_sessions",
+    "row_estimate": 355,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "mentorships",
+    "row_estimate": 124,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "merit_cycles",
+    "row_estimate": 53,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "merit_recommendations",
+    "row_estimate": 208,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "model_predictions",
+    "row_estimate": 267,
+    "comment": "Model predictions storage",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "module_completions",
+    "row_estimate": 2899,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "news_article_tags",
+    "row_estimate": 19,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "news_articles",
+    "row_estimate": 32,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "news_bookmarks",
+    "row_estimate": 15,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "news_categories",
+    "row_estimate": 20,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "news_comments",
+    "row_estimate": 422,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "news_reactions",
+    "row_estimate": 780,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "news_reads",
+    "row_estimate": 1139,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "news_tags",
+    "row_estimate": 8,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "notification_preferences",
+    "row_estimate": 266,
+    "comment": "User preferences for notification delivery",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "notifications",
+    "row_estimate": 238,
+    "comment": "In-app notification storage for HR platform events",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "occupation_industry_classifications",
+    "row_estimate": 4565,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "okr_check_ins",
+    "row_estimate": 15,
+    "comment": "Check-ins for OKR key results tracking value changes over time",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "okr_checkins",
+    "row_estimate": 10,
+    "comment": "Regular progress updates for OKRs",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "okrs",
+    "row_estimate": 20,
+    "comment": "Objectives and Key Results for strategic alignment",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "onboarding_checklist",
+    "row_estimate": 40,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "onboarding_documents",
+    "row_estimate": 12,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "onboarding_instances",
+    "row_estimate": 4,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "onboarding_tasks",
+    "row_estimate": 127,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "onboarding_template_tasks",
+    "row_estimate": 16,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "onboarding_templates",
+    "row_estimate": 14,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "onet_abilities",
+    "row_estimate": 15,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "onet_esco_mappings",
+    "row_estimate": 135,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "onet_import_jobs",
+    "row_estimate": 0,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "onet_knowledge",
+    "row_estimate": 20,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "onet_occupation_abilities",
+    "row_estimate": 215,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "onet_occupation_knowledge",
+    "row_estimate": 279,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "onet_occupation_skills",
+    "row_estimate": 71,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "onet_occupation_work_activities",
+    "row_estimate": 218,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "onet_occupations",
+    "row_estimate": 25,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "onet_skills",
+    "row_estimate": 35,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "onet_work_activities",
+    "row_estimate": 15,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "ontology_categories",
+    "row_estimate": 9,
+    "comment": "Hierarchical categories for ontology skill organization",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "ontology_embedding_jobs",
+    "row_estimate": 1,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "ontology_feedback",
+    "row_estimate": 52,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "ontology_inference_jobs",
+    "row_estimate": 0,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "ontology_quality_metrics",
+    "row_estimate": 50,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": true
+  },
+  {
+    "table_name": "ontology_skill_dimensions",
+    "row_estimate": 25,
+    "comment": "KSABA (Knowledge, Skill, Ability, Behavior, Attitude) dimensions for each skill",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "ontology_skill_relations",
+    "row_estimate": 30,
+    "comment": "Semantic relations between skills for ontology reasoning",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "ontology_source_mappings",
+    "row_estimate": 40,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "org_areas",
+    "row_estimate": 8,
+    "comment": "Standard organizational areas with cost center series (1000-8000)",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "org_chart_generation_sessions",
+    "row_estimate": 3,
+    "comment": "Tracks org chart generation sessions with AI prompts, responses, and generated structures",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "org_chart_snapshots",
+    "row_estimate": 3,
+    "comment": "JSON snapshots of org charts for export (Tree, Excalidraw, etc.)",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "org_chart_templates",
+    "row_estimate": 9,
+    "comment": "Org chart templates linked to company profiles",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "org_levels",
+    "row_estimate": 7,
+    "comment": "Standard organizational levels (0=Board to 6=Staff)",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "org_prototype_rules",
+    "row_estimate": 4,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "org_prototype_templates",
+    "row_estimate": 36,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "org_scenarios",
+    "row_estimate": 2,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "org_templates",
+    "row_estimate": 7,
+    "comment": "Pre-computed organizational templates by industry and company size",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "org_unit_kpis",
+    "row_estimate": 100,
+    "comment": "KPIs associated with org unit templates",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "org_unit_process_mapping",
+    "row_estimate": 12,
+    "comment": "Maps org unit templates to business processes with responsibility levels",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "org_unit_tasks",
+    "row_estimate": 100,
+    "comment": "Extended tasks associated with org unit templates",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "org_unit_templates",
+    "row_estimate": 225,
+    "comment": "Organizational units within a template (hierarchical)",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "org_units",
+    "row_estimate": 76,
+    "comment": "Hierarchical organizational units: divisions, directions, departments, offices, teams",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "pa0000",
+    "row_estimate": 1142,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pa0001",
+    "row_estimate": 1774,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pa0002",
+    "row_estimate": 1458,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pa0003",
+    "row_estimate": 1142,
+    "comment": "SAP PA0003: Payroll Status",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pa0005",
+    "row_estimate": 1142,
+    "comment": "SAP PA0005: Leave Entitlement rules",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pa0006",
+    "row_estimate": 1142,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pa0007",
+    "row_estimate": 1142,
+    "comment": "Planned Working Time - SAP Infotype 0007",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pa0008",
+    "row_estimate": 1142,
+    "comment": "Basic Pay - SAP Infotype 0008",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pa0009",
+    "row_estimate": 1134,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pa0014",
+    "row_estimate": 1142,
+    "comment": "SAP PA0014: Recurring Payments/Deductions",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pa0015",
+    "row_estimate": 912,
+    "comment": "SAP PA0015: Additional Payments - one-time",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pa0016",
+    "row_estimate": 1142,
+    "comment": "Contract Elements - SAP Infotype 0016",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pa0017",
+    "row_estimate": 1142,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pa0019",
+    "row_estimate": 1142,
+    "comment": "SAP PA0019: Monitoring of Dates",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pa0021",
+    "row_estimate": 1530,
+    "comment": "Family Members/Dependents - SAP Infotype 0021",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pa0022",
+    "row_estimate": 1138,
+    "comment": "Education - SAP Infotype 0022 with ESCO extension",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pa0024",
+    "row_estimate": 9640,
+    "comment": "Qualifications - SAP Infotype 0024 with ESCO extension",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pa0025",
+    "row_estimate": 264,
+    "comment": "Appraisals - SAP Infotype 0025",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pa0027",
+    "row_estimate": 1142,
+    "comment": "SAP PA0027: Cost Distribution",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pa0032",
+    "row_estimate": 1142,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pa0041",
+    "row_estimate": 1142,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pa0105",
+    "row_estimate": 2598,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pa0167",
+    "row_estimate": 1142,
+    "comment": "SAP PA0167: Health Plans - medical/dental/vision",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pa0168",
+    "row_estimate": 1142,
+    "comment": "SAP PA0168: Insurance Plans - life/disability",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pa0169",
+    "row_estimate": 1142,
+    "comment": "SAP PA0169: Savings Plans - 401k/pension",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pa0170",
+    "row_estimate": 1142,
+    "comment": "SAP PA0170: Spending Accounts - FSA/HSA",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pa0171",
+    "row_estimate": 1142,
+    "comment": "SAP PA0171: General Benefits - misc benefits",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pa0185",
+    "row_estimate": 2268,
+    "comment": "Personal IDs - SAP Infotype 0185",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pa2000",
+    "row_estimate": 1142,
+    "comment": "SAP Infotype 2000: Planned Working Time - defines work schedule rules",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pa2001",
+    "row_estimate": 1444,
+    "comment": "SAP Infotype 2001: Absences - vacation, sick leave, other absences",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pa2002",
+    "row_estimate": 6072,
+    "comment": "SAP Infotype 2002: Attendances - overtime, work attendance records",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pa2003",
+    "row_estimate": 0,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pa2004",
+    "row_estimate": 0,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pa2005",
+    "row_estimate": 5358,
+    "comment": "SAP Infotype 2005: Overtime - specific overtime tracking with multipliers",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pa2006",
+    "row_estimate": 3426,
+    "comment": "SAP Infotype 2006: Absence Quotas - leave entitlements and balances",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pa2007",
+    "row_estimate": 1142,
+    "comment": "SAP Infotype 2007: Attendance Quotas - compensatory time balances",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pa2010",
+    "row_estimate": 0,
+    "comment": "SAP Infotype 2010: Employee Remuneration Info - time-based wage types",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pa2011",
+    "row_estimate": 0,
+    "comment": "SAP Infotype 2011: Time Events - clock in/out records",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pa2012",
+    "row_estimate": 0,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pa2013",
+    "row_estimate": 0,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "page_table_relations",
+    "row_estimate": 300,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "page_table_sync_log",
+    "row_estimate": 45,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "payroll_anomaly_patterns",
+    "row_estimate": 0,
+    "comment": "Anomaly detection patterns for payroll data",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "payroll_export_employees",
+    "row_estimate": 0,
+    "comment": "Per-employee details for each payroll export",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "payroll_export_files",
+    "row_estimate": 0,
+    "comment": "Generated export files storage",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "payroll_export_jobs",
+    "row_estimate": 1,
+    "comment": "Payroll export job tracking and status",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "payroll_field_mappings",
+    "row_estimate": 46,
+    "comment": "Field mappings for payroll export formats",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "payroll_integrations",
+    "row_estimate": 1,
+    "comment": "Payroll provider integration configurations (Zucchetti, TeamSystem, etc.)",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "payroll_transmission_log",
+    "row_estimate": 0,
+    "comment": "Transmission log for payroll exports",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "payroll_validation_rules",
+    "row_estimate": 11,
+    "comment": "Validation rules for payroll export",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "pb0001",
+    "row_estimate": 1000,
+    "comment": "SAP PB0001: Applicant Actions - recruitment lifecycle",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pb0002",
+    "row_estimate": 1010,
+    "comment": "SAP PB0002: Applicant Personal Data",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pb0003",
+    "row_estimate": 0,
+    "comment": "SAP PB0003: Applicant Address",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pb0022",
+    "row_estimate": 1600,
+    "comment": "SAP PB0022: Applicant Education",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pb0024",
+    "row_estimate": 2400,
+    "comment": "SAP PB0024: Applicant Qualifications with ESCO",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pb4000",
+    "row_estimate": 2000,
+    "comment": "SAP PB4000: Applicant Activities - interviews and assessments",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pb4001",
+    "row_estimate": 2000,
+    "comment": "SAP PB4001: Vacancy Assignment - applicant to requisition",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pb4005",
+    "row_estimate": 2000,
+    "comment": "SAP PB4005: Applicant Evaluation - structured assessment",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pcl1",
+    "row_estimate": 0,
+    "comment": "SAP PCL1: Payroll Cluster 1 - time evaluation results",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "pcl2",
+    "row_estimate": 12562,
+    "comment": "SAP PCL2: Payroll Cluster 2 - payroll calculation results",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "performance_predictions",
+    "row_estimate": 267,
+    "comment": "Performance prediction scores",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "performance_review_templates",
+    "row_estimate": 4,
+    "comment": "Configurable templates for performance reviews with sections and rating scales",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "performance_reviews",
+    "row_estimate": 292,
+    "comment": "Individual performance review records",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "performance_skill_links",
+    "row_estimate": 150,
+    "comment": "Links between performance review competencies and skill development actions",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "performance_trends",
+    "row_estimate": 202,
+    "comment": "Pre-computed performance trend summaries with semantic embeddings",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "permission_overrides",
+    "row_estimate": 10,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "permissions",
+    "row_estimate": 184,
+    "comment": "Granular CRUD permissions for each feature module",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "platform_features",
+    "row_estimate": 77,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "platform_pages",
+    "row_estimate": 154,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "plugin_api_keys",
+    "row_estimate": 1,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "plugin_categories",
+    "row_estimate": 10,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "plugin_configurations",
+    "row_estimate": 0,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "plugin_dependencies",
+    "row_estimate": 1,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "plugin_hook_executions",
+    "row_estimate": 0,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "plugin_hooks",
+    "row_estimate": 0,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "plugin_installations",
+    "row_estimate": 2,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "plugin_reviews",
+    "row_estimate": 0,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "plugin_ui_slots",
+    "row_estimate": 0,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "plugin_versions",
+    "row_estimate": 7,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "plugin_webhook_deliveries",
+    "row_estimate": 0,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "plugin_webhooks",
+    "row_estimate": 0,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "plugins",
+    "row_estimate": 7,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "position_skill_requirements",
+    "row_estimate": 1632,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "preboarding_equipment",
+    "row_estimate": 95,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "preboarding_notifications",
+    "row_estimate": 60,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "preboarding_sessions",
+    "row_estimate": 30,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "preboarding_tasks",
+    "row_estimate": 180,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "preboarding_templates",
+    "row_estimate": 4,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "preboarding_welcome_content",
+    "row_estimate": 6,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "prediction_actions",
+    "row_estimate": 15,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "prediction_factors",
+    "row_estimate": 13,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "prediction_model_accuracy",
+    "row_estimate": 0,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "predictive_models",
+    "row_estimate": 16,
+    "comment": "ML model registry for predictive analytics",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "process_cost_centers",
+    "row_estimate": 9,
+    "comment": "Cost centers associated with business processes",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "process_kpis",
+    "row_estimate": 69,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "process_phases",
+    "row_estimate": 63,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "process_roles",
+    "row_estimate": 61,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "process_skill_requirements",
+    "row_estimate": 92,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "pulse_checks",
+    "row_estimate": 1145,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "rag_document_chunks",
+    "row_estimate": 0,
+    "comment": "Document chunks for RAG retrieval with embeddings",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "rag_documents",
+    "row_estimate": 24,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "rag_knowledge_bases",
+    "row_estimate": 0,
+    "comment": "Knowledge base categories for organizing documents",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "rag_messages",
+    "row_estimate": 118,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "rag_provider_keys",
+    "row_estimate": 9,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "rag_sessions",
+    "row_estimate": 30,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "rag_usage_stats",
+    "row_estimate": 248,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "rating_scales",
+    "row_estimate": 4,
+    "comment": "Configurable rating scales for performance assessment",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "rbp_area_perspectives",
+    "row_estimate": 47,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "rbp_dashboard_nav_items",
+    "row_estimate": 279,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "rbp_dashboards",
+    "row_estimate": 11,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "rbp_data_classifications",
+    "row_estimate": 5,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "rbp_field_classifications",
+    "row_estimate": 30,
+    "comment": "Data-driven field classification (P9). Replaces FIELD_CLASSIFICATION_REGISTRY in field-policy.ts. Rows with tenant_id NULL are platform defaults; tenant rows override.",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "rbp_field_policies",
+    "row_estimate": 40,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "rbp_functional_areas",
+    "row_estimate": 34,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "rbp_pages",
+    "row_estimate": 170,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "rbp_perspectives",
+    "row_estimate": 3,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "rbp_role_dashboards",
+    "row_estimate": 23,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "rbp_role_permissions",
+    "row_estimate": 179,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "rbp_roles",
+    "row_estimate": 8,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "rbp_scope_rules",
+    "row_estimate": 8,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "rbp_section_translations",
+    "row_estimate": 44,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "rbp_sections",
+    "row_estimate": 22,
+    "comment": "Data-driven registry of sidebar navigation sections. Platform defaults (tenant_id NULL) with optional tenant overrides.",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "rbp_team_leaders",
+    "row_estimate": 4,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "rbp_team_members",
+    "row_estimate": 11,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "rbp_teams",
+    "row_estimate": 7,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "recognition",
+    "row_estimate": 485,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "recruiting_candidate_history",
+    "row_estimate": 213,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "recruiting_candidates",
+    "row_estimate": 86,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "recruiting_interview_participants",
+    "row_estimate": 231,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "recruiting_interview_templates",
+    "row_estimate": 12,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "recruiting_interviewer_availability",
+    "row_estimate": 80,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "recruiting_interviews",
+    "row_estimate": 77,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "recruiting_offers",
+    "row_estimate": 30,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "recruiting_requisitions",
+    "row_estimate": 24,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "regulatory_frameworks",
+    "row_estimate": -1,
+    "comment": "PROGOV: catalog regulatory frameworks (PSD2/MiFID II/AML5/Basel III/GDPR/...). Platform-default catalog.",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "report_definitions",
+    "row_estimate": 6,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "report_delivery_log",
+    "row_estimate": 108,
+    "comment": "Log of report deliveries",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "report_executions",
+    "row_estimate": 60,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "report_schedules",
+    "row_estimate": 6,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "report_subscriptions",
+    "row_estimate": 54,
+    "comment": "User subscriptions to scheduled reports",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "requisitions",
+    "row_estimate": 50,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "review_cycle_notifications",
+    "row_estimate": 25,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "review_cycle_participants",
+    "row_estimate": 250,
+    "comment": "Employees participating in a review cycle with phase tracking",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "review_cycle_phases",
+    "row_estimate": 20,
+    "comment": "Configurable phases for each review cycle",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "review_cycles",
+    "row_estimate": 35,
+    "comment": "Performance review cycle definitions and configuration",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "roadmap_phases",
+    "row_estimate": 7,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "role_default_dashboards",
+    "row_estimate": 8,
+    "comment": "Role → preset_code assignment. tenant_id NULL = platform default; non-null = tenant override. Resolver picks tenant override first, falls back to platform.",
+    "rls_enabled": true,
+    "rls_forced": false
+  },
+  {
+    "table_name": "role_permissions",
+    "row_estimate": 20,
+    "comment": "Mapping of RBAC roles to permissions with scope",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "role_skill_requirements",
+    "row_estimate": 90,
+    "comment": "Skill requirements for job roles with KSABA dimensions",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "salary_band_assignments",
+    "row_estimate": 238,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "salary_bands",
+    "row_estimate": 23,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "salary_history",
+    "row_estimate": 317,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "sap_config",
+    "row_estimate": 49,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "sap_delta_sync_log",
+    "row_estimate": 0,
+    "comment": "Delta synchronization history",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "sap_employee_mapping",
+    "row_estimate": 0,
+    "comment": "PERNR to Employee ID mapping for sync",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "sap_infotype_mappings",
+    "row_estimate": 0,
+    "comment": "Field mappings from SAP infotypes to Heuresys tables",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "sap_migration_jobs",
+    "row_estimate": 0,
+    "comment": "SAP HCM data migration job tracking",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "sap_migration_rollback_log",
+    "row_estimate": 0,
+    "comment": "Rollback log for migration operations",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "sap_staged_data",
+    "row_estimate": 0,
+    "comment": "Staging area for parsed SAP data before import",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "saved_jobs",
+    "row_estimate": 18,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "schema_migrations",
+    "row_estimate": 214,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "self_assessment_evidence",
+    "row_estimate": 237,
+    "comment": "Evidence attachments for self-assessment: documents, links, certifications, achievements",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "self_reviews",
+    "row_estimate": 30,
+    "comment": "Employee self-assessments for performance reviews",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "semantic_entity_index",
+    "row_estimate": 4115,
+    "comment": "Unified semantic index for cross-entity search across all HR entities",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "semantic_entity_relations",
+    "row_estimate": 15,
+    "comment": "Graph of relationships between semantic entities for traversal queries",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "semantic_search_log",
+    "row_estimate": 7,
+    "comment": "Analytics log for semantic search queries",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "service_config",
+    "row_estimate": 33,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "session",
+    "row_estimate": 0,
+    "comment": "NextAuth/Auth.js server-side sessions. Cross-tenant. Cleanup: DELETE WHERE expires < now().",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "signature_recipients",
+    "row_estimate": 72,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "signature_requests",
+    "row_estimate": 24,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "sindacati",
+    "row_estimate": -1,
+    "comment": "ITLAB: catalogo nazionale italiano sindacati (confederazioni CGIL/CISL/UIL/UGL + federazioni di categoria).",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "sindacato_tenant_links",
+    "row_estimate": -1,
+    "comment": "ITLAB: sindacati attivi presso il tenant (RSU/RSA presenti). is_active flag per stato corrente.",
+    "rls_enabled": true,
+    "rls_forced": false
+  },
+  {
+    "table_name": "skill_adjacencies",
+    "row_estimate": 11634,
+    "comment": "Skill adjacency scores for career path analysis",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "skill_aliases",
+    "row_estimate": 80,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "skill_classifications",
+    "row_estimate": 7215,
+    "comment": "Extended classifications for ESCO skills (hard/soft, cognitive level, social dimension, transferability)",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "skill_clusters",
+    "row_estimate": 49,
+    "comment": "Skill families and groups for organizing ESCO skills",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "skill_demand_metrics",
+    "row_estimate": 200,
+    "comment": "Aggregated market skill demand",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "skill_development_paths",
+    "row_estimate": 65,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "skill_extraction_jobs",
+    "row_estimate": 31,
+    "comment": "Skill extraction processing - Story 8.3",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "skill_gap_analyses",
+    "row_estimate": 304,
+    "comment": "Skill gap analysis reports - Story 8.4",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "skill_gap_snapshots",
+    "row_estimate": 36,
+    "comment": "Skill gap analysis snapshots",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "skill_matrices",
+    "row_estimate": 4,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "skill_migration_jobs",
+    "row_estimate": 0,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "skill_pair_usage",
+    "row_estimate": 111,
+    "comment": "Tracks skill pairs used together for complementary skill suggestions",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "skill_relationships",
+    "row_estimate": 16,
+    "comment": "Relationships between skills (prerequisite, complementary, substitution, etc.)",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "skill_requirements_templates",
+    "row_estimate": 8,
+    "comment": "Reusable skill requirement templates for workforce planning",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "skill_supply_metrics",
+    "row_estimate": 200,
+    "comment": "Aggregated internal skill supply",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "skill_synonyms",
+    "row_estimate": 50,
+    "comment": "Skill variations for extraction matching",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "skill_taxonomy_extensions",
+    "row_estimate": 52,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "social_comments",
+    "row_estimate": 20,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "social_likes",
+    "row_estimate": 48,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "social_posts",
+    "row_estimate": 20,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "sso_configurations",
+    "row_estimate": 4,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "sso_login_attempts",
+    "row_estimate": 48,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "succession_candidates",
+    "row_estimate": 188,
+    "comment": "Candidates for succession positions with readiness assessment",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "succession_plans",
+    "row_estimate": 28,
+    "comment": "Succession planning for critical positions",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "survey_questions",
+    "row_estimate": 31,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "survey_responses",
+    "row_estimate": 4482,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "survey_templates",
+    "row_estimate": 9,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "surveys",
+    "row_estimate": 11,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "sync_field_mapping",
+    "row_estimate": 10,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "sync_log",
+    "row_estimate": 3,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "sync_queue",
+    "row_estimate": 522,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "t001p",
+    "row_estimate": 9,
+    "comment": "Personnel Subareas - SAP T001P equivalent",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "t005",
+    "row_estimate": 10,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "t005s",
+    "row_estimate": 16,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "t005t",
+    "row_estimate": 15,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "t500c",
+    "row_estimate": 9,
+    "comment": "Company Codes - SAP T500C equivalent",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "t500p",
+    "row_estimate": 9,
+    "comment": "Personnel Areas - SAP T500P equivalent",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "t503",
+    "row_estimate": 6,
+    "comment": "Employee Groups - SAP T503 equivalent",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "t503k",
+    "row_estimate": 12,
+    "comment": "Employee Subgroups - SAP T503K equivalent",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "t510",
+    "row_estimate": 0,
+    "comment": "SAP T510: Pay Scale Groups - salary table",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "t510a",
+    "row_estimate": 9,
+    "comment": "SAP T510A: Pay Scale Areas",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "t510g",
+    "row_estimate": 0,
+    "comment": "SAP T510G: Pay Scale Groups Text",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "t512w",
+    "row_estimate": 17,
+    "comment": "SAP T512W: Wage Types master table",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "t513",
+    "row_estimate": 69,
+    "comment": "Jobs Catalog - SAP T513 equivalent with ESCO extension",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "t527x",
+    "row_estimate": 91,
+    "comment": "Organizational Units - SAP T527X equivalent",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "t528b",
+    "row_estimate": 70,
+    "comment": "Positions - SAP T528B equivalent",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "t529a",
+    "row_estimate": 10,
+    "comment": "Action Types - SAP T529A equivalent",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "t529g",
+    "row_estimate": 15,
+    "comment": "Action Reasons - SAP T529G equivalent",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "t549a",
+    "row_estimate": 5,
+    "comment": "SAP T549A: Payroll Areas",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "t549q",
+    "row_estimate": 12,
+    "comment": "SAP T549Q: Payroll Periods - pay period calendar",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "t5ubp",
+    "row_estimate": 8,
+    "comment": "SAP T5UBP: Benefit Plans Master configuration",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "t771q",
+    "row_estimate": 50,
+    "comment": "SAP T771Q: Qualification Master configuration",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "table_usage_rules",
+    "row_estimate": 38,
+    "comment": "Defines which tables can be used for platform operations vs SAP sync only",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "talent_pool_members",
+    "row_estimate": 40,
+    "comment": "Employee membership in talent pools",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "talent_pools",
+    "row_estimate": 24,
+    "comment": "Talent pool definitions for employee segmentation",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "tenant_ccnl_links",
+    "row_estimate": -1,
+    "comment": "ITLAB: associazione tenant ↔ CCNL applicato (storico via effective_from/to). is_primary flag per CCNL principale.",
+    "rls_enabled": true,
+    "rls_forced": false
+  },
+  {
+    "table_name": "tenant_custom_skills",
+    "row_estimate": 25,
+    "comment": "Tenant-specific custom skills that extend the base ontology",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "tenant_industry_classifications",
+    "row_estimate": 4,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "tenant_job_kpis",
+    "row_estimate": 80,
+    "comment": "Tenant-owned job KPIs (copied or custom)",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "tenant_job_skills",
+    "row_estimate": 160,
+    "comment": "Tenant-owned job skills (copied or custom)",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "tenant_job_tasks",
+    "row_estimate": 100,
+    "comment": "Tenant-owned job tasks (copied or custom)",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "tenant_jobs",
+    "row_estimate": 20,
+    "comment": "Tenant-owned jobs (copied from templates, customizable)",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "tenant_onboarding_profiles",
+    "row_estimate": 4,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "tenant_org_charts",
+    "row_estimate": 4,
+    "comment": "Tenant-owned org charts (copied from templates)",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "tenant_org_units",
+    "row_estimate": 47,
+    "comment": "Tenant-owned org units (customizable)",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "tenant_regulatory_compliance",
+    "row_estimate": -1,
+    "comment": "PROGOV: tenant ↔ regulatory framework applicability + compliance status + certification cycle.",
+    "rls_enabled": true,
+    "rls_forced": false
+  },
+  {
+    "table_name": "tenant_retirement_rules",
+    "row_estimate": 4,
+    "comment": "Tenant/country specific retirement rules used to compute expected end-date for permanent contracts.",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "tenant_revenue_periods",
+    "row_estimate": 0,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "tenant_sap_mapping",
+    "row_estimate": 9,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "tenant_schema_version",
+    "row_estimate": 4,
+    "comment": "Per ADR-0017: tracks tenant ontology version (append-only, history preserved). Current version = MAX(version) per tenant.",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "tenant_skill_dimensions",
+    "row_estimate": 75,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "tenants",
+    "row_estimate": 4,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "tenants_books",
+    "row_estimate": 4,
+    "comment": "Company registry and organizational profile data for each tenant",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "turnover_risk_scores",
+    "row_estimate": 267,
+    "comment": "Employee turnover risk assessments",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "unknown_skills",
+    "row_estimate": 30,
+    "comment": "Unrecognized skills pending review",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "user_pernr_mapping",
+    "row_estimate": 571,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "user_workspaces",
+    "row_estimate": 5,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "users",
+    "row_estimate": 274,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "verification_token",
+    "row_estimate": 0,
+    "comment": "NextAuth/Auth.js single-use email verification / magic-link tokens. Cross-tenant.",
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "webhook_deliveries",
+    "row_estimate": 60,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "webhooks",
+    "row_estimate": 12,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "wellbeing_checkins",
+    "row_estimate": 1142,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "wellbeing_goals",
+    "row_estimate": 120,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "wellbeing_program_enrollments",
+    "row_estimate": 67,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "wellbeing_resources",
+    "row_estimate": 30,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "whistleblowing_attachments",
+    "row_estimate": 7,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "whistleblowing_audit_log",
+    "row_estimate": 20,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "whistleblowing_handlers",
+    "row_estimate": 15,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "whistleblowing_messages",
+    "row_estimate": 16,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "whistleblowing_reports",
+    "row_estimate": 4,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "whistleblowing_settings",
+    "row_estimate": 4,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "widget_catalog",
+    "row_estimate": 27,
+    "comment": null,
+    "rls_enabled": false,
+    "rls_forced": false
+  },
+  {
+    "table_name": "widget_templates",
+    "row_estimate": 7,
+    "comment": "Reusable widget templates (system and tenant-specific)",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "workforce_plan_actions",
+    "row_estimate": 20,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "workforce_plan_scenarios",
+    "row_estimate": 9,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "workforce_plans",
+    "row_estimate": 43,
+    "comment": "Workforce planning scenarios with gap analysis and recommendations",
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "workspace_templates",
+    "row_estimate": 8,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  },
+  {
+    "table_name": "workspace_widgets",
+    "row_estimate": 1,
+    "comment": null,
+    "rls_enabled": true,
+    "rls_forced": true
+  }
+]

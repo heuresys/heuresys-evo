@@ -1,0 +1,1015 @@
+[
+  {
+    "table_name": "business_processes",
+    "column_name": "process_category",
+    "comment": "primary: inbound logistics, operations, outbound, marketing, service | support: procurement, technology, HR, infrastructure"
+  },
+  {
+    "table_name": "business_processes",
+    "column_name": "value_chain_position",
+    "comment": "1-5 for primary activities, 6-9 for support activities"
+  },
+  {
+    "table_name": "calibration_adjustments",
+    "column_name": "discussion_notes",
+    "comment": "Notes from calibration discussion about this employee"
+  },
+  {
+    "table_name": "calibration_adjustments",
+    "column_name": "outlier_flag",
+    "comment": "Whether this rating was flagged as an outlier"
+  },
+  {
+    "table_name": "calibration_adjustments",
+    "column_name": "outlier_reason",
+    "comment": "Reason for outlier flag: high_variance, extreme_rating, etc."
+  },
+  {
+    "table_name": "career_paths",
+    "column_name": "embedding",
+    "comment": "Semantic embedding of career path (name, description, target role)"
+  },
+  {
+    "table_name": "ccnl_contracts",
+    "column_name": "name_it",
+    "comment": "Italian contract name (Slice 2 i18n — see migration 206)"
+  },
+  {
+    "table_name": "certifications",
+    "column_name": "name_it",
+    "comment": "Italian name (Slice 2 i18n — see migration 206)"
+  },
+  {
+    "table_name": "certifications",
+    "column_name": "description_it",
+    "comment": "Italian description (Slice 2 i18n — see migration 206)"
+  },
+  {
+    "table_name": "certifications",
+    "column_name": "description_en",
+    "comment": "English description (Slice 2 i18n — see migration 206)"
+  },
+  {
+    "table_name": "check_ins",
+    "column_name": "action_items",
+    "comment": "NORMALIZABLE: should become check_in_actions (1:N). Contains array of {description, assignee, due_date, status}."
+  },
+  {
+    "table_name": "check_ins",
+    "column_name": "topics_discussed",
+    "comment": "JSONB BY DESIGN: free-form topic list, not referencing other entities."
+  },
+  {
+    "table_name": "check_ins",
+    "column_name": "goals_discussed",
+    "comment": "NORMALIZABLE: should become check_in_goals (M:N junction to goals). Contains array of goal_id references."
+  },
+  {
+    "table_name": "check_ins",
+    "column_name": "follow_up_items",
+    "comment": "NORMALIZABLE: should become check_in_follow_ups (1:N). Contains array of {item, owner, due_date}."
+  },
+  {
+    "table_name": "check_ins",
+    "column_name": "content_embedding",
+    "comment": "Semantic embedding of check-in content (agenda, notes, action items)"
+  },
+  {
+    "table_name": "company_profiles",
+    "column_name": "profile_code",
+    "comment": "Codice profilo formato: [Section][Division].[GroupSuffix][Size]"
+  },
+  {
+    "table_name": "continuous_feedback",
+    "column_name": "competency_id",
+    "comment": "Optional link to a competency being praised/improved"
+  },
+  {
+    "table_name": "continuous_feedback",
+    "column_name": "sentiment_score",
+    "comment": "AI-calculated sentiment (-1 to 1)"
+  },
+  {
+    "table_name": "continuous_feedback",
+    "column_name": "visibility",
+    "comment": "Visibility level: private (only recipient), team (team members), public (everyone)"
+  },
+  {
+    "table_name": "continuous_feedback",
+    "column_name": "category",
+    "comment": "Category: collaboration, leadership, technical, communication, etc."
+  },
+  {
+    "table_name": "contracts",
+    "column_name": "contract_type",
+    "comment": "Italian contract types: tempo_indeterminato, tempo_determinato, apprendistato, somministrazione, collaborazione"
+  },
+  {
+    "table_name": "contracts",
+    "column_name": "ccnl_type",
+    "comment": "Reference to CCNL type from tenant settings"
+  },
+  {
+    "table_name": "contracts",
+    "column_name": "ccnl_level",
+    "comment": "CCNL job level (e.g., B2, C1, Quadro)"
+  },
+  {
+    "table_name": "contracts",
+    "column_name": "metadata",
+    "comment": "JSONB BY DESIGN: dynamic contract attributes varying by type."
+  },
+  {
+    "table_name": "cost_centers",
+    "column_name": "cost_center_type",
+    "comment": "Type: operational, overhead, project, investment, shared_services"
+  },
+  {
+    "table_name": "cost_centers",
+    "column_name": "sap_kostl",
+    "comment": "SAP Cost Center code from CSKS"
+  },
+  { "table_name": "cost_centers", "column_name": "sap_bukrs", "comment": "SAP Company Code" },
+  { "table_name": "cost_centers", "column_name": "sap_kokrs", "comment": "SAP Controlling Area" },
+  {
+    "table_name": "cost_centers",
+    "column_name": "sap_ktext",
+    "comment": "SAP Cost Center description"
+  },
+  {
+    "table_name": "cost_centers",
+    "column_name": "sap_verak",
+    "comment": "SAP Cost Center manager"
+  },
+  {
+    "table_name": "cost_centers",
+    "column_name": "name_it",
+    "comment": "Italian cost center name (Slice 2 i18n — see migration 206)"
+  },
+  {
+    "table_name": "courses",
+    "column_name": "embedding_en",
+    "comment": "Vector embedding of course description (English)"
+  },
+  {
+    "table_name": "courses",
+    "column_name": "embedding_it",
+    "comment": "Vector embedding of course description (Italian)"
+  },
+  {
+    "table_name": "dashboard_elements",
+    "column_name": "widget_code",
+    "comment": "Stable widget identifier. Either matches widget_catalog.widget_code OR points to a packages/ui atomic component (Phase 13.A): KpiRing, IntegrationHealthPill, SuccessionCard, CareerArc, KgMiniGraph, SkillHeatmap, CapabilityRadar, RbacMatrix."
+  },
+  {
+    "table_name": "dashboard_elements",
+    "column_name": "visibility_min_role",
+    "comment": "RBP role level required to render (-1 SUPERUSER ... 6 EMPLOYEE). Default 6 = visible to everyone."
+  },
+  {
+    "table_name": "dashboard_elements",
+    "column_name": "tenant_id",
+    "comment": "NULL = platform default seeded; non-NULL = tenant-specific override. RLS enforces P1 isolation on non-NULL rows."
+  },
+  {
+    "table_name": "dashboard_elements",
+    "column_name": "parent_element_id",
+    "comment": "Self-FK per gerarchia slot. NULL = top-level (figlio diretto del preset). Non-NULL = slot figlio (es. left/right di .double-split). Cascade delete: rimuovendo un parent, rimuove tutti i figli."
+  },
+  {
+    "table_name": "dashboard_elements",
+    "column_name": "variant",
+    "comment": "Catalog livello 2 modifier (BEM-like). Es. 'pill-warn', 'tenant-card-platform', 'fill-info', 'heat-6'. NULL = default base senza variant. Validazione lato app contro brand-dashboard-catalog.md."
+  },
+  {
+    "table_name": "dashboards",
+    "column_name": "layout",
+    "comment": "JSONB BY DESIGN: widget layout grid configuration."
+  },
+  {
+    "table_name": "dashboards",
+    "column_name": "shared_with_roles",
+    "comment": "NORMALIZABLE: should become dashboard_role_access (M:N junction). Contains array of role names."
+  },
+  {
+    "table_name": "employee_permission_overrides",
+    "column_name": "is_granted",
+    "comment": "true = grant, false = revoke"
+  },
+  {
+    "table_name": "employee_permission_overrides",
+    "column_name": "expires_at",
+    "comment": "Optional expiration for temporary permissions"
+  },
+  {
+    "table_name": "employee_skill_profiles",
+    "column_name": "knowledge_level",
+    "comment": "K - Theoretical understanding (0-5)"
+  },
+  {
+    "table_name": "employee_skill_profiles",
+    "column_name": "skill_level",
+    "comment": "S - Practical application ability (0-5)"
+  },
+  {
+    "table_name": "employee_skill_profiles",
+    "column_name": "ability_level",
+    "comment": "A - Cognitive/physical capacity (0-5)"
+  },
+  {
+    "table_name": "employee_skill_profiles",
+    "column_name": "behavior_level",
+    "comment": "B - Observable actions/habits (0-5)"
+  },
+  {
+    "table_name": "employee_skill_profiles",
+    "column_name": "attitude_level",
+    "comment": "A - Mindset/disposition (0-5)"
+  },
+  {
+    "table_name": "employee_skill_profiles",
+    "column_name": "composite_score",
+    "comment": "Weighted average of KSABA (default: K20 S30 A25 B15 A10)"
+  },
+  {
+    "table_name": "employees_core",
+    "column_name": "skills",
+    "comment": "DEPRECATED: use employee_skills table for M:N relationship"
+  },
+  {
+    "table_name": "employees_core",
+    "column_name": "employment_status",
+    "comment": "Employment status: active, inactive, terminated, on_leave, suspended"
+  },
+  {
+    "table_name": "employees_core",
+    "column_name": "profile_embedding",
+    "comment": "Semantic embedding of employee profile (job title, skills, education, experience)"
+  },
+  {
+    "table_name": "employees_core",
+    "column_name": "embedding_text_hash",
+    "comment": "Hash of source text to detect changes requiring re-embedding"
+  },
+  {
+    "table_name": "employees_core",
+    "column_name": "enrichment_consent",
+    "comment": "GDPR opt-in flag for public-data web enrichment. Unused until legal signoff. See docs/plans/SEMANTIC_ENRICHMENT_ENGINE.md §13."
+  },
+  {
+    "table_name": "employees_core",
+    "column_name": "enrichment_consent_at",
+    "comment": "When enrichment consent was granted (NULL = not consented)"
+  },
+  {
+    "table_name": "employees_core",
+    "column_name": "enrichment_consent_scope",
+    "comment": "Array of consented enrichment scopes"
+  },
+  {
+    "table_name": "employees_staging",
+    "column_name": "hierarchy_level",
+    "comment": "Hierarchy level 1-7: 1=CEO, 2=C-Level, 3=VP, 4=Director, 5=Manager, 6=Team Lead, 7=Employee"
+  },
+  {
+    "table_name": "employees_staging",
+    "column_name": "original_values",
+    "comment": "JSONB snapshot of original field values before staging changes"
+  },
+  {
+    "table_name": "employees_staging",
+    "column_name": "diff_fields",
+    "comment": "Array of field names that differ from original employee record"
+  },
+  {
+    "table_name": "employees_staging",
+    "column_name": "change_type",
+    "comment": "Type of organizational change: unchanged, new_position, reassignment, promotion, demotion, transfer, new_hire_slot"
+  },
+  {
+    "table_name": "engagement_survey_responses",
+    "column_name": "anonymous_token",
+    "comment": "Hash token for anonymous response tracking"
+  },
+  {
+    "table_name": "engagement_survey_templates",
+    "column_name": "questions",
+    "comment": "JSONB array of question definitions with id, text, type, required, options"
+  },
+  {
+    "table_name": "enrichment_entity_descriptors",
+    "column_name": "crawl_config",
+    "comment": "P9 data-driven crawl settings: max_depth, max_pages, include_paths, exclude_paths"
+  },
+  {
+    "table_name": "enrichment_merge_policies",
+    "column_name": "budget_reset_interval",
+    "comment": "P9 data-driven interval between automatic budget resets"
+  },
+  {
+    "table_name": "esco_occupations",
+    "column_name": "embedding_en",
+    "comment": "Vector embedding of occupation description (English)"
+  },
+  {
+    "table_name": "esco_occupations",
+    "column_name": "embedding_it",
+    "comment": "Vector embedding of occupation description (Italian)"
+  },
+  {
+    "table_name": "esco_skills",
+    "column_name": "embedding_en",
+    "comment": "OpenAI ada-002 compatible embedding for English text"
+  },
+  {
+    "table_name": "esco_skills",
+    "column_name": "embedding_it",
+    "comment": "OpenAI ada-002 compatible embedding for Italian text"
+  },
+  {
+    "table_name": "esco_skills",
+    "column_name": "embedding_model",
+    "comment": "Model version used to generate embedding"
+  },
+  {
+    "table_name": "esco_skills",
+    "column_name": "embedding_generated_at",
+    "comment": "Timestamp when embedding was last generated"
+  },
+  { "table_name": "ext_pa0002", "column_name": "skills", "comment": "ESCO skill names array" },
+  {
+    "table_name": "ext_pa0002",
+    "column_name": "potential",
+    "comment": "Talent potential rating (High/Medium/Low)"
+  },
+  {
+    "table_name": "feature_modules",
+    "column_name": "code",
+    "comment": "Unique code identifier (e.g., employees_view, goals)"
+  },
+  {
+    "table_name": "feature_modules",
+    "column_name": "category",
+    "comment": "Category: platform, employees, performance, learning, etc."
+  },
+  {
+    "table_name": "feature_modules",
+    "column_name": "requires_tenant",
+    "comment": "If false, accessible without tenant context (e.g., ontology)"
+  },
+  {
+    "table_name": "feedback_360",
+    "column_name": "content_embedding",
+    "comment": "Semantic embedding of 360 feedback content (strengths, improvements)"
+  },
+  {
+    "table_name": "feedback_360",
+    "column_name": "question_responses",
+    "comment": "JSONB BY DESIGN: embedded survey responses with scores, tightly coupled."
+  },
+  {
+    "table_name": "feedback_360",
+    "column_name": "sentiment_score",
+    "comment": "AI-calculated sentiment (-1 to 1)"
+  },
+  {
+    "table_name": "feedback_requests",
+    "column_name": "relationship_type",
+    "comment": "Type: manager, peer, direct_report, self"
+  },
+  {
+    "table_name": "goals",
+    "column_name": "tags",
+    "comment": "JSONB BY DESIGN: free-form goal categorization tags."
+  },
+  {
+    "table_name": "goals",
+    "column_name": "custom_fields",
+    "comment": "JSONB BY DESIGN: user-defined goal extensions."
+  },
+  {
+    "table_name": "goals",
+    "column_name": "embedding",
+    "comment": "Vector embedding of goal title and description"
+  },
+  {
+    "table_name": "goals",
+    "column_name": "smart_criteria",
+    "comment": "JSONB BY DESIGN: SMART goal evaluation criteria."
+  },
+  {
+    "table_name": "goals",
+    "column_name": "smart_score",
+    "comment": "Calculated SMART compliance score 0-100"
+  },
+  {
+    "table_name": "heuresys_sap_mapping",
+    "column_name": "heuresys_table",
+    "comment": "Heuresys table name - SOURCE OF TRUTH for platform operations"
+  },
+  {
+    "table_name": "heuresys_sap_mapping",
+    "column_name": "sap_table",
+    "comment": "SAP table name - used ONLY for import/export operations"
+  },
+  {
+    "table_name": "heuresys_sap_mapping",
+    "column_name": "mapping_type",
+    "comment": "direct=1:1, transform=needs conversion, lookup=reference table, computed=calculated"
+  },
+  {
+    "table_name": "heuresys_sap_mapping",
+    "column_name": "sync_direction",
+    "comment": "Direction of data sync between systems"
+  },
+  {
+    "table_name": "holidays",
+    "column_name": "name_it",
+    "comment": "Italian holiday name (Slice 2 i18n — see migration 206)"
+  },
+  {
+    "table_name": "interviews",
+    "column_name": "interviewers",
+    "comment": "NORMALIZABLE: should become interview_participants (M:N junction). Contains array of user_id/employee_id."
+  },
+  {
+    "table_name": "interviews",
+    "column_name": "scorecard",
+    "comment": "JSONB BY DESIGN: interview evaluation scorecard."
+  },
+  {
+    "table_name": "job_kpi_distribution",
+    "column_name": "accountability_level",
+    "comment": "owner: fully accountable | contributor: partial accountability | informed: receives reports"
+  },
+  {
+    "table_name": "job_kpi_distribution",
+    "column_name": "weight_percentage",
+    "comment": "Weight of this KPI in the job role's overall performance evaluation (0-100)"
+  },
+  {
+    "table_name": "job_task_distribution",
+    "column_name": "responsibility_percentage",
+    "comment": "Percentage of task responsibility assigned to this job role (0-100)"
+  },
+  {
+    "table_name": "job_task_distribution",
+    "column_name": "is_primary_owner",
+    "comment": "True if this role is the primary accountable party for the task"
+  },
+  {
+    "table_name": "job_templates",
+    "column_name": "sap_stell",
+    "comment": "SAP Job code from T513"
+  },
+  { "table_name": "job_templates", "column_name": "sap_stext", "comment": "SAP Job description" },
+  { "table_name": "job_templates", "column_name": "sap_persk", "comment": "SAP Employee subgroup" },
+  {
+    "table_name": "job_templates",
+    "column_name": "embedding_en",
+    "comment": "Vector embedding of job description (English)"
+  },
+  {
+    "table_name": "job_templates",
+    "column_name": "embedding_it",
+    "comment": "Vector embedding of job description (Italian)"
+  },
+  {
+    "table_name": "learning_paths",
+    "column_name": "embedding",
+    "comment": "Semantic embedding of learning path (title, description, target role)"
+  },
+  {
+    "table_name": "learning_paths",
+    "column_name": "title_it",
+    "comment": "Italian title (Slice 2 i18n — see migration 206)"
+  },
+  {
+    "table_name": "learning_paths",
+    "column_name": "description_it",
+    "comment": "Italian description (Slice 2 i18n — see migration 206)"
+  },
+  {
+    "table_name": "learning_paths",
+    "column_name": "description_en",
+    "comment": "English description (Slice 2 i18n — see migration 206)"
+  },
+  {
+    "table_name": "locations",
+    "column_name": "location_type",
+    "comment": "Type: headquarters, branch, office, warehouse, factory, store, remote, coworking"
+  },
+  {
+    "table_name": "locations",
+    "column_name": "sap_werks",
+    "comment": "SAP Personnel Area from T001P"
+  },
+  { "table_name": "locations", "column_name": "sap_btrtl", "comment": "SAP Personnel Subarea" },
+  { "table_name": "locations", "column_name": "sap_name1", "comment": "SAP Location name" },
+  { "table_name": "locations", "column_name": "sap_stras", "comment": "SAP Street address" },
+  {
+    "table_name": "locations",
+    "column_name": "embedding",
+    "comment": "Semantic embedding of location name and address"
+  },
+  {
+    "table_name": "onet_occupations",
+    "column_name": "title_it",
+    "comment": "Italian title (Slice 2 i18n — see migration 206; may equal EN pending curation, see needs_translation_it)"
+  },
+  {
+    "table_name": "onet_occupations",
+    "column_name": "title_en",
+    "comment": "English title (Slice 2 i18n — see migration 206)"
+  },
+  {
+    "table_name": "onet_occupations",
+    "column_name": "description_it",
+    "comment": "Italian description (see needs_translation_it)"
+  },
+  {
+    "table_name": "onet_occupations",
+    "column_name": "description_en",
+    "comment": "English description"
+  },
+  {
+    "table_name": "onet_occupations",
+    "column_name": "needs_translation_it",
+    "comment": "True when the IT value is a placeholder copied from EN and needs human translation"
+  },
+  {
+    "table_name": "org_chart_snapshots",
+    "column_name": "tree_structure",
+    "comment": "JSONB BY DESIGN: point-in-time snapshot of org hierarchy. Not a live relation."
+  },
+  {
+    "table_name": "org_chart_snapshots",
+    "column_name": "excalidraw_format",
+    "comment": "JSONB BY DESIGN: rendering format for visual org chart."
+  },
+  {
+    "table_name": "org_chart_snapshots",
+    "column_name": "employees_map",
+    "comment": "JSONB BY DESIGN: snapshot of employee positions at a point in time."
+  },
+  {
+    "table_name": "org_chart_snapshots",
+    "column_name": "statistics",
+    "comment": "JSONB BY DESIGN: computed statistics snapshot."
+  },
+  {
+    "table_name": "org_unit_kpis",
+    "column_name": "target_direction",
+    "comment": "increase: higher is better | decrease: lower is better | maintain: stable | range: within bounds"
+  },
+  {
+    "table_name": "org_unit_process_mapping",
+    "column_name": "responsibility_level",
+    "comment": "primary: main owner | secondary: shared responsibility | support: contributing role"
+  },
+  {
+    "table_name": "org_unit_tasks",
+    "column_name": "complexity_level",
+    "comment": "1: simple, 2: routine, 3: moderate, 4: complex, 5: highly complex"
+  },
+  {
+    "table_name": "org_units",
+    "column_name": "org_level",
+    "comment": "Hierarchy level: 1=Company, 2=Division, 3=Direction, 4=Department, 5=Office, 6=Team"
+  },
+  {
+    "table_name": "org_units",
+    "column_name": "org_type",
+    "comment": "Type: company, division, direction, department, office, unit, team, group"
+  },
+  {
+    "table_name": "org_units",
+    "column_name": "sap_objid",
+    "comment": "SAP Object ID from HRP1000.objid"
+  },
+  {
+    "table_name": "org_units",
+    "column_name": "sap_short",
+    "comment": "SAP Short text from HRP1000.short"
+  },
+  {
+    "table_name": "org_units",
+    "column_name": "sap_stext",
+    "comment": "SAP Long text from HRP1000.stext"
+  },
+  {
+    "table_name": "org_units",
+    "column_name": "sap_istat",
+    "comment": "SAP Status from HRP1000.istat (1=active)"
+  },
+  {
+    "table_name": "org_units",
+    "column_name": "embedding",
+    "comment": "Semantic embedding of org unit name and hierarchical context"
+  },
+  {
+    "table_name": "org_units",
+    "column_name": "name_it",
+    "comment": "Italian display name (Slice 2 i18n — see migration 206)"
+  },
+  {
+    "table_name": "org_units",
+    "column_name": "description_it",
+    "comment": "Italian description (Slice 2 i18n — see migration 206)"
+  },
+  {
+    "table_name": "org_units",
+    "column_name": "description_en",
+    "comment": "English description (Slice 2 i18n — see migration 206)"
+  },
+  {
+    "table_name": "performance_predictions",
+    "column_name": "risk_score",
+    "comment": "Performance risk score 0-100 (higher = more at risk)"
+  },
+  {
+    "table_name": "performance_predictions",
+    "column_name": "risk_level",
+    "comment": "Risk category: low (0-25), medium (26-50), high (51-75), critical (76-100)"
+  },
+  {
+    "table_name": "performance_predictions",
+    "column_name": "is_high_potential",
+    "comment": "Flag indicating high potential employee"
+  },
+  {
+    "table_name": "performance_predictions",
+    "column_name": "hipo_score",
+    "comment": "High potential score (0-5)"
+  },
+  {
+    "table_name": "performance_predictions",
+    "column_name": "hipo_justification",
+    "comment": "Explanation of HiPo classification"
+  },
+  {
+    "table_name": "performance_predictions",
+    "column_name": "contributing_factors",
+    "comment": "Detailed breakdown of factors affecting prediction"
+  },
+  {
+    "table_name": "performance_predictions",
+    "column_name": "recommended_actions",
+    "comment": "Suggested interventions with priority and impact"
+  },
+  {
+    "table_name": "performance_predictions",
+    "column_name": "prediction_confidence",
+    "comment": "Model confidence in prediction (0-1)"
+  },
+  {
+    "table_name": "performance_predictions",
+    "column_name": "actual_rating",
+    "comment": "Actual rating after review period (for accuracy calc)"
+  },
+  {
+    "table_name": "performance_predictions",
+    "column_name": "prediction_accuracy",
+    "comment": "How accurate prediction was vs actual"
+  },
+  {
+    "table_name": "performance_reviews",
+    "column_name": "competency_ratings",
+    "comment": "JSONB BY DESIGN: embedded competency scores, tightly coupled to the review."
+  },
+  {
+    "table_name": "performance_reviews",
+    "column_name": "goal_ratings",
+    "comment": "JSONB BY DESIGN: embedded goal achievement scores."
+  },
+  {
+    "table_name": "performance_reviews",
+    "column_name": "recommended_actions",
+    "comment": "JSONB BY DESIGN: free-form development recommendations."
+  },
+  {
+    "table_name": "performance_reviews",
+    "column_name": "content_embedding",
+    "comment": "Semantic embedding of review narrative (strengths, improvements, comments)"
+  },
+  {
+    "table_name": "performance_reviews",
+    "column_name": "section_ratings",
+    "comment": "JSONB BY DESIGN: per-section rating breakdown."
+  },
+  {
+    "table_name": "permissions",
+    "column_name": "code",
+    "comment": "Permission code format: {module}:{operation}:{scope}"
+  },
+  {
+    "table_name": "permissions",
+    "column_name": "is_sensitive",
+    "comment": "If true, requires additional audit logging"
+  },
+  {
+    "table_name": "platform_features",
+    "column_name": "requires_tables",
+    "comment": "DEPRECATED: will be replaced by feature_required_tables junction in Phase 8"
+  },
+  {
+    "table_name": "platform_features",
+    "column_name": "requires_views",
+    "comment": "DEPRECATED: will be replaced by feature_required_views junction in Phase 8"
+  },
+  {
+    "table_name": "platform_features",
+    "column_name": "requires_api_endpoints",
+    "comment": "DEPRECATED: will be replaced by feature_required_endpoints junction in Phase 8"
+  },
+  {
+    "table_name": "platform_features",
+    "column_name": "requires_ui_components",
+    "comment": "DEPRECATED: will be replaced by feature_required_components junction in Phase 8"
+  },
+  {
+    "table_name": "platform_pages",
+    "column_name": "tags",
+    "comment": "DEPRECATED: will be replaced by page_table_relations in Phase 8. >20% invalid values require data cleaning first."
+  },
+  {
+    "table_name": "process_cost_centers",
+    "column_name": "cost_type",
+    "comment": "direct: production costs | indirect: support costs | overhead: administrative costs"
+  },
+  {
+    "table_name": "rbp_pages",
+    "column_name": "suggested_dashboards",
+    "comment": "Dashboard suggerite per pagine UNASSIGNED: array di dashboard codes. Popolato automaticamente durante page inventory. Usato per guidare il wiring futuro."
+  },
+  {
+    "table_name": "recruiting_candidates",
+    "column_name": "profile_embedding",
+    "comment": "Semantic embedding of candidate profile (skills, experience, notes)"
+  },
+  {
+    "table_name": "report_definitions",
+    "column_name": "columns",
+    "comment": "JSONB BY DESIGN: report builder column definition DSL."
+  },
+  {
+    "table_name": "report_definitions",
+    "column_name": "filters",
+    "comment": "JSONB BY DESIGN: report builder filter definition DSL."
+  },
+  {
+    "table_name": "report_definitions",
+    "column_name": "sorting",
+    "comment": "JSONB BY DESIGN: sort order config."
+  },
+  {
+    "table_name": "report_definitions",
+    "column_name": "grouping",
+    "comment": "JSONB BY DESIGN: aggregation grouping config."
+  },
+  {
+    "table_name": "report_definitions",
+    "column_name": "chart_config",
+    "comment": "JSONB BY DESIGN: chart rendering config."
+  },
+  {
+    "table_name": "report_definitions",
+    "column_name": "calculated_fields",
+    "comment": "JSONB BY DESIGN: computed field expressions."
+  },
+  {
+    "table_name": "report_definitions",
+    "column_name": "joins",
+    "comment": "JSONB BY DESIGN: report builder join definition DSL."
+  },
+  {
+    "table_name": "report_definitions",
+    "column_name": "parameters",
+    "comment": "JSONB BY DESIGN: parameterized report inputs."
+  },
+  {
+    "table_name": "report_definitions",
+    "column_name": "drill_down_config",
+    "comment": "JSONB BY DESIGN: drill-down navigation config."
+  },
+  {
+    "table_name": "report_definitions",
+    "column_name": "access_control",
+    "comment": "JSONB BY DESIGN: report access rules."
+  },
+  {
+    "table_name": "review_cycles",
+    "column_name": "rating_scale_type",
+    "comment": "Rating scale: 1-5, 1-10, or descriptive"
+  },
+  {
+    "table_name": "review_cycles",
+    "column_name": "rating_scale_config",
+    "comment": "JSON config with min, max, and labels"
+  },
+  {
+    "table_name": "review_cycles",
+    "column_name": "feedback_360_anonymous",
+    "comment": "Whether 360 feedback is anonymous for this cycle"
+  },
+  {
+    "table_name": "review_cycles",
+    "column_name": "feedback_360_min_responses",
+    "comment": "Minimum responses before showing aggregated results"
+  },
+  {
+    "table_name": "role_permissions",
+    "column_name": "conditions",
+    "comment": "Additional conditions (JSON), e.g., {\"department_only\": true}"
+  },
+  {
+    "table_name": "role_skill_requirements",
+    "column_name": "importance",
+    "comment": "How critical this skill is for the role"
+  },
+  {
+    "table_name": "role_skill_requirements",
+    "column_name": "weight",
+    "comment": "Weighting factor for gap analysis scoring (0-5)"
+  },
+  {
+    "table_name": "role_skill_requirements",
+    "column_name": "is_primary",
+    "comment": "Key/defining skill for this role"
+  },
+  {
+    "table_name": "sap_staged_data",
+    "column_name": "raw_data",
+    "comment": "JSONB BY DESIGN: raw SAP data before mapping."
+  },
+  {
+    "table_name": "sap_staged_data",
+    "column_name": "validation_errors",
+    "comment": "JSONB BY DESIGN: transient validation results."
+  },
+  {
+    "table_name": "sap_staged_data",
+    "column_name": "validation_warnings",
+    "comment": "JSONB BY DESIGN: transient validation warnings."
+  },
+  {
+    "table_name": "sap_staged_data",
+    "column_name": "mapped_data",
+    "comment": "JSONB BY DESIGN: staging buffer for SAP import."
+  },
+  {
+    "table_name": "self_reviews",
+    "column_name": "competency_self_ratings",
+    "comment": "JSONB BY DESIGN: self-assessment scores, mirrors performance_reviews structure."
+  },
+  {
+    "table_name": "self_reviews",
+    "column_name": "goal_self_assessments",
+    "comment": "JSONB BY DESIGN: detailed self-assessment text per goal."
+  },
+  {
+    "table_name": "self_reviews",
+    "column_name": "goal_ratings",
+    "comment": "JSONB BY DESIGN: self goal ratings."
+  },
+  {
+    "table_name": "self_reviews",
+    "column_name": "ksaba_ratings",
+    "comment": "JSONB BY DESIGN: KSABA framework self-ratings."
+  },
+  {
+    "table_name": "session",
+    "column_name": "expires",
+    "comment": "Session absolute expiry (UTC). Indexed for batch cleanup."
+  },
+  {
+    "table_name": "skill_gap_analyses",
+    "column_name": "skill_matches",
+    "comment": "JSONB BY DESIGN: computed skill match scores."
+  },
+  {
+    "table_name": "skill_gap_analyses",
+    "column_name": "skill_gaps",
+    "comment": "JSONB BY DESIGN: computed gap analysis results snapshot."
+  },
+  {
+    "table_name": "skill_gap_analyses",
+    "column_name": "skill_surplus",
+    "comment": "JSONB BY DESIGN: computed surplus analysis."
+  },
+  {
+    "table_name": "skill_gap_analyses",
+    "column_name": "recommendations",
+    "comment": "JSONB BY DESIGN: computed learning recommendations."
+  },
+  {
+    "table_name": "skill_gap_analyses",
+    "column_name": "priority_skills",
+    "comment": "JSONB BY DESIGN: computed priority ranking."
+  },
+  {
+    "table_name": "skill_gap_analyses",
+    "column_name": "market_comparison",
+    "comment": "JSONB BY DESIGN: computed market benchmark."
+  },
+  {
+    "table_name": "skill_gap_analyses",
+    "column_name": "internal_comparison",
+    "comment": "JSONB BY DESIGN: computed internal benchmark."
+  },
+  {
+    "table_name": "skill_gap_analyses",
+    "column_name": "analysis_embedding",
+    "comment": "Semantic embedding of gap analysis (recommendations, priority skills)"
+  },
+  {
+    "table_name": "skill_pair_usage",
+    "column_name": "co_occurrence_count",
+    "comment": "Number of times these skills appeared together"
+  },
+  {
+    "table_name": "skill_pair_usage",
+    "column_name": "context_type",
+    "comment": "Context where skills were seen together"
+  },
+  {
+    "table_name": "skill_pair_usage",
+    "column_name": "usage_strength",
+    "comment": "Normalized strength 0-1 based on usage frequency"
+  },
+  {
+    "table_name": "tenants",
+    "column_name": "settings",
+    "comment": "JSONB configuration including CCNL, fiscal year, leave rules, SSO settings"
+  },
+  {
+    "table_name": "tenants",
+    "column_name": "tax_id",
+    "comment": "Italian Partita IVA (VAT number)"
+  },
+  {
+    "table_name": "tenants",
+    "column_name": "setup_completed",
+    "comment": "Whether the tenant has completed the setup wizard"
+  },
+  {
+    "table_name": "tenants",
+    "column_name": "setup_step",
+    "comment": "Current step in setup wizard (0=not started, 1=company info, 2=ccnl, 3=fiscal)"
+  },
+  {
+    "table_name": "tenants",
+    "column_name": "verified_website",
+    "comment": "SEE Fase 7.5 — canonical domain (lowercase, no scheme, no www) used by the enrichment source verification gate. Set during onboarding. NULL blocks all official_website source classification for this tenant."
+  },
+  {
+    "table_name": "users",
+    "column_name": "totp_secret_encrypted",
+    "comment": "Envelope-encrypted TOTP secret (AES-256-GCM via services/totpCrypto.ts). Base64: iv[12]||tag[16]||ciphertext. Replaces users.totp_secret plaintext storage (HIGH-09)."
+  },
+  {
+    "table_name": "users",
+    "column_name": "palette_preference_id",
+    "comment": "User dashboard palette override (PaletteId enum). NULL = inherit project default. Applies to /dashboard/* routes only via DashboardPaletteApplier."
+  },
+  {
+    "table_name": "users",
+    "column_name": "theme_preference",
+    "comment": "User dashboard theme override (dark | light). NULL = inherit project default. Coupled with palette_preference_id."
+  },
+  {
+    "table_name": "widget_catalog",
+    "column_name": "cache_ttl_seconds",
+    "comment": "Time-to-live for widget data cache (0 = no cache)"
+  },
+  {
+    "table_name": "widget_catalog",
+    "column_name": "swr_seconds",
+    "comment": "Stale-while-revalidate window (0 = disabled)"
+  },
+  {
+    "table_name": "workforce_plans",
+    "column_name": "requirements",
+    "comment": "JSONB BY DESIGN: workforce demand model."
+  },
+  {
+    "table_name": "workforce_plans",
+    "column_name": "gap_analysis",
+    "comment": "JSONB BY DESIGN: computed workforce gap."
+  },
+  {
+    "table_name": "workforce_plans",
+    "column_name": "hiring_recommendations",
+    "comment": "JSONB BY DESIGN: computed hiring suggestions."
+  },
+  {
+    "table_name": "workforce_plans",
+    "column_name": "training_investments",
+    "comment": "JSONB BY DESIGN: computed training ROI."
+  },
+  {
+    "table_name": "workforce_plans",
+    "column_name": "summary",
+    "comment": "JSONB BY DESIGN: plan summary snapshot."
+  }
+]

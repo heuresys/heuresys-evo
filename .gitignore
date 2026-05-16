@@ -108,3 +108,6 @@ playwright/.cache/
 .ux-design/09-asset-showcase/*
 !.ux-design/09-asset-showcase/_legacy/
 !.ux-design/09-asset-showcase/_legacy/**
+
+# db-export bundle: .zip aggregati rigenerabili (zip -r), solo locali
+db-export/*.zip
